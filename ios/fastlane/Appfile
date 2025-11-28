@@ -9,7 +9,7 @@
 
 # App Identifier (Bundle ID)
 # GitHub Secret: IOS_BUNDLE_ID
-app_identifier(ENV["IOS_BUNDLE_ID"] || "kr.suhsaechan.earlocAlert")
+app_identifier(ENV["IOS_BUNDLE_ID"] || "kr.suhsaechan.earLocAlert")
 
 # Apple Developer Team ID
 # GitHub Secret: APPLE_TEAM_ID
