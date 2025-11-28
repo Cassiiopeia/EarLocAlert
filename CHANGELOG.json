@@ -1,11 +1,28 @@
 {
   "metadata": {
-    "lastUpdated": "2025-11-28T01:13:01Z",
-    "currentVersion": "1.0.5",
+    "lastUpdated": "2025-11-28T02:07:20Z",
+    "currentVersion": "1.0.6",
     "projectType": "flutter",
-    "totalReleases": 4
+    "totalReleases": 5
   },
   "releases": [
+    {
+      "version": "1.0.6",
+      "project_type": "flutter",
+      "date": "2025-11-28",
+      "pr_number": 8,
+      "raw_summary": "## Summary by CodeRabbit\n\n## 릴리스 노트\n\n* **Chores**\n  * 버전을 1.0.6으로 업데이트했습니다.\n  * 빌드 설정 및 메타데이터를 최신화했습니다.",
+      "parsed_changes": {
+        "chores": {
+          "title": "Chores",
+          "items": [
+            "버전을 1.0.6으로 업데이트했습니다.",
+            "빌드 설정 및 메타데이터를 최신화했습니다."
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "1.0.5",
       "project_type": "flutter",
