@@ -419,6 +419,28 @@ patch_xcode_project() {
     # PRODUCT_BUNDLE_IDENTIFIER 라인 다음에 추가
     print_info "DEVELOPMENT_TEAM 추가 중..."
 
+    # 입력한 Bundle ID가 project.pbxproj에 존재하는지 먼저 확인
+    if ! grep -q "PRODUCT_BUNDLE_IDENTIFIER = $BUNDLE_ID;" "$pbxproj_path"; then
+        print_error "Bundle ID를 project.pbxproj에서 찾을 수 없습니다!"
+        echo ""
+        print_error "┌─────────────────────────────────────────────────────────────────┐"
+        print_error "│ 입력한 Bundle ID: $BUNDLE_ID"
+        print_error "├─────────────────────────────────────────────────────────────────┤"
+        print_error "│ project.pbxproj에 존재하는 Bundle ID들:"
+        # 실제 존재하는 Bundle ID 목록 출력
+        grep "PRODUCT_BUNDLE_IDENTIFIER = " "$pbxproj_path" | sed 's/.*= /  • /' | sed 's/;$//' | sort -u | while read line; do
+            print_error "│ $line"
+        done
+        print_error "└─────────────────────────────────────────────────────────────────┘"
+        echo ""
+        print_error "해결 방법:"
+        print_info "1. 위 목록에서 정확한 Bundle ID를 확인하세요 (대소문자 구분!)"
+        print_info "2. 올바른 Bundle ID로 스크립트를 다시 실행하세요"
+        print_info "   예: ./init.sh \"$PROJECT_PATH\" \"정확한.번들.아이디\" \"$TEAM_ID\" \"$PROFILE_NAME\""
+        mv "${pbxproj_path}.bak" "$pbxproj_path"
+        return 1
+    fi
+
     # macOS sed 사용 (BSD sed)
     # Runner 앱의 Bundle ID 라인 다음에 DEVELOPMENT_TEAM 추가
     sed -i '' "s/PRODUCT_BUNDLE_IDENTIFIER = $BUNDLE_ID;/PRODUCT_BUNDLE_IDENTIFIER = $BUNDLE_ID;\\
@@ -429,9 +451,21 @@ patch_xcode_project() {
         print_success "DEVELOPMENT_TEAM 추가 완료: $TEAM_ID"
         rm "${pbxproj_path}.bak"
     else
-        print_warning "DEVELOPMENT_TEAM 자동 추가 실패. 수동으로 설정이 필요할 수 있습니다."
-        print_info "Xcode에서 Runner 타겟 → Signing & Capabilities → Team 설정"
+        print_error "DEVELOPMENT_TEAM 추가 실패!"
+        echo ""
+        print_error "디버그 정보:"
+        print_info "  • 입력한 Bundle ID: $BUNDLE_ID"
+        print_info "  • 입력한 Team ID: $TEAM_ID"
+        print_info "  • project.pbxproj 경로: $pbxproj_path"
+        echo ""
+        print_error "가능한 원인:"
+        print_info "  1. sed 명령어 실행 중 오류 발생"
+        print_info "  2. 파일 쓰기 권한 문제"
+        echo ""
+        print_warning "수동 설정 방법:"
+        print_info "  Xcode 열기 → Runner 타겟 → Signing & Capabilities → Team 선택"
         mv "${pbxproj_path}.bak" "$pbxproj_path"
+        return 1
     fi
 
     print_success "Xcode 프로젝트 설정 완료"
