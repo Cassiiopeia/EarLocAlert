@@ -86,11 +86,13 @@ jobs:
         with:
           ruby-version: "3.1"
           bundler-cache: true
+          working-directory: ios
 
       - name: Install CocoaPods
         run: |
-          gem install cocoapods
-          cd ios && pod install
+          cd ios
+          bundle install || gem install cocoapods
+          pod install
 
       # 버전 관리 스크립트 권한 설정
       - name: 버전 관리 스크립트 권한 설정
@@ -102,43 +104,15 @@ jobs:
       - name: 현재 버전 정보 가져오기
         id: current_version
         run: |
-          # 버전 관리 스크립트로 버전 정보 가져오기
+          # version_manager.sh로 버전 정보 가져오기 (version.yml 기반)
           VERSION=$(./.github/scripts/version_manager.sh get | tail -n 1)
-          echo "📋 버전 정보: $VERSION"
+          BUILD_NUMBER=$(./.github/scripts/version_manager.sh get-code | tail -n 1)
 
-          # Flutter 버전이 x.x.x+y 형식인지 확인하고, 없다면 빌드 번호를 별도로 관리
-          if [[ "$VERSION" == *"+"* ]]; then
-            # 기존 x.x.x+y 형식에서 빌드 번호 추출
-            BUILD_VERSION=$(echo "$VERSION" | cut -d'+' -f1)
-            BUILD_NUMBER=$(echo "$VERSION" | cut -d'+' -f2)
-            echo "📋 기존 형식 감지: 버전=$BUILD_VERSION, 빌드번호=$BUILD_NUMBER"
-          else
-            # x.x.x 형식에서는 별도 빌드 번호 사용
-            BUILD_VERSION=$VERSION
-
-            # iOS 빌드를 위한 빌드 번호 생성 (CI 환경에서는 GITHUB_RUN_NUMBER 활용)
-            if [ -n "$GITHUB_RUN_NUMBER" ]; then
-              BUILD_NUMBER=$GITHUB_RUN_NUMBER
-            else
-              # CI 환경이 아닌 경우 타임스탬프로 대체
-              BUILD_NUMBER=$(date +%s)
-            fi
-          fi
-
-          # 결과 출력
-          echo "version=$BUILD_VERSION" >> $GITHUB_OUTPUT
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "build_number=$BUILD_NUMBER" >> $GITHUB_OUTPUT
           echo "project_type=${{ env.PROJECT_TYPE }}" >> $GITHUB_OUTPUT
 
-          echo "📋 현재 버전: $BUILD_VERSION (빌드번호: $BUILD_NUMBER)"
-          echo "🔧 프로젝트 타입: ${{ env.PROJECT_TYPE }}"
-
-          # 환경변수로도 설정 (스크립트에서 사용)
-          echo "VERSION=$BUILD_VERSION" >> $GITHUB_ENV
-          echo "TODAY=$(date '+%Y-%m-%d')" >> $GITHUB_ENV
-          echo "TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')" >> $GITHUB_ENV
-          echo "PROJECT_TYPE=${{ env.PROJECT_TYPE }}" >> $GITHUB_ENV
-          echo "PR_NUMBER=0" >> $GITHUB_ENV
+          echo "📋 버전: $VERSION (빌드번호: $BUILD_NUMBER)"
 
       # CHANGELOG.json에서 릴리즈 노트 추출 - changelog_manager.py 사용
       - name: 릴리즈 노트 생성
@@ -180,21 +154,11 @@ jobs:
           path: final_release_notes.txt
           retention-days: 1
 
-      # 프로젝트 파일들을 아티팩트로 업로드
-      - name: Upload project files
-        uses: actions/upload-artifact@v4
-        with:
-          name: project-files
-          path: |
-            .env
-            ios/Flutter/Secrets.xcconfig
-            pubspec.yaml
-            lib/
-            assets/
-          retention-days: 1
-
-  build-ios:
-    name: iOS 앱 빌드
+  # ============================================
+  # iOS 빌드 및 TestFlight 배포 (Fastlane 사용)
+  # ============================================
+  build-and-deploy:
+    name: iOS 빌드 및 TestFlight 배포
     runs-on: macos-15
     needs: prepare-build
 
@@ -211,14 +175,7 @@ jobs:
       - name: Select Xcode version
         run: sudo xcode-select -s /Applications/Xcode_${{ env.XCODE_VERSION }}.app/Contents/Developer
 
-      # 프로젝트 파일들 다운로드
-      - name: Download project files
-        uses: actions/download-artifact@v4
-        with:
-          name: project-files
-          path: .
-
-      # .env 파일 생성 (secrets에서 직접 생성 - 아티팩트 의존 제거)
+      # .env 파일 생성
       - name: Create .env file
         run: |
           echo "${{ secrets.ENV_FILE }}" > .env
@@ -257,11 +214,19 @@ jobs:
         with:
           ruby-version: "3.1"
           bundler-cache: true
+          working-directory: ios
+
+      - name: Install Bundler dependencies
+        run: |
+          cd ios
+          if [ -f "Gemfile" ]; then
+            bundle install
+          else
+            gem install fastlane cocoapods
+          fi
 
       - name: Install CocoaPods
-        run: |
-          gem install cocoapods
-          cd ios && pod install
+        run: cd ios && pod install
 
       # Apple 인증서 설정
       - name: Import Code-Signing Certificates
@@ -277,112 +242,21 @@ jobs:
           cp profile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/
           uuid=$(grep -A1 -a "UUID" profile.mobileprovision | grep string | sed -e "s/<string>//" -e "s/<\/string>//" -e "s/[[:space:]]//g")
           cp profile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/$uuid.mobileprovision
-
-      # ExportOptions.plist 파일 생성 (시크릿 사용)
-      - name: Create ExportOptions.plist
-        run: |
-          cd ios
-          cat > ExportOptions.plist << EOF
-          <?xml version="1.0" encoding="UTF-8"?>
-          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-          <plist version="1.0">
-          <dict>
-              <key>method</key>
-              <string>app-store</string>
-              <key>teamID</key>
-              <string>${{ secrets.APPLE_TEAM_ID }}</string>
-              <key>provisioningProfiles</key>
-              <dict>
-                  <key>${{ secrets.IOS_BUNDLE_ID }}</key>
-                  <string>${{ secrets.IOS_PROVISIONING_PROFILE_NAME }}</string>
-              </dict>
-              <key>signingStyle</key>
-              <string>manual</string>
-              <key>signingCertificate</key>
-              <string>Apple Distribution</string>
-              <key>stripSwiftSymbols</key>
-              <true/>
-              <key>uploadBitcode</key>
-              <false/>
-              <key>uploadSymbols</key>
-              <true/>
-          </dict>
-          </plist>
-          EOF
-
-      # Flutter build (no codesign) to generate Xcode project artifacts
-      - name: Flutter build (no codesign)
-        run: |
-          flutter build ios --release --no-codesign \
-            --build-name="${{ needs.prepare-build.outputs.version }}" \
-            --build-number="${{ needs.prepare-build.outputs.build_number }}"
-
-      # Archive 생성 (manual signing)
-      - name: Create Archive
-        run: |
-          cd ios
-
-          # xcconfig 파일 생성 (stdin 방식 대신 파일로 전달)
-          cat > signing.xcconfig << XCCONFIG
-          CODE_SIGN_STYLE = Manual
-          CODE_SIGN_IDENTITY = Apple Distribution
-          PROVISIONING_PROFILE_SPECIFIER = ${{ secrets.IOS_PROVISIONING_PROFILE_NAME }}
-          DEVELOPMENT_TEAM = ${{ secrets.APPLE_TEAM_ID }}
-          CODE_SIGN_ALLOW_ENTITLEMENTS_MODIFICATION = YES
-          XCCONFIG
-
-          echo "📋 생성된 signing.xcconfig:"
-          cat signing.xcconfig
-
-          # Archive 빌드
-          xcodebuild -workspace Runner.xcworkspace \
-            -scheme Runner \
-            -archivePath build/Runner.xcarchive \
-            -destination 'generic/platform=iOS' \
-            -xcconfig signing.xcconfig \
-            archive
-
-      # IPA 생성
-      - name: Export IPA
-        run: |
-          cd ios
-          xcodebuild -exportArchive \
-            -archivePath build/Runner.xcarchive \
-            -exportPath build/ipa \
-            -exportOptionsPlist ExportOptions.plist
-
-      # IPA 파일을 아티팩트로 업로드
-      - name: Upload IPA artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: ios-ipa
-          path: ios/build/ipa/*.ipa
-          retention-days: 1
-
-  deploy-testflight:
-    name: TestFlight 배포
-    runs-on: macos-15
-    needs: [prepare-build, build-ios]
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          ref: deploy
-          fetch-depth: 0
+          echo "✅ Provisioning Profile 설치됨: $uuid"
 
       # App Store Connect API Key 설정
       - name: Setup App Store Connect API Key
         run: |
           mkdir -p ~/.appstoreconnect/private_keys
           echo "${{ secrets.APP_STORE_CONNECT_API_KEY_BASE64 }}" | base64 --decode > ~/.appstoreconnect/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}.p8
+          echo "✅ API Key 설정 완료"
 
-      # IPA 파일 다운로드
-      - name: Download IPA artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: ios-ipa
-          path: ios/build/ipa/
+      # Flutter 빌드 (no-codesign)
+      - name: Flutter build (no codesign)
+        run: |
+          flutter build ios --release --no-codesign \
+            --build-name="${{ needs.prepare-build.outputs.version }}" \
+            --build-number="${{ needs.prepare-build.outputs.build_number }}"
 
       # 릴리즈 노트 다운로드
       - name: Download release notes
@@ -391,78 +265,94 @@ jobs:
           name: release-notes
           path: .
 
-      # Install and setup Fastlane
-      - name: Install Fastlane and create Fastfile
+      # Fastlane으로 빌드 및 배포
+      - name: Build and Deploy with Fastlane
+        env:
+          IOS_BUNDLE_ID: ${{ secrets.IOS_BUNDLE_ID }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          IOS_PROVISIONING_PROFILE_NAME: ${{ secrets.IOS_PROVISIONING_PROFILE_NAME }}
+          APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          API_KEY_PATH: ~/.appstoreconnect/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}.p8
         run: |
-          gem install fastlane
+          # Release notes 준비
+          if [ -f "final_release_notes.txt" ]; then
+            export RELEASE_NOTES=$(cat final_release_notes.txt)
+            echo "📋 Release Notes 포함하여 배포:"
+            echo "$RELEASE_NOTES"
+          else
+            export RELEASE_NOTES="v${{ needs.prepare-build.outputs.version }} 업데이트"
+            echo "📋 기본 Release Notes로 배포: $RELEASE_NOTES"
+          fi
+
           cd ios
-          mkdir -p fastlane
-          cat > fastlane/Fastfile << 'EOF'
+
+          # Fastfile이 있으면 사용, 없으면 생성
+          if [ ! -f "fastlane/Fastfile" ]; then
+            echo "⚠️ Fastfile이 없습니다. 기본 Fastfile 생성 중..."
+            mkdir -p fastlane
+            cat > fastlane/Fastfile << 'FASTFILE'
           default_platform(:ios)
 
           platform :ios do
-            lane :upload_testflight do
+            desc "TestFlight에 앱 업로드"
+            lane :deploy_testflight do
+              UI.message("🚀 TestFlight 배포 시작")
+              UI.message("   Bundle ID: #{ENV['IOS_BUNDLE_ID']}")
+              UI.message("   Team ID: #{ENV['APPLE_TEAM_ID']}")
+
               api_key = app_store_connect_api_key(
                 key_id: ENV["APP_STORE_CONNECT_API_KEY_ID"],
                 issuer_id: ENV["APP_STORE_CONNECT_ISSUER_ID"],
-                key_filepath: ENV["API_KEY_PATH"]
+                key_filepath: ENV["API_KEY_PATH"],
+                duration: 1200,
+                in_house: false
               )
 
-              # 업로드 + 암호화 규정 자동 설정
-              pilot(
+              build_app(
+                workspace: "Runner.xcworkspace",
+                scheme: "Runner",
+                export_method: "app-store",
+                output_directory: "build/ipa",
+                output_name: "Runner.ipa",
+                clean: true,
+                export_options: {
+                  method: "app-store",
+                  teamID: ENV["APPLE_TEAM_ID"],
+                  signingStyle: "manual",
+                  signingCertificate: "Apple Distribution",
+                  provisioningProfiles: {
+                    ENV["IOS_BUNDLE_ID"] => ENV["IOS_PROVISIONING_PROFILE_NAME"]
+                  }
+                },
+                xcargs: "-allowProvisioningUpdates"
+              )
+
+              UI.success("✅ IPA 빌드 완료")
+
+              upload_to_testflight(
                 api_key: api_key,
-                ipa: ENV["IPA_PATH"],
-                changelog: ENV["RELEASE_NOTES"],
-                skip_waiting_for_build_processing: true,  # 빠르게 업로드만
+                ipa: "build/ipa/Runner.ipa",
+                changelog: ENV["RELEASE_NOTES"] || "새로운 빌드가 업로드되었습니다.",
+                skip_waiting_for_build_processing: true,
                 distribute_external: false,
                 notify_external_testers: false,
-                uses_non_exempt_encryption: false  # 암호화 규정 자동 설정
+                uses_non_exempt_encryption: false
               )
 
-              puts "✅ TESTFLIGHT 자동 업로드 완료!"
+              UI.success("✅ TestFlight 업로드 완료!")
             end
           end
-          EOF
-
-      # Upload to TestFlight with Fastlane (자동화 개선)
-      - name: Upload to TestFlight with Fastlane
-        run: |
-          # 절대 경로로 IPA 파일 찾기
-          IPA_PATH=$(find $GITHUB_WORKSPACE/ios/build/ipa -name "*.ipa" | head -1)
-          echo "Found IPA at: $IPA_PATH"
-
-          if [ ! -f "$IPA_PATH" ]; then
-            echo "❌ IPA 파일을 찾을 수 없습니다!"
-            echo "빌드 디렉토리 내용:"
-            ls -la ios/build/ipa/
-            exit 1
+          FASTFILE
           fi
 
-          # Release notes 준비
-          if [ -f "final_release_notes.txt" ]; then
-            RELEASE_NOTES=$(cat final_release_notes.txt)
-            echo "Release Notes 포함하여 업로드:"
-            echo "$RELEASE_NOTES"
+          # Fastlane 실행
+          echo "🚀 Fastlane 실행 중..."
+          if [ -f "Gemfile" ]; then
+            bundle exec fastlane deploy_testflight
           else
-            RELEASE_NOTES="v${{ needs.prepare-build.outputs.version }} 업데이트"
-            echo "기본 Release Notes로 업로드: $RELEASE_NOTES"
+            fastlane deploy_testflight
           fi
-
-          # 환경변수 설정
-          export APP_STORE_CONNECT_API_KEY_ID="${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}"
-          export APP_STORE_CONNECT_ISSUER_ID="${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}"
-          export API_KEY_PATH="$HOME/.appstoreconnect/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}.p8"
-          export IPA_PATH="$IPA_PATH"
-          export RELEASE_NOTES="$RELEASE_NOTES"
-
-          # 디버깅 정보
-          echo "Working directory: $(pwd)"
-          echo "IPA_PATH: $IPA_PATH"
-          echo "API_KEY_PATH: $API_KEY_PATH"
-
-          # Fastlane 실행 (권한 에러는 무시하고 성공 처리)
-          cd ios
-          fastlane upload_testflight || echo "⚠️ 권한 에러 발생했지만 업로드는 성공적으로 완료됨"
 
       # 성공 알림
       - name: Notify TestFlight Upload Success
@@ -470,6 +360,7 @@ jobs:
         run: |
           echo "✅ TestFlight 업로드 성공!"
           echo "버전: ${{ needs.prepare-build.outputs.version }}"
+          echo "빌드번호: ${{ needs.prepare-build.outputs.build_number }}"
           echo "커밋: ${{ github.sha }}"
 
       - name: Notify on Failure
