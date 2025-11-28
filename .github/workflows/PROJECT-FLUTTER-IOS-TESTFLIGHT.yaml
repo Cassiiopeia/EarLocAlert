@@ -218,14 +218,23 @@ jobs:
           name: project-files
           path: .
 
-      # .env 파일 확인 및 재생성 (Guard 대신 복구 로직)
-      - name: Ensure .env file exists
+      # .env 파일 생성 (secrets에서 직접 생성 - 아티팩트 의존 제거)
+      - name: Create .env file
         run: |
-          if [ ! -f .env ]; then
-            echo "⚠️ .env 파일이 아티팩트에서 복원되지 않았습니다. 재생성합니다."
-            echo "${{ secrets.ENV_FILE }}" > .env
+          echo "${{ secrets.ENV_FILE }}" > .env
+          echo "✅ .env 파일 생성됨 (크기: $(wc -c < .env) bytes)"
+
+      # Secrets.xcconfig 파일 생성
+      - name: Create Secrets.xcconfig file
+        run: |
+          mkdir -p ios/Flutter
+          if [ -n "${{ secrets.SECRETS_XCCONFIG }}" ]; then
+            echo "${{ secrets.SECRETS_XCCONFIG }}" > ios/Flutter/Secrets.xcconfig
+            echo "✅ Secrets.xcconfig 생성됨"
+          else
+            echo "// No secrets provided" > ios/Flutter/Secrets.xcconfig
+            echo "⚠️ SECRETS_XCCONFIG이 비어있어 기본값 사용"
           fi
-          echo "✅ .env 파일 확인됨 (크기: $(wc -c < .env) bytes)"
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
@@ -308,24 +317,30 @@ jobs:
             --build-name="${{ needs.prepare-build.outputs.version }}" \
             --build-number="${{ needs.prepare-build.outputs.build_number }}"
 
-      # Archive 생성 (manual signing - Runner 타겟에만 적용)
+      # Archive 생성 (manual signing)
       - name: Create Archive
         run: |
           cd ios
+
+          # xcconfig 파일 생성 (stdin 방식 대신 파일로 전달)
+          cat > signing.xcconfig << XCCONFIG
+          CODE_SIGN_STYLE = Manual
+          CODE_SIGN_IDENTITY = Apple Distribution
+          PROVISIONING_PROFILE_SPECIFIER = ${{ secrets.IOS_PROVISIONING_PROFILE_NAME }}
+          DEVELOPMENT_TEAM = ${{ secrets.APPLE_TEAM_ID }}
+          CODE_SIGN_ALLOW_ENTITLEMENTS_MODIFICATION = YES
+          XCCONFIG
+
+          echo "📋 생성된 signing.xcconfig:"
+          cat signing.xcconfig
+
+          # Archive 빌드
           xcodebuild -workspace Runner.xcworkspace \
             -scheme Runner \
             -archivePath build/Runner.xcarchive \
             -destination 'generic/platform=iOS' \
-            archive \
-            CODE_SIGN_STYLE=Manual \
-            DEVELOPMENT_TEAM="${{ secrets.APPLE_TEAM_ID }}" \
-            -xcconfig /dev/stdin <<EOF
-          // Runner 타겟에만 서명 설정 적용
-          CODE_SIGN_STYLE = Manual
-          CODE_SIGN_IDENTITY = Apple Distribution
-          PROVISIONING_PROFILE_SPECIFIER = ${{ secrets.IOS_PROVISIONING_PROFILE_NAME }}
-          CODE_SIGN_ALLOW_ENTITLEMENTS_MODIFICATION = YES
-          EOF
+            -xcconfig signing.xcconfig \
+            archive
 
       # IPA 생성
       - name: Export IPA
