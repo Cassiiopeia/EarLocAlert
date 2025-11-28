@@ -1,11 +1,41 @@
 {
   "metadata": {
-    "lastUpdated": "2025-11-28T06:59:32Z",
-    "currentVersion": "1.0.7",
+    "lastUpdated": "2025-11-28T08:29:27Z",
+    "currentVersion": "1.0.9",
     "projectType": "flutter",
-    "totalReleases": 6
+    "totalReleases": 7
   },
   "releases": [
+    {
+      "version": "1.0.9",
+      "project_type": "flutter",
+      "date": "2025-11-28",
+      "pr_number": 12,
+      "raw_summary": "## Summary by CodeRabbit\n\n## 릴리스 노트\n\n**신규 기능**\n* iOS TestFlight 자동화 설정 마법사 추가 - 대화형 마법사로 쉬운 배포 설정\n* Android Play Store 자동화 설정 마법사 추가 - 내부 테스트 트랙 배포 자동화 지원\n* iOS 워크플로우 Fastlane 통합 - 더욱 간소화된 빌드 및 배포 프로세스\n\n**문서**\n* iOS TestFlight 및 Android Play Store 설정 가이드 추가\n\n**버전**\n* 버전 1.0.8으로 업데이트",
+      "parsed_changes": {
+        "ios_testflight_자동화_설정_마법사_추가___대화형_마법사로_쉬운_배포_설정": {
+          "title": "iOS TestFlight 자동화 설정 마법사 추가 - 대화형 마법사로 쉬운 배포 설정",
+          "items": []
+        },
+        "android_play_store_자동화_설정_마법사_추가___내부_테스트_트랙_배포_자동화_지원": {
+          "title": "Android Play Store 자동화 설정 마법사 추가 - 내부 테스트 트랙 배포 자동화 지원",
+          "items": []
+        },
+        "ios_워크플로우_fastlane_통합___더욱_간소화된_빌드_및_배포_프로세스": {
+          "title": "iOS 워크플로우 Fastlane 통합 - 더욱 간소화된 빌드 및 배포 프로세스",
+          "items": []
+        },
+        "ios_testflight_및_android_play_store_설정_가이드_추가": {
+          "title": "iOS TestFlight 및 Android Play Store 설정 가이드 추가",
+          "items": []
+        },
+        "버전_1_0_8으로_업데이트": {
+          "title": "버전 1.0.8으로 업데이트",
+          "items": []
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "1.0.7",
       "project_type": "flutter",
