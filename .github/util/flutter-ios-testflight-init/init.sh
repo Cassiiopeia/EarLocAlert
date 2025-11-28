@@ -279,8 +279,8 @@ platform :ios do
         }
       },
 
-      # xcargs로 빌드 설정 전달
-      xcargs: "-allowProvisioningUpdates"
+      # xcargs로 빌드 설정 전달 (DEVELOPMENT_TEAM 포함 - CI 환경에서 필수)
+      xcargs: "-allowProvisioningUpdates DEVELOPMENT_TEAM=#{ENV['APPLE_TEAM_ID']}"
     )
 
     UI.success("✅ IPA 빌드 완료")
@@ -324,7 +324,10 @@ platform :ios do
         provisioningProfiles: {
           ENV["IOS_BUNDLE_ID"] => ENV["IOS_PROVISIONING_PROFILE_NAME"]
         }
-      }
+      },
+
+      # xcargs로 빌드 설정 전달 (DEVELOPMENT_TEAM 포함 - CI 환경에서 필수)
+      xcargs: "-allowProvisioningUpdates DEVELOPMENT_TEAM=#{ENV['APPLE_TEAM_ID']}"
     )
 
     UI.success("✅ IPA 빌드 완료: build/ipa/Runner.ipa")
@@ -380,6 +383,94 @@ update_gitignore() {
     print_success ".gitignore 확인 완료"
 }
 
+# Xcode 프로젝트에 DEVELOPMENT_TEAM 추가 (CI 빌드에 필수)
+patch_xcode_project() {
+    print_step "Xcode 프로젝트에 DEVELOPMENT_TEAM 설정 중..."
+
+    local pbxproj_path="$PROJECT_PATH/ios/Runner.xcodeproj/project.pbxproj"
+
+    if [ ! -f "$pbxproj_path" ]; then
+        print_error "project.pbxproj 파일을 찾을 수 없습니다: $pbxproj_path"
+        return 1
+    fi
+
+    # 백업 생성
+    cp "$pbxproj_path" "${pbxproj_path}.bak"
+    print_info "백업 생성: ${pbxproj_path}.bak"
+
+    # 이미 DEVELOPMENT_TEAM이 있는지 확인
+    if grep -q "DEVELOPMENT_TEAM = $TEAM_ID" "$pbxproj_path"; then
+        print_info "DEVELOPMENT_TEAM이 이미 설정되어 있습니다"
+        rm "${pbxproj_path}.bak"
+        print_success "Xcode 프로젝트 확인 완료"
+        return 0
+    fi
+
+    # DEVELOPMENT_TEAM이 있지만 다른 값이면 교체
+    if grep -q "DEVELOPMENT_TEAM = " "$pbxproj_path"; then
+        print_info "기존 DEVELOPMENT_TEAM 값을 업데이트합니다"
+        sed -i '' "s/DEVELOPMENT_TEAM = [^;]*;/DEVELOPMENT_TEAM = $TEAM_ID;/g" "$pbxproj_path"
+        print_success "DEVELOPMENT_TEAM 업데이트 완료"
+        rm "${pbxproj_path}.bak"
+        return 0
+    fi
+
+    # Runner 타겟의 buildSettings에 DEVELOPMENT_TEAM 추가
+    # PRODUCT_BUNDLE_IDENTIFIER 라인 다음에 추가
+    print_info "DEVELOPMENT_TEAM 추가 중..."
+
+    # 입력한 Bundle ID가 project.pbxproj에 존재하는지 먼저 확인
+    if ! grep -q "PRODUCT_BUNDLE_IDENTIFIER = $BUNDLE_ID;" "$pbxproj_path"; then
+        print_error "Bundle ID를 project.pbxproj에서 찾을 수 없습니다!"
+        echo ""
+        print_error "┌─────────────────────────────────────────────────────────────────┐"
+        print_error "│ 입력한 Bundle ID: $BUNDLE_ID"
+        print_error "├─────────────────────────────────────────────────────────────────┤"
+        print_error "│ project.pbxproj에 존재하는 Bundle ID들:"
+        # 실제 존재하는 Bundle ID 목록 출력
+        grep "PRODUCT_BUNDLE_IDENTIFIER = " "$pbxproj_path" | sed 's/.*= /  • /' | sed 's/;$//' | sort -u | while read line; do
+            print_error "│ $line"
+        done
+        print_error "└─────────────────────────────────────────────────────────────────┘"
+        echo ""
+        print_error "해결 방법:"
+        print_info "1. 위 목록에서 정확한 Bundle ID를 확인하세요 (대소문자 구분!)"
+        print_info "2. 올바른 Bundle ID로 스크립트를 다시 실행하세요"
+        print_info "   예: ./init.sh \"$PROJECT_PATH\" \"정확한.번들.아이디\" \"$TEAM_ID\" \"$PROFILE_NAME\""
+        mv "${pbxproj_path}.bak" "$pbxproj_path"
+        return 1
+    fi
+
+    # macOS sed 사용 (BSD sed)
+    # Runner 앱의 Bundle ID 라인 다음에 DEVELOPMENT_TEAM 추가
+    sed -i '' "s/PRODUCT_BUNDLE_IDENTIFIER = $BUNDLE_ID;/PRODUCT_BUNDLE_IDENTIFIER = $BUNDLE_ID;\\
+				DEVELOPMENT_TEAM = $TEAM_ID;/g" "$pbxproj_path"
+
+    # 변경 확인
+    if grep -q "DEVELOPMENT_TEAM = $TEAM_ID" "$pbxproj_path"; then
+        print_success "DEVELOPMENT_TEAM 추가 완료: $TEAM_ID"
+        rm "${pbxproj_path}.bak"
+    else
+        print_error "DEVELOPMENT_TEAM 추가 실패!"
+        echo ""
+        print_error "디버그 정보:"
+        print_info "  • 입력한 Bundle ID: $BUNDLE_ID"
+        print_info "  • 입력한 Team ID: $TEAM_ID"
+        print_info "  • project.pbxproj 경로: $pbxproj_path"
+        echo ""
+        print_error "가능한 원인:"
+        print_info "  1. sed 명령어 실행 중 오류 발생"
+        print_info "  2. 파일 쓰기 권한 문제"
+        echo ""
+        print_warning "수동 설정 방법:"
+        print_info "  Xcode 열기 → Runner 타겟 → Signing & Capabilities → Team 선택"
+        mv "${pbxproj_path}.bak" "$pbxproj_path"
+        return 1
+    fi
+
+    print_success "Xcode 프로젝트 설정 완료"
+}
+
 # 완료 메시지
 print_completion() {
     echo ""
@@ -387,21 +478,22 @@ print_completion() {
     echo -e "${GREEN}║          🎉 Fastlane 설정 완료! 🎉                             ║${NC}"
     echo -e "${GREEN}╚════════════════════════════════════════════════════════════════╝${NC}"
     echo ""
-    echo -e "${CYAN}생성된 파일:${NC}"
+    echo -e "${CYAN}생성/수정된 파일:${NC}"
     echo "  ✅ ios/Gemfile"
     echo "  ✅ ios/fastlane/Appfile"
     echo "  ✅ ios/fastlane/Fastfile"
+    echo "  ✅ ios/Runner.xcodeproj/project.pbxproj (DEVELOPMENT_TEAM 추가)"
     echo ""
     echo -e "${CYAN}설정된 정보:${NC}"
     echo "  • Bundle ID: $BUNDLE_ID"
-    echo "  • Team ID: $TEAM_ID"
+    echo "  • Team ID: $TEAM_ID (project.pbxproj에도 적용됨)"
     echo "  • Profile Name: $PROFILE_NAME"
     echo ""
     echo -e "${YELLOW}다음 단계:${NC}"
     echo "  1. GitHub Secrets 설정 (마법사 Step 4 참고)"
     echo "  2. 변경사항 커밋:"
-    echo "     git add ios/Gemfile ios/fastlane/"
-    echo "     git commit -m \"chore: iOS Fastlane 설정 추가\""
+    echo "     git add ios/Gemfile ios/fastlane/ ios/Runner.xcodeproj/project.pbxproj"
+    echo "     git commit -m \"chore: iOS Fastlane 및 코드 서명 설정 추가\""
     echo "  3. deploy 브랜치로 푸시하여 빌드 테스트"
     echo ""
 }
@@ -437,6 +529,7 @@ main() {
     create_appfile
     create_fastfile
     update_gitignore
+    patch_xcode_project
 
     # 완료
     print_completion

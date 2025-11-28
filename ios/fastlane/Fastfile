@@ -67,8 +67,8 @@ platform :ios do
         }
       },
 
-      # xcargs로 빌드 설정 전달
-      xcargs: "-allowProvisioningUpdates"
+      # xcargs로 빌드 설정 전달 (DEVELOPMENT_TEAM 포함 - CI 환경에서 필수)
+      xcargs: "-allowProvisioningUpdates DEVELOPMENT_TEAM=#{ENV['APPLE_TEAM_ID']}"
     )
 
     UI.success("✅ IPA 빌드 완료")
@@ -112,7 +112,10 @@ platform :ios do
         provisioningProfiles: {
           ENV["IOS_BUNDLE_ID"] => ENV["IOS_PROVISIONING_PROFILE_NAME"]
         }
-      }
+      },
+
+      # xcargs로 빌드 설정 전달 (DEVELOPMENT_TEAM 포함 - CI 환경에서 필수)
+      xcargs: "-allowProvisioningUpdates DEVELOPMENT_TEAM=#{ENV['APPLE_TEAM_ID']}"
     )
 
     UI.success("✅ IPA 빌드 완료: build/ipa/Runner.ipa")
