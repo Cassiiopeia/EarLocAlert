@@ -1,11 +1,35 @@
 {
   "metadata": {
-    "lastUpdated": "2025-11-28T08:29:27Z",
+    "lastUpdated": "2025-11-28T09:32:41Z",
     "currentVersion": "1.0.9",
     "projectType": "flutter",
-    "totalReleases": 7
+    "totalReleases": 8
   },
   "releases": [
+    {
+      "version": "1.0.9",
+      "project_type": "flutter",
+      "date": "2025-11-28",
+      "pr_number": 14,
+      "raw_summary": "## Summary by CodeRabbit\n\n# 릴리스 노트 - v1.0.9\n\n* **새로운 기능**\n  * iOS TestFlight 자동화 마법사 추가\n  * Android Play Store 자동화 마법사 추가\n  * iOS Fastlane 워크플로우 통합\n\n* **문서**\n  * iOS TestFlight 및 Android Play Store 설정 가이드 추가",
+      "parsed_changes": {
+        "새로운_기능": {
+          "title": "새로운 기능",
+          "items": [
+            "iOS TestFlight 자동화 마법사 추가",
+            "Android Play Store 자동화 마법사 추가",
+            "iOS Fastlane 워크플로우 통합"
+          ]
+        },
+        "문서": {
+          "title": "문서",
+          "items": [
+            "iOS TestFlight 및 Android Play Store 설정 가이드 추가"
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "1.0.9",
       "project_type": "flutter",

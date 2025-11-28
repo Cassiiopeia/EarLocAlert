@@ -1,7 +1,21 @@
 # Changelog
 
 **현재 버전:** 1.0.9  
-**마지막 업데이트:** 2025-11-28T08:29:27Z  
+**마지막 업데이트:** 2025-11-28T09:32:41Z  
+
+---
+
+## [1.0.9] - 2025-11-28
+
+**PR:** #14  
+
+**새로운 기능**
+- iOS TestFlight 자동화 마법사 추가
+- Android Play Store 자동화 마법사 추가
+- iOS Fastlane 워크플로우 통합
+
+**문서**
+- iOS TestFlight 및 Android Play Store 설정 가이드 추가
 
 ---
 
