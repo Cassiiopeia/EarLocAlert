@@ -1,11 +1,35 @@
 {
   "metadata": {
-    "lastUpdated": "2025-11-27T14:05:13Z",
-    "currentVersion": "1.0.4",
+    "lastUpdated": "2025-11-28T01:13:01Z",
+    "currentVersion": "1.0.5",
     "projectType": "flutter",
-    "totalReleases": 3
+    "totalReleases": 4
   },
   "releases": [
+    {
+      "version": "1.0.5",
+      "project_type": "flutter",
+      "date": "2025-11-28",
+      "pr_number": 7,
+      "raw_summary": "## Summary by CodeRabbit\n\n## 릴리스 노트\n\n* **Documentation**\n  * 최신 버전 정보 업데이트\n\n* **Chores**\n  * 애플리케이션 버전을 1.0.5로 업데이트\n  * iOS 빌드 서명 설정 개선\n  * 버전 메타데이터 업데이트",
+      "parsed_changes": {
+        "documentation": {
+          "title": "Documentation",
+          "items": [
+            "최신 버전 정보 업데이트"
+          ]
+        },
+        "chores": {
+          "title": "Chores",
+          "items": [
+            "애플리케이션 버전을 1.0.5로 업데이트",
+            "iOS 빌드 서명 설정 개선",
+            "버전 메타데이터 업데이트"
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "1.0.4",
       "project_type": "flutter",
