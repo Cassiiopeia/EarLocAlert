@@ -325,7 +325,8 @@ jobs:
                     ENV["IOS_BUNDLE_ID"] => ENV["IOS_PROVISIONING_PROFILE_NAME"]
                   }
                 },
-                xcargs: "-allowProvisioningUpdates"
+                skip_profile_detection: true,
+                xcargs: "-allowProvisioningUpdates CODE_SIGN_STYLE=Manual CODE_SIGN_IDENTITY='Apple Distribution' DEVELOPMENT_TEAM='#{ENV['APPLE_TEAM_ID']}'"
               )
 
               UI.success("✅ IPA 빌드 완료")
