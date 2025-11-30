@@ -223,6 +223,64 @@ create_fastfile() {
     print_info "  → 템플릿에서 복사됨: $template_fastfile"
 }
 
+# ExportOptions.plist 생성 (xcodebuild -exportArchive에 필요)
+create_export_options_plist() {
+    print_step "ExportOptions.plist 생성 중..."
+
+    local export_options_path="$PROJECT_PATH/ios/ExportOptions.plist"
+    local template_export_options="$TEMPLATE_DIR/ExportOptions.plist"
+
+    # 기존 파일 백업
+    if [ -f "$export_options_path" ]; then
+        print_warning "기존 ExportOptions.plist 백업: ${export_options_path}.bak"
+        cp "$export_options_path" "${export_options_path}.bak"
+    fi
+
+    # 템플릿 파일 존재 확인
+    if [ -f "$template_export_options" ]; then
+        # 템플릿에서 복사하고 플레이스홀더 치환
+        cat "$template_export_options" | \
+            sed "s/{{TEAM_ID}}/$TEAM_ID/g" | \
+            sed "s/{{BUNDLE_ID}}/$BUNDLE_ID/g" | \
+            sed "s/{{PROFILE_NAME}}/$PROFILE_NAME/g" > "$export_options_path"
+        print_info "  → 템플릿에서 생성됨"
+    else
+        # 템플릿이 없으면 직접 생성
+        cat > "$export_options_path" << EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>method</key>
+    <string>app-store</string>
+    <key>teamID</key>
+    <string>$TEAM_ID</string>
+    <key>provisioningProfiles</key>
+    <dict>
+        <key>$BUNDLE_ID</key>
+        <string>$PROFILE_NAME</string>
+    </dict>
+    <key>signingStyle</key>
+    <string>manual</string>
+    <key>signingCertificate</key>
+    <string>Apple Distribution</string>
+    <key>stripSwiftSymbols</key>
+    <true/>
+    <key>uploadBitcode</key>
+    <false/>
+    <key>uploadSymbols</key>
+    <true/>
+</dict>
+</plist>
+EOF
+    fi
+
+    print_success "ExportOptions.plist 생성 완료: $export_options_path"
+    print_info "  • Team ID: $TEAM_ID"
+    print_info "  • Bundle ID: $BUNDLE_ID"
+    print_info "  • Profile Name: $PROFILE_NAME"
+}
+
 # .gitignore 업데이트 (선택사항)
 update_gitignore() {
     print_step ".gitignore 확인 중..."
@@ -396,26 +454,28 @@ patch_xcode_project() {
 print_completion() {
     echo ""
     echo -e "${GREEN}╔════════════════════════════════════════════════════════════════╗${NC}"
-    echo -e "${GREEN}║          🎉 Fastlane 설정 완료! 🎉                             ║${NC}"
+    echo -e "${GREEN}║          🎉 iOS TestFlight 배포 설정 완료! 🎉                  ║${NC}"
     echo -e "${GREEN}╚════════════════════════════════════════════════════════════════╝${NC}"
     echo ""
     echo -e "${CYAN}생성/수정된 파일:${NC}"
     echo "  ✅ ios/Gemfile"
     echo "  ✅ ios/fastlane/Appfile"
-    echo "  ✅ ios/fastlane/Fastfile (Manual Signing 설정 포함)"
-    echo "  ✅ ios/Runner.xcodeproj/project.pbxproj (DEVELOPMENT_TEAM + CODE_SIGN_STYLE=Manual)"
+    echo "  ✅ ios/fastlane/Fastfile (pilot 기반 TestFlight 업로드)"
+    echo "  ✅ ios/ExportOptions.plist (xcodebuild -exportArchive용)"
+    echo "  ✅ ios/Runner.xcodeproj/project.pbxproj (Manual Signing 설정)"
     echo ""
     echo -e "${CYAN}설정된 정보:${NC}"
     echo "  • Bundle ID: $BUNDLE_ID"
     echo "  • Team ID: $TEAM_ID"
     echo "  • Profile Name: $PROFILE_NAME"
-    echo "  • Code Sign Style: Manual (CI 환경 최적화)"
+    echo "  • Code Sign Style: Manual"
+    echo "  • 빌드 방식: xcodebuild 직접 사용 (Fastlane build_app 미사용)"
     echo ""
     echo -e "${YELLOW}다음 단계:${NC}"
     echo "  1. GitHub Secrets 설정 (마법사 Step 4 참고)"
     echo "  2. 변경사항 커밋:"
-    echo "     git add ios/Gemfile ios/fastlane/ ios/Runner.xcodeproj/project.pbxproj"
-    echo "     git commit -m \"chore: iOS Fastlane 및 코드 서명 설정 추가\""
+    echo "     git add ios/Gemfile ios/fastlane/ ios/ExportOptions.plist ios/Runner.xcodeproj/project.pbxproj"
+    echo "     git commit -m \"chore: iOS TestFlight 배포 설정 추가\""
     echo "  3. deploy 브랜치로 푸시하여 빌드 테스트"
     echo ""
 }
@@ -453,6 +513,7 @@ main() {
     create_gemfile
     create_appfile
     create_fastfile
+    create_export_options_plist
     update_gitignore
     patch_xcode_project
 
