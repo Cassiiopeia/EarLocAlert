@@ -283,7 +283,8 @@ patch_xcode_project() {
         print_info "기존 DEVELOPMENT_TEAM 값을 업데이트합니다"
         sed -i '' "s/DEVELOPMENT_TEAM = [^;]*;/DEVELOPMENT_TEAM = $TEAM_ID;/g" "$pbxproj_path"
         print_success "DEVELOPMENT_TEAM 업데이트 완료"
-        # CODE_SIGN_STYLE도 Manual로 설정
+        
+        # CODE_SIGN_STYLE = Manual 설정
         if grep -q "CODE_SIGN_STYLE = Automatic" "$pbxproj_path"; then
             sed -i '' "s/CODE_SIGN_STYLE = Automatic;/CODE_SIGN_STYLE = Manual;/g" "$pbxproj_path"
             print_success "CODE_SIGN_STYLE = Manual 설정 완료"
@@ -292,11 +293,31 @@ patch_xcode_project() {
 				CODE_SIGN_STYLE = Manual;/g" "$pbxproj_path"
             print_success "CODE_SIGN_STYLE = Manual 추가 완료"
         fi
-        # CODE_SIGN_IDENTITY를 Apple Distribution으로 변경 (App Store 배포용)
+        
+        # CODE_SIGN_IDENTITY 설정
+        if ! grep -q 'CODE_SIGN_IDENTITY = "Apple Distribution"' "$pbxproj_path"; then
+            sed -i '' "s/CODE_SIGN_STYLE = Manual;/CODE_SIGN_STYLE = Manual;\\
+				CODE_SIGN_IDENTITY = \"Apple Distribution\";/g" "$pbxproj_path"
+            print_success "CODE_SIGN_IDENTITY = Apple Distribution 추가 완료"
+        fi
+        
+        # PROVISIONING_PROFILE_SPECIFIER 설정 (핵심!)
+        if ! grep -q "PROVISIONING_PROFILE_SPECIFIER" "$pbxproj_path"; then
+            sed -i '' "s/CODE_SIGN_IDENTITY = \"Apple Distribution\";/CODE_SIGN_IDENTITY = \"Apple Distribution\";\\
+				\"PROVISIONING_PROFILE_SPECIFIER\" = \"$PROFILE_NAME\";/g" "$pbxproj_path"
+            print_success "PROVISIONING_PROFILE_SPECIFIER = $PROFILE_NAME 추가 완료"
+        else
+            # 기존 값이 있으면 업데이트
+            sed -i '' "s/\"PROVISIONING_PROFILE_SPECIFIER\" = \"[^\"]*\";/\"PROVISIONING_PROFILE_SPECIFIER\" = \"$PROFILE_NAME\";/g" "$pbxproj_path"
+            print_success "PROVISIONING_PROFILE_SPECIFIER 업데이트 완료"
+        fi
+        
+        # 구버전 CODE_SIGN_IDENTITY 설정 업데이트
         if grep -q '"CODE_SIGN_IDENTITY\[sdk=iphoneos\*\]" = "iPhone Developer"' "$pbxproj_path"; then
             sed -i '' 's/"CODE_SIGN_IDENTITY\[sdk=iphoneos\*\]" = "iPhone Developer"/"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Distribution"/g' "$pbxproj_path"
-            print_success "CODE_SIGN_IDENTITY = Apple Distribution 설정 완료"
+            print_success "CODE_SIGN_IDENTITY[sdk=iphoneos*] 업데이트 완료"
         fi
+        
         rm "${pbxproj_path}.bak"
         return 0
     fi
@@ -328,15 +349,21 @@ patch_xcode_project() {
     fi
 
     # macOS sed 사용 (BSD sed)
-    # Runner 앱의 Bundle ID 라인 다음에 DEVELOPMENT_TEAM 및 CODE_SIGN_STYLE 추가
+    # Runner 앱의 Bundle ID 라인 다음에 Manual Signing 관련 설정 모두 추가
+    # - DEVELOPMENT_TEAM: Apple 팀 ID
+    # - CODE_SIGN_STYLE: Manual (자동 서명 비활성화)
+    # - CODE_SIGN_IDENTITY: Apple Distribution (배포용 인증서)
+    # - PROVISIONING_PROFILE_SPECIFIER: 프로비저닝 프로파일 이름
     sed -i '' "s/PRODUCT_BUNDLE_IDENTIFIER = $BUNDLE_ID;/PRODUCT_BUNDLE_IDENTIFIER = $BUNDLE_ID;\\
 				DEVELOPMENT_TEAM = $TEAM_ID;\\
-				CODE_SIGN_STYLE = Manual;/g" "$pbxproj_path"
+				CODE_SIGN_STYLE = Manual;\\
+				CODE_SIGN_IDENTITY = \"Apple Distribution\";\\
+				\"PROVISIONING_PROFILE_SPECIFIER\" = \"$PROFILE_NAME\";/g" "$pbxproj_path"
 
-    # CODE_SIGN_IDENTITY를 Apple Distribution으로 변경 (App Store 배포용)
+    # 구버전 CODE_SIGN_IDENTITY 설정이 있으면 Apple Distribution으로 변경
     if grep -q '"CODE_SIGN_IDENTITY\[sdk=iphoneos\*\]" = "iPhone Developer"' "$pbxproj_path"; then
         sed -i '' 's/"CODE_SIGN_IDENTITY\[sdk=iphoneos\*\]" = "iPhone Developer"/"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Distribution"/g' "$pbxproj_path"
-        print_success "CODE_SIGN_IDENTITY = Apple Distribution 설정 완료"
+        print_success "CODE_SIGN_IDENTITY[sdk=iphoneos*] 업데이트 완료"
     fi
 
     # 변경 확인
