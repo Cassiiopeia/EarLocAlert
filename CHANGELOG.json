@@ -1,11 +1,41 @@
 {
   "metadata": {
-    "lastUpdated": "2025-11-30T13:02:32Z",
-    "currentVersion": "1.0.17",
+    "lastUpdated": "2025-11-30T23:28:33Z",
+    "currentVersion": "1.0.18",
     "projectType": "flutter",
-    "totalReleases": 12
+    "totalReleases": 13
   },
   "releases": [
+    {
+      "version": "1.0.18",
+      "project_type": "flutter",
+      "date": "2025-11-30",
+      "pr_number": 23,
+      "raw_summary": "## Summary by CodeRabbit\n\n## 릴리스 노트\n\n* **New Features**\n  * iOS TestFlight 배포 프로세스 개선 및 자동화\n  * App Store 호환성을 위한 코드 서명 설정 최적화\n\n* **Bug Fixes**\n  * 번들 식별자 수정\n\n* **Chores**\n  * 애플리케이션 버전 1.0.18로 업데이트 (빌드 19)\n  * 배포 워크플로우 간소화",
+      "parsed_changes": {
+        "new_features": {
+          "title": "New Features",
+          "items": [
+            "iOS TestFlight 배포 프로세스 개선 및 자동화",
+            "App Store 호환성을 위한 코드 서명 설정 최적화"
+          ]
+        },
+        "bug_fixes": {
+          "title": "Bug Fixes",
+          "items": [
+            "번들 식별자 수정"
+          ]
+        },
+        "chores": {
+          "title": "Chores",
+          "items": [
+            "애플리케이션 버전 1.0.18로 업데이트 (빌드 19)",
+            "배포 워크플로우 간소화"
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "1.0.17",
       "project_type": "flutter",
