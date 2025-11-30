@@ -8,10 +8,13 @@
 # 필요한 환경변수 (GitHub Secrets):
 #   - IOS_BUNDLE_ID: 앱 Bundle ID
 #   - APPLE_TEAM_ID: Apple Developer Team ID
-#   - IOS_PROVISIONING_PROFILE_NAME: Provisioning Profile 이름
+#   - IOS_PROVISIONING_PROFILE_NAME: Provisioning Profile 이름 (정확한 전체 이름!)
 #   - APP_STORE_CONNECT_API_KEY_ID: API Key ID
 #   - APP_STORE_CONNECT_ISSUER_ID: Issuer ID
 #   - API_KEY_PATH: API Key 파일 경로
+#
+# 주의: IOS_PROVISIONING_PROFILE_NAME은 Apple Developer Console에 표시된
+#       정확한 이름을 사용해야 합니다. (예: "MyApp Distribution", "MyApp App Store")
 #
 # ===================================================================
 
@@ -48,6 +51,8 @@ platform :ios do
     )
 
     # Archive 및 IPA 생성
+    # 주의: xcargs에 PROVISIONING_PROFILE_SPECIFIER를 넣으면 Pods 타겟에도 적용되어 오류 발생!
+    # export_options의 provisioningProfiles만 사용해야 Runner 타겟에만 적용됨
     build_app(
       workspace: "Runner.xcworkspace",
       scheme: "Runner",
@@ -56,7 +61,7 @@ platform :ios do
       output_name: "Runner.ipa",
       clean: true,
 
-      # 코드 서명 설정 (Runner 타겟에만 적용)
+      # 코드 서명 설정 (Runner 타겟에만 적용됨 - export 단계에서 처리)
       export_options: {
         method: "app-store",
         teamID: ENV["APPLE_TEAM_ID"],
@@ -67,15 +72,9 @@ platform :ios do
         }
       },
 
-      # CI 환경에서 Manual Signing 강제
-      skip_profile_detection: true,
-
-      # xcargs로 빌드 설정 전달 - Manual Signing 명시
-      xcargs: "-allowProvisioningUpdates " \
-              "DEVELOPMENT_TEAM=#{ENV['APPLE_TEAM_ID']} " \
-              "CODE_SIGN_STYLE=Manual " \
-              "CODE_SIGN_IDENTITY='Apple Distribution' " \
-              "PROVISIONING_PROFILE_SPECIFIER='#{ENV['IOS_PROVISIONING_PROFILE_NAME']}'"
+      # xcargs는 최소한으로 유지 (모든 타겟에 전역 적용되므로!)
+      # DEVELOPMENT_TEAM만 지정하고, 나머지는 export_options에서 처리
+      xcargs: "-allowProvisioningUpdates DEVELOPMENT_TEAM='#{ENV['APPLE_TEAM_ID']}'"
     )
 
     UI.success("✅ IPA 빌드 완료")
@@ -121,15 +120,8 @@ platform :ios do
         }
       },
 
-      # CI 환경에서 Manual Signing 강제
-      skip_profile_detection: true,
-
-      # xcargs로 빌드 설정 전달 - Manual Signing 명시
-      xcargs: "-allowProvisioningUpdates " \
-              "DEVELOPMENT_TEAM=#{ENV['APPLE_TEAM_ID']} " \
-              "CODE_SIGN_STYLE=Manual " \
-              "CODE_SIGN_IDENTITY='Apple Distribution' " \
-              "PROVISIONING_PROFILE_SPECIFIER='#{ENV['IOS_PROVISIONING_PROFILE_NAME']}'"
+      # xcargs는 최소한으로 유지
+      xcargs: "-allowProvisioningUpdates DEVELOPMENT_TEAM='#{ENV['APPLE_TEAM_ID']}'"
     )
 
     UI.success("✅ IPA 빌드 완료: build/ipa/Runner.ipa")

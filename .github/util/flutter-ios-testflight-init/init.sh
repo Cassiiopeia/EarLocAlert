@@ -202,180 +202,25 @@ EOF
     print_success "Appfile 생성 완료: $appfile_path"
 }
 
-# Fastfile 생성
+# Fastfile 생성 (템플릿에서 복사)
 create_fastfile() {
     print_step "Fastfile 생성 중..."
 
     local fastlane_dir="$PROJECT_PATH/ios/fastlane"
     local fastfile_path="$fastlane_dir/Fastfile"
+    local template_fastfile="$TEMPLATE_DIR/Fastfile"
 
-    cat > "$fastfile_path" << 'FASTFILE_EOF'
-# ===================================================================
-# Fastlane Fastfile - iOS 빌드 및 배포 자동화
-# ===================================================================
-#
-# 사용법:
-#   bundle exec fastlane deploy_testflight
-#
-# 필요한 환경변수 (GitHub Secrets):
-#   - IOS_BUNDLE_ID: 앱 Bundle ID
-#   - APPLE_TEAM_ID: Apple Developer Team ID
-#   - IOS_PROVISIONING_PROFILE_NAME: Provisioning Profile 이름
-#   - APP_STORE_CONNECT_API_KEY_ID: API Key ID
-#   - APP_STORE_CONNECT_ISSUER_ID: Issuer ID
-#   - API_KEY_PATH: API Key 파일 경로
-#
-# ===================================================================
+    # 템플릿 파일 존재 확인
+    if [ ! -f "$template_fastfile" ]; then
+        print_error "Fastfile 템플릿을 찾을 수 없습니다: $template_fastfile"
+        exit 1
+    fi
 
-default_platform(:ios)
-
-platform :ios do
-
-  # ─────────────────────────────────────────────────────────────────
-  # TestFlight 배포 Lane
-  # ─────────────────────────────────────────────────────────────────
-  desc "TestFlight에 앱 업로드"
-  lane :deploy_testflight do
-
-    # 환경변수 검증
-    UI.user_error!("IOS_BUNDLE_ID가 설정되지 않았습니다") unless ENV["IOS_BUNDLE_ID"]
-    UI.user_error!("APPLE_TEAM_ID가 설정되지 않았습니다") unless ENV["APPLE_TEAM_ID"]
-    UI.user_error!("IOS_PROVISIONING_PROFILE_NAME이 설정되지 않았습니다") unless ENV["IOS_PROVISIONING_PROFILE_NAME"]
-    UI.user_error!("APP_STORE_CONNECT_API_KEY_ID가 설정되지 않았습니다") unless ENV["APP_STORE_CONNECT_API_KEY_ID"]
-    UI.user_error!("APP_STORE_CONNECT_ISSUER_ID가 설정되지 않았습니다") unless ENV["APP_STORE_CONNECT_ISSUER_ID"]
-    UI.user_error!("API_KEY_PATH가 설정되지 않았습니다") unless ENV["API_KEY_PATH"]
-
-    UI.message("🚀 TestFlight 배포 시작")
-    UI.message("   Bundle ID: #{ENV['IOS_BUNDLE_ID']}")
-    UI.message("   Team ID: #{ENV['APPLE_TEAM_ID']}")
-    UI.message("   Profile: #{ENV['IOS_PROVISIONING_PROFILE_NAME']}")
-
-    # App Store Connect API Key 설정
-    api_key = app_store_connect_api_key(
-      key_id: ENV["APP_STORE_CONNECT_API_KEY_ID"],
-      issuer_id: ENV["APP_STORE_CONNECT_ISSUER_ID"],
-      key_filepath: ENV["API_KEY_PATH"],
-      duration: 1200,
-      in_house: false
-    )
-
-    # Archive 및 IPA 생성
-    build_app(
-      workspace: "Runner.xcworkspace",
-      scheme: "Runner",
-      export_method: "app-store",
-      output_directory: "build/ipa",
-      output_name: "Runner.ipa",
-      clean: true,
-
-      # 코드 서명 설정 (Runner 타겟에만 적용)
-      export_options: {
-        method: "app-store",
-        teamID: ENV["APPLE_TEAM_ID"],
-        signingStyle: "manual",
-        signingCertificate: "Apple Distribution",
-        provisioningProfiles: {
-          ENV["IOS_BUNDLE_ID"] => ENV["IOS_PROVISIONING_PROFILE_NAME"]
-        }
-      },
-
-      # CI 환경에서 Manual Signing 강제
-      skip_profile_detection: true,
-
-      # xcargs로 빌드 설정 전달 - Manual Signing 명시
-      xcargs: "-allowProvisioningUpdates " \
-              "DEVELOPMENT_TEAM=#{ENV['APPLE_TEAM_ID']} " \
-              "CODE_SIGN_STYLE=Manual " \
-              "CODE_SIGN_IDENTITY='Apple Distribution' " \
-              "PROVISIONING_PROFILE_SPECIFIER='#{ENV['IOS_PROVISIONING_PROFILE_NAME']}'"
-    )
-
-    UI.success("✅ IPA 빌드 완료")
-
-    # TestFlight 업로드
-    upload_to_testflight(
-      api_key: api_key,
-      ipa: "build/ipa/Runner.ipa",
-      changelog: ENV["RELEASE_NOTES"] || "새로운 빌드가 업로드되었습니다.",
-      skip_waiting_for_build_processing: true,
-      distribute_external: false,
-      notify_external_testers: false,
-      uses_non_exempt_encryption: false
-    )
-
-    UI.success("✅ TestFlight 업로드 완료!")
-  end
-
-  # ─────────────────────────────────────────────────────────────────
-  # 빌드만 수행 (업로드 없음)
-  # ─────────────────────────────────────────────────────────────────
-  desc "IPA 빌드만 수행 (테스트용)"
-  lane :build_only do
-
-    UI.user_error!("IOS_BUNDLE_ID가 설정되지 않았습니다") unless ENV["IOS_BUNDLE_ID"]
-    UI.user_error!("APPLE_TEAM_ID가 설정되지 않았습니다") unless ENV["APPLE_TEAM_ID"]
-    UI.user_error!("IOS_PROVISIONING_PROFILE_NAME이 설정되지 않았습니다") unless ENV["IOS_PROVISIONING_PROFILE_NAME"]
-
-    build_app(
-      workspace: "Runner.xcworkspace",
-      scheme: "Runner",
-      export_method: "app-store",
-      output_directory: "build/ipa",
-      output_name: "Runner.ipa",
-      clean: true,
-      export_options: {
-        method: "app-store",
-        teamID: ENV["APPLE_TEAM_ID"],
-        signingStyle: "manual",
-        signingCertificate: "Apple Distribution",
-        provisioningProfiles: {
-          ENV["IOS_BUNDLE_ID"] => ENV["IOS_PROVISIONING_PROFILE_NAME"]
-        }
-      },
-
-      # CI 환경에서 Manual Signing 강제
-      skip_profile_detection: true,
-
-      # xcargs로 빌드 설정 전달 - Manual Signing 명시
-      xcargs: "-allowProvisioningUpdates " \
-              "DEVELOPMENT_TEAM=#{ENV['APPLE_TEAM_ID']} " \
-              "CODE_SIGN_STYLE=Manual " \
-              "CODE_SIGN_IDENTITY='Apple Distribution' " \
-              "PROVISIONING_PROFILE_SPECIFIER='#{ENV['IOS_PROVISIONING_PROFILE_NAME']}'"
-    )
-
-    UI.success("✅ IPA 빌드 완료: build/ipa/Runner.ipa")
-  end
-
-  # ─────────────────────────────────────────────────────────────────
-  # 인증서 및 프로파일 정보 출력 (디버깅용)
-  # ─────────────────────────────────────────────────────────────────
-  desc "현재 설정된 환경변수 및 인증 정보 출력"
-  lane :debug_info do
-    UI.header("환경변수 정보")
-    UI.message("IOS_BUNDLE_ID: #{ENV['IOS_BUNDLE_ID'] || '(not set)'}")
-    UI.message("APPLE_TEAM_ID: #{ENV['APPLE_TEAM_ID'] || '(not set)'}")
-    UI.message("IOS_PROVISIONING_PROFILE_NAME: #{ENV['IOS_PROVISIONING_PROFILE_NAME'] || '(not set)'}")
-    UI.message("APP_STORE_CONNECT_API_KEY_ID: #{ENV['APP_STORE_CONNECT_API_KEY_ID'] || '(not set)'}")
-    UI.message("APP_STORE_CONNECT_ISSUER_ID: #{ENV['APP_STORE_CONNECT_ISSUER_ID'] || '(not set)'}")
-    UI.message("API_KEY_PATH: #{ENV['API_KEY_PATH'] || '(not set)'}")
-
-    # 설치된 프로파일 확인
-    UI.header("설치된 Provisioning Profiles")
-    profiles_path = File.expand_path("~/Library/MobileDevice/Provisioning Profiles")
-    if Dir.exist?(profiles_path)
-      Dir.glob("#{profiles_path}/*.mobileprovision").each do |profile|
-        UI.message("  - #{File.basename(profile)}")
-      end
-    else
-      UI.important("Provisioning Profiles 디렉토리가 없습니다")
-    end
-  end
-
-end
-FASTFILE_EOF
+    # 템플릿에서 복사
+    cp "$template_fastfile" "$fastfile_path"
 
     print_success "Fastfile 생성 완료: $fastfile_path"
+    print_info "  → 템플릿에서 복사됨: $template_fastfile"
 }
 
 # .gitignore 업데이트 (선택사항)
@@ -562,6 +407,9 @@ main() {
     echo -e "${BLUE}Team ID:${NC} $TEAM_ID"
     echo -e "${BLUE}Profile Name:${NC} $PROFILE_NAME"
     echo ""
+
+    # 템플릿 디렉토리 찾기
+    find_template_dir
 
     # 파일 생성
     create_gemfile
