@@ -72,6 +72,10 @@ platform :ios do
         }
       },
 
+      # Automatic Signing 우회 - Distribution 프로파일 사용 시 필수!
+      # false면 Fastlane이 Development 프로파일을 찾으려고 시도함
+      skip_profile_detection: true,
+
       # xcargs는 최소한으로 유지 (모든 타겟에 전역 적용되므로!)
       # DEVELOPMENT_TEAM만 지정하고, 나머지는 export_options에서 처리
       xcargs: "-allowProvisioningUpdates DEVELOPMENT_TEAM='#{ENV['APPLE_TEAM_ID']}'"
@@ -119,6 +123,9 @@ platform :ios do
           ENV["IOS_BUNDLE_ID"] => ENV["IOS_PROVISIONING_PROFILE_NAME"]
         }
       },
+
+      # Automatic Signing 우회 - Distribution 프로파일 사용 시 필수!
+      skip_profile_detection: true,
 
       # xcargs는 최소한으로 유지
       xcargs: "-allowProvisioningUpdates DEVELOPMENT_TEAM='#{ENV['APPLE_TEAM_ID']}'"
