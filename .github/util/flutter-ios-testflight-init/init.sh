@@ -279,8 +279,15 @@ platform :ios do
         }
       },
 
-      # xcargs로 빌드 설정 전달 (DEVELOPMENT_TEAM 포함 - CI 환경에서 필수)
-      xcargs: "-allowProvisioningUpdates DEVELOPMENT_TEAM=#{ENV['APPLE_TEAM_ID']}"
+      # CI 환경에서 Manual Signing 강제
+      skip_profile_detection: true,
+
+      # xcargs로 빌드 설정 전달 - Manual Signing 명시
+      xcargs: "-allowProvisioningUpdates " \
+              "DEVELOPMENT_TEAM=#{ENV['APPLE_TEAM_ID']} " \
+              "CODE_SIGN_STYLE=Manual " \
+              "CODE_SIGN_IDENTITY='Apple Distribution' " \
+              "PROVISIONING_PROFILE_SPECIFIER='#{ENV['IOS_PROVISIONING_PROFILE_NAME']}'"
     )
 
     UI.success("✅ IPA 빌드 완료")
@@ -326,8 +333,15 @@ platform :ios do
         }
       },
 
-      # xcargs로 빌드 설정 전달 (DEVELOPMENT_TEAM 포함 - CI 환경에서 필수)
-      xcargs: "-allowProvisioningUpdates DEVELOPMENT_TEAM=#{ENV['APPLE_TEAM_ID']}"
+      # CI 환경에서 Manual Signing 강제
+      skip_profile_detection: true,
+
+      # xcargs로 빌드 설정 전달 - Manual Signing 명시
+      xcargs: "-allowProvisioningUpdates " \
+              "DEVELOPMENT_TEAM=#{ENV['APPLE_TEAM_ID']} " \
+              "CODE_SIGN_STYLE=Manual " \
+              "CODE_SIGN_IDENTITY='Apple Distribution' " \
+              "PROVISIONING_PROFILE_SPECIFIER='#{ENV['IOS_PROVISIONING_PROFILE_NAME']}'"
     )
 
     UI.success("✅ IPA 빌드 완료: build/ipa/Runner.ipa")
@@ -383,9 +397,9 @@ update_gitignore() {
     print_success ".gitignore 확인 완료"
 }
 
-# Xcode 프로젝트에 DEVELOPMENT_TEAM 추가 (CI 빌드에 필수)
+# Xcode 프로젝트에 DEVELOPMENT_TEAM 및 Manual Signing 추가 (CI 빌드에 필수)
 patch_xcode_project() {
-    print_step "Xcode 프로젝트에 DEVELOPMENT_TEAM 설정 중..."
+    print_step "Xcode 프로젝트에 DEVELOPMENT_TEAM 및 Manual Signing 설정 중..."
 
     local pbxproj_path="$PROJECT_PATH/ios/Runner.xcodeproj/project.pbxproj"
 
@@ -401,6 +415,19 @@ patch_xcode_project() {
     # 이미 DEVELOPMENT_TEAM이 있는지 확인
     if grep -q "DEVELOPMENT_TEAM = $TEAM_ID" "$pbxproj_path"; then
         print_info "DEVELOPMENT_TEAM이 이미 설정되어 있습니다"
+        # CODE_SIGN_STYLE도 확인하고 필요시 추가
+        if ! grep -q "CODE_SIGN_STYLE = Manual" "$pbxproj_path"; then
+            print_info "CODE_SIGN_STYLE = Manual 추가 중..."
+            # Automatic을 Manual로 변경하거나 새로 추가
+            if grep -q "CODE_SIGN_STYLE = Automatic" "$pbxproj_path"; then
+                sed -i '' "s/CODE_SIGN_STYLE = Automatic;/CODE_SIGN_STYLE = Manual;/g" "$pbxproj_path"
+            else
+                # DEVELOPMENT_TEAM 라인 다음에 CODE_SIGN_STYLE 추가
+                sed -i '' "s/DEVELOPMENT_TEAM = $TEAM_ID;/DEVELOPMENT_TEAM = $TEAM_ID;\\
+				CODE_SIGN_STYLE = Manual;/g" "$pbxproj_path"
+            fi
+            print_success "CODE_SIGN_STYLE = Manual 설정 완료"
+        fi
         rm "${pbxproj_path}.bak"
         print_success "Xcode 프로젝트 확인 완료"
         return 0
@@ -411,6 +438,15 @@ patch_xcode_project() {
         print_info "기존 DEVELOPMENT_TEAM 값을 업데이트합니다"
         sed -i '' "s/DEVELOPMENT_TEAM = [^;]*;/DEVELOPMENT_TEAM = $TEAM_ID;/g" "$pbxproj_path"
         print_success "DEVELOPMENT_TEAM 업데이트 완료"
+        # CODE_SIGN_STYLE도 Manual로 설정
+        if grep -q "CODE_SIGN_STYLE = Automatic" "$pbxproj_path"; then
+            sed -i '' "s/CODE_SIGN_STYLE = Automatic;/CODE_SIGN_STYLE = Manual;/g" "$pbxproj_path"
+            print_success "CODE_SIGN_STYLE = Manual 설정 완료"
+        elif ! grep -q "CODE_SIGN_STYLE = Manual" "$pbxproj_path"; then
+            sed -i '' "s/DEVELOPMENT_TEAM = $TEAM_ID;/DEVELOPMENT_TEAM = $TEAM_ID;\\
+				CODE_SIGN_STYLE = Manual;/g" "$pbxproj_path"
+            print_success "CODE_SIGN_STYLE = Manual 추가 완료"
+        fi
         rm "${pbxproj_path}.bak"
         return 0
     fi
@@ -442,16 +478,18 @@ patch_xcode_project() {
     fi
 
     # macOS sed 사용 (BSD sed)
-    # Runner 앱의 Bundle ID 라인 다음에 DEVELOPMENT_TEAM 추가
+    # Runner 앱의 Bundle ID 라인 다음에 DEVELOPMENT_TEAM 및 CODE_SIGN_STYLE 추가
     sed -i '' "s/PRODUCT_BUNDLE_IDENTIFIER = $BUNDLE_ID;/PRODUCT_BUNDLE_IDENTIFIER = $BUNDLE_ID;\\
-				DEVELOPMENT_TEAM = $TEAM_ID;/g" "$pbxproj_path"
+				DEVELOPMENT_TEAM = $TEAM_ID;\\
+				CODE_SIGN_STYLE = Manual;/g" "$pbxproj_path"
 
     # 변경 확인
-    if grep -q "DEVELOPMENT_TEAM = $TEAM_ID" "$pbxproj_path"; then
+    if grep -q "DEVELOPMENT_TEAM = $TEAM_ID" "$pbxproj_path" && grep -q "CODE_SIGN_STYLE = Manual" "$pbxproj_path"; then
         print_success "DEVELOPMENT_TEAM 추가 완료: $TEAM_ID"
+        print_success "CODE_SIGN_STYLE = Manual 설정 완료"
         rm "${pbxproj_path}.bak"
     else
-        print_error "DEVELOPMENT_TEAM 추가 실패!"
+        print_error "DEVELOPMENT_TEAM 또는 CODE_SIGN_STYLE 추가 실패!"
         echo ""
         print_error "디버그 정보:"
         print_info "  • 입력한 Bundle ID: $BUNDLE_ID"
@@ -468,7 +506,7 @@ patch_xcode_project() {
         return 1
     fi
 
-    print_success "Xcode 프로젝트 설정 완료"
+    print_success "Xcode 프로젝트 설정 완료 (Manual Signing 적용됨)"
 }
 
 # 완료 메시지
@@ -481,13 +519,14 @@ print_completion() {
     echo -e "${CYAN}생성/수정된 파일:${NC}"
     echo "  ✅ ios/Gemfile"
     echo "  ✅ ios/fastlane/Appfile"
-    echo "  ✅ ios/fastlane/Fastfile"
-    echo "  ✅ ios/Runner.xcodeproj/project.pbxproj (DEVELOPMENT_TEAM 추가)"
+    echo "  ✅ ios/fastlane/Fastfile (Manual Signing 설정 포함)"
+    echo "  ✅ ios/Runner.xcodeproj/project.pbxproj (DEVELOPMENT_TEAM + CODE_SIGN_STYLE=Manual)"
     echo ""
     echo -e "${CYAN}설정된 정보:${NC}"
     echo "  • Bundle ID: $BUNDLE_ID"
-    echo "  • Team ID: $TEAM_ID (project.pbxproj에도 적용됨)"
+    echo "  • Team ID: $TEAM_ID"
     echo "  • Profile Name: $PROFILE_NAME"
+    echo "  • Code Sign Style: Manual (CI 환경 최적화)"
     echo ""
     echo -e "${YELLOW}다음 단계:${NC}"
     echo "  1. GitHub Secrets 설정 (마법사 Step 4 참고)"

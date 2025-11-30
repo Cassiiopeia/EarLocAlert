@@ -67,8 +67,15 @@ platform :ios do
         }
       },
 
-      # xcargs로 빌드 설정 전달 (DEVELOPMENT_TEAM 포함 - CI 환경에서 필수)
-      xcargs: "-allowProvisioningUpdates DEVELOPMENT_TEAM=#{ENV['APPLE_TEAM_ID']}"
+      # CI 환경에서 Manual Signing 강제
+      skip_profile_detection: true,
+
+      # xcargs로 빌드 설정 전달 - Manual Signing 명시
+      xcargs: "-allowProvisioningUpdates " \
+              "DEVELOPMENT_TEAM=#{ENV['APPLE_TEAM_ID']} " \
+              "CODE_SIGN_STYLE=Manual " \
+              "CODE_SIGN_IDENTITY='Apple Distribution' " \
+              "PROVISIONING_PROFILE_SPECIFIER='#{ENV['IOS_PROVISIONING_PROFILE_NAME']}'"
     )
 
     UI.success("✅ IPA 빌드 완료")
@@ -114,8 +121,15 @@ platform :ios do
         }
       },
 
-      # xcargs로 빌드 설정 전달 (DEVELOPMENT_TEAM 포함 - CI 환경에서 필수)
-      xcargs: "-allowProvisioningUpdates DEVELOPMENT_TEAM=#{ENV['APPLE_TEAM_ID']}"
+      # CI 환경에서 Manual Signing 강제
+      skip_profile_detection: true,
+
+      # xcargs로 빌드 설정 전달 - Manual Signing 명시
+      xcargs: "-allowProvisioningUpdates " \
+              "DEVELOPMENT_TEAM=#{ENV['APPLE_TEAM_ID']} " \
+              "CODE_SIGN_STYLE=Manual " \
+              "CODE_SIGN_IDENTITY='Apple Distribution' " \
+              "PROVISIONING_PROFILE_SPECIFIER='#{ENV['IOS_PROVISIONING_PROFILE_NAME']}'"
     )
 
     UI.success("✅ IPA 빌드 완료: build/ipa/Runner.ipa")
