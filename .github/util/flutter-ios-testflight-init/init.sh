@@ -292,6 +292,11 @@ patch_xcode_project() {
 				CODE_SIGN_STYLE = Manual;/g" "$pbxproj_path"
             print_success "CODE_SIGN_STYLE = Manual 추가 완료"
         fi
+        # CODE_SIGN_IDENTITY를 Apple Distribution으로 변경 (App Store 배포용)
+        if grep -q '"CODE_SIGN_IDENTITY\[sdk=iphoneos\*\]" = "iPhone Developer"' "$pbxproj_path"; then
+            sed -i '' 's/"CODE_SIGN_IDENTITY\[sdk=iphoneos\*\]" = "iPhone Developer"/"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Distribution"/g' "$pbxproj_path"
+            print_success "CODE_SIGN_IDENTITY = Apple Distribution 설정 완료"
+        fi
         rm "${pbxproj_path}.bak"
         return 0
     fi
@@ -327,6 +332,12 @@ patch_xcode_project() {
     sed -i '' "s/PRODUCT_BUNDLE_IDENTIFIER = $BUNDLE_ID;/PRODUCT_BUNDLE_IDENTIFIER = $BUNDLE_ID;\\
 				DEVELOPMENT_TEAM = $TEAM_ID;\\
 				CODE_SIGN_STYLE = Manual;/g" "$pbxproj_path"
+
+    # CODE_SIGN_IDENTITY를 Apple Distribution으로 변경 (App Store 배포용)
+    if grep -q '"CODE_SIGN_IDENTITY\[sdk=iphoneos\*\]" = "iPhone Developer"' "$pbxproj_path"; then
+        sed -i '' 's/"CODE_SIGN_IDENTITY\[sdk=iphoneos\*\]" = "iPhone Developer"/"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Distribution"/g' "$pbxproj_path"
+        print_success "CODE_SIGN_IDENTITY = Apple Distribution 설정 완료"
+    fi
 
     # 변경 확인
     if grep -q "DEVELOPMENT_TEAM = $TEAM_ID" "$pbxproj_path" && grep -q "CODE_SIGN_STYLE = Manual" "$pbxproj_path"; then

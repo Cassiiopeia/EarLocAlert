@@ -76,9 +76,15 @@ platform :ios do
       # false면 Fastlane이 Development 프로파일을 찾으려고 시도함
       skip_profile_detection: true,
 
-      # xcargs는 최소한으로 유지 (모든 타겟에 전역 적용되므로!)
-      # DEVELOPMENT_TEAM만 지정하고, 나머지는 export_options에서 처리
-      xcargs: "-allowProvisioningUpdates DEVELOPMENT_TEAM='#{ENV['APPLE_TEAM_ID']}'"
+      # xcargs: Archive 단계에서 코드 서명 설정 강제 적용
+      # CODE_SIGN_STYLE=Manual: 자동 서명 비활성화
+      # CODE_SIGN_IDENTITY: Distribution 인증서 사용 (iPhone Developer 아님!)
+      # DEVELOPMENT_TEAM: 팀 ID
+      # 주의: PROVISIONING_PROFILE_SPECIFIER는 여기에 넣으면 Pods에도 적용되어 오류 발생!
+      xcargs: "-allowProvisioningUpdates " \
+              "CODE_SIGN_STYLE=Manual " \
+              "CODE_SIGN_IDENTITY='Apple Distribution' " \
+              "DEVELOPMENT_TEAM='#{ENV['APPLE_TEAM_ID']}'"
     )
 
     UI.success("✅ IPA 빌드 완료")
