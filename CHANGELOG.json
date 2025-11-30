@@ -1,11 +1,33 @@
 {
   "metadata": {
-    "lastUpdated": "2025-11-30T06:47:42Z",
-    "currentVersion": "1.0.13",
+    "lastUpdated": "2025-11-30T12:31:11Z",
+    "currentVersion": "1.0.15",
     "projectType": "flutter",
-    "totalReleases": 9
+    "totalReleases": 10
   },
   "releases": [
+    {
+      "version": "1.0.15",
+      "project_type": "flutter",
+      "date": "2025-11-30",
+      "pr_number": 20,
+      "raw_summary": "## Summary by CodeRabbit\n\n## 릴리스 노트\n\n* **버전 업데이트**\n  * 애플리케이션 버전 1.0.15로 업데이트\n\n* **개선사항**\n  * iOS 배포 및 빌드 프로세스 개선으로 더욱 안정적인 배포 환경 제공",
+      "parsed_changes": {
+        "버전_업데이트": {
+          "title": "버전 업데이트",
+          "items": [
+            "애플리케이션 버전 1.0.15로 업데이트"
+          ]
+        },
+        "개선사항": {
+          "title": "개선사항",
+          "items": [
+            "iOS 배포 및 빌드 프로세스 개선으로 더욱 안정적인 배포 환경 제공"
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "1.0.13",
       "project_type": "flutter",
