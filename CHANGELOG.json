@@ -1,11 +1,30 @@
 {
   "metadata": {
-    "lastUpdated": "2025-12-01T06:41:12Z",
-    "currentVersion": "1.1.6",
+    "lastUpdated": "2025-12-01T07:48:05Z",
+    "currentVersion": "1.1.7",
     "projectType": "flutter",
-    "totalReleases": 19
+    "totalReleases": 20
   },
   "releases": [
+    {
+      "version": "1.1.7",
+      "project_type": "flutter",
+      "date": "2025-12-01",
+      "pr_number": 32,
+      "raw_summary": "## Summary by CodeRabbit\n\n## 릴리스 노트\n\n* **Chores**\n  * 애플리케이션 버전이 1.1.6에서 1.1.7로 업데이트되었습니다.\n  * 빌드 번호가 증가했습니다 (27 → 28).\n  * 프로젝트 메타데이터가 최신으로 동기화되었습니다.\n  * iOS 배포 파이프라인의 설정이 개선되었습니다.",
+      "parsed_changes": {
+        "chores": {
+          "title": "Chores",
+          "items": [
+            "애플리케이션 버전이 1.1.6에서 1.1.7로 업데이트되었습니다.",
+            "빌드 번호가 증가했습니다 (27 → 28).",
+            "프로젝트 메타데이터가 최신으로 동기화되었습니다.",
+            "iOS 배포 파이프라인의 설정이 개선되었습니다."
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "1.1.6",
       "project_type": "flutter",
