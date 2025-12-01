@@ -17,6 +17,16 @@ env:
   XCODE_VERSION: "16.3"
   PROJECT_TYPE: "flutter"
 
+  # ============================================
+  # 📝 TestFlight Changelog 설정
+  # ============================================
+  # SKIP_WAITING_FOR_BUILD_PROCESSING:
+  #   - "false" (기본값): 빌드 처리 완료까지 대기 → TestFlight의 "What to Test" 필드에 changelog가 표시됨
+  #                      ⚠️ 빌드 시간이 5-15분 정도 더 소요될 수 있음
+  #   - "true": 빌드 처리 대기 없이 즉시 완료 → 빠르지만 changelog가 TestFlight에 표시되지 않음
+  #             changelog 기능이 필요없거나 빠른 배포가 필요할 때 사용
+  SKIP_WAITING_FOR_BUILD_PROCESSING: "false"
+
 jobs:
   prepare-build:
     name: 환경 설정 및 준비
@@ -365,18 +375,24 @@ jobs:
                 issuer_id: ENV["APP_STORE_CONNECT_ISSUER_ID"],
                 key_filepath: ENV["API_KEY_PATH"]
               )
-          
+
+              # skip_waiting_for_build_processing 설정
+              # - false: changelog가 TestFlight "What to Test"에 표시됨 (느리지만 권장)
+              # - true: 빠르지만 changelog가 표시되지 않음
+              skip_waiting = ENV["SKIP_WAITING_FOR_BUILD_PROCESSING"] == "true"
+
               pilot(
                 api_key: api_key,
                 ipa: ENV["IPA_PATH"],
                 changelog: ENV["RELEASE_NOTES"],
-                skip_waiting_for_build_processing: true,
+                skip_waiting_for_build_processing: skip_waiting,
                 distribute_external: false,
                 notify_external_testers: false,
                 uses_non_exempt_encryption: false
               )
-          
+
               puts "✅ TestFlight 업로드 완료!"
+              puts skip_waiting ? "⚡ 빌드 처리 대기 스킵됨 (빠른 모드)" : "📋 빌드 처리 완료 대기 (Changelog 모드)"
             end
           end
           EOF
@@ -404,12 +420,20 @@ jobs:
             echo "📋 기본 Release Notes로 업로드: $RELEASE_NOTES"
           fi
 
+          # Changelog 설정 상태 표시
+          if [ "${{ env.SKIP_WAITING_FOR_BUILD_PROCESSING }}" = "true" ]; then
+            echo "⚡ 빠른 배포 모드: 빌드 처리 대기 스킵 (Changelog가 TestFlight에 표시되지 않음)"
+          else
+            echo "📋 Changelog 모드: 빌드 처리 완료까지 대기 (TestFlight 'What to Test'에 표시됨)"
+          fi
+
           # 환경변수 설정
           export APP_STORE_CONNECT_API_KEY_ID="${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}"
           export APP_STORE_CONNECT_ISSUER_ID="${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}"
           export API_KEY_PATH="$HOME/.appstoreconnect/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}.p8"
           export IPA_PATH="$IPA_PATH"
           export RELEASE_NOTES="$RELEASE_NOTES"
+          export SKIP_WAITING_FOR_BUILD_PROCESSING="${{ env.SKIP_WAITING_FOR_BUILD_PROCESSING }}"
 
           # Fastlane 실행
           cd ios
