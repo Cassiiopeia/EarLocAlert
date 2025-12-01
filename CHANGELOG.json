@@ -1,11 +1,40 @@
 {
   "metadata": {
-    "lastUpdated": "2025-12-01T00:17:45Z",
-    "currentVersion": "1.0.19",
+    "lastUpdated": "2025-12-01T02:02:16Z",
+    "currentVersion": "1.1.1",
     "projectType": "flutter",
-    "totalReleases": 14
+    "totalReleases": 15
   },
   "releases": [
+    {
+      "version": "1.1.1",
+      "project_type": "flutter",
+      "date": "2025-12-01",
+      "pr_number": 26,
+      "raw_summary": "## Summary by CodeRabbit\n\n## 릴리스 노트\n\n* **새로운 기능**\n  * iOS 앱 암호화 설정 UI 및 Export Compliance 구성 추가\n\n* **개선 사항**\n  * TestFlight 배포 프로세스 안정성 개선\n\n* **Chores**\n  * 앱 버전 업데이트 (v1.1.1, 빌드 22)\n  * 문서 및 변경 로그 업데이트",
+      "parsed_changes": {
+        "새로운_기능": {
+          "title": "새로운 기능",
+          "items": [
+            "iOS 앱 암호화 설정 UI 및 Export Compliance 구성 추가"
+          ]
+        },
+        "개선_사항": {
+          "title": "개선 사항",
+          "items": [
+            "TestFlight 배포 프로세스 안정성 개선"
+          ]
+        },
+        "chores": {
+          "title": "Chores",
+          "items": [
+            "앱 버전 업데이트 (v1.1.1, 빌드 22)",
+            "문서 및 변경 로그 업데이트"
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "1.0.19",
       "project_type": "flutter",
