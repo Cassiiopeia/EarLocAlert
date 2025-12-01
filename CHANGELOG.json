@@ -1,11 +1,30 @@
 {
   "metadata": {
-    "lastUpdated": "2025-11-30T23:28:33Z",
-    "currentVersion": "1.0.18",
+    "lastUpdated": "2025-12-01T00:17:45Z",
+    "currentVersion": "1.0.19",
     "projectType": "flutter",
-    "totalReleases": 13
+    "totalReleases": 14
   },
   "releases": [
+    {
+      "version": "1.0.19",
+      "project_type": "flutter",
+      "date": "2025-12-01",
+      "pr_number": 24,
+      "raw_summary": "## Summary by CodeRabbit\n\n## 릴리스 노트\n\n* **Chores**\n  * 버전 1.0.19로 업데이트 (빌드 21)\n  * iOS 앱 서명 및 프로비저닝 설정 최적화\n  * 앱 번들 식별자 표준화 및 통일\n  * TestFlight 배포 프로세스 안정성 강화",
+      "parsed_changes": {
+        "chores": {
+          "title": "Chores",
+          "items": [
+            "버전 1.0.19로 업데이트 (빌드 21)",
+            "iOS 앱 서명 및 프로비저닝 설정 최적화",
+            "앱 번들 식별자 표준화 및 통일",
+            "TestFlight 배포 프로세스 안정성 강화"
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "1.0.18",
       "project_type": "flutter",
