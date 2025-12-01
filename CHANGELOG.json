@@ -1,11 +1,34 @@
 {
   "metadata": {
-    "lastUpdated": "2025-12-01T02:02:16Z",
-    "currentVersion": "1.1.1",
+    "lastUpdated": "2025-12-01T02:32:13Z",
+    "currentVersion": "1.1.2",
     "projectType": "flutter",
-    "totalReleases": 15
+    "totalReleases": 16
   },
   "releases": [
+    {
+      "version": "1.1.2",
+      "project_type": "flutter",
+      "date": "2025-12-01",
+      "pr_number": 28,
+      "raw_summary": "## Summary by CodeRabbit\n\n* **Chores**\n  * 애플리케이션 버전을 1.1.2(빌드 23)로 업데이트하고 빌드 메타데이터를 갱신했습니다.\n  * 프로젝트 버전 정보 및 배포 메타데이터를 동기화했습니다.\n\n* **New Features**\n  * iOS TestFlight 배포 워크플로우에서 빌드 처리 옵션의 유연성이 개선되었습니다.",
+      "parsed_changes": {
+        "chores": {
+          "title": "Chores",
+          "items": [
+            "애플리케이션 버전을 1.1.2(빌드 23)로 업데이트하고 빌드 메타데이터를 갱신했습니다.",
+            "프로젝트 버전 정보 및 배포 메타데이터를 동기화했습니다."
+          ]
+        },
+        "new_features": {
+          "title": "New Features",
+          "items": [
+            "iOS TestFlight 배포 워크플로우에서 빌드 처리 옵션의 유연성이 개선되었습니다."
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "1.1.1",
       "project_type": "flutter",
