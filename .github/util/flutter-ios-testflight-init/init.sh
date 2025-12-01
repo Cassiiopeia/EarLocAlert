@@ -5,18 +5,32 @@
 # ===================================================================
 #
 # 이 스크립트는 Flutter 프로젝트에 iOS TestFlight 배포를 위한
-# Fastlane 설정 파일들을 자동으로 생성합니다.
+# 빌드 환경 설정을 자동으로 구성합니다.
+#
+# ★ 마법사 우선 아키텍처 ★
+# - 모든 설정 파일은 이 마법사가 생성합니다
+# - GitHub Actions 워크플로우는 생성된 파일을 그대로 사용합니다
+# - 초기 설정 후 수정 불필요 (One-time setup)
+#
+# 빌드 파이프라인:
+#   1. flutter build ios --no-codesign (Flutter 빌드)
+#   2. xcodebuild archive (Xcode 아카이브 생성)
+#   3. xcodebuild -exportArchive (IPA 생성)
+#   4. fastlane upload_testflight (TestFlight 업로드)
 #
 # 사용법:
-#   ./init.sh PROJECT_PATH BUNDLE_ID TEAM_ID PROFILE_NAME
+#   ./init.sh PROJECT_PATH BUNDLE_ID TEAM_ID PROFILE_NAME [USES_ENCRYPTION]
 #
 # 예시:
-#   ./init.sh /Users/suh/projects/MyApp com.example.myapp ABC1234DEF "MyApp Distribution"
+#   ./init.sh /path/to/project com.example.myapp ABC1234DEF "MyApp Distribution"
+#   ./init.sh /path/to/project com.example.myapp ABC1234DEF "MyApp Distribution" false
 #
-# 생성되는 파일:
-#   - ios/Gemfile
-#   - ios/fastlane/Appfile
-#   - ios/fastlane/Fastfile
+# 생성/수정되는 파일:
+#   - ios/Gemfile                    (Fastlane 의존성)
+#   - ios/fastlane/Fastfile          (TestFlight 업로드 설정) ★ 핵심
+#   - ios/ExportOptions.plist        (IPA 익스포트 설정) ★ 핵심
+#   - ios/Runner.xcodeproj           (Manual Signing 패치) ★ 핵심
+#   - ios/Runner/Info.plist          (암호화 설정)
 #
 # ===================================================================
 
@@ -56,6 +70,16 @@ show_help() {
     cat << EOF
 ${CYAN}Flutter iOS TestFlight 초기화 스크립트${NC}
 
+${YELLOW}★ 마법사 우선 아키텍처 ★${NC}
+  모든 설정 파일은 이 마법사가 생성하고,
+  GitHub Actions 워크플로우는 생성된 파일을 그대로 사용합니다.
+
+${BLUE}빌드 파이프라인:${NC}
+  1. flutter build ios --no-codesign (Flutter 빌드)
+  2. xcodebuild archive (Xcode 아카이브 생성)
+  3. xcodebuild -exportArchive (IPA 생성)
+  4. fastlane upload_testflight (TestFlight 업로드)
+
 ${BLUE}사용법:${NC}
   ./init.sh PROJECT_PATH BUNDLE_ID TEAM_ID PROFILE_NAME [USES_ENCRYPTION]
 
@@ -67,14 +91,15 @@ ${BLUE}매개변수:${NC}
   USES_ENCRYPTION   암호화 사용 여부 (true/false, 기본값: false)
 
 ${BLUE}예시:${NC}
-  ./init.sh /Users/suh/projects/MyApp com.example.myapp ABC1234DEF "MyApp Distribution"
-  ./init.sh /Users/suh/projects/MyApp com.example.myapp ABC1234DEF "MyApp Distribution" false
+  ./init.sh /path/to/project com.example.myapp ABC1234DEF "MyApp Distribution"
+  ./init.sh /path/to/project com.example.myapp ABC1234DEF "MyApp Distribution" false
 
-${BLUE}생성되는 파일:${NC}
-  - ios/Gemfile              Ruby 의존성 (Fastlane)
-  - ios/fastlane/Appfile     앱 정보 설정
-  - ios/fastlane/Fastfile    빌드 및 배포 설정
-  - ios/Runner/Info.plist    암호화 설정 (ITSAppUsesNonExemptEncryption)
+${BLUE}생성/수정되는 파일:${NC}
+  - ios/Gemfile                    Fastlane 의존성
+  - ios/fastlane/Fastfile          TestFlight 업로드 설정 ★
+  - ios/ExportOptions.plist        IPA 익스포트 설정 ★
+  - ios/Runner.xcodeproj           Manual Signing 패치 ★
+  - ios/Runner/Info.plist          암호화 설정 (ITSAppUsesNonExemptEncryption)
 
 EOF
 }
@@ -175,52 +200,23 @@ EOF
     print_success "Gemfile 생성 완료: $gemfile_path"
 }
 
-# Appfile 생성
-create_appfile() {
-    print_step "Appfile 생성 중..."
-
-    local fastlane_dir="$PROJECT_PATH/ios/fastlane"
-    local appfile_path="$fastlane_dir/Appfile"
-
-    # fastlane 디렉토리 생성
-    mkdir -p "$fastlane_dir"
-
-    cat > "$appfile_path" << EOF
-# ===================================================================
-# Fastlane Appfile - 앱 정보 설정
-# ===================================================================
-#
-# 이 파일은 환경변수를 통해 앱 정보를 설정합니다.
-# GitHub Actions에서 Secrets를 통해 값이 주입됩니다.
-#
-# ===================================================================
-
-# App Identifier (Bundle ID)
-# GitHub Secret: IOS_BUNDLE_ID
-app_identifier(ENV["IOS_BUNDLE_ID"] || "$BUNDLE_ID")
-
-# Apple Developer Team ID
-# GitHub Secret: APPLE_TEAM_ID
-team_id(ENV["APPLE_TEAM_ID"] || "$TEAM_ID")
-
-# App Store Connect Team ID (일반적으로 team_id와 동일)
-# 여러 팀에 속한 경우에만 별도 설정 필요
-# itc_team_id(ENV["ITC_TEAM_ID"])
-
-# Apple ID (App Store Connect API Key 사용 시 불필요)
-# apple_id(ENV["APPLE_ID"])
-EOF
-
-    print_success "Appfile 생성 완료: $appfile_path"
-}
-
 # Fastfile 생성 (템플릿에서 복사)
+# ★ 이 파일이 GitHub Actions 워크플로우에서 직접 사용됩니다 ★
 create_fastfile() {
     print_step "Fastfile 생성 중..."
 
     local fastlane_dir="$PROJECT_PATH/ios/fastlane"
     local fastfile_path="$fastlane_dir/Fastfile"
     local template_fastfile="$TEMPLATE_DIR/Fastfile"
+
+    # fastlane 디렉토리 생성
+    mkdir -p "$fastlane_dir"
+
+    # 기존 파일 백업
+    if [ -f "$fastfile_path" ]; then
+        print_warning "기존 Fastfile 백업: ${fastfile_path}.bak"
+        cp "$fastfile_path" "${fastfile_path}.bak"
+    fi
 
     # 템플릿 파일 존재 확인
     if [ ! -f "$template_fastfile" ]; then
@@ -232,7 +228,7 @@ create_fastfile() {
     cp "$template_fastfile" "$fastfile_path"
 
     print_success "Fastfile 생성 완료: $fastfile_path"
-    print_info "  → 템플릿에서 복사됨: $template_fastfile"
+    print_info "  → GitHub Actions 워크플로우에서 이 파일을 직접 사용합니다"
 }
 
 # ExportOptions.plist 생성 (xcodebuild -exportArchive에 필요)
@@ -604,13 +600,15 @@ print_completion() {
     echo -e "${GREEN}║          🎉 iOS TestFlight 배포 설정 완료! 🎉                  ║${NC}"
     echo -e "${GREEN}╚════════════════════════════════════════════════════════════════╝${NC}"
     echo ""
+    echo -e "${YELLOW}★ 마법사 우선 아키텍처 ★${NC}"
+    echo "  모든 설정이 완료되었습니다. 워크플로우는 이 파일들을 그대로 사용합니다."
+    echo ""
     echo -e "${CYAN}생성/수정된 파일:${NC}"
-    echo "  ✅ ios/Gemfile"
-    echo "  ✅ ios/fastlane/Appfile"
-    echo "  ✅ ios/fastlane/Fastfile (pilot 기반 TestFlight 업로드)"
-    echo "  ✅ ios/ExportOptions.plist (xcodebuild -exportArchive용)"
-    echo "  ✅ ios/Runner.xcodeproj/project.pbxproj (Manual Signing 설정)"
-    echo "  ✅ ios/Runner/Info.plist (암호화 설정 추가)"
+    echo "  ✅ ios/Gemfile                    (Fastlane 의존성)"
+    echo "  ✅ ios/fastlane/Fastfile          (TestFlight 업로드) ★ 워크플로우에서 직접 사용"
+    echo "  ✅ ios/ExportOptions.plist        (IPA 익스포트 설정) ★ 핵심"
+    echo "  ✅ ios/Runner.xcodeproj           (Manual Signing 패치) ★ 핵심"
+    echo "  ✅ ios/Runner/Info.plist          (암호화 설정)"
     echo ""
     echo -e "${CYAN}설정된 정보:${NC}"
     echo "  • Bundle ID: $BUNDLE_ID"
@@ -618,13 +616,27 @@ print_completion() {
     echo "  • Profile Name: $PROFILE_NAME"
     echo "  • Code Sign Style: Manual"
     echo "  • 암호화 설정: $encryption_display"
-    echo "  • 빌드 방식: xcodebuild 직접 사용 (Fastlane build_app 미사용)"
+    echo ""
+    echo -e "${CYAN}빌드 파이프라인:${NC}"
+    echo "  1. flutter build ios --no-codesign"
+    echo "  2. xcodebuild archive"
+    echo "  3. xcodebuild -exportArchive (ExportOptions.plist 사용)"
+    echo "  4. fastlane upload_testflight (Fastfile의 lane 사용)"
     echo ""
     echo -e "${YELLOW}다음 단계:${NC}"
-    echo "  1. GitHub Secrets 설정 (마법사 Step 4 참고)"
+    echo "  1. GitHub Secrets 설정:"
+    echo "     • APPLE_CERTIFICATE_BASE64"
+    echo "     • APPLE_CERTIFICATE_PASSWORD"
+    echo "     • APPLE_PROVISIONING_PROFILE_BASE64"
+    echo "     • IOS_PROVISIONING_PROFILE_NAME"
+    echo "     • APP_STORE_CONNECT_API_KEY_ID"
+    echo "     • APP_STORE_CONNECT_ISSUER_ID"
+    echo "     • APP_STORE_CONNECT_API_KEY_BASE64"
+    echo ""
     echo "  2. 변경사항 커밋:"
-    echo "     git add ios/Gemfile ios/fastlane/ ios/ExportOptions.plist ios/Runner.xcodeproj/project.pbxproj ios/Runner/Info.plist"
-    echo "     git commit -m \"chore: iOS TestFlight 배포 설정 및 암호화 선언 추가\""
+    echo "     git add ios/"
+    echo "     git commit -m \"chore: iOS TestFlight 배포 설정\""
+    echo ""
     echo "  3. deploy 브랜치로 푸시하여 빌드 테스트"
     echo ""
 }
@@ -661,7 +673,6 @@ main() {
 
     # 파일 생성
     create_gemfile
-    create_appfile
     create_fastfile
     create_export_options_plist
     update_gitignore

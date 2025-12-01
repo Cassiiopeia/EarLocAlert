@@ -446,14 +446,111 @@
                 Distribution 인증서 (.p12)
             </h2>
 
-            <div class="bg-yellow-900/30 border border-yellow-700 rounded-lg p-4 mb-6">
-                <p class="text-sm text-yellow-200 mb-2">📋 .p12 파일 만드는 방법</p>
-                <ol class="text-xs text-slate-300 list-decimal list-inside space-y-1">
-                    <li>Mac "키체인 접근" 앱 열기</li>
-                    <li>"Apple Distribution" 인증서 찾기</li>
-                    <li>우클릭 → "내보내기" → .p12 선택</li>
-                    <li>비밀번호 설정</li>
+            <!-- 인증서가 없는 경우: Apple Developer에서 생성 가이드 -->
+            <div class="bg-blue-900/30 border border-blue-700 rounded-lg p-4 mb-4">
+                <p class="text-sm text-blue-200 mb-3">🆕 인증서가 없다면? Apple Developer에서 먼저 생성하세요</p>
+
+                <!-- 바로가기 버튼 -->
+                <div class="mb-3">
+                    <a href="https://developer.apple.com/account/resources/certificates/list"
+                       target="_blank" rel="noopener"
+                       class="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 rounded text-xs font-medium transition">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                        </svg>
+                        Apple Developer Certificates 페이지 열기
+                    </a>
+                </div>
+
+                <ol class="text-xs text-slate-300 list-decimal list-inside space-y-2">
+                    <li>위 버튼 클릭 → Certificates 페이지 열기</li>
+                    <li><span class="text-blue-400 font-medium">+</span> 버튼 클릭</li>
+                    <li class="pl-4">
+                        <div class="mt-1 p-2 bg-slate-800/50 rounded border-l-4 border-red-500">
+                            <span class="text-red-400 font-bold">⚠️ 중요! 올바른 타입 선택:</span>
+                            <div class="mt-1 space-y-1">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-green-400">✅</span>
+                                    <span><span class="text-green-400 font-bold">Apple Distribution</span> - App Store 배포용 (이것 선택!)</span>
+                                </div>
+                                <div class="flex items-center gap-2 text-slate-500">
+                                    <span class="text-red-400">❌</span>
+                                    <span>iOS Distribution - 구버전 (선택하지 마세요)</span>
+                                </div>
+                                <div class="flex items-center gap-2 text-slate-500">
+                                    <span class="text-red-400">❌</span>
+                                    <span>Apple Development - 개발용 (배포 불가)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    <li>CSR 파일 업로드 (키체인에서 생성)</li>
+                    <li>인증서 다운로드 → 더블클릭으로 키체인에 설치</li>
                 </ol>
+            </div>
+
+            <!-- 키체인에서 .p12 내보내기 가이드 -->
+            <div class="bg-yellow-900/30 border border-yellow-700 rounded-lg p-4 mb-6">
+                <p class="text-sm text-yellow-200 mb-2">📋 키체인에서 .p12 파일 내보내기</p>
+                <ol class="text-xs text-slate-300 list-decimal list-inside space-y-1">
+                    <li>Mac에서 <span class="text-yellow-400">"키체인 접근"</span> 앱 열기 (Spotlight: ⌘+Space → "키체인")</li>
+                    <li>왼쪽 사이드바에서 <span class="text-yellow-400">"로그인"</span> 키체인 선택</li>
+                    <li>상단 카테고리에서 <span class="text-yellow-400">"인증서"</span> 선택</li>
+                    <li><span class="text-green-400 font-bold">"Apple Distribution: [팀이름]"</span> 인증서 찾기</li>
+                    <li>인증서 우클릭 → <span class="text-yellow-400">"[인증서명] 내보내기"</span></li>
+                    <li>파일 포맷: <span class="text-orange-400 font-bold">.p12</span> 선택</li>
+                    <li>안전한 비밀번호 설정 (아래에 입력)</li>
+                </ol>
+            </div>
+
+            <!-- 키체인 시각화 -->
+            <div class="bg-slate-700/50 border border-slate-600 rounded-lg p-4 mb-6">
+                <p class="text-sm font-medium text-blue-400 mb-3">📍 키체인 접근 앱에서 찾는 위치</p>
+                <div class="bg-slate-900 rounded-lg p-3 font-mono text-xs overflow-x-auto">
+                    <div class="flex gap-4">
+                        <!-- 사이드바 -->
+                        <div class="border-r border-slate-700 pr-4">
+                            <div class="text-slate-500 text-[10px] mb-1">키체인</div>
+                            <div class="text-yellow-400 bg-yellow-900/30 px-2 py-0.5 rounded">로그인</div>
+                            <div class="text-slate-500 px-2 py-0.5">시스템</div>
+                        </div>
+                        <!-- 메인 영역 -->
+                        <div class="flex-1">
+                            <div class="text-slate-500 text-[10px] mb-1">카테고리</div>
+                            <div class="flex gap-2 mb-3">
+                                <span class="text-slate-500 px-2 py-0.5">모든 항목</span>
+                                <span class="text-yellow-400 bg-yellow-900/30 px-2 py-0.5 rounded">인증서</span>
+                                <span class="text-slate-500 px-2 py-0.5">암호</span>
+                            </div>
+                            <div class="border border-slate-700 rounded">
+                                <div class="border-l-4 border-green-500 p-2 bg-green-900/20 flex items-center gap-2">
+                                    <span class="text-lg">📜</span>
+                                    <div>
+                                        <div class="text-green-400 font-bold">Apple Distribution: Your Team Name</div>
+                                        <div class="text-slate-500 text-[10px]">만료: 2025년 12월 31일</div>
+                                    </div>
+                                </div>
+                                <div class="text-green-400 text-[10px] pl-6 py-1">↑ 이 인증서 우클릭 → "내보내기"</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pro Tips -->
+            <div class="bg-gradient-to-r from-emerald-900/30 to-blue-900/30 border border-emerald-700 rounded-lg p-4 mb-6">
+                <p class="text-sm font-medium text-emerald-400 mb-2">💡 알아두면 좋은 것</p>
+                <ul class="text-xs text-slate-300 space-y-2">
+                    <li class="flex items-start gap-2">
+                        <span class="text-emerald-400">✓</span>
+                        <span>인증서 옆에 <span class="text-slate-400">▶</span> 화살표가 있으면 개인키가 포함된 것입니다. 개인키가 있어야 .p12 내보내기가 가능해요.</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <span class="text-yellow-400">⚠️</span>
+                        <span>인증서가 여러 개라면 <span class="text-yellow-400">가장 최근 것</span>을 선택하세요.</span>
+                    </li>
+                </ul>
             </div>
 
             <div class="file-upload" id="p12-upload" onclick="document.getElementById('p12-input').click()">
@@ -485,14 +582,87 @@
                 Provisioning Profile (.mobileprovision)
             </h2>
 
+            <!-- 바로가기 버튼 -->
+            <div class="mb-4">
+                <a href="https://developer.apple.com/account/resources/profiles/list"
+                   target="_blank" rel="noopener"
+                   class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm font-medium transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                    </svg>
+                    Apple Developer Profiles 페이지 열기
+                </a>
+            </div>
+
             <div class="bg-yellow-900/30 border border-yellow-700 rounded-lg p-4 mb-6">
-                <p class="text-sm text-yellow-200 mb-2">📋 만드는 방법</p>
-                <ol class="text-xs text-slate-300 list-decimal list-inside space-y-1">
-                    <li>Apple Developer → Profiles</li>
-                    <li>"App Store Connect" 선택</li>
-                    <li>App ID 및 Distribution 인증서 선택</li>
-                    <li>Download</li>
+                <p class="text-sm text-yellow-200 mb-2">📋 Provisioning Profile 생성 방법</p>
+                <ol class="text-xs text-slate-300 list-decimal list-inside space-y-2">
+                    <li>위 버튼 클릭 → Profiles 페이지 열기</li>
+                    <li><span class="text-blue-400 font-medium">+</span> 버튼 클릭</li>
+                    <li class="pl-4">
+                        <div class="mt-1 p-2 bg-slate-800/50 rounded border-l-4 border-red-500">
+                            <span class="text-red-400 font-bold">⚠️ Distribution 타입 선택:</span>
+                            <div class="mt-1 space-y-1">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-green-400">✅</span>
+                                    <span><span class="text-green-400 font-bold">App Store Connect</span> - TestFlight & App Store 배포용</span>
+                                </div>
+                                <div class="flex items-center gap-2 text-slate-500">
+                                    <span class="text-red-400">❌</span>
+                                    <span>Ad Hoc - 제한된 디바이스 테스트용</span>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    <li>App ID 선택 (앱의 Bundle ID와 일치하는 것)</li>
+                    <li>Distribution Certificate 선택 (Step 3에서 만든 인증서)</li>
+                    <li>프로파일 이름 입력 → Generate → Download</li>
                 </ol>
+            </div>
+
+            <!-- 시각화 -->
+            <div class="bg-slate-700/50 border border-slate-600 rounded-lg p-4 mb-6">
+                <p class="text-sm font-medium text-blue-400 mb-3">📍 생성 과정 미리보기</p>
+                <div class="bg-slate-900 rounded-lg p-3 font-mono text-xs">
+                    <div class="space-y-2">
+                        <div class="flex items-center gap-2">
+                            <span class="text-slate-500">1.</span>
+                            <span class="text-slate-400">Register a New Provisioning Profile</span>
+                        </div>
+                        <div class="border-l-4 border-green-500 pl-3 py-1 bg-green-900/20 rounded-r">
+                            <div class="text-slate-400 text-[10px]">Distribution</div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-green-400">◉</span>
+                                <span class="text-green-400 font-bold">App Store Connect</span>
+                            </div>
+                            <div class="flex items-center gap-2 text-slate-500">
+                                <span>○</span>
+                                <span>Ad Hoc</span>
+                            </div>
+                        </div>
+                        <div class="text-green-400 text-[10px]">↑ App Store Connect 선택!</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pro Tips -->
+            <div class="bg-gradient-to-r from-emerald-900/30 to-blue-900/30 border border-emerald-700 rounded-lg p-4 mb-6">
+                <p class="text-sm font-medium text-emerald-400 mb-2">💡 알아두면 좋은 것</p>
+                <ul class="text-xs text-slate-300 space-y-2">
+                    <li class="flex items-start gap-2">
+                        <span class="text-emerald-400">✓</span>
+                        <span>프로파일 이름은 GitHub Secrets의 <span class="text-orange-400">IOS_PROVISIONING_PROFILE_NAME</span>과 정확히 일치해야 합니다.</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <span class="text-emerald-400">✓</span>
+                        <span>이미 프로파일이 있다면 Download 버튼으로 다시 받을 수 있어요.</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <span class="text-yellow-400">⚠️</span>
+                        <span>인증서를 새로 만들었다면 프로파일도 <span class="text-yellow-400">새로 생성하거나 Edit</span>해서 인증서를 업데이트하세요.</span>
+                    </li>
+                </ul>
             </div>
 
             <div class="file-upload" id="provision-upload" onclick="document.getElementById('provision-input').click()">
@@ -518,14 +688,104 @@
                 App Store Connect API Key (.p8)
             </h2>
 
+            <!-- 바로가기 버튼 -->
+            <div class="mb-4">
+                <a href="https://appstoreconnect.apple.com/access/integrations/api"
+                   target="_blank" rel="noopener"
+                   class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm font-medium transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                    </svg>
+                    App Store Connect API Keys 페이지 열기
+                </a>
+            </div>
+
             <div class="bg-yellow-900/30 border border-yellow-700 rounded-lg p-4 mb-6">
-                <p class="text-sm text-yellow-200 mb-2">📋 만드는 방법</p>
+                <p class="text-sm text-yellow-200 mb-2">📋 API Key 생성 방법</p>
                 <ol class="text-xs text-slate-300 list-decimal list-inside space-y-1">
-                    <li>App Store Connect → Keys</li>
-                    <li>"+" 버튼 → Admin/Developer 권한</li>
-                    <li>Download (.p8는 한 번만 다운 가능!)</li>
-                    <li>Issuer ID와 Key ID 복사</li>
+                    <li>위 버튼 클릭 → App Store Connect 열기</li>
+                    <li>Team Keys 탭에서 <span class="text-blue-400 font-medium">+</span> 버튼 클릭</li>
+                    <li>Name 입력 (예: MY-PROJECT-KEY)</li>
+                    <li>Access: <span class="text-orange-400 font-bold">Admin</span> 선택 (권장)</li>
+                    <li>Generate → <span class="text-red-400 font-bold">.p8 파일 즉시 다운로드!</span></li>
                 </ol>
+            </div>
+
+            <!-- App Store Connect 페이지 구조 시각화 -->
+            <div class="bg-slate-700/50 border border-slate-600 rounded-lg p-4 mb-6">
+                <p class="text-sm font-medium text-blue-400 mb-3">📍 App Store Connect 페이지에서 찾는 위치</p>
+                <div class="bg-slate-900 rounded-lg p-4 font-mono text-xs overflow-x-auto">
+                    <div class="text-slate-500 mb-2">Users and Access → Integrations → App Store Connect API</div>
+                    <div class="border border-slate-600 rounded p-3">
+                        <!-- Issuer ID 섹션 -->
+                        <div class="border-l-4 border-yellow-500 pl-3 mb-4 py-2 bg-yellow-900/20 rounded-r">
+                            <div class="text-slate-400 text-[10px] mb-1">⬇️ 페이지 중간에 별도로 표시됨</div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-slate-400">Issuer ID</span>
+                                <span class="text-slate-500">ⓘ</span>
+                            </div>
+                            <div class="flex items-center gap-2 mt-1">
+                                <span class="text-yellow-400 font-bold">5e4f25aa-151d-4c7b-8a0a-bdca9408b91b</span>
+                                <span class="text-blue-400 text-[10px] border border-blue-400 rounded px-1">Copy</span>
+                            </div>
+                            <div class="text-green-400 text-[10px] mt-1">↑ 여기서 Copy 버튼 클릭!</div>
+                        </div>
+
+                        <!-- Active Keys 테이블 -->
+                        <div class="text-slate-400 mb-2">Active (2) <span class="text-green-500">●</span></div>
+                        <div class="border border-slate-700 rounded overflow-hidden">
+                            <div class="grid grid-cols-4 gap-2 p-2 bg-slate-800 text-slate-500 text-[10px]">
+                                <span>NAME</span>
+                                <span>GENERATED BY</span>
+                                <span class="text-orange-400">KEY ID</span>
+                                <span>ACCESS</span>
+                            </div>
+                            <div class="border-l-4 border-orange-500 grid grid-cols-4 gap-2 p-2 text-slate-300 bg-orange-900/20">
+                                <span>MY-PROJECT-KEY</span>
+                                <span class="text-slate-500">홍길동</span>
+                                <span class="text-orange-400 font-bold">K5G43WHU34</span>
+                                <span class="text-purple-400">Admin</span>
+                            </div>
+                            <div class="text-green-400 text-[10px] pl-6 py-1">↑ Key ID는 테이블에서 복사!</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pro Tips 섹션 -->
+            <div class="bg-gradient-to-r from-emerald-900/30 to-blue-900/30 border border-emerald-700 rounded-lg p-4 mb-6">
+                <p class="text-sm font-medium text-emerald-400 mb-3">💡 Pro Tips - 꼭 알아두세요!</p>
+                <ul class="text-xs text-slate-300 space-y-3">
+                    <li class="flex items-start gap-2">
+                        <span class="text-emerald-400 mt-0.5">✓</span>
+                        <div>
+                            <strong class="text-emerald-300">Admin 권한 Key 하나로 모든 프로젝트 관리!</strong><br>
+                            <span class="text-slate-400">여러 앱에 동일한 API Key를 사용할 수 있습니다. 프로젝트마다 새로 만들 필요 없어요.</span>
+                        </div>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <span class="text-emerald-400 mt-0.5">✓</span>
+                        <div>
+                            <strong class="text-emerald-300">Issuer ID는 팀 전체 공유!</strong><br>
+                            <span class="text-slate-400">Issuer ID는 Apple Developer 계정(Team) 단위로 고정입니다. 모든 API Key가 동일한 Issuer ID를 사용합니다.</span>
+                        </div>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <span class="text-yellow-400 mt-0.5">⚠️</span>
+                        <div>
+                            <strong class="text-yellow-300">.p8 파일은 딱 한 번만 다운로드 가능!</strong><br>
+                            <span class="text-slate-400">생성 직후 반드시 안전한 곳에 백업하세요. 분실 시 새로 생성해야 합니다.</span>
+                        </div>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <span class="text-blue-400 mt-0.5">💾</span>
+                        <div>
+                            <strong class="text-blue-300">이미 Key가 있다면 재사용하세요!</strong><br>
+                            <span class="text-slate-400">기존에 만든 Admin Key가 있다면 .p8 파일만 있으면 됩니다. Key ID와 Issuer ID는 페이지에서 다시 확인 가능해요.</span>
+                        </div>
+                    </li>
+                </ul>
             </div>
 
             <div class="file-upload" id="p8-upload" onclick="document.getElementById('p8-input').click()">
@@ -537,13 +797,44 @@
 
             <div class="grid md:grid-cols-2 gap-4 mb-6">
                 <div>
-                    <label class="block text-sm font-medium mb-2 text-slate-300">API Key ID</label>
+                    <label class="block text-sm font-medium mb-2 text-slate-300">
+                        <span class="tooltip-container">
+                            API Key ID
+                            <span class="tooltip-trigger">
+                                <svg class="w-4 h-4 text-slate-400 inline-block ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </span>
+                            <div class="tooltip-content" style="width: 260px;">
+                                <strong class="text-orange-400">📍 위치</strong><br>
+                                Active Keys 테이블의 <span class="text-orange-400">"KEY ID"</span> 열<br>
+                                <span class="text-slate-400 text-[11px]">예: K5G43WHU34, HNR6V59W9U</span>
+                            </div>
+                        </span>
+                    </label>
                     <input type="text" id="api-key-id" placeholder="K5G43WHU34"
                         class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2.5 text-sm focus:border-orange-500 outline-none">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium mb-2 text-slate-300">Issuer ID</label>
-                    <input type="text" id="issuer-id" placeholder="5e4f25aa-151d-..."
+                    <label class="block text-sm font-medium mb-2 text-slate-300">
+                        <span class="tooltip-container">
+                            Issuer ID
+                            <span class="tooltip-trigger">
+                                <svg class="w-4 h-4 text-slate-400 inline-block ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </span>
+                            <div class="tooltip-content" style="width: 300px;">
+                                <strong class="text-yellow-400">📍 위치 (주의!)</strong><br>
+                                테이블 <span class="text-yellow-400 font-bold">위쪽</span>에 별도로 표시됨!<br>
+                                <span class="text-slate-400 text-[11px]">"Issuer ID" 라벨 옆의 Copy 버튼 클릭</span><br>
+                                <span class="text-emerald-400 text-[11px]">모든 Key가 동일한 Issuer ID 공유</span>
+                            </div>
+                        </span>
+                    </label>
+                    <input type="text" id="issuer-id" placeholder="5e4f25aa-151d-4c7b-8a0a-..."
                         class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2.5 text-sm focus:border-orange-500 outline-none">
                 </div>
             </div>

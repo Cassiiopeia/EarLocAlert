@@ -1,3 +1,60 @@
+# ===================================================================
+# Flutter iOS TestFlight 자동 배포 워크플로우
+# ===================================================================
+#
+# 이 워크플로우는 Flutter iOS 앱을 빌드하여 TestFlight에 자동 배포합니다.
+#
+# ★ 마법사 우선 아키텍처 ★
+# - 빌드에 필요한 설정 파일들은 웹 마법사가 생성합니다
+# - 워크플로우는 마법사가 생성한 파일들을 그대로 사용합니다
+# - 마법사 경로: .github/util/flutter-ios-testflight-init/index.html
+#   (브라우저에서 열어서 사용)
+#
+# 빌드 파이프라인:
+#   1. flutter build ios --no-codesign (Flutter 빌드)
+#   2. xcodebuild archive (Xcode 아카이브 생성)
+#   3. xcodebuild -exportArchive (IPA 생성, ExportOptions.plist 사용)
+#   4. fastlane upload_testflight (마법사 생성 Fastfile 사용)
+#
+# ===================================================================
+# 📋 필요한 GitHub Secrets
+# ===================================================================
+#
+# 🔐 Apple 인증서 & 프로비저닝 프로파일 (필수):
+#   - APPLE_CERTIFICATE_BASE64        : .p12 인증서 (base64 인코딩)
+#   - APPLE_CERTIFICATE_PASSWORD      : .p12 인증서 비밀번호
+#   - APPLE_PROVISIONING_PROFILE_BASE64 : .mobileprovision 파일 (base64 인코딩)
+#   - IOS_PROVISIONING_PROFILE_NAME   : 프로비저닝 프로파일 이름 (예: "MyApp Distribution")
+#
+# 🔑 App Store Connect API (필수):
+#   - APP_STORE_CONNECT_API_KEY_ID    : API Key ID (10자리, 예: ABC123DEF4)
+#   - APP_STORE_CONNECT_ISSUER_ID     : Issuer ID (UUID 형식)
+#   - APP_STORE_CONNECT_API_KEY_BASE64: AuthKey_XXXXXX.p8 파일 (base64 인코딩)
+#
+# 📝 환경 설정 (선택):
+#   - ENV                             : .env 파일 내용 (앱에서 사용하는 환경변수)
+#   - SECRETS_XCCONFIG                : ios/Flutter/Secrets.xcconfig 내용 (선택)
+#                                       iOS 네이티브 빌드 시 필요한 API 키 등
+#                                       (예: GOOGLE_MAPS_API_KEY=xxx)
+#
+# ===================================================================
+# 🛠️ 초기 설정 방법
+# ===================================================================
+#
+# 1. 웹 마법사 실행:
+#    브라우저에서 .github/util/flutter-ios-testflight-init/index.html 열기
+#    → 필요한 정보 입력 후 설정 파일 다운로드
+#
+# 2. GitHub Secrets 설정 (위 목록 참고)
+#
+# 3. 생성된 파일 커밋:
+#    git add ios/
+#    git commit -m "chore: iOS TestFlight 배포 설정"
+#
+# 4. deploy 브랜치로 푸시하여 배포 시작
+#
+# ===================================================================
+
 name: PROJECT-iOS-TestFlight-Deploy
 
 on:
@@ -16,6 +73,12 @@ env:
   FLUTTER_VERSION: "3.35.5"
   XCODE_VERSION: "16.3"
   PROJECT_TYPE: "flutter"
+
+  # ============================================
+  # 📝 환경 파일 설정
+  # ============================================
+  # .env 파일 생성 경로 (프로젝트 루트 기준)
+  ENV_FILE_PATH: ".env"
 
   # ============================================
   # 📝 TestFlight Changelog 설정
@@ -48,8 +111,10 @@ jobs:
 
       - name: Create .env file
         run: |
-          echo "${{ secrets.ENV_FILE }}" > .env
-          echo ".env file created"
+          cat << 'EOF' > ${{ env.ENV_FILE_PATH }}
+          ${{ secrets.ENV }}
+          EOF
+          echo "✅ ${{ env.ENV_FILE_PATH }} file created"
 
       - name: Create Secrets.xcconfig file
         run: |
@@ -137,7 +202,7 @@ jobs:
         with:
           name: project-files
           path: |
-            .env
+            ${{ env.ENV_FILE_PATH }}
             ios/Flutter/Secrets.xcconfig
             pubspec.yaml
             lib/
@@ -173,8 +238,11 @@ jobs:
 
       - name: Ensure .env file exists
         run: |
-          if [ ! -f .env ]; then
-            echo "${{ secrets.ENV_FILE }}" > .env
+          if [ ! -f "${{ env.ENV_FILE_PATH }}" ]; then
+            cat << 'EOF' > ${{ env.ENV_FILE_PATH }}
+          ${{ secrets.ENV }}
+          EOF
+            echo "✅ ${{ env.ENV_FILE_PATH }} file created (fallback)"
           fi
 
       - name: Set up Flutter
@@ -261,7 +329,7 @@ jobs:
           retention-days: 1
 
   # ============================================
-  # TestFlight 배포 (Fastlane pilot만 사용)
+  # TestFlight 배포 (마법사 생성 Fastfile 사용)
   # ============================================
   deploy-testflight:
     name: TestFlight 배포
@@ -292,45 +360,28 @@ jobs:
           name: release-notes
           path: .
 
-      - name: Install Fastlane
+      - name: Verify Fastfile exists
         run: |
-          gem install fastlane
-          cd ios
-          mkdir -p fastlane
-          cat > fastlane/Fastfile << 'EOF'
-          default_platform(:ios)
+          if [ ! -f "ios/fastlane/Fastfile" ]; then
+            echo "❌ ios/fastlane/Fastfile이 없습니다!"
+            echo "웹 마법사를 실행하여 설정 파일을 생성하세요:"
+            echo "  브라우저에서 .github/util/flutter-ios-testflight-init/index.html 열기"
+            exit 1
+          fi
+          echo "✅ Fastfile 확인됨: ios/fastlane/Fastfile"
 
-          platform :ios do
-            lane :upload_testflight do
-              api_key = app_store_connect_api_key(
-                key_id: ENV["APP_STORE_CONNECT_API_KEY_ID"],
-                issuer_id: ENV["APP_STORE_CONNECT_ISSUER_ID"],
-                key_filepath: ENV["API_KEY_PATH"]
-              )
+      - name: Install Fastlane
+        run: gem install fastlane
 
-              upload_to_testflight(
-                api_key: api_key,
-                ipa: ENV["IPA_PATH"],
-                changelog: ENV["RELEASE_NOTES"],
-                localized_build_info: {
-                  "ko" => { whats_new: ENV["RELEASE_NOTES"] },
-                  "en-US" => { whats_new: ENV["RELEASE_NOTES"] }
-                },
-                skip_waiting_for_build_processing: false,
-                distribute_external: false,
-                notify_external_testers: false,
-                uses_non_exempt_encryption: false
-              )
-            end
-          end
-          EOF
-
-      # TestFlight 업로드
       - name: Upload to TestFlight
+        env:
+          APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          SKIP_WAITING_FOR_BUILD_PROCESSING: ${{ env.SKIP_WAITING_FOR_BUILD_PROCESSING }}
         run: |
           # IPA 파일 찾기
           IPA_PATH=$(find $GITHUB_WORKSPACE/ios/build/ipa -name "*.ipa" | head -1)
-          echo "Found IPA at: $IPA_PATH"
+          echo "📦 Found IPA at: $IPA_PATH"
 
           if [ ! -f "$IPA_PATH" ]; then
             echo "❌ IPA 파일을 찾을 수 없습니다!"
@@ -341,37 +392,34 @@ jobs:
           # Release notes 준비
           if [ -f "final_release_notes.txt" ]; then
             RELEASE_NOTES=$(cat final_release_notes.txt)
-            echo "Release Notes 포함하여 업로드:"
+            echo "📝 Release Notes:"
             echo "$RELEASE_NOTES"
           else
             RELEASE_NOTES="v${{ needs.prepare-build.outputs.version }} 업데이트"
-            echo "기본 Release Notes로 업로드: $RELEASE_NOTES"
+            echo "📝 기본 Release Notes: $RELEASE_NOTES"
           fi
 
-          # 환경변수 설정
-          export APP_STORE_CONNECT_API_KEY_ID="${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}"
-          export APP_STORE_CONNECT_ISSUER_ID="${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}"
+          # 환경변수 설정 (Fastfile에서 사용)
           export API_KEY_PATH="$HOME/.appstoreconnect/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}.p8"
           export IPA_PATH="$IPA_PATH"
           export RELEASE_NOTES="$RELEASE_NOTES"
 
           # 디버깅 정보
-          echo "Working directory: $(pwd)"
-          echo "IPA_PATH: $IPA_PATH"
-          echo "API_KEY_PATH: $API_KEY_PATH"
+          echo "🔧 Working directory: $(pwd)"
+          echo "🔧 IPA_PATH: $IPA_PATH"
+          echo "🔧 API_KEY_PATH: $API_KEY_PATH"
 
-          # Fastlane 실행
+          # Fastlane 실행 (마법사가 생성한 Fastfile 사용)
           cd ios
           fastlane upload_testflight
 
-      # 성공 알림
       - name: Notify TestFlight Upload Success
         if: success()
         run: |
           echo "✅ TestFlight 업로드 성공!"
-          echo "버전: ${{ needs.prepare-build.outputs.version }}"
-          echo "빌드번호: ${{ needs.prepare-build.outputs.build_number }}"
-          echo "커밋: ${{ github.sha }}"
+          echo "📱 버전: ${{ needs.prepare-build.outputs.version }}"
+          echo "🔢 빌드번호: ${{ needs.prepare-build.outputs.build_number }}"
+          echo "📝 커밋: ${{ github.sha }}"
 
       - name: Notify on Failure
         if: failure()
