@@ -45,7 +45,16 @@ function loadState() {
         const saved = localStorage.getItem(STORAGE_KEY);
         if (saved) {
             const savedState = JSON.parse(saved);
+            // 현재 코드의 totalSteps 보존 (버전 업그레이드 시 캐시된 값 무시)
+            const currentTotalSteps = state.totalSteps;
             Object.assign(state, savedState);
+            state.totalSteps = currentTotalSteps; // 항상 현재 코드 기준으로 설정
+
+            // currentStep이 totalSteps를 초과하면 보정
+            if (state.currentStep > state.totalSteps) {
+                state.currentStep = state.totalSteps;
+            }
+
             restoreUIFromState();
             return true;
         }
