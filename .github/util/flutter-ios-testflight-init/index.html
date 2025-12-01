@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flutter iOS TestFlight 설정 마법사</title>
+    <title>Flutter iOS TestFlight 통합 마법사</title>
     <!-- Pretendard 폰트 -->
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
     <script src="https://cdn.tailwindcss.com"></script>
@@ -92,6 +92,45 @@
             word-break: break-all;
         }
 
+        /* File Upload Styles */
+        .file-upload {
+            border: 2px dashed #3f3f46;
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 16px;
+            background: #1e293b;
+        }
+        .file-upload:hover {
+            border-color: #60a5fa;
+            background: rgba(59, 130, 246, 0.05);
+        }
+        .file-upload.dragover {
+            border-color: #22c55e;
+            background: rgba(34, 197, 94, 0.1);
+        }
+        .file-upload.has-file {
+            border-color: #22c55e;
+            background: rgba(34, 197, 94, 0.1);
+        }
+        .file-upload .icon {
+            font-size: 2.5rem;
+            margin-bottom: 8px;
+        }
+        .file-upload input {
+            display: none;
+        }
+        .file-info {
+            margin-top: 12px;
+            padding: 8px;
+            background: rgba(34, 197, 94, 0.2);
+            border-radius: 6px;
+            font-size: 0.85rem;
+            color: #22c55e;
+        }
+
         /* Custom Scrollbar */
         ::-webkit-scrollbar {
             width: 8px;
@@ -172,90 +211,143 @@
             overflow-y: auto;
             padding: 24px;
         }
+
+        /* Skip Button */
+        .skip-btn {
+            color: #94a3b8;
+            font-size: 0.75rem;
+            text-decoration: underline;
+            cursor: pointer;
+            display: inline-block;
+            margin-top: 8px;
+        }
+        .skip-btn:hover {
+            color: #e2e8f0;
+        }
+
+        /* Result Item */
+        .result-item {
+            background: #18181b;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 12px;
+            border: 1px solid #3f3f46;
+        }
+        .result-item .key {
+            font-weight: 600;
+            color: #60a5fa;
+            margin-bottom: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+        }
+        .result-item .value {
+            background: #27272a;
+            padding: 8px;
+            border-radius: 6px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.8rem;
+            word-break: break-all;
+            max-height: 80px;
+            overflow-y: auto;
+            color: #cbd5e1;
+        }
+        .copy-btn-small {
+            padding: 4px 10px;
+            font-size: 0.75rem;
+            background: #3f3f46;
+            border: none;
+            border-radius: 4px;
+            color: #e4e4e7;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .copy-btn-small:hover {
+            background: #52525b;
+        }
+        .copy-btn-small.copied {
+            background: #22c55e;
+        }
     </style>
 </head>
 <body class="bg-slate-900 text-slate-200 min-h-screen font-sans">
+    <!-- 보안 경고 -->
+    <div id="securityWarning" class="fixed top-4 left-1/2 transform -translate-x-1/2 bg-yellow-900/90 border border-yellow-700 text-yellow-200 px-6 py-3 rounded-lg shadow-xl z-50 max-w-2xl hidden">
+        <div class="flex items-center gap-3">
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+            </svg>
+            <div class="flex-1">
+                <p class="text-sm font-medium">⚠️ 로컬 실행 전용 - 이 페이지를 닫으면 입력한 데이터가 사라집니다</p>
+            </div>
+            <button onclick="closeSecurityWarning()" class="text-yellow-400 hover:text-yellow-200">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+    </div>
+
     <div class="max-w-4xl mx-auto p-4 md:p-6">
         <!-- Header -->
         <header class="text-center py-8 mb-8 bg-gradient-to-r from-orange-500 to-pink-600 rounded-2xl shadow-xl">
             <h1 class="text-2xl md:text-3xl font-bold text-white mb-2">
-                🍎 Flutter iOS TestFlight 설정 마법사
+                🍎 Flutter iOS TestFlight 통합 마법사
             </h1>
             <p class="text-orange-100 text-sm md:text-base">
-                TestFlight 자동 배포를 위한 단계별 Fastlane 설정 가이드
+                프로젝트 설정부터 GitHub Secrets까지 한 번에!
             </p>
         </header>
 
         <!-- Progress Steps -->
-        <div class="flex justify-between mb-8 px-2">
-            <div class="step-indicator flex flex-col items-center flex-1 relative" data-step="1">
+        <div class="flex justify-between mb-8 px-2 overflow-x-auto">
+            <div class="step-indicator flex flex-col items-center flex-1 relative min-w-[60px]" data-step="1">
                 <div class="step-circle w-10 h-10 rounded-full bg-orange-500 text-white flex items-center justify-center font-bold text-sm z-10 shadow-lg">1</div>
                 <span class="text-xs mt-2 text-slate-400 text-center hidden md:block">프로젝트 경로</span>
             </div>
-            <div class="step-indicator flex flex-col items-center flex-1 relative" data-step="2">
+            <div class="step-indicator flex flex-col items-center flex-1 relative min-w-[60px]" data-step="2">
                 <div class="step-circle w-10 h-10 rounded-full bg-slate-700 text-slate-400 flex items-center justify-center font-bold text-sm z-10">2</div>
                 <span class="text-xs mt-2 text-slate-500 text-center hidden md:block">앱 정보</span>
             </div>
-            <div class="step-indicator flex flex-col items-center flex-1 relative" data-step="3">
+            <div class="step-indicator flex flex-col items-center flex-1 relative min-w-[60px]" data-step="3">
                 <div class="step-circle w-10 h-10 rounded-full bg-slate-700 text-slate-400 flex items-center justify-center font-bold text-sm z-10">3</div>
-                <span class="text-xs mt-2 text-slate-500 text-center hidden md:block">Fastlane 설정</span>
+                <span class="text-xs mt-2 text-slate-500 text-center hidden md:block">인증서</span>
             </div>
-            <div class="step-indicator flex flex-col items-center flex-1 relative" data-step="4">
+            <div class="step-indicator flex flex-col items-center flex-1 relative min-w-[60px]" data-step="4">
                 <div class="step-circle w-10 h-10 rounded-full bg-slate-700 text-slate-400 flex items-center justify-center font-bold text-sm z-10">4</div>
-                <span class="text-xs mt-2 text-slate-500 text-center hidden md:block">GitHub Secrets</span>
+                <span class="text-xs mt-2 text-slate-500 text-center hidden md:block">프로비저닝</span>
             </div>
-            <div class="step-indicator flex flex-col items-center flex-1" data-step="5">
+            <div class="step-indicator flex flex-col items-center flex-1 relative min-w-[60px]" data-step="5">
                 <div class="step-circle w-10 h-10 rounded-full bg-slate-700 text-slate-400 flex items-center justify-center font-bold text-sm z-10">5</div>
+                <span class="text-xs mt-2 text-slate-500 text-center hidden md:block">API Key</span>
+            </div>
+            <div class="step-indicator flex flex-col items-center flex-1 relative min-w-[60px]" data-step="6">
+                <div class="step-circle w-10 h-10 rounded-full bg-slate-700 text-slate-400 flex items-center justify-center font-bold text-sm z-10">6</div>
+                <span class="text-xs mt-2 text-slate-500 text-center hidden md:block">Fastlane</span>
+            </div>
+            <div class="step-indicator flex flex-col items-center flex-1 min-w-[60px]" data-step="7">
+                <div class="step-circle w-10 h-10 rounded-full bg-slate-700 text-slate-400 flex items-center justify-center font-bold text-sm z-10">7</div>
                 <span class="text-xs mt-2 text-slate-500 text-center hidden md:block">완료</span>
             </div>
         </div>
 
-        <!-- Step 1: Project Path -->
+        <!-- Step 1: Project Path (선택) -->
         <div class="card bg-slate-800 rounded-xl shadow-xl p-6 mb-6 step-content fade-in" data-step="1">
             <h2 class="text-xl font-bold mb-6 flex items-center gap-3">
                 <span class="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center text-sm">1</span>
                 프로젝트 경로 확인
                 <span class="text-xs font-normal text-slate-400 bg-slate-700 px-2 py-1 rounded">(선택)</span>
-                <span class="tooltip-container">
-                    <svg class="w-5 h-5 text-slate-400 tooltip-trigger" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                    <div class="tooltip-content">
-                        <strong>프로젝트 경로란?</strong><br>
-                        Flutter 프로젝트의 루트 디렉토리 경로입니다. <code>pubspec.yaml</code> 파일이 있는 위치입니다.
-                    </div>
-                </span>
             </h2>
 
             <div class="bg-slate-700/50 border border-slate-600 rounded-lg p-4 mb-6">
-                <div class="flex gap-3">
-                    <svg class="w-6 h-6 text-slate-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                    <div>
-                        <p class="font-semibold text-slate-300 mb-1">이 단계는 선택사항입니다</p>
-                        <p class="text-sm text-slate-400">
-                            프로젝트 경로를 입력하면 명령어가 자동 생성됩니다.<br>
-                            건너뛰어도 다음 단계에서 직접 설정할 수 있습니다.
-                        </p>
-                    </div>
-                </div>
+                <p class="text-sm text-slate-300">
+                    ℹ️ 이 단계는 선택사항입니다. 건너뛰어도 다음 단계에서 직접 설정할 수 있습니다.
+                </p>
             </div>
 
-            <!-- 프로젝트 폴더 선택 -->
             <div class="mb-6">
-                <label class="block text-sm font-medium mb-2 text-slate-300">
-                    Flutter 프로젝트 폴더
-                    <span class="tooltip-container">
-                        <svg class="w-4 h-4 text-slate-400 tooltip-trigger" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                        <div class="tooltip-content">
-                            <code>pubspec.yaml</code> 파일이 있는 Flutter 프로젝트의 루트 폴더를 선택하세요.<br><br>
-                            폴더 선택 후 자동으로 경로가 입력됩니다.
-                        </div>
-                    </span>
-                </label>
+                <label class="block text-sm font-medium mb-2 text-slate-300">Flutter 프로젝트 폴더</label>
                 <div class="flex gap-3">
                     <input type="text" id="projectPath"
                         class="flex-1 bg-slate-900 border border-slate-600 rounded-lg px-4 py-2.5 text-sm text-slate-300 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none transition"
@@ -267,30 +359,12 @@
                         폴더 선택
                     </button>
                 </div>
-                <p class="text-xs text-slate-500 mt-2">
-                    * 브라우저 보안 정책으로 직접 폴더 접근이 제한됩니다. 경로를 직접 입력해도 됩니다.
-                </p>
                 <div id="step1Validation" class="mt-2"></div>
             </div>
 
-            <!-- 경로 확인 명령어 -->
-            <div class="mb-6">
-                <label class="block text-sm font-medium mb-2 text-slate-300">
-                    경로 확인 명령어 (터미널에서 실행)
-                </label>
-                <div class="code-block">
-                    <button class="copy-btn absolute top-2 right-2 px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded text-xs text-slate-300 transition" onclick="copyCode(this)">복사</button>
-                    <pre id="pathCheckCmd">cd "/path/to/project" && ls pubspec.yaml ios/</pre>
-                </div>
-            </div>
-
-            <div class="flex justify-end mt-8">
-                <button class="px-6 py-2.5 bg-orange-500 hover:bg-orange-600 rounded-lg font-medium transition flex items-center gap-2" onclick="nextStep()">
-                    다음 단계
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                    </svg>
-                </button>
+            <div class="flex justify-between items-center mt-8">
+                <span class="skip-btn" onclick="skipStep(1)">건너뛰기 →</span>
+                <button class="px-6 py-2.5 bg-orange-500 hover:bg-orange-600 rounded-lg font-medium transition" onclick="nextStep()">다음 단계</button>
             </div>
         </div>
 
@@ -300,32 +374,12 @@
                 <span class="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center text-sm">2</span>
                 앱 정보 입력
                 <span class="text-xs font-normal text-orange-400 bg-orange-500/20 px-2 py-1 rounded">(필수)</span>
-                <span class="tooltip-container">
-                    <svg class="w-5 h-5 text-slate-400 tooltip-trigger" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                    <div class="tooltip-content">
-                        <strong>앱 정보</strong><br>
-                        iOS 앱 서명 및 TestFlight 배포에 필요한 정보입니다. Apple Developer Console에서 확인할 수 있습니다.
-                    </div>
-                </span>
             </h2>
 
             <div class="grid md:grid-cols-2 gap-4 mb-6">
                 <div>
                     <label class="block text-sm font-medium mb-2 text-slate-300">
-                        Bundle ID
-                        <span class="text-red-400">*</span>
-                        <span class="tooltip-container">
-                            <svg class="w-4 h-4 text-slate-400 tooltip-trigger" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                            <div class="tooltip-content">
-                                앱의 고유 식별자입니다.<br><br>
-                                예: <code>com.example.myapp</code><br><br>
-                                Apple Developer → Identifiers에서 확인하세요.
-                            </div>
-                        </span>
+                        Bundle ID <span class="text-red-400">*</span>
                     </label>
                     <input type="text" id="bundleId"
                         class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2.5 text-sm focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none transition"
@@ -333,18 +387,7 @@
                 </div>
                 <div>
                     <label class="block text-sm font-medium mb-2 text-slate-300">
-                        Apple Team ID
-                        <span class="text-red-400">*</span>
-                        <span class="tooltip-container">
-                            <svg class="w-4 h-4 text-slate-400 tooltip-trigger" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                            <div class="tooltip-content">
-                                Apple Developer 계정의 Team ID (10자리)입니다.<br><br>
-                                예: <code>ABC1234DEF</code><br><br>
-                                Apple Developer → Membership에서 확인하세요.
-                            </div>
-                        </span>
+                        Apple Team ID <span class="text-red-400">*</span>
                     </label>
                     <input type="text" id="teamId" maxlength="10"
                         class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2.5 text-sm uppercase focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none transition"
@@ -352,365 +395,226 @@
                 </div>
                 <div>
                     <label class="block text-sm font-medium mb-2 text-slate-300">
-                        Provisioning Profile 이름
-                        <span class="text-red-400">*</span>
-                        <span class="tooltip-container">
-                            <svg class="w-4 h-4 text-slate-400 tooltip-trigger" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                            <div class="tooltip-content">
-                                App Store 배포용 Provisioning Profile의 정확한 이름입니다.<br><br>
-                                예: <code>MyApp App Store Distribution</code><br><br>
-                                Apple Developer → Profiles에서 확인하세요.
-                            </div>
-                        </span>
+                        Provisioning Profile 이름 <span class="text-red-400">*</span>
                     </label>
                     <input type="text" id="profileName"
                         class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2.5 text-sm focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none transition"
                         placeholder="MyApp App Store Distribution">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium mb-2 text-slate-300">
-                        앱 이름 (선택)
-                        <span class="tooltip-container">
-                            <svg class="w-4 h-4 text-slate-400 tooltip-trigger" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                            <div class="tooltip-content">
-                                앱 이름입니다. 설정하지 않으면 Runner가 기본값으로 사용됩니다.
-                            </div>
-                        </span>
-                    </label>
+                    <label class="block text-sm font-medium mb-2 text-slate-300">앱 이름 (선택)</label>
                     <input type="text" id="appName"
                         class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2.5 text-sm focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none transition"
                         placeholder="My App (선택사항)">
                 </div>
             </div>
 
-            <!-- 암호화 설정 -->
             <div class="mt-6 p-4 bg-slate-700/50 border border-slate-600 rounded-lg">
-                <label class="block text-sm font-medium mb-3 text-slate-300">
-                    🔐 앱 암호화 설정 (Export Compliance)
-                    <span class="tooltip-container">
-                        <svg class="w-4 h-4 text-slate-400 tooltip-trigger" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                        <div class="tooltip-content">
-                            <strong>Export Compliance란?</strong><br>
-                            미국 수출 규정에 따라 앱의 암호화 사용 여부를 선언해야 합니다.<br><br>
-                            <strong>None (HTTPS만 사용)</strong>: 대부분의 앱에 해당. 표준 HTTPS 통신만 사용하면 이 옵션 선택.<br><br>
-                            <strong>Standard encryption</strong>: 커스텀 암호화 알고리즘을 사용하는 경우.
-                        </div>
-                    </span>
-                </label>
+                <label class="block text-sm font-medium mb-3 text-slate-300">🔐 앱 암호화 설정</label>
                 <div class="space-y-2">
                     <label class="flex items-center gap-3 cursor-pointer p-3 rounded-lg hover:bg-slate-600/50 transition">
                         <input type="radio" name="encryptionType" value="none" checked
                             class="w-4 h-4 text-orange-500 bg-slate-900 border-slate-600 focus:ring-orange-500">
                         <div>
-                            <span class="text-sm font-medium text-slate-200">None of the algorithms mentioned above</span>
-                            <p class="text-xs text-slate-400">HTTPS만 사용하는 일반적인 앱 (권장)</p>
+                            <span class="text-sm font-medium text-slate-200">None - HTTPS만 사용 (권장)</span>
+                            <p class="text-xs text-slate-400">일반적인 앱</p>
                         </div>
                     </label>
                     <label class="flex items-center gap-3 cursor-pointer p-3 rounded-lg hover:bg-slate-600/50 transition">
                         <input type="radio" name="encryptionType" value="standard"
                             class="w-4 h-4 text-orange-500 bg-slate-900 border-slate-600 focus:ring-orange-500">
                         <div>
-                            <span class="text-sm font-medium text-slate-200">Standard encryption algorithms</span>
-                            <p class="text-xs text-slate-400">표준 암호화 알고리즘 사용 (AES, RSA 등)</p>
+                            <span class="text-sm font-medium text-slate-200">Standard encryption</span>
+                            <p class="text-xs text-slate-400">표준 암호화 사용</p>
                         </div>
                     </label>
                 </div>
-                <p class="text-xs text-slate-500 mt-3">
-                    * 이 설정은 Info.plist에 <code>ITSAppUsesNonExemptEncryption</code> 키로 추가됩니다.
-                </p>
             </div>
 
             <div id="step2Validation" class="mb-4 mt-4"></div>
 
             <div class="flex justify-between mt-8">
-                <button class="px-6 py-2.5 bg-slate-700 hover:bg-slate-600 rounded-lg font-medium transition flex items-center gap-2" onclick="prevStep()">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-                    </svg>
-                    이전
-                </button>
-                <button class="px-6 py-2.5 bg-orange-500 hover:bg-orange-600 rounded-lg font-medium transition flex items-center gap-2" onclick="nextStep()">
-                    다음 단계
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                    </svg>
-                </button>
+                <button class="px-6 py-2.5 bg-slate-700 hover:bg-slate-600 rounded-lg font-medium transition" onclick="prevStep()">이전</button>
+                <button class="px-6 py-2.5 bg-orange-500 hover:bg-orange-600 rounded-lg font-medium transition" onclick="nextStep()">다음 단계</button>
             </div>
         </div>
 
-        <!-- Step 3: Fastlane Setup -->
+        <!-- Step 3: Certificate (.p12) -->
         <div class="card bg-slate-800 rounded-xl shadow-xl p-6 mb-6 step-content hidden" data-step="3">
             <h2 class="text-xl font-bold mb-6 flex items-center gap-3">
                 <span class="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center text-sm">3</span>
-                Fastlane 파일 생성
-                <span class="text-xs font-normal text-slate-400 bg-slate-700 px-2 py-1 rounded">(가이드)</span>
-                <span class="tooltip-container">
-                    <svg class="w-5 h-5 text-slate-400 tooltip-trigger" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                    <div class="tooltip-content">
-                        <strong>Fastlane이란?</strong><br>
-                        iOS/Android 앱 빌드 및 배포를 자동화하는 도구입니다. TestFlight 업로드를 자동화합니다.
-                    </div>
-                </span>
+                Distribution 인증서 (.p12)
             </h2>
 
             <div class="bg-yellow-900/30 border border-yellow-700 rounded-lg p-4 mb-6">
-                <div class="flex gap-3">
-                    <svg class="w-6 h-6 text-yellow-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-                    </svg>
-                    <div>
-                        <p class="font-semibold text-yellow-300 mb-1">이 단계에서 생성되는 파일들</p>
-                        <p class="text-sm text-slate-300">
-                            <code>ios/Gemfile</code> - Ruby 의존성<br>
-                            <code>ios/fastlane/Appfile</code> - 앱 정보<br>
-                            <code>ios/fastlane/Fastfile</code> - 빌드/배포 설정
-                        </p>
-                    </div>
-                </div>
+                <p class="text-sm text-yellow-200 mb-2">📋 .p12 파일 만드는 방법</p>
+                <ol class="text-xs text-slate-300 list-decimal list-inside space-y-1">
+                    <li>Mac "키체인 접근" 앱 열기</li>
+                    <li>"Apple Distribution" 인증서 찾기</li>
+                    <li>우클릭 → "내보내기" → .p12 선택</li>
+                    <li>비밀번호 설정</li>
+                </ol>
+            </div>
+
+            <div class="file-upload" id="p12-upload" onclick="document.getElementById('p12-input').click()">
+                <div class="icon">📄</div>
+                <div class="text-slate-300">.p12 파일을 드래그하거나 클릭하세요</div>
+                <input type="file" id="p12-input" accept=".p12" onchange="handleP12Upload(event)">
+                <div class="file-info" id="p12-info" style="display:none"></div>
             </div>
 
             <div class="mb-6">
-                <label class="block text-sm font-medium mb-2 text-slate-300">
-                    터미널에서 실행할 명령어:
-                </label>
-                <div class="code-block mb-4">
-                    <button class="copy-btn absolute top-2 right-2 px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded text-xs text-slate-300 transition" onclick="copyCode(this)">복사</button>
-                    <pre id="initCmd">cd "/path/to/project" && bash ".github/util/flutter-ios-testflight-init/init.sh" "/path/to/project" "com.example.app" "TEAM_ID" "Profile Name"</pre>
-                </div>
+                <label class="block text-sm font-medium mb-2 text-slate-300">.p12 비밀번호</label>
+                <input type="password" id="p12-password" placeholder="내보낼 때 설정한 비밀번호"
+                    class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2.5 text-sm focus:border-orange-500 outline-none">
             </div>
 
-            <div class="mb-6">
-                <label class="block text-sm font-medium mb-2 text-slate-300">
-                    생성 확인 명령어:
-                </label>
-                <div class="code-block">
-                    <button class="copy-btn absolute top-2 right-2 px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded text-xs text-slate-300 transition" onclick="copyCode(this)">복사</button>
-                    <pre id="verifyCmd">ls -la "/path/to/project/ios/Gemfile" "/path/to/project/ios/fastlane/"</pre>
+            <div class="flex justify-between items-center mt-8">
+                <button class="px-6 py-2.5 bg-slate-700 hover:bg-slate-600 rounded-lg font-medium transition" onclick="prevStep()">이전</button>
+                <div class="flex gap-2 items-center">
+                    <span class="skip-btn" onclick="skipStep(3)">건너뛰기 →</span>
+                    <button class="px-6 py-2.5 bg-orange-500 hover:bg-orange-600 rounded-lg font-medium transition" onclick="nextStep()">다음 단계</button>
                 </div>
-            </div>
-
-            <div class="flex justify-between mt-8">
-                <button class="px-6 py-2.5 bg-slate-700 hover:bg-slate-600 rounded-lg font-medium transition flex items-center gap-2" onclick="prevStep()">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-                    </svg>
-                    이전
-                </button>
-                <button class="px-6 py-2.5 bg-orange-500 hover:bg-orange-600 rounded-lg font-medium transition flex items-center gap-2" onclick="nextStep()">
-                    다음 단계
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                    </svg>
-                </button>
             </div>
         </div>
 
-        <!-- Step 4: GitHub Secrets -->
+        <!-- Step 4: Provisioning Profile (.mobileprovision) -->
         <div class="card bg-slate-800 rounded-xl shadow-xl p-6 mb-6 step-content hidden" data-step="4">
             <h2 class="text-xl font-bold mb-6 flex items-center gap-3">
                 <span class="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center text-sm">4</span>
-                GitHub Secrets 설정
-                <span class="text-xs font-normal text-slate-400 bg-slate-700 px-2 py-1 rounded">(가이드)</span>
-                <span class="tooltip-container">
-                    <svg class="w-5 h-5 text-slate-400 tooltip-trigger" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                    <div class="tooltip-content">
-                        <strong>GitHub Secrets</strong><br>
-                        GitHub Actions에서 사용할 민감한 정보를 안전하게 저장하는 기능입니다.
-                    </div>
-                </span>
+                Provisioning Profile (.mobileprovision)
             </h2>
 
-            <div class="bg-green-900/30 border border-green-700 rounded-lg p-4 mb-6">
-                <div class="flex gap-3">
-                    <svg class="w-6 h-6 text-green-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                    <div>
-                        <p class="font-semibold text-green-300 mb-1">입력한 정보 미리보기</p>
-                        <p class="text-sm text-slate-300">
-                            Team ID: <code id="teamIdPreview">-</code><br>
-                            Bundle ID: <code id="bundleIdPreview">-</code><br>
-                            Profile Name: <code id="profileNamePreview">-</code>
-                        </p>
-                    </div>
-                </div>
+            <div class="bg-yellow-900/30 border border-yellow-700 rounded-lg p-4 mb-6">
+                <p class="text-sm text-yellow-200 mb-2">📋 만드는 방법</p>
+                <ol class="text-xs text-slate-300 list-decimal list-inside space-y-1">
+                    <li>Apple Developer → Profiles</li>
+                    <li>"App Store Connect" 선택</li>
+                    <li>App ID 및 Distribution 인증서 선택</li>
+                    <li>Download</li>
+                </ol>
             </div>
 
-            <h3 class="text-lg font-semibold mb-4 text-slate-200">필요한 GitHub Secrets</h3>
-
-            <div class="space-y-4 mb-6">
-                <!-- Secret 항목들 -->
-                <div class="bg-slate-900 rounded-lg p-4">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <code class="text-orange-400 font-semibold">APPLE_CERTIFICATE_BASE64</code>
-                            <p class="text-sm text-slate-400 mt-1">배포 인증서 (.p12) Base64 인코딩</p>
-                        </div>
-                        <button class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 rounded text-xs text-slate-300 transition" onclick="showSecretGuide('certificate')">
-                            가이드 보기
-                        </button>
-                    </div>
-                </div>
-
-                <div class="bg-slate-900 rounded-lg p-4">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <code class="text-orange-400 font-semibold">APPLE_CERTIFICATE_PASSWORD</code>
-                            <p class="text-sm text-slate-400 mt-1">.p12 파일 내보내기 시 설정한 비밀번호</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-slate-900 rounded-lg p-4">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <code class="text-orange-400 font-semibold">APPLE_PROVISIONING_PROFILE_BASE64</code>
-                            <p class="text-sm text-slate-400 mt-1">프로비저닝 프로파일 (.mobileprovision) Base64 인코딩</p>
-                        </div>
-                        <button class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 rounded text-xs text-slate-300 transition" onclick="showSecretGuide('profile')">
-                            가이드 보기
-                        </button>
-                    </div>
-                </div>
-
-                <div class="bg-slate-900 rounded-lg p-4">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <code class="text-orange-400 font-semibold">APP_STORE_CONNECT_API_KEY_BASE64</code>
-                            <p class="text-sm text-slate-400 mt-1">App Store Connect API Key (.p8) Base64 인코딩</p>
-                        </div>
-                        <button class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 rounded text-xs text-slate-300 transition" onclick="showSecretGuide('apikey')">
-                            가이드 보기
-                        </button>
-                    </div>
-                </div>
-
-                <div class="bg-slate-900 rounded-lg p-4">
-                    <code class="text-orange-400 font-semibold">APP_STORE_CONNECT_API_KEY_ID</code>
-                    <p class="text-sm text-slate-400 mt-1">App Store Connect에서 생성한 Key ID</p>
-                </div>
-
-                <div class="bg-slate-900 rounded-lg p-4">
-                    <code class="text-orange-400 font-semibold">APP_STORE_CONNECT_ISSUER_ID</code>
-                    <p class="text-sm text-slate-400 mt-1">App Store Connect의 Issuer ID</p>
-                </div>
-
-                <div class="bg-slate-900 rounded-lg p-4">
-                    <code class="text-orange-400 font-semibold">APPLE_TEAM_ID</code>
-                    <p class="text-sm text-slate-400 mt-1">Apple Developer Team ID (10자리)</p>
-                </div>
-
-                <div class="bg-slate-900 rounded-lg p-4">
-                    <code class="text-orange-400 font-semibold">IOS_BUNDLE_ID</code>
-                    <p class="text-sm text-slate-400 mt-1">앱 Bundle ID (예: com.example.myapp)</p>
-                </div>
-
-                <div class="bg-slate-900 rounded-lg p-4">
-                    <code class="text-orange-400 font-semibold">IOS_PROVISIONING_PROFILE_NAME</code>
-                    <p class="text-sm text-slate-400 mt-1">Provisioning Profile 정확한 이름</p>
-                </div>
+            <div class="file-upload" id="provision-upload" onclick="document.getElementById('provision-input').click()">
+                <div class="icon">📄</div>
+                <div class="text-slate-300">.mobileprovision 파일을 드래그하거나 클릭하세요</div>
+                <input type="file" id="provision-input" accept=".mobileprovision" onchange="handleProvisionUpload(event)">
+                <div class="file-info" id="provision-info" style="display:none"></div>
             </div>
 
-            <button class="px-4 py-2.5 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm font-medium transition flex items-center gap-2" onclick="openGitHubSecrets()">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
-                </svg>
-                GitHub Secrets 페이지 열기
-            </button>
-
-            <div class="flex justify-between mt-8">
-                <button class="px-6 py-2.5 bg-slate-700 hover:bg-slate-600 rounded-lg font-medium transition flex items-center gap-2" onclick="prevStep()">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-                    </svg>
-                    이전
-                </button>
-                <button class="px-6 py-2.5 bg-orange-500 hover:bg-orange-600 rounded-lg font-medium transition flex items-center gap-2" onclick="nextStep()">
-                    다음 단계
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                    </svg>
-                </button>
+            <div class="flex justify-between items-center mt-8">
+                <button class="px-6 py-2.5 bg-slate-700 hover:bg-slate-600 rounded-lg font-medium transition" onclick="prevStep()">이전</button>
+                <div class="flex gap-2 items-center">
+                    <span class="skip-btn" onclick="skipStep(4)">건너뛰기 →</span>
+                    <button class="px-6 py-2.5 bg-orange-500 hover:bg-orange-600 rounded-lg font-medium transition" onclick="nextStep()">다음 단계</button>
+                </div>
             </div>
         </div>
 
-        <!-- Step 5: Complete -->
+        <!-- Step 5: API Key (.p8) -->
         <div class="card bg-slate-800 rounded-xl shadow-xl p-6 mb-6 step-content hidden" data-step="5">
             <h2 class="text-xl font-bold mb-6 flex items-center gap-3">
-                <span class="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center text-sm">✓</span>
-                설정 완료!
+                <span class="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center text-sm">5</span>
+                App Store Connect API Key (.p8)
             </h2>
 
-            <div class="bg-green-900/30 border border-green-700 rounded-lg p-4 mb-6">
-                <div class="flex gap-3">
-                    <svg class="w-6 h-6 text-green-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                    </svg>
-                    <div>
-                        <p class="font-semibold text-green-300 mb-1">모든 설정이 완료되었습니다!</p>
-                        <p class="text-sm text-slate-300">
-                            이제 deploy 브랜치에 푸시하면 자동으로 TestFlight에 배포됩니다.
-                        </p>
-                    </div>
+            <div class="bg-yellow-900/30 border border-yellow-700 rounded-lg p-4 mb-6">
+                <p class="text-sm text-yellow-200 mb-2">📋 만드는 방법</p>
+                <ol class="text-xs text-slate-300 list-decimal list-inside space-y-1">
+                    <li>App Store Connect → Keys</li>
+                    <li>"+" 버튼 → Admin/Developer 권한</li>
+                    <li>Download (.p8는 한 번만 다운 가능!)</li>
+                    <li>Issuer ID와 Key ID 복사</li>
+                </ol>
+            </div>
+
+            <div class="file-upload" id="p8-upload" onclick="document.getElementById('p8-input').click()">
+                <div class="icon">📄</div>
+                <div class="text-slate-300">.p8 파일을 드래그하거나 클릭하세요</div>
+                <input type="file" id="p8-input" accept=".p8" onchange="handleP8Upload(event)">
+                <div class="file-info" id="p8-info" style="display:none"></div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-4 mb-6">
+                <div>
+                    <label class="block text-sm font-medium mb-2 text-slate-300">API Key ID</label>
+                    <input type="text" id="api-key-id" placeholder="K5G43WHU34"
+                        class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2.5 text-sm focus:border-orange-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2 text-slate-300">Issuer ID</label>
+                    <input type="text" id="issuer-id" placeholder="5e4f25aa-151d-..."
+                        class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2.5 text-sm focus:border-orange-500 outline-none">
                 </div>
             </div>
 
-            <h3 class="text-lg font-semibold mb-4 text-slate-200">설정 요약</h3>
-            <div id="summaryContent" class="bg-slate-900 rounded-lg p-4 mb-6">
-                <!-- JavaScript로 채워짐 -->
+            <div class="flex justify-between items-center mt-8">
+                <button class="px-6 py-2.5 bg-slate-700 hover:bg-slate-600 rounded-lg font-medium transition" onclick="prevStep()">이전</button>
+                <div class="flex gap-2 items-center">
+                    <span class="skip-btn" onclick="skipStep(5)">건너뛰기 →</span>
+                    <button class="px-6 py-2.5 bg-orange-500 hover:bg-orange-600 rounded-lg font-medium transition" onclick="nextStep()">다음 단계</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 6: Fastlane Setup -->
+        <div class="card bg-slate-800 rounded-xl shadow-xl p-6 mb-6 step-content hidden" data-step="6">
+            <h2 class="text-xl font-bold mb-6 flex items-center gap-3">
+                <span class="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center text-sm">6</span>
+                Fastlane 파일 생성
+            </h2>
+
+            <div class="bg-yellow-900/30 border border-yellow-700 rounded-lg p-4 mb-6">
+                <p class="text-sm text-yellow-200 mb-1">생성되는 파일:</p>
+                <p class="text-xs text-slate-300">
+                    • ios/Gemfile<br>
+                    • ios/fastlane/Appfile<br>
+                    • ios/fastlane/Fastfile
+                </p>
             </div>
 
-            <h3 class="text-lg font-semibold mb-4 text-slate-200">다음 단계</h3>
-            <div class="space-y-4 mb-6">
-                <div class="bg-slate-900 rounded-lg p-4">
-                    <h4 class="font-semibold text-slate-200 mb-2">1. 변경사항 커밋</h4>
-                    <div class="code-block">
-                        <button class="copy-btn absolute top-2 right-2 px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded text-xs text-slate-300 transition" onclick="copyCode(this)">복사</button>
-                        <pre id="commitCmd">git add ios/Gemfile ios/fastlane/ && git commit -m "chore: iOS Fastlane 설정 추가"</pre>
-                    </div>
-                </div>
-
-                <div class="bg-slate-900 rounded-lg p-4">
-                    <h4 class="font-semibold text-slate-200 mb-2">2. deploy 브랜치에 푸시</h4>
-                    <div class="code-block">
-                        <button class="copy-btn absolute top-2 right-2 px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded text-xs text-slate-300 transition" onclick="copyCode(this)">복사</button>
-                        <pre>git push origin deploy</pre>
-                    </div>
-                </div>
-
-                <div class="bg-slate-900 rounded-lg p-4">
-                    <h4 class="font-semibold text-slate-200 mb-2">3. GitHub Actions 확인</h4>
-                    <p class="text-sm text-slate-400">
-                        Repository → Actions 탭에서 워크플로우 실행 상태를 확인하세요.
-                    </p>
+            <div class="mb-6">
+                <label class="block text-sm font-medium mb-2 text-slate-300">터미널에서 실행:</label>
+                <div class="code-block">
+                    <button class="copy-btn absolute top-2 right-2 px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded text-xs text-slate-300 transition" onclick="copyCode(this)">복사</button>
+                    <pre id="initCmd">cd "/path/to/project" && bash ".github/util/flutter-ios-testflight-init/init.sh" ...</pre>
                 </div>
             </div>
 
             <div class="flex justify-between mt-8">
-                <button class="px-6 py-2.5 bg-slate-700 hover:bg-slate-600 rounded-lg font-medium transition flex items-center gap-2" onclick="prevStep()">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-                    </svg>
-                    이전
+                <button class="px-6 py-2.5 bg-slate-700 hover:bg-slate-600 rounded-lg font-medium transition" onclick="prevStep()">이전</button>
+                <button class="px-6 py-2.5 bg-orange-500 hover:bg-orange-600 rounded-lg font-medium transition" onclick="nextStep()">다음 단계</button>
+            </div>
+        </div>
+
+        <!-- Step 7: Complete & Results -->
+        <div class="card bg-slate-800 rounded-xl shadow-xl p-6 mb-6 step-content hidden" data-step="7">
+            <h2 class="text-xl font-bold mb-6 flex items-center gap-3">
+                <span class="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center text-sm">✓</span>
+                완료! GitHub Secrets 설정값
+            </h2>
+
+            <div class="bg-green-900/30 border border-green-700 rounded-lg p-4 mb-6">
+                <p class="text-sm text-green-200">✅ 모든 설정이 완료되었습니다!</p>
+            </div>
+
+            <h3 class="text-lg font-semibold mb-4 text-slate-200">GitHub Secrets에 등록할 값들</h3>
+            <div id="results-container"></div>
+
+            <div class="mt-6 p-4 bg-gradient-to-r from-green-900/30 to-blue-900/30 border border-green-700 rounded-lg text-center">
+                <button class="px-6 py-3 bg-green-600 hover:bg-green-700 rounded-lg font-medium transition" onclick="copyAllAsJson()">
+                    📋 전체 JSON 복사
                 </button>
-                <button class="px-6 py-2.5 bg-green-500 hover:bg-green-600 rounded-lg font-medium transition" onclick="resetWizard()">
-                    처음부터 다시
-                </button>
+            </div>
+
+            <div class="flex justify-between mt-8">
+                <button class="px-6 py-2.5 bg-slate-700 hover:bg-slate-600 rounded-lg font-medium transition" onclick="prevStep()">이전</button>
+                <button class="px-6 py-2.5 bg-green-500 hover:bg-green-600 rounded-lg font-medium transition" onclick="resetWizard()">처음부터 다시</button>
             </div>
         </div>
 
         <footer class="text-center text-slate-500 text-sm py-8">
-            <p>Made for Flutter iOS CI/CD | <a href="README.md" class="text-orange-400 hover:underline">Documentation</a></p>
+            <p>🔒 로컬 실행 전용 - 서버에 데이터가 전송되지 않습니다</p>
         </footer>
     </div>
 
@@ -725,9 +629,7 @@
                     </svg>
                 </button>
             </div>
-            <div id="guideContent">
-                <!-- JavaScript로 채워짐 -->
-            </div>
+            <div id="guideContent"></div>
         </div>
     </div>
 

@@ -1,6 +1,6 @@
 /**
- * Flutter iOS TestFlight 설정 마법사
- * 다크모드 UI 버전
+ * Flutter iOS TestFlight 통합 마법사
+ * 파일 업로드, Base64 변환, localStorage 진행률 저장 포함
  */
 
 // ============================================
@@ -9,70 +9,134 @@
 
 const state = {
     currentStep: 1,
-    totalSteps: 5,
+    totalSteps: 7,
     projectPath: '',
     bundleId: '',
     teamId: '',
     profileName: '',
     appName: '',
-    encryptionType: 'none' // 'none' = false (HTTPS만), 'standard' = true (암호화 사용)
+    encryptionType: 'none',
+    // 파일 데이터 (Base64)
+    p12Base64: '',
+    p12Password: '',
+    provisionBase64: '',
+    p8Base64: '',
+    apiKeyId: '',
+    issuerId: ''
 };
 
 // ============================================
-// Secret Generation Guides
+// LocalStorage Functions
 // ============================================
 
-const secretGuides = {
-    certificate: {
-        title: '📜 배포 인증서 (.p12) 생성 가이드',
-        steps: [
-            '1. Mac에서 "키체인 접근" 앱을 엽니다.',
-            '2. "로그인" 키체인에서 "Apple Distribution" 인증서를 찾습니다.',
-            '3. 인증서를 우클릭 → "내보내기"를 선택합니다.',
-            '4. 파일 형식을 ".p12"로 선택합니다.',
-            '5. 안전한 비밀번호를 설정합니다 (이 비밀번호가 APPLE_CERTIFICATE_PASSWORD)',
-            '6. 아래 명령어로 Base64 인코딩합니다:'
-        ],
-        commands: [
-            'base64 -i ~/Desktop/Certificates.p12 | pbcopy',
-            '# 클립보드에 복사됨 → GitHub Secret에 붙여넣기'
-        ]
-    },
-    profile: {
-        title: '📋 프로비저닝 프로파일 생성 가이드',
-        steps: [
-            '1. Apple Developer Console (https://developer.apple.com) 접속',
-            '2. Certificates, Identifiers & Profiles → Profiles',
-            '3. "+" 버튼으로 새 프로파일 생성 또는 기존 프로파일 선택',
-            '4. "App Store" Distribution 타입 선택',
-            '5. 앱의 Bundle ID 선택',
-            '6. Distribution Certificate 선택',
-            '7. 프로파일 다운로드 (.mobileprovision 파일)',
-            '8. 아래 명령어로 Base64 인코딩:'
-        ],
-        commands: [
-            'base64 -i ~/Downloads/YourProfile.mobileprovision | pbcopy',
-            '# 클립보드에 복사됨 → GitHub Secret에 붙여넣기'
-        ]
-    },
-    apikey: {
-        title: '🔑 App Store Connect API Key 생성 가이드',
-        steps: [
-            '1. App Store Connect (https://appstoreconnect.apple.com) 접속',
-            '2. Users and Access → Keys 탭',
-            '3. "+" 버튼으로 새 API Key 생성',
-            '4. 이름 입력, Access: "App Manager" 또는 "Admin" 선택',
-            '5. Key ID 복사 → APP_STORE_CONNECT_API_KEY_ID',
-            '6. Issuer ID 복사 (상단에 표시됨) → APP_STORE_CONNECT_ISSUER_ID',
-            '7. API Key 다운로드 (.p8 파일, 한 번만 다운로드 가능!)',
-            '8. 아래 명령어로 Base64 인코딩:'
-        ],
-        commands: [
-            'base64 -i ~/Downloads/AuthKey_XXXXXX.p8 | pbcopy',
-            '# 클립보드에 복사됨 → GitHub Secret에 붙여넣기'
-        ]
+const STORAGE_KEY = 'flutter_ios_wizard_state';
+const STORAGE_WARNING_KEY = 'flutter_ios_wizard_security_warning_dismissed';
+
+function saveState() {
+    try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch (e) {
+        console.warn('localStorage 저장 실패:', e);
     }
-};
+}
+
+function loadState() {
+    try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+            const savedState = JSON.parse(saved);
+            Object.assign(state, savedState);
+            restoreUIFromState();
+            return true;
+        }
+    } catch (e) {
+        console.warn('localStorage 로드 실패:', e);
+    }
+    return false;
+}
+
+function clearState() {
+    try {
+        localStorage.removeItem(STORAGE_KEY);
+    } catch (e) {
+        console.warn('localStorage 삭제 실패:', e);
+    }
+}
+
+function restoreUIFromState() {
+    // 입력 필드 복원
+    const inputs = {
+        'projectPath': state.projectPath,
+        'bundleId': state.bundleId,
+        'teamId': state.teamId,
+        'profileName': state.profileName,
+        'appName': state.appName,
+        'p12-password': state.p12Password,
+        'api-key-id': state.apiKeyId,
+        'issuer-id': state.issuerId
+    };
+
+    Object.entries(inputs).forEach(([id, value]) => {
+        const el = document.getElementById(id);
+        if (el && value) el.value = value;
+    });
+
+    // 암호화 설정 복원
+    if (state.encryptionType) {
+        const radio = document.querySelector(`input[name="encryptionType"][value="${state.encryptionType}"]`);
+        if (radio) radio.checked = true;
+    }
+
+    // 파일 업로드 상태 복원
+    if (state.p12Base64) {
+        document.getElementById('p12-upload').classList.add('has-file');
+        const info = document.getElementById('p12-info');
+        if (info) {
+            info.style.display = 'block';
+            info.textContent = '✅ 인증서 파일 로드됨';
+        }
+    }
+
+    if (state.provisionBase64) {
+        document.getElementById('provision-upload').classList.add('has-file');
+        const info = document.getElementById('provision-info');
+        if (info) {
+            info.style.display = 'block';
+            info.textContent = '✅ 프로비저닝 프로파일 로드됨';
+        }
+    }
+
+    if (state.p8Base64) {
+        document.getElementById('p8-upload').classList.add('has-file');
+        const info = document.getElementById('p8-info');
+        if (info) {
+            info.style.display = 'block';
+            info.textContent = '✅ API Key 파일 로드됨';
+        }
+    }
+}
+
+// ============================================
+// Security Warning
+// ============================================
+
+function showSecurityWarning() {
+    const dismissed = localStorage.getItem(STORAGE_WARNING_KEY);
+    if (!dismissed) {
+        const warning = document.getElementById('securityWarning');
+        if (warning) {
+            warning.classList.remove('hidden');
+        }
+    }
+}
+
+function closeSecurityWarning() {
+    const warning = document.getElementById('securityWarning');
+    if (warning) {
+        warning.classList.add('hidden');
+        localStorage.setItem(STORAGE_WARNING_KEY, 'true');
+    }
+}
 
 // ============================================
 // DOM Utility Functions
@@ -106,26 +170,145 @@ function setElementHtml(id, html) {
 }
 
 // ============================================
+// File Upload & Base64 Conversion
+// ============================================
+
+function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+            const base64 = reader.result.split(',')[1];
+            resolve(base64);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
+}
+
+// .p12 파일 업로드
+async function handleP12Upload(event) {
+    const file = event.target.files[0];
+    if (file) await handleP12File(file);
+}
+
+async function handleP12File(file) {
+    if (!file.name.endsWith('.p12')) {
+        showToast('⚠️ .p12 파일만 업로드 가능합니다');
+        return;
+    }
+
+    try {
+        state.p12Base64 = await fileToBase64(file);
+        document.getElementById('p12-upload').classList.add('has-file');
+        const info = document.getElementById('p12-info');
+        info.style.display = 'block';
+        info.textContent = `✅ ${file.name} (${(file.size/1024).toFixed(1)}KB)`;
+        saveState();
+        showToast('✅ 인증서 파일 업로드 완료');
+    } catch (error) {
+        showToast('❌ 파일 읽기 실패: ' + error.message);
+    }
+}
+
+// .mobileprovision 파일 업로드
+async function handleProvisionUpload(event) {
+    const file = event.target.files[0];
+    if (file) await handleProvisionFile(file);
+}
+
+async function handleProvisionFile(file) {
+    if (!file.name.endsWith('.mobileprovision')) {
+        showToast('⚠️ .mobileprovision 파일만 업로드 가능합니다');
+        return;
+    }
+
+    try {
+        state.provisionBase64 = await fileToBase64(file);
+        document.getElementById('provision-upload').classList.add('has-file');
+        const info = document.getElementById('provision-info');
+        info.style.display = 'block';
+        info.textContent = `✅ ${file.name} (${(file.size/1024).toFixed(1)}KB)`;
+        saveState();
+        showToast('✅ 프로비저닝 프로파일 업로드 완료');
+    } catch (error) {
+        showToast('❌ 파일 읽기 실패: ' + error.message);
+    }
+}
+
+// .p8 파일 업로드
+async function handleP8Upload(event) {
+    const file = event.target.files[0];
+    if (file) await handleP8File(file);
+}
+
+async function handleP8File(file) {
+    if (!file.name.endsWith('.p8')) {
+        showToast('⚠️ .p8 파일만 업로드 가능합니다');
+        return;
+    }
+
+    try {
+        state.p8Base64 = await fileToBase64(file);
+        document.getElementById('p8-upload').classList.add('has-file');
+        const info = document.getElementById('p8-info');
+        info.style.display = 'block';
+        info.textContent = `✅ ${file.name}`;
+
+        // 파일명에서 Key ID 자동 추출
+        const match = file.name.match(/AuthKey_(\w+)\.p8/);
+        if (match) {
+            state.apiKeyId = match[1];
+            document.getElementById('api-key-id').value = match[1];
+        }
+
+        saveState();
+        showToast('✅ API Key 파일 업로드 완료');
+    } catch (error) {
+        showToast('❌ 파일 읽기 실패: ' + error.message);
+    }
+}
+
+// Drag & Drop 설정
+function setupDragAndDrop() {
+    document.querySelectorAll('.file-upload').forEach(el => {
+        el.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            el.classList.add('dragover');
+        });
+
+        el.addEventListener('dragleave', () => {
+            el.classList.remove('dragover');
+        });
+
+        el.addEventListener('drop', (e) => {
+            e.preventDefault();
+            el.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+
+            if (el.id === 'p12-upload') handleP12File(file);
+            if (el.id === 'provision-upload') handleProvisionFile(file);
+            if (el.id === 'p8-upload') handleP8File(file);
+        });
+    });
+}
+
+// ============================================
 // Folder Selection (File System Access API)
 // ============================================
 
 async function selectProjectFolder() {
-    // File System Access API 지원 확인
     if ('showDirectoryPicker' in window) {
         try {
             const dirHandle = await window.showDirectoryPicker();
             const projectPath = dirHandle.name;
 
-            // 입력 필드에 경로 설정 (브라우저 보안상 실제 경로는 알 수 없으므로 폴더명만)
             const input = document.getElementById('projectPath');
             if (input) {
-                // 힌트 메시지와 함께 표시
                 input.value = `선택된 폴더: ${projectPath} (터미널에서 실제 경로를 사용하세요)`;
                 input.placeholder = '선택된 폴더를 확인하고 실제 경로를 입력하세요';
             }
 
             showToast(`폴더 "${projectPath}" 선택됨`);
-            updatePathCheckCommand();
         } catch (err) {
             if (err.name !== 'AbortError') {
                 console.error('폴더 선택 오류:', err);
@@ -133,12 +316,9 @@ async function selectProjectFolder() {
             }
         }
     } else {
-        // File System Access API를 지원하지 않는 브라우저
-        showToast('이 브라우저는 폴더 선택을 지원하지 않습니다. 경로를 직접 입력해주세요.');
+        showToast('이 브라우저는 폴더 선택을 지원하지 않습니다.');
         const input = document.getElementById('projectPath');
-        if (input) {
-            input.focus();
-        }
+        if (input) input.focus();
     }
 }
 
@@ -146,17 +326,13 @@ async function selectProjectFolder() {
 // Clipboard Functions
 // ============================================
 
-async function copyToClipboard(elementId) {
-    const element = document.getElementById(elementId);
-    if (!element) return;
-
-    const text = element.textContent || '';
-
+async function copyToClipboard(text) {
     try {
         await navigator.clipboard.writeText(text);
         showToast('클립보드에 복사되었습니다!');
+        return true;
     } catch (err) {
-        // Fallback for older browsers
+        // Fallback
         const textarea = document.createElement('textarea');
         textarea.value = text;
         document.body.appendChild(textarea);
@@ -164,10 +340,10 @@ async function copyToClipboard(elementId) {
         document.execCommand('copy');
         document.body.removeChild(textarea);
         showToast('클립보드에 복사되었습니다!');
+        return true;
     }
 }
 
-// Copy code from code block
 function copyCode(button) {
     const codeBlock = button.closest('.code-block');
     const pre = codeBlock?.querySelector('pre');
@@ -184,7 +360,6 @@ function copyCode(button) {
             button.classList.remove('bg-green-600');
         }, 2000);
     }).catch(() => {
-        // Fallback
         const textarea = document.createElement('textarea');
         textarea.value = text;
         document.body.appendChild(textarea);
@@ -196,7 +371,6 @@ function copyCode(button) {
 }
 
 function showToast(message) {
-    // 기존 토스트 제거
     const existingToast = document.querySelector('.toast');
     if (existingToast) {
         existingToast.remove();
@@ -214,7 +388,7 @@ function showToast(message) {
     setTimeout(() => {
         toast.classList.remove('show');
         setTimeout(() => toast.remove(), 300);
-    }, 2000);
+    }, 3000);
 }
 
 // ============================================
@@ -222,7 +396,6 @@ function showToast(message) {
 // ============================================
 
 function updateProgress() {
-    // Step indicators 업데이트
     $$('.step-indicator').forEach((indicator, index) => {
         const stepNum = index + 1;
         const circle = indicator.querySelector('.step-circle');
@@ -248,73 +421,57 @@ function updateProgress() {
 }
 
 function showStep(stepNumber) {
-    // 모든 스텝 숨기기
     $$('.step-content').forEach(step => {
         step.classList.add('hidden');
         step.classList.remove('fade-in');
     });
 
-    // 현재 스텝 표시
     const currentStepElement = $(`.step-content[data-step="${stepNumber}"]`);
     if (currentStepElement) {
         currentStepElement.classList.remove('hidden');
         currentStepElement.classList.add('fade-in');
     }
 
-    // 스텝별 초기화
     initializeStep(stepNumber);
 }
 
 function initializeStep(stepNumber) {
     switch (stepNumber) {
-        case 1:
-            updatePathCheckCommand();
-            break;
         case 2:
-            // 이전 값들 복원
             restoreInputValues();
             break;
-        case 3:
+        case 6:
             generateInitCommand();
             break;
-        case 4:
-            updateSecretsPreview();
-            break;
-        case 5:
-            generateSummary();
+        case 7:
+            generateResults();
             break;
     }
 }
 
 function restoreInputValues() {
-    const bundleIdInput = document.getElementById('bundleId');
-    const teamIdInput = document.getElementById('teamId');
-    const profileNameInput = document.getElementById('profileName');
-    const appNameInput = document.getElementById('appName');
+    const inputs = {
+        'bundleId': state.bundleId,
+        'teamId': state.teamId,
+        'profileName': state.profileName,
+        'appName': state.appName
+    };
 
-    if (bundleIdInput && state.bundleId) bundleIdInput.value = state.bundleId;
-    if (teamIdInput && state.teamId) teamIdInput.value = state.teamId;
-    if (profileNameInput && state.profileName) profileNameInput.value = state.profileName;
-    if (appNameInput && state.appName) appNameInput.value = state.appName;
+    Object.entries(inputs).forEach(([id, value]) => {
+        const el = document.getElementById(id);
+        if (el && value) el.value = value;
+    });
 }
 
 function nextStep() {
-    if (!validateCurrentStep()) {
-        return;
-    }
-
     saveCurrentStepData();
 
     if (state.currentStep < state.totalSteps) {
         state.currentStep++;
         showStep(state.currentStep);
         updateProgress();
-
-        // 스크롤 맨 위로
+        saveState();
         window.scrollTo({ top: 0, behavior: 'smooth' });
-    } else {
-        // 완료
-        showToast('설정이 완료되었습니다!');
     }
 }
 
@@ -324,165 +481,61 @@ function prevStep() {
         state.currentStep--;
         showStep(state.currentStep);
         updateProgress();
-
-        // 스크롤 맨 위로
+        saveState();
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 }
 
+function skipStep(stepNumber) {
+    if (stepNumber < state.totalSteps) {
+        saveCurrentStepData();
+        state.currentStep = stepNumber + 1;
+        showStep(state.currentStep);
+        updateProgress();
+        saveState();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        showToast(`Step ${stepNumber} 건너뛰기`);
+    }
+}
+
 function resetWizard() {
-    // 상태 초기화
-    state.currentStep = 1;
-    state.projectPath = '';
-    state.bundleId = '';
-    state.teamId = '';
-    state.profileName = '';
-    state.appName = '';
+    if (confirm('모든 데이터를 초기화하시겠습니까?')) {
+        state.currentStep = 1;
+        state.projectPath = '';
+        state.bundleId = '';
+        state.teamId = '';
+        state.profileName = '';
+        state.appName = '';
+        state.encryptionType = 'none';
+        state.p12Base64 = '';
+        state.p12Password = '';
+        state.provisionBase64 = '';
+        state.p8Base64 = '';
+        state.apiKeyId = '';
+        state.issuerId = '';
 
-    // localStorage 초기화
-    localStorage.removeItem('wizardState');
+        clearState();
 
-    // 입력 필드 초기화
-    const inputs = ['projectPath', 'bundleId', 'teamId', 'profileName', 'appName'];
-    inputs.forEach(id => {
-        const input = document.getElementById(id);
-        if (input) input.value = '';
-    });
+        // UI 초기화
+        const inputs = ['projectPath', 'bundleId', 'teamId', 'profileName', 'appName', 'p12-password', 'api-key-id', 'issuer-id'];
+        inputs.forEach(id => {
+            const input = document.getElementById(id);
+            if (input) input.value = '';
+        });
 
-    // UI 초기화
-    showStep(1);
-    updateProgress();
+        // 파일 업로드 상태 초기화
+        document.querySelectorAll('.file-upload').forEach(el => {
+            el.classList.remove('has-file');
+        });
+        document.querySelectorAll('.file-info').forEach(el => {
+            el.style.display = 'none';
+        });
 
-    showToast('마법사가 초기화되었습니다.');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-// ============================================
-// Validation Functions
-// ============================================
-
-function validateCurrentStep() {
-    clearAllValidationErrors();
-
-    switch (state.currentStep) {
-        case 1:
-            // Step 1은 선택사항 - 항상 통과
-            return true;
-        case 2:
-            return validateStep2();
-        default:
-            return true;
+        showStep(1);
+        updateProgress();
+        showToast('마법사가 초기화되었습니다.');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-}
-
-function validateStep1() {
-    const projectPath = getInputValue('projectPath');
-    const validationEl = document.getElementById('step1Validation');
-
-    if (!projectPath) {
-        showValidationError('projectPath', '프로젝트 경로를 입력해주세요.');
-        if (validationEl) {
-            validationEl.innerHTML = '<div class="error-message">❌ 프로젝트 경로를 입력해주세요.</div>';
-        }
-        return false;
-    }
-
-    // 선택된 폴더 표시인 경우 경고만 표시
-    if (projectPath.startsWith('선택된 폴더:')) {
-        if (validationEl) {
-            validationEl.innerHTML = '<div class="text-yellow-400 text-sm">⚠️ 터미널에서 실제 절대 경로를 사용하세요.</div>';
-        }
-        return true;
-    }
-
-    // Mac/Linux 절대 경로 확인
-    if (!projectPath.startsWith('/') && !projectPath.match(/^[A-Za-z]:\\/)) {
-        showValidationError('projectPath', '절대 경로를 입력해주세요. (예: /Users/... 또는 C:\\...)');
-        if (validationEl) {
-            validationEl.innerHTML = '<div class="error-message">❌ 절대 경로를 입력해주세요. (예: /Users/username/project)</div>';
-        }
-        return false;
-    }
-
-    clearValidationError('projectPath');
-    if (validationEl) {
-        validationEl.innerHTML = '<div class="success-message">✅ 경로가 입력되었습니다.</div>';
-    }
-    return true;
-}
-
-function validateStep2() {
-    const bundleId = getInputValue('bundleId');
-    const teamId = getInputValue('teamId');
-    const profileName = getInputValue('profileName');
-    const validationEl = document.getElementById('step2Validation');
-
-    let errors = [];
-
-    // Bundle ID 검증
-    if (!bundleId) {
-        showValidationError('bundleId', 'Bundle ID를 입력해주세요.');
-        errors.push('Bundle ID를 입력해주세요.');
-    } else if (!bundleId.includes('.')) {
-        showValidationError('bundleId', 'Bundle ID 형식이 올바르지 않습니다. (예: com.example.app)');
-        errors.push('Bundle ID 형식이 올바르지 않습니다.');
-    } else if (!/^[a-zA-Z][a-zA-Z0-9.-]*\.[a-zA-Z][a-zA-Z0-9.-]*$/.test(bundleId)) {
-        showValidationError('bundleId', 'Bundle ID는 영문자로 시작하고 점(.)으로 구분되어야 합니다.');
-        errors.push('Bundle ID 형식을 확인해주세요.');
-    } else {
-        clearValidationError('bundleId');
-    }
-
-    // Team ID 검증
-    if (!teamId) {
-        showValidationError('teamId', 'Team ID를 입력해주세요.');
-        errors.push('Team ID를 입력해주세요.');
-    } else if (teamId.length !== 10) {
-        showValidationError('teamId', 'Team ID는 10자리여야 합니다.');
-        errors.push('Team ID는 10자리여야 합니다.');
-    } else if (!/^[A-Z0-9]{10}$/.test(teamId.toUpperCase())) {
-        showValidationError('teamId', 'Team ID는 영문 대문자와 숫자로만 구성됩니다.');
-        errors.push('Team ID 형식을 확인해주세요.');
-    } else {
-        clearValidationError('teamId');
-    }
-
-    // Profile Name 검증
-    if (!profileName) {
-        showValidationError('profileName', 'Provisioning Profile 이름을 입력해주세요.');
-        errors.push('Provisioning Profile 이름을 입력해주세요.');
-    } else {
-        clearValidationError('profileName');
-    }
-
-    // 검증 결과 표시
-    if (validationEl) {
-        if (errors.length > 0) {
-            validationEl.innerHTML = `<div class="error-message">❌ ${errors.join('<br>❌ ')}</div>`;
-        } else {
-            validationEl.innerHTML = '<div class="success-message">✅ 모든 정보가 입력되었습니다.</div>';
-        }
-    }
-
-    return errors.length === 0;
-}
-
-function showValidationError(inputId, message) {
-    const input = document.getElementById(inputId);
-    if (input) {
-        input.classList.add('input-error');
-    }
-}
-
-function clearValidationError(inputId) {
-    const input = document.getElementById(inputId);
-    if (input) {
-        input.classList.remove('input-error');
-    }
-}
-
-function clearAllValidationErrors() {
-    $$('.input-error').forEach(el => el.classList.remove('input-error'));
 }
 
 // ============================================
@@ -493,7 +546,6 @@ function saveCurrentStepData() {
     switch (state.currentStep) {
         case 1:
             state.projectPath = getInputValue('projectPath');
-            // 선택된 폴더 표시 제거
             if (state.projectPath.startsWith('선택된 폴더:')) {
                 state.projectPath = '';
             }
@@ -503,136 +555,148 @@ function saveCurrentStepData() {
             state.teamId = getInputValue('teamId').toUpperCase();
             state.profileName = getInputValue('profileName');
             state.appName = getInputValue('appName');
-            // 암호화 설정 저장
             const encryptionRadio = document.querySelector('input[name="encryptionType"]:checked');
             state.encryptionType = encryptionRadio ? encryptionRadio.value : 'none';
             break;
+        case 3:
+            state.p12Password = getInputValue('p12-password');
+            break;
+        case 5:
+            state.apiKeyId = getInputValue('api-key-id');
+            state.issuerId = getInputValue('issuer-id');
+            break;
     }
 
-    // LocalStorage에 저장 (새로고침 시 복원용)
-    localStorage.setItem('wizardState', JSON.stringify(state));
-}
-
-function loadSavedState() {
-    const saved = localStorage.getItem('wizardState');
-    if (saved) {
-        try {
-            const savedState = JSON.parse(saved);
-            Object.assign(state, savedState);
-
-            // 입력 필드에 값 복원
-            const projectPathInput = document.getElementById('projectPath');
-            const bundleIdInput = document.getElementById('bundleId');
-            const teamIdInput = document.getElementById('teamId');
-            const profileNameInput = document.getElementById('profileName');
-            const appNameInput = document.getElementById('appName');
-
-            if (projectPathInput) projectPathInput.value = state.projectPath;
-            if (bundleIdInput) bundleIdInput.value = state.bundleId;
-            if (teamIdInput) teamIdInput.value = state.teamId;
-            if (profileNameInput) profileNameInput.value = state.profileName;
-            if (appNameInput) appNameInput.value = state.appName;
-
-            // 암호화 설정 복원
-            if (state.encryptionType) {
-                const encryptionRadio = document.querySelector(`input[name="encryptionType"][value="${state.encryptionType}"]`);
-                if (encryptionRadio) encryptionRadio.checked = true;
-            }
-        } catch (e) {
-            console.error('Failed to load saved state:', e);
-        }
-    }
+    saveState();
 }
 
 // ============================================
 // Command Generation Functions
 // ============================================
 
-function updatePathCheckCommand() {
-    let projectPath = getInputValue('projectPath') || '/path/to/project';
-
-    // 선택된 폴더 표시인 경우 기본값 사용
-    if (projectPath.startsWith('선택된 폴더:')) {
-        projectPath = '/path/to/project';
-    }
-
-    const cmd = `cd "${projectPath}" && ls pubspec.yaml ios/`;
-    setElementText('pathCheckCmd', cmd);
-}
-
 function generateInitCommand() {
-    const scriptPath = getScriptPath();
     const projectPath = state.projectPath || '/path/to/project';
     const bundleId = state.bundleId || 'com.example.app';
     const teamId = state.teamId || 'TEAM_ID';
     const profileName = state.profileName || 'Profile Name';
-    // 암호화 설정: 'none' = false, 'standard' = true
     const usesNonExemptEncryption = state.encryptionType === 'standard' ? 'true' : 'false';
 
-    const cmd = `cd "${projectPath}" && bash "${scriptPath}/init.sh" "${projectPath}" "${bundleId}" "${teamId}" "${profileName}" "${usesNonExemptEncryption}"`;
+    const cmd = `cd "${projectPath}" && bash ".github/util/flutter-ios-testflight-init/init.sh" "${projectPath}" "${bundleId}" "${teamId}" "${profileName}" "${usesNonExemptEncryption}"`;
     setElementText('initCmd', cmd);
-
-    const verifyCmd = `ls -la "${projectPath}/ios/Gemfile" "${projectPath}/ios/fastlane/"`;
-    setElementText('verifyCmd', verifyCmd);
 }
 
-function getScriptPath() {
-    const projectPath = state.projectPath || '/path/to/project';
-    return `${projectPath}/.github/util/flutter-ios-testflight-init`;
-}
+function generateResults() {
+    const secrets = [
+        { key: 'APPLE_CERTIFICATE_BASE64', value: state.p12Base64, desc: 'Distribution 인증서 (.p12)' },
+        { key: 'APPLE_CERTIFICATE_PASSWORD', value: state.p12Password, desc: '인증서 비밀번호' },
+        { key: 'APPLE_PROVISIONING_PROFILE_BASE64', value: state.provisionBase64, desc: 'Provisioning Profile' },
+        { key: 'IOS_PROVISIONING_PROFILE_NAME', value: state.profileName, desc: '프로파일 이름' },
+        { key: 'APP_STORE_CONNECT_API_KEY_BASE64', value: state.p8Base64, desc: 'API Key (.p8)' },
+        { key: 'APP_STORE_CONNECT_API_KEY_ID', value: state.apiKeyId, desc: 'API Key ID' },
+        { key: 'APP_STORE_CONNECT_ISSUER_ID', value: state.issuerId, desc: 'Issuer ID' },
+        { key: 'APPLE_TEAM_ID', value: state.teamId, desc: 'Apple Team ID' },
+        { key: 'IOS_BUNDLE_ID', value: state.bundleId, desc: 'Bundle ID' }
+    ];
 
-function updateSecretsPreview() {
-    setElementText('teamIdPreview', state.teamId || '-');
-    setElementText('bundleIdPreview', state.bundleId || '-');
-    setElementText('profileNamePreview', state.profileName || '-');
-}
-
-function generateSummary() {
-    const encryptionLabel = state.encryptionType === 'standard'
-        ? 'Standard encryption (true)'
-        : 'None - HTTPS only (false)';
-
-    const summaryHtml = `
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-                <p class="text-xs text-slate-500 mb-1">프로젝트 경로</p>
-                <p class="text-sm font-medium text-slate-200 break-all">${state.projectPath || '-'}</p>
+    const container = document.getElementById('results-container');
+    container.innerHTML = secrets.map(s => `
+        <div class="result-item">
+            <div class="key">
+                <span>${s.key} <small style="color:#71717a">(${s.desc})</small></span>
+                <button class="copy-btn-small" onclick="copyValue(this, '${s.key}')">복사</button>
             </div>
-            <div>
-                <p class="text-xs text-slate-500 mb-1">Bundle ID</p>
-                <p class="text-sm font-medium text-slate-200">${state.bundleId || '-'}</p>
-            </div>
-            <div>
-                <p class="text-xs text-slate-500 mb-1">Team ID</p>
-                <p class="text-sm font-medium text-slate-200">${state.teamId || '-'}</p>
-            </div>
-            <div>
-                <p class="text-xs text-slate-500 mb-1">Provisioning Profile</p>
-                <p class="text-sm font-medium text-slate-200">${state.profileName || '-'}</p>
-            </div>
-            <div>
-                <p class="text-xs text-slate-500 mb-1">🔐 암호화 설정</p>
-                <p class="text-sm font-medium text-slate-200">${encryptionLabel}</p>
-            </div>
-            ${state.appName ? `
-            <div>
-                <p class="text-xs text-slate-500 mb-1">앱 이름</p>
-                <p class="text-sm font-medium text-slate-200">${state.appName}</p>
-            </div>
-            ` : ''}
+            <div class="value" id="value-${s.key}">${s.value || '(비어있음)'}</div>
         </div>
-    `;
-    setElementHtml('summaryContent', summaryHtml);
+    `).join('');
+}
 
-    // 커밋 명령어 업데이트
-    const projectPath = state.projectPath || '.';
-    const commitCmd = `cd "${projectPath}" && git add ios/Gemfile ios/fastlane/ ios/Runner/Info.plist && git commit -m "chore: iOS Fastlane 설정 및 암호화 선언 추가"`;
-    setElementText('commitCmd', commitCmd);
+function copyValue(btn, key) {
+    const value = document.getElementById(`value-${key}`).textContent;
+    if (value === '(비어있음)') {
+        showToast('⚠️ 값이 비어있습니다');
+        return;
+    }
+
+    navigator.clipboard.writeText(value).then(() => {
+        btn.textContent = '복사됨!';
+        btn.classList.add('copied');
+        setTimeout(() => {
+            btn.textContent = '복사';
+            btn.classList.remove('copied');
+        }, 2000);
+    });
+}
+
+function copyAllAsJson() {
+    const secrets = {
+        APPLE_CERTIFICATE_BASE64: state.p12Base64,
+        APPLE_CERTIFICATE_PASSWORD: state.p12Password,
+        APPLE_PROVISIONING_PROFILE_BASE64: state.provisionBase64,
+        IOS_PROVISIONING_PROFILE_NAME: state.profileName,
+        APP_STORE_CONNECT_API_KEY_BASE64: state.p8Base64,
+        APP_STORE_CONNECT_API_KEY_ID: state.apiKeyId,
+        APP_STORE_CONNECT_ISSUER_ID: state.issuerId,
+        APPLE_TEAM_ID: state.teamId,
+        IOS_BUNDLE_ID: state.bundleId
+    };
+
+    navigator.clipboard.writeText(JSON.stringify(secrets, null, 2)).then(() => {
+        showToast('✅ 전체 JSON 복사 완료!');
+    });
 }
 
 // ============================================
 // Secret Guide Modal Functions
 // ============================================
+
+const secretGuides = {
+    certificate: {
+        title: '📜 배포 인증서 (.p12) 생성 가이드',
+        steps: [
+            '1. Mac에서 "키체인 접근" 앱을 엽니다.',
+            '2. "로그인" 키체인에서 "Apple Distribution" 인증서를 찾습니다.',
+            '3. 인증서를 우클릭 → "내보내기"를 선택합니다.',
+            '4. 파일 형식을 ".p12"로 선택합니다.',
+            '5. 안전한 비밀번호를 설정합니다.',
+            '6. 아래 명령어로 Base64 인코딩합니다:'
+        ],
+        commands: [
+            'base64 -i ~/Desktop/Certificates.p12 | pbcopy',
+            '# 클립보드에 복사됨'
+        ]
+    },
+    profile: {
+        title: '📋 프로비저닝 프로파일 생성 가이드',
+        steps: [
+            '1. Apple Developer Console 접속',
+            '2. Certificates, Identifiers & Profiles → Profiles',
+            '3. "App Store" Distribution 타입 선택',
+            '4. 앱의 Bundle ID 선택',
+            '5. Distribution Certificate 선택',
+            '6. 프로파일 다운로드',
+            '7. 아래 명령어로 Base64 인코딩:'
+        ],
+        commands: [
+            'base64 -i ~/Downloads/YourProfile.mobileprovision | pbcopy'
+        ]
+    },
+    apikey: {
+        title: '🔑 App Store Connect API Key 생성 가이드',
+        steps: [
+            '1. App Store Connect 접속',
+            '2. Users and Access → Keys 탭',
+            '3. "+" 버튼으로 새 API Key 생성',
+            '4. Access: "App Manager" 또는 "Admin" 선택',
+            '5. Key ID 복사',
+            '6. Issuer ID 복사 (상단에 표시됨)',
+            '7. API Key 다운로드 (.p8 파일)',
+            '8. 아래 명령어로 Base64 인코딩:'
+        ],
+        commands: [
+            'base64 -i ~/Downloads/AuthKey_XXXXXX.p8 | pbcopy'
+        ]
+    }
+};
 
 function showSecretGuide(type) {
     const guide = secretGuides[type];
@@ -672,7 +736,6 @@ function showSecretGuide(type) {
 }
 
 function closeGuideModal(event) {
-    // 이벤트가 있고 모달 내부 클릭이면 무시
     if (event && event.target !== event.currentTarget) {
         return;
     }
@@ -684,35 +747,10 @@ function closeGuideModal(event) {
 }
 
 // ============================================
-// GitHub Integration
-// ============================================
-
-function openGitHubSecrets() {
-    // 프로젝트 경로에서 GitHub 레포지토리 URL 추출 시도
-    const repoUrl = prompt(
-        'GitHub Repository URL을 입력하세요:\n(예: https://github.com/username/repo)',
-        'https://github.com/'
-    );
-
-    if (repoUrl && repoUrl !== 'https://github.com/') {
-        const secretsUrl = `${repoUrl}/settings/secrets/actions`;
-        window.open(secretsUrl, '_blank');
-    }
-}
-
-// ============================================
 // Input Event Handlers
 // ============================================
 
 function setupInputHandlers() {
-    // 프로젝트 경로 입력 시 명령어 업데이트
-    const projectPathInput = document.getElementById('projectPath');
-    if (projectPathInput) {
-        projectPathInput.addEventListener('input', () => {
-            updatePathCheckCommand();
-        });
-    }
-
     // Team ID 대문자 자동 변환
     const teamIdInput = document.getElementById('teamId');
     if (teamIdInput) {
@@ -728,11 +766,19 @@ function setupInputHandlers() {
         }
     });
 
-    // 입력 필드 포커스 시 에러 스타일 제거
-    $$('input').forEach(input => {
-        input.addEventListener('focus', () => {
-            input.classList.remove('input-error');
-        });
+    // 입력 필드 변경 시 저장
+    const inputIds = ['projectPath', 'bundleId', 'teamId', 'profileName', 'appName', 'p12-password', 'api-key-id', 'issuer-id'];
+    inputIds.forEach(id => {
+        const input = document.getElementById(id);
+        if (input) {
+            input.addEventListener('change', saveState);
+            input.addEventListener('blur', saveState);
+        }
+    });
+
+    // 암호화 설정 변경 시 저장
+    document.querySelectorAll('input[name="encryptionType"]').forEach(radio => {
+        radio.addEventListener('change', saveState);
     });
 }
 
@@ -741,11 +787,30 @@ function setupInputHandlers() {
 // ============================================
 
 function initialize() {
-    loadSavedState();
+    // 저장된 상태 로드
+    const hasState = loadState();
+
+    if (hasState) {
+        showStep(state.currentStep);
+        updateProgress();
+        showToast('이전 진행 상태를 복원했습니다');
+    } else {
+        showStep(1);
+        updateProgress();
+    }
+
     setupInputHandlers();
-    showStep(state.currentStep);
-    updateProgress();
+    setupDragAndDrop();
+    showSecurityWarning();
 }
 
 // DOM 로드 완료 시 초기화
 document.addEventListener('DOMContentLoaded', initialize);
+
+// 페이지 언로드 시 경고 (데이터 손실 방지)
+window.addEventListener('beforeunload', (e) => {
+    if (state.currentStep > 1 || state.bundleId || state.p12Base64) {
+        e.preventDefault();
+        e.returnValue = '입력한 데이터가 사라질 수 있습니다. 정말 나가시겠습니까?';
+    }
+});
