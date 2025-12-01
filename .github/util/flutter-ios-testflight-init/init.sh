@@ -300,6 +300,63 @@ update_gitignore() {
     print_success ".gitignore 확인 완료"
 }
 
+# Xcode 프로젝트의 Bundle ID 변경 (Apple Developer 설정과 일치시키기 위해)
+update_bundle_id() {
+    print_step "Bundle ID 확인 및 업데이트 중..."
+
+    local pbxproj_path="$PROJECT_PATH/ios/Runner.xcodeproj/project.pbxproj"
+
+    if [ ! -f "$pbxproj_path" ]; then
+        print_error "project.pbxproj 파일을 찾을 수 없습니다: $pbxproj_path"
+        return 1
+    fi
+
+    # 입력한 Bundle ID가 이미 존재하면 스킵
+    if grep -q "PRODUCT_BUNDLE_IDENTIFIER = $BUNDLE_ID;" "$pbxproj_path"; then
+        print_info "Bundle ID가 이미 올바르게 설정되어 있습니다: $BUNDLE_ID"
+        return 0
+    fi
+
+    # 현재 project.pbxproj에 있는 Runner 앱의 Bundle ID 추출 (RunnerTests 제외)
+    local CURRENT_BUNDLE_ID=$(grep "PRODUCT_BUNDLE_IDENTIFIER = " "$pbxproj_path" | grep -v "RunnerTests" | head -1 | sed 's/.*= //' | sed 's/;$//' | tr -d '[:space:]')
+
+    if [ -z "$CURRENT_BUNDLE_ID" ]; then
+        print_error "현재 Bundle ID를 찾을 수 없습니다"
+        return 1
+    fi
+
+    print_info "현재 Bundle ID: $CURRENT_BUNDLE_ID"
+    print_info "변경할 Bundle ID: $BUNDLE_ID"
+
+    # Bundle ID가 다르면 변경
+    if [ "$CURRENT_BUNDLE_ID" != "$BUNDLE_ID" ]; then
+        print_warning "Bundle ID가 다릅니다. 자동으로 변경합니다..."
+
+        # 백업 생성
+        cp "$pbxproj_path" "${pbxproj_path}.bundleid.bak"
+
+        # Runner 앱의 Bundle ID 변경 (정확히 매칭)
+        sed -i '' "s/PRODUCT_BUNDLE_IDENTIFIER = $CURRENT_BUNDLE_ID;/PRODUCT_BUNDLE_IDENTIFIER = $BUNDLE_ID;/g" "$pbxproj_path"
+
+        # RunnerTests의 Bundle ID도 함께 변경 (Runner 앱의 Bundle ID + .RunnerTests)
+        local CURRENT_TESTS_BUNDLE_ID="${CURRENT_BUNDLE_ID}.RunnerTests"
+        local NEW_TESTS_BUNDLE_ID="${BUNDLE_ID}.RunnerTests"
+        sed -i '' "s/PRODUCT_BUNDLE_IDENTIFIER = $CURRENT_TESTS_BUNDLE_ID;/PRODUCT_BUNDLE_IDENTIFIER = $NEW_TESTS_BUNDLE_ID;/g" "$pbxproj_path"
+
+        # 변경 확인
+        if grep -q "PRODUCT_BUNDLE_IDENTIFIER = $BUNDLE_ID;" "$pbxproj_path"; then
+            print_success "Bundle ID 변경 완료: $CURRENT_BUNDLE_ID → $BUNDLE_ID"
+            rm "${pbxproj_path}.bundleid.bak"
+        else
+            print_error "Bundle ID 변경 실패!"
+            mv "${pbxproj_path}.bundleid.bak" "$pbxproj_path"
+            return 1
+        fi
+    fi
+
+    return 0
+}
+
 # Xcode 프로젝트에 DEVELOPMENT_TEAM 및 Manual Signing 추가 (CI 빌드에 필수)
 patch_xcode_project() {
     print_step "Xcode 프로젝트에 DEVELOPMENT_TEAM 및 Manual Signing 설정 중..."
@@ -308,6 +365,13 @@ patch_xcode_project() {
 
     if [ ! -f "$pbxproj_path" ]; then
         print_error "project.pbxproj 파일을 찾을 수 없습니다: $pbxproj_path"
+        return 1
+    fi
+
+    # 먼저 Bundle ID 업데이트 수행
+    update_bundle_id
+    if [ $? -ne 0 ]; then
+        print_error "Bundle ID 업데이트 실패"
         return 1
     fi
 
@@ -331,6 +395,13 @@ patch_xcode_project() {
             fi
             print_success "CODE_SIGN_STYLE = Manual 설정 완료"
         fi
+
+        # PROVISIONING_PROFILE_SPECIFIER 업데이트
+        if grep -q "PROVISIONING_PROFILE_SPECIFIER" "$pbxproj_path"; then
+            sed -i '' "s/\"PROVISIONING_PROFILE_SPECIFIER\" = \"[^\"]*\";/\"PROVISIONING_PROFILE_SPECIFIER\" = \"$PROFILE_NAME\";/g" "$pbxproj_path"
+            print_success "PROVISIONING_PROFILE_SPECIFIER 업데이트 완료"
+        fi
+
         rm "${pbxproj_path}.bak"
         print_success "Xcode 프로젝트 확인 완료"
         return 0
@@ -341,7 +412,7 @@ patch_xcode_project() {
         print_info "기존 DEVELOPMENT_TEAM 값을 업데이트합니다"
         sed -i '' "s/DEVELOPMENT_TEAM = [^;]*;/DEVELOPMENT_TEAM = $TEAM_ID;/g" "$pbxproj_path"
         print_success "DEVELOPMENT_TEAM 업데이트 완료"
-        
+
         # CODE_SIGN_STYLE = Manual 설정
         if grep -q "CODE_SIGN_STYLE = Automatic" "$pbxproj_path"; then
             sed -i '' "s/CODE_SIGN_STYLE = Automatic;/CODE_SIGN_STYLE = Manual;/g" "$pbxproj_path"
@@ -351,14 +422,14 @@ patch_xcode_project() {
 				CODE_SIGN_STYLE = Manual;/g" "$pbxproj_path"
             print_success "CODE_SIGN_STYLE = Manual 추가 완료"
         fi
-        
+
         # CODE_SIGN_IDENTITY 설정
         if ! grep -q 'CODE_SIGN_IDENTITY = "Apple Distribution"' "$pbxproj_path"; then
             sed -i '' "s/CODE_SIGN_STYLE = Manual;/CODE_SIGN_STYLE = Manual;\\
 				CODE_SIGN_IDENTITY = \"Apple Distribution\";/g" "$pbxproj_path"
             print_success "CODE_SIGN_IDENTITY = Apple Distribution 추가 완료"
         fi
-        
+
         # PROVISIONING_PROFILE_SPECIFIER 설정 (핵심!)
         if ! grep -q "PROVISIONING_PROFILE_SPECIFIER" "$pbxproj_path"; then
             sed -i '' "s/CODE_SIGN_IDENTITY = \"Apple Distribution\";/CODE_SIGN_IDENTITY = \"Apple Distribution\";\\
@@ -369,13 +440,13 @@ patch_xcode_project() {
             sed -i '' "s/\"PROVISIONING_PROFILE_SPECIFIER\" = \"[^\"]*\";/\"PROVISIONING_PROFILE_SPECIFIER\" = \"$PROFILE_NAME\";/g" "$pbxproj_path"
             print_success "PROVISIONING_PROFILE_SPECIFIER 업데이트 완료"
         fi
-        
+
         # 구버전 CODE_SIGN_IDENTITY 설정 업데이트
         if grep -q '"CODE_SIGN_IDENTITY\[sdk=iphoneos\*\]" = "iPhone Developer"' "$pbxproj_path"; then
             sed -i '' 's/"CODE_SIGN_IDENTITY\[sdk=iphoneos\*\]" = "iPhone Developer"/"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Distribution"/g' "$pbxproj_path"
             print_success "CODE_SIGN_IDENTITY[sdk=iphoneos*] 업데이트 완료"
         fi
-        
+
         rm "${pbxproj_path}.bak"
         return 0
     fi
@@ -384,7 +455,7 @@ patch_xcode_project() {
     # PRODUCT_BUNDLE_IDENTIFIER 라인 다음에 추가
     print_info "DEVELOPMENT_TEAM 추가 중..."
 
-    # 입력한 Bundle ID가 project.pbxproj에 존재하는지 먼저 확인
+    # Bundle ID가 존재하는지 확인 (update_bundle_id에서 이미 처리했으므로 존재해야 함)
     if ! grep -q "PRODUCT_BUNDLE_IDENTIFIER = $BUNDLE_ID;" "$pbxproj_path"; then
         print_error "Bundle ID를 project.pbxproj에서 찾을 수 없습니다!"
         echo ""
