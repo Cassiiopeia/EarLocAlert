@@ -45,7 +45,7 @@ platform :ios do
       api_key: api_key,
       ipa: ipa_path,
       changelog: ENV["RELEASE_NOTES"] || "새로운 빌드가 업로드되었습니다.",
-      skip_waiting_for_build_processing: true,
+      skip_waiting_for_build_processing: ENV["SKIP_WAITING_FOR_BUILD_PROCESSING"] == "true",
       distribute_external: false,
       notify_external_testers: false,
       uses_non_exempt_encryption: false
@@ -91,7 +91,7 @@ platform :ios do
       api_key: api_key,
       ipa: ipa_path,
       changelog: options[:changelog] || "새로운 빌드가 업로드되었습니다.",
-      skip_waiting_for_build_processing: true,
+      skip_waiting_for_build_processing: ENV["SKIP_WAITING_FOR_BUILD_PROCESSING"] == "true",
       distribute_external: false,
       notify_external_testers: false,
       uses_non_exempt_encryption: false
