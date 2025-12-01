@@ -381,7 +381,6 @@ jobs:
                 api_key: api_key,
                 ipa: ENV["IPA_PATH"],
                 beta_app_description: ENV["RELEASE_NOTES"],
-                beta_build_update_description: ENV["RELEASE_NOTES"],
                 skip_waiting_for_build_processing: true,
                 distribute_external: false,
                 notify_external_testers: false,
