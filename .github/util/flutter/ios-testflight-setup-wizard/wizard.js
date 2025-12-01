@@ -1003,3 +1003,89 @@ window.addEventListener('beforeunload', (e) => {
         e.returnValue = '입력한 데이터가 사라질 수 있습니다. 정말 나가시겠습니까?';
     }
 });
+
+// ============================================
+// Changelog Modal Functions
+// ============================================
+
+// 버전 정보는 index.html의 <script id="versionJson"> 에서 로드
+function getVersionData() {
+    const scriptEl = document.getElementById('versionJson');
+    if (scriptEl) {
+        try {
+            return JSON.parse(scriptEl.textContent);
+        } catch (e) {
+            console.error('버전 정보 파싱 실패:', e);
+        }
+    }
+    return null;
+}
+
+function openChangelogModal() {
+    const modal = document.getElementById('changelogModal');
+    const content = document.getElementById('changelogContent');
+    const lastUpdated = document.getElementById('changelogLastUpdated');
+
+    const data = getVersionData();
+    if (!data) {
+        content.innerHTML = '<div class="text-center text-red-400 py-4">버전 정보를 불러올 수 없습니다.</div>';
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+        return;
+    }
+
+    // Build changelog HTML (simple timeline without color dots)
+    let html = '';
+    data.changelog.forEach((release, index) => {
+        const isLatest = index === 0;
+
+        html += `
+            <div class="pb-4 ${index < data.changelog.length - 1 ? 'border-b border-slate-700 mb-4' : ''}">
+                <div class="flex items-center gap-2 mb-2">
+                    <span class="text-white font-semibold">v${release.version}</span>
+                    ${isLatest ? '<span class="px-2 py-0.5 text-xs bg-blue-500/20 text-blue-400 rounded-full">Latest</span>' : ''}
+                    <span class="text-slate-500 text-xs">${release.date}</span>
+                </div>
+                <ul class="space-y-1.5 pl-2">
+                    ${release.changes.map(change => `
+                        <li class="text-sm text-slate-400 flex items-start gap-2">
+                            <span class="text-slate-600 mt-1">•</span>
+                            <span>${change}</span>
+                        </li>
+                    `).join('')}
+                </ul>
+            </div>
+        `;
+    });
+
+    content.innerHTML = html;
+    lastUpdated.textContent = `Last updated: ${data.lastUpdated}`;
+
+    modal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeChangelogModal(event) {
+    if (event && event.target !== event.currentTarget) return;
+    const modal = document.getElementById('changelogModal');
+    modal.classList.add('hidden');
+    document.body.style.overflow = '';
+}
+
+// ESC 키로 changelog 모달도 닫기
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        closeChangelogModal();
+    }
+});
+
+// 페이지 로드 시 버전 배지 업데이트
+document.addEventListener('DOMContentLoaded', () => {
+    const data = getVersionData();
+    if (data && data.version) {
+        const versionBadge = document.getElementById('versionBadge');
+        if (versionBadge) {
+            versionBadge.textContent = `v${data.version}`;
+        }
+    }
+});
