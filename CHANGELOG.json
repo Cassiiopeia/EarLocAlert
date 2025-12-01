@@ -1,11 +1,42 @@
 {
   "metadata": {
-    "lastUpdated": "2025-12-01T08:38:50Z",
-    "currentVersion": "1.1.10",
+    "lastUpdated": "2025-12-01T15:38:50Z",
+    "currentVersion": "1.2.2",
     "projectType": "flutter",
-    "totalReleases": 22
+    "totalReleases": 23
   },
   "releases": [
+    {
+      "version": "1.2.2",
+      "project_type": "flutter",
+      "date": "2025-12-01",
+      "pr_number": 35,
+      "raw_summary": "## Summary by CodeRabbit\n\n## 릴리스 노트\n\n* **새로운 기능**\n  * iOS TestFlight 설정 마법사 확장 (9단계 프로세스)\n  * TestFlight 업로드 시 자동 릴리스 노트 처리 기능\n\n* **개선 사항**\n  * 암호화 옵션 설정 지원 추가\n  * iOS TestFlight 배포 워크플로우 최적화\n  * 안드로이드 Play Store 설정 도구 재구성\n\n* **Chores**\n  * 버전 업그레이드 (v1.1.10 → v1.2.2)",
+      "parsed_changes": {
+        "새로운_기능": {
+          "title": "새로운 기능",
+          "items": [
+            "iOS TestFlight 설정 마법사 확장 (9단계 프로세스)",
+            "TestFlight 업로드 시 자동 릴리스 노트 처리 기능"
+          ]
+        },
+        "개선_사항": {
+          "title": "개선 사항",
+          "items": [
+            "암호화 옵션 설정 지원 추가",
+            "iOS TestFlight 배포 워크플로우 최적화",
+            "안드로이드 Play Store 설정 도구 재구성"
+          ]
+        },
+        "chores": {
+          "title": "Chores",
+          "items": [
+            "버전 업그레이드 (v1.1.10 → v1.2.2)"
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "1.1.10",
       "project_type": "flutter",
