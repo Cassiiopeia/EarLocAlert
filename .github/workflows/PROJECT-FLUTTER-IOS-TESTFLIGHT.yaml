@@ -376,23 +376,18 @@ jobs:
                 key_filepath: ENV["API_KEY_PATH"]
               )
 
-              # skip_waiting_for_build_processing 설정
-              # - false: changelog가 TestFlight "What to Test"에 표시됨 (느리지만 권장)
-              # - true: 빠르지만 changelog가 표시되지 않음
-              skip_waiting = ENV["SKIP_WAITING_FOR_BUILD_PROCESSING"] == "true"
-
+              # 업로드 + 암호화 규정 자동 설정
               pilot(
                 api_key: api_key,
                 ipa: ENV["IPA_PATH"],
                 changelog: ENV["RELEASE_NOTES"],
-                skip_waiting_for_build_processing: skip_waiting,
+                skip_waiting_for_build_processing: true,
                 distribute_external: false,
                 notify_external_testers: false,
                 uses_non_exempt_encryption: false
               )
 
-              puts "✅ TestFlight 업로드 완료!"
-              puts skip_waiting ? "⚡ 빌드 처리 대기 스킵됨 (빠른 모드)" : "📋 빌드 처리 완료 대기 (Changelog 모드)"
+              puts "✅ TESTFLIGHT 자동 업로드 완료!"
             end
           end
           EOF
@@ -413,18 +408,11 @@ jobs:
           # Release notes 준비
           if [ -f "final_release_notes.txt" ]; then
             RELEASE_NOTES=$(cat final_release_notes.txt)
-            echo "📋 Release Notes 포함하여 업로드:"
+            echo "Release Notes 포함하여 업로드:"
             echo "$RELEASE_NOTES"
           else
             RELEASE_NOTES="v${{ needs.prepare-build.outputs.version }} 업데이트"
-            echo "📋 기본 Release Notes로 업로드: $RELEASE_NOTES"
-          fi
-
-          # Changelog 설정 상태 표시
-          if [ "${{ env.SKIP_WAITING_FOR_BUILD_PROCESSING }}" = "true" ]; then
-            echo "⚡ 빠른 배포 모드: 빌드 처리 대기 스킵 (Changelog가 TestFlight에 표시되지 않음)"
-          else
-            echo "📋 Changelog 모드: 빌드 처리 완료까지 대기 (TestFlight 'What to Test'에 표시됨)"
+            echo "기본 Release Notes로 업로드: $RELEASE_NOTES"
           fi
 
           # 환경변수 설정
@@ -433,7 +421,11 @@ jobs:
           export API_KEY_PATH="$HOME/.appstoreconnect/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}.p8"
           export IPA_PATH="$IPA_PATH"
           export RELEASE_NOTES="$RELEASE_NOTES"
-          export SKIP_WAITING_FOR_BUILD_PROCESSING="${{ env.SKIP_WAITING_FOR_BUILD_PROCESSING }}"
+
+          # 디버깅 정보
+          echo "Working directory: $(pwd)"
+          echo "IPA_PATH: $IPA_PATH"
+          echo "API_KEY_PATH: $API_KEY_PATH"
 
           # Fastlane 실행
           cd ios
