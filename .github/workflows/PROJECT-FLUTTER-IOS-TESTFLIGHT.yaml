@@ -377,7 +377,7 @@ jobs:
               )
 
               # 업로드 + 암호화 규정 자동 설정
-              pilot(
+              upload_to_testflight(
                 api_key: api_key,
                 ipa: ENV["IPA_PATH"],
                 beta_app_description: ENV["RELEASE_NOTES"],
