@@ -428,10 +428,10 @@ function updateProgress() {
             circle.innerHTML = '✓';
             if (label) label.className = 'text-xs mt-2 text-green-400 text-center hidden md:block';
         } else if (stepNum === state.currentStep) {
-            // 현재 스텝
-            circle.className = 'step-circle w-10 h-10 rounded-full bg-orange-500 text-white flex items-center justify-center font-bold text-sm z-10 shadow-lg';
+            // 현재 스텝 - 파랑-보라 그라데이션
+            circle.className = 'step-circle w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 text-white flex items-center justify-center font-bold text-sm z-10 shadow-lg shadow-blue-500/30';
             circle.innerHTML = stepNum;
-            if (label) label.className = 'text-xs mt-2 text-slate-400 text-center hidden md:block';
+            if (label) label.className = 'text-xs mt-2 text-blue-400 text-center hidden md:block';
         } else {
             // 아직 안 한 스텝
             circle.className = 'step-circle w-10 h-10 rounded-full bg-slate-700 text-slate-400 flex items-center justify-center font-bold text-sm z-10';
@@ -738,7 +738,7 @@ function copyValue(btn, key) {
     });
 }
 
-function copyAllAsJson() {
+function downloadAsJson() {
     const secrets = {
         APPLE_CERTIFICATE_BASE64: state.p12Base64,
         APPLE_CERTIFICATE_PASSWORD: state.p12Password,
@@ -751,9 +751,67 @@ function copyAllAsJson() {
         IOS_BUNDLE_ID: state.bundleId
     };
 
-    navigator.clipboard.writeText(JSON.stringify(secrets, null, 2)).then(() => {
-        showToast('✅ 전체 JSON 복사 완료!');
-    });
+    const jsonStr = JSON.stringify(secrets, null, 2);
+    const blob = new Blob([jsonStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'github-secrets.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('✅ JSON 파일 다운로드 완료!');
+}
+
+function downloadAsTxt() {
+    const lines = [
+        '# GitHub Secrets for iOS TestFlight Deployment',
+        '# 생성일: ' + new Date().toLocaleString('ko-KR'),
+        '',
+        '===== GitHub Repository Secrets =====',
+        '',
+        'APPLE_CERTIFICATE_BASE64:',
+        state.p12Base64 || '(미입력)',
+        '',
+        'APPLE_CERTIFICATE_PASSWORD:',
+        state.p12Password || '(미입력)',
+        '',
+        'APPLE_PROVISIONING_PROFILE_BASE64:',
+        state.provisionBase64 || '(미입력)',
+        '',
+        'IOS_PROVISIONING_PROFILE_NAME:',
+        state.profileName || '(미입력)',
+        '',
+        'APP_STORE_CONNECT_API_KEY_BASE64:',
+        state.p8Base64 || '(미입력)',
+        '',
+        'APP_STORE_CONNECT_API_KEY_ID:',
+        state.apiKeyId || '(미입력)',
+        '',
+        'APP_STORE_CONNECT_ISSUER_ID:',
+        state.issuerId || '(미입력)',
+        '',
+        'APPLE_TEAM_ID:',
+        state.teamId || '(미입력)',
+        '',
+        'IOS_BUNDLE_ID:',
+        state.bundleId || '(미입력)',
+        '',
+        '====================================='
+    ];
+
+    const txtStr = lines.join('\n');
+    const blob = new Blob([txtStr], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'github-secrets.txt';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('✅ TXT 파일 다운로드 완료!');
 }
 
 // ============================================

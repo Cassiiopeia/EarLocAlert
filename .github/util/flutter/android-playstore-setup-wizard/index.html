@@ -265,7 +265,7 @@
                     <p class="text-xs text-slate-400 mb-2">Mac / Linux / Git Bash:</p>
                     <div class="code-block">
                         <button class="copy-btn absolute top-2 right-2 px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded text-xs text-slate-300 transition" onclick="copyCode(this)">복사</button>
-                        <pre id="macCommand">cd /path/to/your/project && bash .github/util/flutter-playstore-helper/init.sh</pre>
+                        <pre id="macCommand">cd /path/to/your/project && bash .github/util/flutter/android-playstore-setup-wizard/init.sh</pre>
                     </div>
                 </div>
 
@@ -273,7 +273,7 @@
                     <p class="text-xs text-slate-400 mb-2">Windows PowerShell:</p>
                     <div class="code-block">
                         <button class="copy-btn absolute top-2 right-2 px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded text-xs text-slate-300 transition" onclick="copyCode(this)">복사</button>
-                        <pre id="windowsCommand">cd "C:\path\to\your\project"; powershell -ExecutionPolicy Bypass -File .github\util\flutter-playstore-helper\init.ps1</pre>
+                        <pre id="windowsCommand">cd "C:\path\to\your\project"; powershell -ExecutionPolicy Bypass -File .github\util\flutter/android-playstore-setup-wizard\init.ps1</pre>
                     </div>
                 </div>
             </div>
@@ -1131,8 +1131,8 @@ git rm --cached -r android/app/keystore/</pre>
                     projectPathInput.value = folderName + ' (선택됨 - 전체 경로는 터미널에서 확인)';
 
                     // Update commands with a note
-                    macCommand.textContent = `# 선택한 폴더(${folderName})에서 실행:\nbash .github/util/flutter-playstore-helper/init.sh`;
-                    windowsCommand.textContent = `# 선택한 폴더(${folderName})에서 실행:\npowershell -ExecutionPolicy Bypass -File .github\\util\\flutter-playstore-helper\\init.ps1`;
+                    macCommand.textContent = `# 선택한 폴더(${folderName})에서 실행:\nbash .github/util/flutter/android-playstore-setup-wizard/init.sh`;
+                    windowsCommand.textContent = `# 선택한 폴더(${folderName})에서 실행:\npowershell -ExecutionPolicy Bypass -File .github\\util\\flutter/android-playstore-setup-wizard\\init.ps1`;
 
                     return;
                 } catch (err) {
@@ -1172,14 +1172,14 @@ git rm --cached -r android/app/keystore/</pre>
                 const winPath = path.replace(/\//g, '\\');
                 const unixPath = path.replace(/\\/g, '/').replace(/^([A-Za-z]):/, (_, drive) => '/' + drive.toLowerCase());
 
-                macCommand.textContent = `cd "${unixPath}" && bash .github/util/flutter-playstore-helper/init.sh`;
-                windowsCommand.textContent = `cd "${winPath}"; powershell -ExecutionPolicy Bypass -File .github\\util\\flutter-playstore-helper\\init.ps1`;
+                macCommand.textContent = `cd "${unixPath}" && bash .github/util/flutter/android-playstore-setup-wizard/init.sh`;
+                windowsCommand.textContent = `cd "${winPath}"; powershell -ExecutionPolicy Bypass -File .github\\util\\flutter/android-playstore-setup-wizard\\init.ps1`;
             } else {
                 // Unix-style path
                 const winPath = path.replace(/\//g, '\\');
 
-                macCommand.textContent = `cd "${path}" && bash .github/util/flutter-playstore-helper/init.sh`;
-                windowsCommand.textContent = `cd "${winPath}"; powershell -ExecutionPolicy Bypass -File .github\\util\\flutter-playstore-helper\\init.ps1`;
+                macCommand.textContent = `cd "${path}" && bash .github/util/flutter/android-playstore-setup-wizard/init.sh`;
+                windowsCommand.textContent = `cd "${winPath}"; powershell -ExecutionPolicy Bypass -File .github\\util\\flutter/android-playstore-setup-wizard\\init.ps1`;
             }
         }
 

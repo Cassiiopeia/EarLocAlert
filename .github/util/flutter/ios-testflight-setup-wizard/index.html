@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flutter iOS TestFlight 통합 마법사</title>
+    <title>iOS TestFlight 배포 마법사</title>
     <!-- Pretendard 폰트 -->
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
     <script src="https://cdn.tailwindcss.com"></script>
@@ -314,19 +314,23 @@
 
     <div class="max-w-4xl mx-auto p-4 md:p-6">
         <!-- Header -->
-        <header class="text-center py-8 mb-8 bg-gradient-to-r from-orange-500 to-pink-600 rounded-2xl shadow-xl">
-            <h1 class="text-2xl md:text-3xl font-bold text-white mb-2">
-                🍎 Flutter iOS TestFlight 통합 마법사
+        <header class="text-center mb-10">
+            <h1 class="text-3xl md:text-4xl font-bold mb-3" style="background: linear-gradient(90deg, #60a5fa, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                🚀 iOS TestFlight 배포 마법사
             </h1>
-            <p class="text-orange-100 text-sm md:text-base">
-                처음부터 끝까지! 올바른 순서로 안내해드립니다
+            <p class="text-zinc-400 text-base md:text-lg">
+                <a href="https://github.com/Cassiiopeia/SUH-DEVOPS-TEMPLATE" target="_blank" rel="noopener"
+                   class="hover:text-blue-400 transition inline-flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                    SUH-DEVOPS-TEMPLATE
+                </a>
             </p>
         </header>
 
         <!-- Progress Steps (9단계) -->
         <div class="flex justify-between mb-8 px-2 overflow-x-auto">
             <div class="step-indicator flex flex-col items-center flex-1 relative min-w-[40px]" data-step="1">
-                <div class="step-circle w-8 h-8 rounded-full bg-orange-500 text-white flex items-center justify-center font-bold text-xs z-10 shadow-lg">1</div>
+                <div class="step-circle w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 text-white flex items-center justify-center font-bold text-xs z-10 shadow-lg shadow-blue-500/30">1</div>
                 <span class="text-[9px] mt-1 text-slate-400 text-center hidden md:block">시작</span>
             </div>
             <div class="step-indicator flex flex-col items-center flex-1 relative min-w-[40px]" data-step="2">
@@ -368,7 +372,7 @@
         <!-- ========================================== -->
         <div class="card bg-slate-800 rounded-xl shadow-xl p-6 mb-6 step-content fade-in" data-step="1">
             <h2 class="text-xl font-bold mb-6 flex items-center gap-3">
-                <span class="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center text-sm">1</span>
+                <span class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center text-sm">1</span>
                 시작하기 - 전체 흐름 이해
             </h2>
 
@@ -384,7 +388,7 @@
                     <span class="dependency-arrow">→</span>
                     <div class="dependency-item bg-pink-600 text-white text-[11px]">④ ASC 등록</div>
                     <span class="dependency-arrow">→</span>
-                    <div class="dependency-item bg-orange-600 text-white text-[11px]">⑤ API Key</div>
+                    <div class="dependency-item bg-purple-600 text-white text-[11px]">⑤ API Key</div>
                 </div>
                 <p class="text-xs text-slate-400 text-center mt-2">
                     순서대로 진행해야 합니다! <span class="text-pink-400">App Store Connect 앱 등록</span>이 있어야 TestFlight 업로드가 가능해요.
@@ -418,7 +422,7 @@
                 </label>
                 <div class="flex gap-3">
                     <input type="text" id="projectPath"
-                        class="flex-1 bg-slate-900 border border-slate-600 rounded-lg px-4 py-2.5 text-sm text-slate-300 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none transition"
+                        class="flex-1 bg-slate-900 border border-slate-600 rounded-lg px-4 py-2.5 text-sm text-slate-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition"
                         placeholder="/Users/username/my-flutter-project">
                     <button class="px-4 py-2.5 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm font-medium transition flex items-center gap-2" onclick="selectProjectFolder()">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -430,7 +434,7 @@
             </div>
 
             <div class="flex justify-end mt-8">
-                <button class="px-6 py-2.5 bg-orange-500 hover:bg-orange-600 rounded-lg font-medium transition" onclick="nextStep()">
+                <button class="px-6 py-2.5 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 rounded-lg font-medium transition" onclick="nextStep()">
                     다음: 인증서 만들기 →
                 </button>
             </div>
@@ -567,14 +571,14 @@
             <div class="mb-6">
                 <label class="block text-sm font-medium mb-2 text-slate-300">.p12 비밀번호</label>
                 <input type="password" id="p12-password" placeholder="내보낼 때 설정한 비밀번호"
-                    class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2.5 text-sm focus:border-orange-500 outline-none">
+                    class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2.5 text-sm focus:border-blue-500 outline-none">
             </div>
 
             <div class="flex justify-between items-center mt-8">
                 <button class="px-6 py-2.5 bg-slate-700 hover:bg-slate-600 rounded-lg font-medium transition" onclick="prevStep()">← 이전</button>
                 <div class="flex gap-2 items-center">
                     <span class="skip-btn" onclick="skipStep(2)">이미 있어요 →</span>
-                    <button class="px-6 py-2.5 bg-orange-500 hover:bg-orange-600 rounded-lg font-medium transition" onclick="nextStep()">다음: App ID →</button>
+                    <button class="px-6 py-2.5 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 rounded-lg font-medium transition" onclick="nextStep()">다음: App ID →</button>
                 </div>
             </div>
         </div>
@@ -727,7 +731,7 @@
                     등록한 Bundle ID 입력 <span class="text-red-400">*</span>
                 </label>
                 <input type="text" id="bundleId"
-                    class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2.5 text-sm focus:border-orange-500 outline-none"
+                    class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2.5 text-sm focus:border-blue-500 outline-none"
                     placeholder="kr.suhsaechan.suhDevopsTemplate">
                 <p class="text-xs text-slate-500 mt-1">Flutter 프로젝트의 ios/Runner.xcodeproj Bundle Identifier와 동일해야 합니다</p>
             </div>
@@ -736,7 +740,7 @@
                 <button class="px-6 py-2.5 bg-slate-700 hover:bg-slate-600 rounded-lg font-medium transition" onclick="prevStep()">← 이전</button>
                 <div class="flex gap-2 items-center">
                     <span class="skip-btn" onclick="skipStep(3)">이미 있어요 →</span>
-                    <button class="px-6 py-2.5 bg-orange-500 hover:bg-orange-600 rounded-lg font-medium transition" onclick="nextStep()">다음: Profile →</button>
+                    <button class="px-6 py-2.5 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 rounded-lg font-medium transition" onclick="nextStep()">다음: Profile →</button>
                 </div>
             </div>
         </div>
@@ -868,7 +872,7 @@
                     Provisioning Profile 이름 <span class="text-red-400">*</span>
                 </label>
                 <input type="text" id="profileName"
-                    class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2.5 text-sm focus:border-orange-500 outline-none"
+                    class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2.5 text-sm focus:border-blue-500 outline-none"
                     placeholder="MyApp AppStore Distribution">
                 <p class="text-xs text-slate-500 mt-1">Apple Developer에서 입력한 이름과 정확히 동일하게!</p>
             </div>
@@ -877,7 +881,7 @@
                 <button class="px-6 py-2.5 bg-slate-700 hover:bg-slate-600 rounded-lg font-medium transition" onclick="prevStep()">← 이전</button>
                 <div class="flex gap-2 items-center">
                     <span class="skip-btn" onclick="skipStep(4)">이미 있어요 →</span>
-                    <button class="px-6 py-2.5 bg-orange-500 hover:bg-orange-600 rounded-lg font-medium transition" onclick="nextStep()">다음: ASC 앱등록 →</button>
+                    <button class="px-6 py-2.5 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 rounded-lg font-medium transition" onclick="nextStep()">다음: ASC 앱등록 →</button>
                 </div>
             </div>
         </div>
@@ -1056,7 +1060,7 @@
                 <button class="px-6 py-2.5 bg-slate-700 hover:bg-slate-600 rounded-lg font-medium transition" onclick="prevStep()">← 이전</button>
                 <div class="flex gap-2 items-center">
                     <span class="skip-btn" onclick="skipStep(5)">이미 등록함 →</span>
-                    <button class="px-6 py-2.5 bg-orange-500 hover:bg-orange-600 rounded-lg font-medium transition" onclick="nextStep()">다음: 앱 정보 →</button>
+                    <button class="px-6 py-2.5 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 rounded-lg font-medium transition" onclick="nextStep()">다음: 앱 정보 →</button>
                 </div>
             </div>
         </div>
@@ -1066,13 +1070,13 @@
         <!-- ========================================== -->
         <div class="card bg-slate-800 rounded-xl shadow-xl p-6 mb-6 step-content hidden" data-step="6">
             <h2 class="text-xl font-bold mb-6 flex items-center gap-3">
-                <span class="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center text-sm">6</span>
+                <span class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center text-sm">6</span>
                 앱 정보 확인 및 추가 설정
             </h2>
 
             <!-- 설명 -->
-            <div class="bg-orange-900/30 border border-orange-700 rounded-lg p-4 mb-6">
-                <p class="text-sm text-orange-200">
+            <div class="bg-blue-900/30 border border-blue-700 rounded-lg p-4 mb-6">
+                <p class="text-sm text-blue-200">
                     ✅ 앞 단계에서 입력한 정보를 확인하고, 추가 정보를 입력하세요.
                 </p>
             </div>
@@ -1085,7 +1089,7 @@
                         <span class="text-xs text-green-400">(Step 3에서 입력됨)</span>
                     </label>
                     <input type="text" id="bundleId-confirm"
-                        class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2.5 text-sm focus:border-orange-500 outline-none"
+                        class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2.5 text-sm focus:border-blue-500 outline-none"
                         placeholder="kr.suhsaechan.suhDevopsTemplate">
                 </div>
 
@@ -1108,7 +1112,7 @@
                         </span>
                     </label>
                     <input type="text" id="teamId" maxlength="10"
-                        class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2.5 text-sm uppercase focus:border-orange-500 outline-none"
+                        class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2.5 text-sm uppercase focus:border-blue-500 outline-none"
                         placeholder="ABC1234DEF">
                 </div>
 
@@ -1119,7 +1123,7 @@
                         <span class="text-xs text-green-400">(Step 4에서 입력됨)</span>
                     </label>
                     <input type="text" id="profileName-confirm"
-                        class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2.5 text-sm focus:border-orange-500 outline-none"
+                        class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2.5 text-sm focus:border-blue-500 outline-none"
                         placeholder="MyApp AppStore Distribution">
                 </div>
 
@@ -1127,7 +1131,7 @@
                 <div>
                     <label class="block text-sm font-medium mb-2 text-slate-300">앱 이름 (선택)</label>
                     <input type="text" id="appName"
-                        class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2.5 text-sm focus:border-orange-500 outline-none"
+                        class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2.5 text-sm focus:border-blue-500 outline-none"
                         placeholder="My App">
                 </div>
             </div>
@@ -1151,7 +1155,7 @@
                 <div class="space-y-2">
                     <label class="flex items-center gap-3 cursor-pointer p-3 rounded-lg hover:bg-slate-600/50 transition">
                         <input type="radio" name="encryptionType" value="none" checked
-                            class="w-4 h-4 text-orange-500 bg-slate-900 border-slate-600 focus:ring-orange-500">
+                            class="w-4 h-4 text-blue-500 bg-slate-900 border-slate-600 focus:ring-blue-500">
                         <div>
                             <span class="text-sm font-medium text-slate-200">None - HTTPS만 사용 (권장)</span>
                             <p class="text-xs text-slate-400">일반적인 앱</p>
@@ -1159,7 +1163,7 @@
                     </label>
                     <label class="flex items-center gap-3 cursor-pointer p-3 rounded-lg hover:bg-slate-600/50 transition">
                         <input type="radio" name="encryptionType" value="standard"
-                            class="w-4 h-4 text-orange-500 bg-slate-900 border-slate-600 focus:ring-orange-500">
+                            class="w-4 h-4 text-blue-500 bg-slate-900 border-slate-600 focus:ring-blue-500">
                         <div>
                             <span class="text-sm font-medium text-slate-200">Standard encryption</span>
                             <p class="text-xs text-slate-400">표준 암호화 사용 앱</p>
@@ -1170,7 +1174,7 @@
 
             <div class="flex justify-between mt-8">
                 <button class="px-6 py-2.5 bg-slate-700 hover:bg-slate-600 rounded-lg font-medium transition" onclick="prevStep()">← 이전</button>
-                <button class="px-6 py-2.5 bg-orange-500 hover:bg-orange-600 rounded-lg font-medium transition" onclick="nextStep()">다음: API Key →</button>
+                <button class="px-6 py-2.5 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 rounded-lg font-medium transition" onclick="nextStep()">다음: API Key →</button>
             </div>
         </div>
 
@@ -1302,7 +1306,7 @@
                         </span>
                     </label>
                     <input type="text" id="api-key-id" placeholder="XXXXXXXXXX"
-                        class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2.5 text-sm focus:border-orange-500 outline-none">
+                        class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2.5 text-sm focus:border-blue-500 outline-none">
                 </div>
                 <div>
                     <label class="block text-sm font-medium mb-2 text-slate-300">
@@ -1322,7 +1326,7 @@
                         </span>
                     </label>
                     <input type="text" id="issuer-id" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-                        class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2.5 text-sm focus:border-orange-500 outline-none">
+                        class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2.5 text-sm focus:border-blue-500 outline-none">
                 </div>
             </div>
 
@@ -1330,7 +1334,7 @@
                 <button class="px-6 py-2.5 bg-slate-700 hover:bg-slate-600 rounded-lg font-medium transition" onclick="prevStep()">← 이전</button>
                 <div class="flex gap-2 items-center">
                     <span class="skip-btn" onclick="skipStep(7)">이미 있어요 →</span>
-                    <button class="px-6 py-2.5 bg-orange-500 hover:bg-orange-600 rounded-lg font-medium transition" onclick="nextStep()">다음: Fastlane →</button>
+                    <button class="px-6 py-2.5 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 rounded-lg font-medium transition" onclick="nextStep()">다음: Fastlane →</button>
                 </div>
             </div>
         </div>
@@ -1370,7 +1374,7 @@
 
             <div class="flex justify-between mt-8">
                 <button class="px-6 py-2.5 bg-slate-700 hover:bg-slate-600 rounded-lg font-medium transition" onclick="prevStep()">← 이전</button>
-                <button class="px-6 py-2.5 bg-orange-500 hover:bg-orange-600 rounded-lg font-medium transition" onclick="nextStep()">다음: 완료! →</button>
+                <button class="px-6 py-2.5 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 rounded-lg font-medium transition" onclick="nextStep()">다음: 완료! →</button>
             </div>
         </div>
 
@@ -1400,15 +1404,37 @@
             <h3 class="text-lg font-semibold mb-4 text-slate-200">등록할 Secrets 목록</h3>
             <div id="results-container"></div>
 
-            <div class="mt-6 p-4 bg-gradient-to-r from-green-900/30 to-blue-900/30 border border-green-700 rounded-lg text-center">
-                <button class="px-6 py-3 bg-green-600 hover:bg-green-700 rounded-lg font-medium transition" onclick="copyAllAsJson()">
-                    📋 전체 JSON 복사
-                </button>
+            <div class="mt-6 p-4 bg-gradient-to-r from-green-900/30 to-blue-900/30 border border-green-700 rounded-lg">
+                <p class="text-center text-slate-300 mb-4">💾 Secrets 정보를 파일로 저장하세요</p>
+                <div class="flex justify-center gap-4">
+                    <button class="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 rounded-lg font-medium transition flex items-center gap-2" onclick="downloadAsJson()">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                        </svg>
+                        JSON 다운로드
+                    </button>
+                    <button class="px-6 py-3 bg-slate-600 hover:bg-slate-500 rounded-lg font-medium transition flex items-center gap-2" onclick="downloadAsTxt()">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                        </svg>
+                        TXT 다운로드
+                    </button>
+                </div>
             </div>
 
             <div class="flex justify-between mt-8">
                 <button class="px-6 py-2.5 bg-slate-700 hover:bg-slate-600 rounded-lg font-medium transition" onclick="prevStep()">← 이전</button>
-                <button class="px-6 py-2.5 bg-green-500 hover:bg-green-600 rounded-lg font-medium transition" onclick="resetWizard()">처음부터 다시</button>
+                <button class="px-6 py-2.5 bg-slate-600 hover:bg-slate-500 rounded-lg font-medium transition" onclick="resetWizard()">🔄 처음부터 다시</button>
+            </div>
+
+            <!-- Star 부탁 -->
+            <div class="mt-6 flex items-center justify-center gap-3 text-slate-400 text-sm">
+                <span>도움이 되셨다면 소중한 ⭐️를 눌러주세요!!</span>
+                <a href="https://github.com/Cassiiopeia/SUH-DEVOPS-TEMPLATE" target="_blank" rel="noopener"
+                   class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-400 rounded-lg transition">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 .587l3.668 7.568 8.332 1.151-6.064 5.828 1.48 8.279-7.416-3.967-7.417 3.967 1.481-8.279-6.064-5.828 8.332-1.151z"/></svg>
+                    누르러가기
+                </a>
             </div>
         </div>
 

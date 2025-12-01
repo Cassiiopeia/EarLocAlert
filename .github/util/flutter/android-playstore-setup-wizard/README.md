@@ -10,13 +10,13 @@ Flutter 프로젝트를 위한 Play Store 내부 테스트 CI/CD 자동 설정 �
 
 ```bash
 # Mac
-open .github/util/flutter-playstore-helper/index.html
+open .github/util/flutter/android-playstore-setup-wizard/index.html
 
 # Windows
-start .github/util/flutter-playstore-helper/index.html
+start .github/util/flutter/android-playstore-setup-wizard/index.html
 
 # Linux
-xdg-open .github/util/flutter-playstore-helper/index.html
+xdg-open .github/util/flutter/android-playstore-setup-wizard/index.html
 ```
 
 ### 2. 프로젝트 분석 스크립트 실행
@@ -24,13 +24,13 @@ xdg-open .github/util/flutter-playstore-helper/index.html
 **Mac/Linux:**
 ```bash
 cd /path/to/your/flutter/project
-bash .github/util/flutter-playstore-helper/init.sh
+bash .github/util/flutter/android-playstore-setup-wizard/init.sh
 ```
 
 **Windows (PowerShell):**
 ```powershell
 cd C:\path\to\your\flutter\project
-powershell -ExecutionPolicy Bypass -File .github/util/flutter-playstore-helper/init.ps1
+powershell -ExecutionPolicy Bypass -File .github/util/flutter/android-playstore-setup-wizard/init.ps1
 ```
 
 스크립트 출력 (JSON)을 HTML 위자드에 붙여넣기 합니다.
@@ -50,12 +50,12 @@ powershell -ExecutionPolicy Bypass -File .github/util/flutter-playstore-helper/i
 
 **Mac/Linux:**
 ```bash
-bash .github/util/flutter-playstore-helper/apply.sh
+bash .github/util/flutter/android-playstore-setup-wizard/apply.sh
 ```
 
 **Windows:**
 ```powershell
-powershell -ExecutionPolicy Bypass -File .github/util/flutter-playstore-helper/apply.ps1
+powershell -ExecutionPolicy Bypass -File .github/util/flutter/android-playstore-setup-wizard/apply.ps1
 ```
 
 ## 생성되는 파일들
@@ -125,7 +125,7 @@ base64 -i release-key.jks > release-key-base64.txt
 ## 파일 구조
 
 ```
-.github/util/flutter-playstore-helper/
+.github/util/flutter/android-playstore-setup-wizard/
 ├── index.html              # 메인 위자드 UI
 ├── init.sh                 # 프로젝트 분석 (Mac/Linux)
 ├── init.ps1                # 프로젝트 분석 (Windows)

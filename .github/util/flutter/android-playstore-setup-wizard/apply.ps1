@@ -219,4 +219,4 @@ Write-Host "   - RELEASE_KEY_PASSWORD"
 Write-Host "   - GOOGLE_PLAY_SERVICE_ACCOUNT_JSON_BASE64"
 Write-Host ""
 Write-Host "For detailed instructions, open:" -ForegroundColor Blue
-Write-Host "  .github/util/flutter-playstore-helper/index.html"
+Write-Host "  .github/util/flutter/android-playstore-setup-wizard/index.html"
