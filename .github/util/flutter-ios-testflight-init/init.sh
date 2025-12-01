@@ -57,21 +57,24 @@ show_help() {
 ${CYAN}Flutter iOS TestFlight 초기화 스크립트${NC}
 
 ${BLUE}사용법:${NC}
-  ./init.sh PROJECT_PATH BUNDLE_ID TEAM_ID PROFILE_NAME
+  ./init.sh PROJECT_PATH BUNDLE_ID TEAM_ID PROFILE_NAME [USES_ENCRYPTION]
 
 ${BLUE}매개변수:${NC}
-  PROJECT_PATH    Flutter 프로젝트 루트 경로
-  BUNDLE_ID       iOS 앱 Bundle ID (예: com.example.myapp)
-  TEAM_ID         Apple Developer Team ID (10자리)
-  PROFILE_NAME    Provisioning Profile 이름
+  PROJECT_PATH      Flutter 프로젝트 루트 경로
+  BUNDLE_ID         iOS 앱 Bundle ID (예: com.example.myapp)
+  TEAM_ID           Apple Developer Team ID (10자리)
+  PROFILE_NAME      Provisioning Profile 이름
+  USES_ENCRYPTION   암호화 사용 여부 (true/false, 기본값: false)
 
 ${BLUE}예시:${NC}
   ./init.sh /Users/suh/projects/MyApp com.example.myapp ABC1234DEF "MyApp Distribution"
+  ./init.sh /Users/suh/projects/MyApp com.example.myapp ABC1234DEF "MyApp Distribution" false
 
 ${BLUE}생성되는 파일:${NC}
-  - ios/Gemfile           Ruby 의존성 (Fastlane)
-  - ios/fastlane/Appfile  앱 정보 설정
-  - ios/fastlane/Fastfile 빌드 및 배포 설정
+  - ios/Gemfile              Ruby 의존성 (Fastlane)
+  - ios/fastlane/Appfile     앱 정보 설정
+  - ios/fastlane/Fastfile    빌드 및 배포 설정
+  - ios/Runner/Info.plist    암호화 설정 (ITSAppUsesNonExemptEncryption)
 
 EOF
 }
@@ -89,6 +92,8 @@ validate_params() {
     BUNDLE_ID="$2"
     TEAM_ID="$3"
     PROFILE_NAME="$4"
+    # 5번째 매개변수: 암호화 사용 여부 (기본값: false)
+    USES_NON_EXEMPT_ENCRYPTION="${5:-false}"
 
     # 프로젝트 경로 확인
     if [ ! -d "$PROJECT_PATH" ]; then
@@ -119,6 +124,13 @@ validate_params() {
     if [ ${#TEAM_ID} -ne 10 ]; then
         print_error "Team ID는 10자리여야 합니다: $TEAM_ID"
         exit 1
+    fi
+
+    # 암호화 설정 값 검증 (true/false만 허용)
+    if [ "$USES_NON_EXEMPT_ENCRYPTION" != "true" ] && [ "$USES_NON_EXEMPT_ENCRYPTION" != "false" ]; then
+        print_warning "암호화 설정 값이 올바르지 않습니다: $USES_NON_EXEMPT_ENCRYPTION"
+        print_warning "기본값 'false'를 사용합니다."
+        USES_NON_EXEMPT_ENCRYPTION="false"
     fi
 }
 
@@ -298,6 +310,62 @@ update_gitignore() {
     fi
 
     print_success ".gitignore 확인 완료"
+}
+
+# Info.plist에 암호화 설정 추가 (Export Compliance)
+update_info_plist_encryption() {
+    print_step "Info.plist에 암호화 설정 추가 중..."
+
+    local info_plist_path="$PROJECT_PATH/ios/Runner/Info.plist"
+
+    if [ ! -f "$info_plist_path" ]; then
+        print_error "Info.plist 파일을 찾을 수 없습니다: $info_plist_path"
+        return 1
+    fi
+
+    # 이미 ITSAppUsesNonExemptEncryption 키가 있는지 확인
+    if grep -q "ITSAppUsesNonExemptEncryption" "$info_plist_path"; then
+        print_info "ITSAppUsesNonExemptEncryption이 이미 설정되어 있습니다"
+        # 기존 값을 업데이트
+        if [ "$USES_NON_EXEMPT_ENCRYPTION" = "true" ]; then
+            sed -i '' 's/<key>ITSAppUsesNonExemptEncryption<\/key>[[:space:]]*<false\/>/<key>ITSAppUsesNonExemptEncryption<\/key>\
+	<true\/>/g' "$info_plist_path"
+        else
+            sed -i '' 's/<key>ITSAppUsesNonExemptEncryption<\/key>[[:space:]]*<true\/>/<key>ITSAppUsesNonExemptEncryption<\/key>\
+	<false\/>/g' "$info_plist_path"
+        fi
+        print_success "ITSAppUsesNonExemptEncryption 값 업데이트 완료"
+        return 0
+    fi
+
+    # 백업 생성
+    cp "$info_plist_path" "${info_plist_path}.bak"
+    print_info "백업 생성: ${info_plist_path}.bak"
+
+    # </dict> 바로 앞에 ITSAppUsesNonExemptEncryption 추가
+    local encryption_value
+    if [ "$USES_NON_EXEMPT_ENCRYPTION" = "true" ]; then
+        encryption_value="true"
+    else
+        encryption_value="false"
+    fi
+
+    # macOS sed 사용 - </dict> 앞에 새 키 추가
+    sed -i '' "s/<\/dict>/<key>ITSAppUsesNonExemptEncryption<\/key>\\
+	<${encryption_value}\/>\\
+<\/dict>/g" "$info_plist_path"
+
+    # 변경 확인
+    if grep -q "ITSAppUsesNonExemptEncryption" "$info_plist_path"; then
+        print_success "ITSAppUsesNonExemptEncryption 추가 완료: <$encryption_value/>"
+        rm "${info_plist_path}.bak"
+    else
+        print_error "ITSAppUsesNonExemptEncryption 추가 실패!"
+        mv "${info_plist_path}.bak" "$info_plist_path"
+        return 1
+    fi
+
+    return 0
 }
 
 # Xcode 프로젝트의 Bundle ID 변경 (Apple Developer 설정과 일치시키기 위해)
@@ -523,6 +591,14 @@ patch_xcode_project() {
 
 # 완료 메시지
 print_completion() {
+    # 암호화 설정 표시 텍스트
+    local encryption_display
+    if [ "$USES_NON_EXEMPT_ENCRYPTION" = "true" ]; then
+        encryption_display="Standard encryption (true)"
+    else
+        encryption_display="None - HTTPS only (false)"
+    fi
+
     echo ""
     echo -e "${GREEN}╔════════════════════════════════════════════════════════════════╗${NC}"
     echo -e "${GREEN}║          🎉 iOS TestFlight 배포 설정 완료! 🎉                  ║${NC}"
@@ -534,19 +610,21 @@ print_completion() {
     echo "  ✅ ios/fastlane/Fastfile (pilot 기반 TestFlight 업로드)"
     echo "  ✅ ios/ExportOptions.plist (xcodebuild -exportArchive용)"
     echo "  ✅ ios/Runner.xcodeproj/project.pbxproj (Manual Signing 설정)"
+    echo "  ✅ ios/Runner/Info.plist (암호화 설정 추가)"
     echo ""
     echo -e "${CYAN}설정된 정보:${NC}"
     echo "  • Bundle ID: $BUNDLE_ID"
     echo "  • Team ID: $TEAM_ID"
     echo "  • Profile Name: $PROFILE_NAME"
     echo "  • Code Sign Style: Manual"
+    echo "  • 암호화 설정: $encryption_display"
     echo "  • 빌드 방식: xcodebuild 직접 사용 (Fastlane build_app 미사용)"
     echo ""
     echo -e "${YELLOW}다음 단계:${NC}"
     echo "  1. GitHub Secrets 설정 (마법사 Step 4 참고)"
     echo "  2. 변경사항 커밋:"
-    echo "     git add ios/Gemfile ios/fastlane/ ios/ExportOptions.plist ios/Runner.xcodeproj/project.pbxproj"
-    echo "     git commit -m \"chore: iOS TestFlight 배포 설정 추가\""
+    echo "     git add ios/Gemfile ios/fastlane/ ios/ExportOptions.plist ios/Runner.xcodeproj/project.pbxproj ios/Runner/Info.plist"
+    echo "     git commit -m \"chore: iOS TestFlight 배포 설정 및 암호화 선언 추가\""
     echo "  3. deploy 브랜치로 푸시하여 빌드 테스트"
     echo ""
 }
@@ -575,6 +653,7 @@ main() {
     echo -e "${BLUE}Bundle ID:${NC} $BUNDLE_ID"
     echo -e "${BLUE}Team ID:${NC} $TEAM_ID"
     echo -e "${BLUE}Profile Name:${NC} $PROFILE_NAME"
+    echo -e "${BLUE}암호화 사용:${NC} $USES_NON_EXEMPT_ENCRYPTION"
     echo ""
 
     # 템플릿 디렉토리 찾기
@@ -587,6 +666,7 @@ main() {
     create_export_options_plist
     update_gitignore
     patch_xcode_project
+    update_info_plist_encryption
 
     # 완료
     print_completion

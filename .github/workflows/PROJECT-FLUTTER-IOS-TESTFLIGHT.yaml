@@ -413,7 +413,7 @@ jobs:
 
           # Fastlane 실행
           cd ios
-          fastlane upload_testflight || echo "⚠️ 경고가 발생했지만 업로드는 완료됨"
+          fastlane upload_testflight
 
       # 성공 알림
       - name: Notify TestFlight Upload Success

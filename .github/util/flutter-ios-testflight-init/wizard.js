@@ -14,7 +14,8 @@ const state = {
     bundleId: '',
     teamId: '',
     profileName: '',
-    appName: ''
+    appName: '',
+    encryptionType: 'none' // 'none' = false (HTTPS만), 'standard' = true (암호화 사용)
 };
 
 // ============================================
@@ -502,6 +503,9 @@ function saveCurrentStepData() {
             state.teamId = getInputValue('teamId').toUpperCase();
             state.profileName = getInputValue('profileName');
             state.appName = getInputValue('appName');
+            // 암호화 설정 저장
+            const encryptionRadio = document.querySelector('input[name="encryptionType"]:checked');
+            state.encryptionType = encryptionRadio ? encryptionRadio.value : 'none';
             break;
     }
 
@@ -528,6 +532,12 @@ function loadSavedState() {
             if (teamIdInput) teamIdInput.value = state.teamId;
             if (profileNameInput) profileNameInput.value = state.profileName;
             if (appNameInput) appNameInput.value = state.appName;
+
+            // 암호화 설정 복원
+            if (state.encryptionType) {
+                const encryptionRadio = document.querySelector(`input[name="encryptionType"][value="${state.encryptionType}"]`);
+                if (encryptionRadio) encryptionRadio.checked = true;
+            }
         } catch (e) {
             console.error('Failed to load saved state:', e);
         }
@@ -556,8 +566,10 @@ function generateInitCommand() {
     const bundleId = state.bundleId || 'com.example.app';
     const teamId = state.teamId || 'TEAM_ID';
     const profileName = state.profileName || 'Profile Name';
+    // 암호화 설정: 'none' = false, 'standard' = true
+    const usesNonExemptEncryption = state.encryptionType === 'standard' ? 'true' : 'false';
 
-    const cmd = `cd "${projectPath}" && bash "${scriptPath}/init.sh" "${projectPath}" "${bundleId}" "${teamId}" "${profileName}"`;
+    const cmd = `cd "${projectPath}" && bash "${scriptPath}/init.sh" "${projectPath}" "${bundleId}" "${teamId}" "${profileName}" "${usesNonExemptEncryption}"`;
     setElementText('initCmd', cmd);
 
     const verifyCmd = `ls -la "${projectPath}/ios/Gemfile" "${projectPath}/ios/fastlane/"`;
@@ -576,6 +588,10 @@ function updateSecretsPreview() {
 }
 
 function generateSummary() {
+    const encryptionLabel = state.encryptionType === 'standard'
+        ? 'Standard encryption (true)'
+        : 'None - HTTPS only (false)';
+
     const summaryHtml = `
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -594,6 +610,10 @@ function generateSummary() {
                 <p class="text-xs text-slate-500 mb-1">Provisioning Profile</p>
                 <p class="text-sm font-medium text-slate-200">${state.profileName || '-'}</p>
             </div>
+            <div>
+                <p class="text-xs text-slate-500 mb-1">🔐 암호화 설정</p>
+                <p class="text-sm font-medium text-slate-200">${encryptionLabel}</p>
+            </div>
             ${state.appName ? `
             <div>
                 <p class="text-xs text-slate-500 mb-1">앱 이름</p>
@@ -606,7 +626,7 @@ function generateSummary() {
 
     // 커밋 명령어 업데이트
     const projectPath = state.projectPath || '.';
-    const commitCmd = `cd "${projectPath}" && git add ios/Gemfile ios/fastlane/ && git commit -m "chore: iOS Fastlane 설정 추가"`;
+    const commitCmd = `cd "${projectPath}" && git add ios/Gemfile ios/fastlane/ ios/Runner/Info.plist && git commit -m "chore: iOS Fastlane 설정 및 암호화 선언 추가"`;
     setElementText('commitCmd', commitCmd);
 }
 
