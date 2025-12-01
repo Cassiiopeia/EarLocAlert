@@ -9,7 +9,7 @@
 
 const state = {
     currentStep: 1,
-    totalSteps: 7,
+    totalSteps: 9,
     projectPath: '',
     bundleId: '',
     teamId: '',
@@ -68,8 +68,10 @@ function restoreUIFromState() {
     const inputs = {
         'projectPath': state.projectPath,
         'bundleId': state.bundleId,
+        'bundleId-confirm': state.bundleId,
         'teamId': state.teamId,
         'profileName': state.profileName,
+        'profileName-confirm': state.profileName,
         'appName': state.appName,
         'p12-password': state.p12Password,
         'api-key-id': state.apiKeyId,
@@ -80,6 +82,16 @@ function restoreUIFromState() {
         const el = document.getElementById(id);
         if (el && value) el.value = value;
     });
+
+    // Step 5 display 요소 업데이트
+    if (state.bundleId) {
+        const displayBundleId = document.getElementById('display-bundle-id');
+        if (displayBundleId) displayBundleId.textContent = state.bundleId;
+    }
+    if (state.profileName) {
+        const displayProfileName = document.getElementById('display-profile-name');
+        if (displayProfileName) displayProfileName.textContent = state.profileName;
+    }
 
     // 암호화 설정 복원
     if (state.encryptionType) {
@@ -438,23 +450,88 @@ function showStep(stepNumber) {
 function initializeStep(stepNumber) {
     switch (stepNumber) {
         case 2:
+            // Step 2: Distribution 인증서
             restoreInputValues();
             break;
+        case 3:
+            // Step 3: App ID (Bundle ID) - bundleId 입력
+            restoreInputValues();
+            break;
+        case 4:
+            // Step 4: Provisioning Profile - profileName 입력
+            restoreInputValues();
+            break;
+        case 5:
+            // Step 5: App Store Connect 앱 등록 (신규!)
+            syncStep5ASCValues();
+            break;
         case 6:
-            generateInitCommand();
+            // Step 6: 앱 정보 확인 - 이전 단계에서 입력한 값 표시
+            syncStep6Values();
+            restoreInputValues();
             break;
         case 7:
+            // Step 7: API Key
+            restoreInputValues();
+            break;
+        case 8:
+            // Step 8: Fastlane 설정
+            generateInitCommand();
+            break;
+        case 9:
+            // Step 9: 완료
             generateResults();
             break;
+    }
+}
+
+function syncStep5ASCValues() {
+    // Step 3에서 입력한 Bundle ID를 Step 5 App Store Connect 가이드에 표시
+    const bundleIdValue = state.bundleId || getInputValue('bundleId');
+    const displayBundleIdAsc = document.getElementById('display-bundle-id-asc');
+    if (displayBundleIdAsc && bundleIdValue) {
+        displayBundleIdAsc.textContent = bundleIdValue;
+    }
+}
+
+function syncStep6Values() {
+    // Step 3에서 입력한 Bundle ID를 Step 6에 표시
+    const bundleIdValue = state.bundleId || getInputValue('bundleId');
+    const displayBundleId = document.getElementById('display-bundle-id');
+    if (displayBundleId && bundleIdValue) {
+        displayBundleId.textContent = bundleIdValue;
+    }
+
+    // Step 4에서 입력한 Profile Name을 Step 6에 표시
+    const profileNameValue = state.profileName || getInputValue('profileName');
+    const displayProfileName = document.getElementById('display-profile-name');
+    if (displayProfileName && profileNameValue) {
+        displayProfileName.textContent = profileNameValue;
+    }
+
+    // 확인용 입력 필드에도 값 설정 (readonly)
+    const bundleIdConfirm = document.getElementById('bundleId-confirm');
+    if (bundleIdConfirm && bundleIdValue) {
+        bundleIdConfirm.value = bundleIdValue;
+    }
+
+    const profileNameConfirm = document.getElementById('profileName-confirm');
+    if (profileNameConfirm && profileNameValue) {
+        profileNameConfirm.value = profileNameValue;
     }
 }
 
 function restoreInputValues() {
     const inputs = {
         'bundleId': state.bundleId,
+        'bundleId-confirm': state.bundleId,
         'teamId': state.teamId,
         'profileName': state.profileName,
-        'appName': state.appName
+        'profileName-confirm': state.profileName,
+        'appName': state.appName,
+        'p12-password': state.p12Password,
+        'api-key-id': state.apiKeyId,
+        'issuer-id': state.issuerId
     };
 
     Object.entries(inputs).forEach(([id, value]) => {
@@ -517,11 +594,17 @@ function resetWizard() {
         clearState();
 
         // UI 초기화
-        const inputs = ['projectPath', 'bundleId', 'teamId', 'profileName', 'appName', 'p12-password', 'api-key-id', 'issuer-id'];
+        const inputs = ['projectPath', 'bundleId', 'bundleId-confirm', 'teamId', 'profileName', 'profileName-confirm', 'appName', 'p12-password', 'api-key-id', 'issuer-id'];
         inputs.forEach(id => {
             const input = document.getElementById(id);
             if (input) input.value = '';
         });
+
+        // Display 요소 초기화
+        const displayBundleId = document.getElementById('display-bundle-id');
+        if (displayBundleId) displayBundleId.textContent = '(미입력)';
+        const displayProfileName = document.getElementById('display-profile-name');
+        if (displayProfileName) displayProfileName.textContent = '(미입력)';
 
         // 파일 업로드 상태 초기화
         document.querySelectorAll('.file-upload').forEach(el => {
@@ -545,25 +628,44 @@ function resetWizard() {
 function saveCurrentStepData() {
     switch (state.currentStep) {
         case 1:
+            // Step 1: 시작하기 - 프로젝트 경로
             state.projectPath = getInputValue('projectPath');
             if (state.projectPath.startsWith('선택된 폴더:')) {
                 state.projectPath = '';
             }
             break;
         case 2:
+            // Step 2: Distribution 인증서 - .p12 파일 및 비밀번호
+            state.p12Password = getInputValue('p12-password');
+            break;
+        case 3:
+            // Step 3: App ID (Bundle ID) - bundleId 입력
             state.bundleId = getInputValue('bundleId');
-            state.teamId = getInputValue('teamId').toUpperCase();
+            break;
+        case 4:
+            // Step 4: Provisioning Profile - profileName 입력
             state.profileName = getInputValue('profileName');
+            break;
+        case 5:
+            // Step 5: App Store Connect 앱 등록 - 별도 저장 없음 (확인 단계)
+            break;
+        case 6:
+            // Step 6: 앱 정보 확인 - Team ID, App Name, 암호화 설정
+            state.teamId = getInputValue('teamId').toUpperCase();
             state.appName = getInputValue('appName');
             const encryptionRadio = document.querySelector('input[name="encryptionType"]:checked');
             state.encryptionType = encryptionRadio ? encryptionRadio.value : 'none';
             break;
-        case 3:
-            state.p12Password = getInputValue('p12-password');
-            break;
-        case 5:
+        case 7:
+            // Step 7: API Key - apiKeyId, issuerId
             state.apiKeyId = getInputValue('api-key-id');
             state.issuerId = getInputValue('issuer-id');
+            break;
+        case 8:
+            // Step 8: Fastlane 설정 - 별도 저장 없음
+            break;
+        case 9:
+            // Step 9: 완료 - 별도 저장 없음
             break;
     }
 
@@ -767,7 +869,7 @@ function setupInputHandlers() {
     });
 
     // 입력 필드 변경 시 저장
-    const inputIds = ['projectPath', 'bundleId', 'teamId', 'profileName', 'appName', 'p12-password', 'api-key-id', 'issuer-id'];
+    const inputIds = ['projectPath', 'bundleId', 'bundleId-confirm', 'teamId', 'profileName', 'profileName-confirm', 'appName', 'p12-password', 'api-key-id', 'issuer-id'];
     inputIds.forEach(id => {
         const input = document.getElementById(id);
         if (input) {
@@ -775,6 +877,26 @@ function setupInputHandlers() {
             input.addEventListener('blur', saveState);
         }
     });
+
+    // Bundle ID 입력 시 실시간 동기화
+    const bundleIdInput = document.getElementById('bundleId');
+    if (bundleIdInput) {
+        bundleIdInput.addEventListener('input', (e) => {
+            state.bundleId = e.target.value.trim();
+            const displayEl = document.getElementById('display-bundle-id');
+            if (displayEl) displayEl.textContent = e.target.value.trim() || '(미입력)';
+        });
+    }
+
+    // Profile Name 입력 시 실시간 동기화
+    const profileNameInput = document.getElementById('profileName');
+    if (profileNameInput) {
+        profileNameInput.addEventListener('input', (e) => {
+            state.profileName = e.target.value.trim();
+            const displayEl = document.getElementById('display-profile-name');
+            if (displayEl) displayEl.textContent = e.target.value.trim() || '(미입력)';
+        });
+    }
 
     // 암호화 설정 변경 시 저장
     document.querySelectorAll('input[name="encryptionType"]').forEach(radio => {
