@@ -62,3 +62,12 @@ android/app/keystore/
 
 # Play Store Keystore (자동 생성됨)
 *.keystore
+
+# Play Store CI/CD - 민감한 파일 (자동 생성됨)
+.env
+
+# Play Store CI/CD - 민감한 파일 (자동 생성됨)
+.env.local
+
+# Play Store CI/CD - 민감한 파일 (자동 생성됨)
+.env.*.local
