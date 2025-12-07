@@ -1,0 +1,321 @@
+{
+  "providers": [
+    {
+      "id": "naver",
+      "name": "Naver",
+      "icon": "🔵",
+      "color": "#03C75A",
+      "consoleUrl": "https://developers.naver.com/apps/#/register",
+      "docsUrl": "https://developers.naver.com/docs/login/overview/",
+      "fields": [
+        {
+          "key": "clientId",
+          "label": "Client ID",
+          "type": "text",
+          "required": true,
+          "description": "네이버 개발자 센터에서 발급받은 Client ID"
+        },
+        {
+          "key": "clientSecret",
+          "label": "Client Secret",
+          "type": "password",
+          "required": true,
+          "description": "네이버 개발자 센터에서 발급받은 Client Secret"
+        },
+        {
+          "key": "redirectUri",
+          "label": "Redirect URI",
+          "type": "text",
+          "required": true,
+          "description": "예: com.example.app://oauth/naver",
+          "placeholder": "com.example.app://oauth/naver"
+        }
+      ],
+      "setupSteps": [
+        "네이버 개발자 센터 접속",
+        "애플리케이션 등록 → 새 애플리케이션 만들기",
+        "서비스 URL: 앱의 메인 URL 입력",
+        "Callback URL: Redirect URI 입력 (예: com.example.app://oauth/naver)",
+        "Client ID와 Client Secret 복사"
+      ],
+      "windowsCommands": [
+        "$env:OAUTH_NAVER_CLIENT_ID=\"your-client-id\"",
+        "$env:OAUTH_NAVER_CLIENT_SECRET=\"your-client-secret\"",
+        "$env:OAUTH_NAVER_REDIRECT_URI=\"com.example.app://oauth/naver\""
+      ],
+      "macCommands": [
+        "export OAUTH_NAVER_CLIENT_ID=\"your-client-id\"",
+        "export OAUTH_NAVER_CLIENT_SECRET=\"your-client-secret\"",
+        "export OAUTH_NAVER_REDIRECT_URI=\"com.example.app://oauth/naver\""
+      ]
+    },
+    {
+      "id": "github",
+      "name": "GitHub",
+      "icon": "🐙",
+      "color": "#181717",
+      "consoleUrl": "https://github.com/settings/developers",
+      "docsUrl": "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps",
+      "fields": [
+        {
+          "key": "clientId",
+          "label": "Client ID",
+          "type": "text",
+          "required": true,
+          "description": "GitHub OAuth App에서 발급받은 Client ID"
+        },
+        {
+          "key": "clientSecret",
+          "label": "Client Secret",
+          "type": "password",
+          "required": true,
+          "description": "GitHub OAuth App에서 발급받은 Client Secret"
+        },
+        {
+          "key": "redirectUri",
+          "label": "Authorization callback URL",
+          "type": "text",
+          "required": true,
+          "description": "예: com.example.app://oauth/github",
+          "placeholder": "com.example.app://oauth/github"
+        }
+      ],
+      "setupSteps": [
+        "GitHub Settings → Developer settings → OAuth Apps",
+        "New OAuth App 클릭",
+        "Application name: 앱 이름 입력",
+        "Homepage URL: 앱의 메인 URL 입력",
+        "Authorization callback URL: Redirect URI 입력",
+        "Register application 클릭",
+        "Client ID와 Client Secret 복사"
+      ],
+      "windowsCommands": [
+        "$env:OAUTH_GITHUB_CLIENT_ID=\"your-client-id\"",
+        "$env:OAUTH_GITHUB_CLIENT_SECRET=\"your-client-secret\"",
+        "$env:OAUTH_GITHUB_REDIRECT_URI=\"com.example.app://oauth/github\""
+      ],
+      "macCommands": [
+        "export OAUTH_GITHUB_CLIENT_ID=\"your-client-id\"",
+        "export OAUTH_GITHUB_CLIENT_SECRET=\"your-client-secret\"",
+        "export OAUTH_GITHUB_REDIRECT_URI=\"com.example.app://oauth/github\""
+      ]
+    },
+    {
+      "id": "kakao",
+      "name": "Kakao",
+      "icon": "💬",
+      "color": "#FEE500",
+      "consoleUrl": "https://developers.kakao.com/",
+      "docsUrl": "https://developers.kakao.com/docs/latest/ko/kakaologin/rest-api",
+      "fields": [
+        {
+          "key": "restApiKey",
+          "label": "REST API Key",
+          "type": "text",
+          "required": true,
+          "description": "카카오 개발자 콘솔에서 발급받은 REST API Key"
+        },
+        {
+          "key": "clientSecret",
+          "label": "Client Secret",
+          "type": "password",
+          "required": true,
+          "description": "카카오 개발자 콘솔에서 발급받은 Client Secret"
+        },
+        {
+          "key": "redirectUri",
+          "label": "Redirect URI",
+          "type": "text",
+          "required": true,
+          "description": "예: com.example.app://oauth/kakao",
+          "placeholder": "com.example.app://oauth/kakao"
+        }
+      ],
+      "setupSteps": [
+        "카카오 개발자 콘솔 접속",
+        "내 애플리케이션 → 애플리케이션 추가하기",
+        "앱 이름 입력 후 저장",
+        "앱 설정 → 플랫폼 → 플랫폼 추가 (Android/iOS)",
+        "앱 키 → REST API 키 복사",
+        "제품 설정 → 카카오 로그인 활성화",
+        "Redirect URI 등록 (예: com.example.app://oauth/kakao)",
+        "보안 → Client Secret 확인 및 복사"
+      ],
+      "windowsCommands": [
+        "$env:OAUTH_KAKAO_REST_API_KEY=\"your-rest-api-key\"",
+        "$env:OAUTH_KAKAO_CLIENT_SECRET=\"your-client-secret\"",
+        "$env:OAUTH_KAKAO_REDIRECT_URI=\"com.example.app://oauth/kakao\""
+      ],
+      "macCommands": [
+        "export OAUTH_KAKAO_REST_API_KEY=\"your-rest-api-key\"",
+        "export OAUTH_KAKAO_CLIENT_SECRET=\"your-client-secret\"",
+        "export OAUTH_KAKAO_REDIRECT_URI=\"com.example.app://oauth/kakao\""
+      ]
+    },
+    {
+      "id": "google",
+      "name": "Google",
+      "icon": "🔍",
+      "color": "#4285F4",
+      "consoleUrl": "https://console.cloud.google.com/apis/credentials",
+      "docsUrl": "https://developers.google.com/identity/protocols/oauth2",
+      "fields": [
+        {
+          "key": "clientId",
+          "label": "Client ID",
+          "type": "text",
+          "required": true,
+          "description": "Google Cloud Console에서 발급받은 Client ID"
+        },
+        {
+          "key": "clientSecret",
+          "label": "Client Secret",
+          "type": "password",
+          "required": true,
+          "description": "Google Cloud Console에서 발급받은 Client Secret"
+        },
+        {
+          "key": "redirectUri",
+          "label": "Redirect URI",
+          "type": "text",
+          "required": true,
+          "description": "예: com.example.app://oauth/google",
+          "placeholder": "com.example.app://oauth/google"
+        }
+      ],
+      "setupSteps": [
+        "Google Cloud Console 접속",
+        "프로젝트 선택 또는 생성",
+        "API 및 서비스 → 사용자 인증 정보",
+        "사용자 인증 정보 만들기 → OAuth 클라이언트 ID",
+        "애플리케이션 유형: iOS 또는 Android 선택",
+        "패키지 이름: 앱의 Bundle ID 입력",
+        "SHA-1 인증서 지문: Android의 경우 필요",
+        "승인된 리디렉션 URI: Redirect URI 입력",
+        "만들기 클릭 → Client ID와 Client Secret 복사"
+      ],
+      "windowsCommands": [
+        "$env:OAUTH_GOOGLE_CLIENT_ID=\"your-client-id\"",
+        "$env:OAUTH_GOOGLE_CLIENT_SECRET=\"your-client-secret\"",
+        "$env:OAUTH_GOOGLE_REDIRECT_URI=\"com.example.app://oauth/google\""
+      ],
+      "macCommands": [
+        "export OAUTH_GOOGLE_CLIENT_ID=\"your-client-id\"",
+        "export OAUTH_GOOGLE_CLIENT_SECRET=\"your-client-secret\"",
+        "export OAUTH_GOOGLE_REDIRECT_URI=\"com.example.app://oauth/google\""
+      ]
+    },
+    {
+      "id": "x",
+      "name": "X (Twitter)",
+      "icon": "🐦",
+      "color": "#1DA1F2",
+      "consoleUrl": "https://developer.twitter.com/en/portal/dashboard",
+      "docsUrl": "https://developer.twitter.com/en/docs/authentication/oauth-2-0",
+      "fields": [
+        {
+          "key": "apiKey",
+          "label": "API Key",
+          "type": "text",
+          "required": true,
+          "description": "Twitter Developer Portal에서 발급받은 API Key"
+        },
+        {
+          "key": "apiSecret",
+          "label": "API Secret",
+          "type": "password",
+          "required": true,
+          "description": "Twitter Developer Portal에서 발급받은 API Secret"
+        },
+        {
+          "key": "bearerToken",
+          "label": "Bearer Token",
+          "type": "password",
+          "required": false,
+          "description": "선택사항: Bearer Token 인증용"
+        },
+        {
+          "key": "redirectUri",
+          "label": "Callback URL",
+          "type": "text",
+          "required": true,
+          "description": "예: com.example.app://oauth/x",
+          "placeholder": "com.example.app://oauth/x"
+        }
+      ],
+      "setupSteps": [
+        "Twitter Developer Portal 접속",
+        "Developer Portal에 로그인",
+        "Projects & Apps → Create App 클릭",
+        "App name: 앱 이름 입력",
+        "OAuth 2.0 설정 → Callback URI 입력",
+        "App permissions 설정 (Read, Write 등)",
+        "Keys and tokens 탭에서 API Key, API Secret 복사",
+        "Bearer Token 생성 (선택사항)"
+      ],
+      "windowsCommands": [
+        "$env:OAUTH_X_API_KEY=\"your-api-key\"",
+        "$env:OAUTH_X_API_SECRET=\"your-api-secret\"",
+        "$env:OAUTH_X_BEARER_TOKEN=\"your-bearer-token\"",
+        "$env:OAUTH_X_REDIRECT_URI=\"com.example.app://oauth/x\""
+      ],
+      "macCommands": [
+        "export OAUTH_X_API_KEY=\"your-api-key\"",
+        "export OAUTH_X_API_SECRET=\"your-api-secret\"",
+        "export OAUTH_X_BEARER_TOKEN=\"your-bearer-token\"",
+        "export OAUTH_X_REDIRECT_URI=\"com.example.app://oauth/x\""
+      ]
+    },
+    {
+      "id": "tiktok",
+      "name": "TikTok",
+      "icon": "🎵",
+      "color": "#000000",
+      "consoleUrl": "https://developers.tiktok.com/apps/",
+      "docsUrl": "https://developers.tiktok.com/doc/oauth-kit-web",
+      "fields": [
+        {
+          "key": "clientKey",
+          "label": "Client Key",
+          "type": "text",
+          "required": true,
+          "description": "TikTok Developer Portal에서 발급받은 Client Key"
+        },
+        {
+          "key": "clientSecret",
+          "label": "Client Secret",
+          "type": "password",
+          "required": true,
+          "description": "TikTok Developer Portal에서 발급받은 Client Secret"
+        },
+        {
+          "key": "redirectUri",
+          "label": "Redirect URI",
+          "type": "text",
+          "required": true,
+          "description": "예: com.example.app://oauth/tiktok",
+          "placeholder": "com.example.app://oauth/tiktok"
+        }
+      ],
+      "setupSteps": [
+        "TikTok Developer Portal 접속",
+        "Create an app 클릭",
+        "App name: 앱 이름 입력",
+        "App category 선택",
+        "Redirect URI 등록 (예: com.example.app://oauth/tiktok)",
+        "App 생성 후 Client Key와 Client Secret 복사"
+      ],
+      "windowsCommands": [
+        "$env:OAUTH_TIKTOK_CLIENT_KEY=\"your-client-key\"",
+        "$env:OAUTH_TIKTOK_CLIENT_SECRET=\"your-client-secret\"",
+        "$env:OAUTH_TIKTOK_REDIRECT_URI=\"com.example.app://oauth/tiktok\""
+      ],
+      "macCommands": [
+        "export OAUTH_TIKTOK_CLIENT_KEY=\"your-client-key\"",
+        "export OAUTH_TIKTOK_CLIENT_SECRET=\"your-client-secret\"",
+        "export OAUTH_TIKTOK_REDIRECT_URI=\"com.example.app://oauth/tiktok\""
+      ]
+    }
+  ]
+}
+

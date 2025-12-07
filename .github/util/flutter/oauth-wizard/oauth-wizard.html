@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="ko" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OAuth 설정 마법사</title>
+    <!-- 버전 정보 -->
+    <script type="application/json" id="versionJson">
+{
+  "name": "OAuth Setup Wizard",
+  "version": "1.0.0",
+  "description": "Flutter 앱에 OAuth 인증을 설정하기 위한 마법사",
+  "lastUpdated": "2024-12-01",
+  "changelog": [
+    {
+      "version": "1.0.0",
+      "date": "2024-12-01",
+      "changes": [
+        "초기 릴리즈",
+        "다중 OAuth 제공자 지원",
+        "동적 단계 생성",
+        "Windows/Mac 명령어 자동 분기"
+      ]
+    }
+  ],
+  "compatibility": {
+    "flutter": ">=3.0.0"
+  },
+  "repository": "https://github.com/Cassiiopeia/SUH-DEVOPS-TEMPLATE"
+}
+    </script>
+    <!-- OAuth Providers Data (oauth-providers.json과 동기화 필요) -->
+    <script type="application/json" id="oauthProvidersJson">
+{
+  "providers": [
+    {
+      "id": "naver",
+      "name": "Naver",
+      "icon": "🔵",
+      "color": "#03C75A",
+      "consoleUrl": "https://developers.naver.com/apps/#/register",
+      "docsUrl": "https://developers.naver.com/docs/login/overview/",
+      "fields": [
+        {
+          "key": "clientId",
+          "label": "Client ID",
+          "type": "text",
+          "required": true,
+          "description": "네이버 개발자 센터에서 발급받은 Client ID"
+        },
+        {
+          "key": "clientSecret",
+          "label": "Client Secret",
+          "type": "password",
+          "required": true,
+          "description": "네이버 개발자 센터에서 발급받은 Client Secret"
+        },
+        {
+          "key": "redirectUri",
+          "label": "Redirect URI",
+          "type": "text",
+          "required": true,
+          "description": "예: com.example.app://oauth/naver",
+          "placeholder": "com.example.app://oauth/naver"
+        }
+      ],
+      "setupSteps": [
+        "네이버 개발자 센터 접속",
+        "애플리케이션 등록 → 새 애플리케이션 만들기",
+        "서비스 URL: 앱의 메인 URL 입력",
+        "Callback URL: Redirect URI 입력 (예: com.example.app://oauth/naver)",
+        "Client ID와 Client Secret 복사"
+      ],
+      "windowsCommands": [
+        "$env:OAUTH_NAVER_CLIENT_ID=\"your-client-id\"",
+        "$env:OAUTH_NAVER_CLIENT_SECRET=\"your-client-secret\"",
+        "$env:OAUTH_NAVER_REDIRECT_URI=\"com.example.app://oauth/naver\""
+      ],
+      "macCommands": [
+        "export OAUTH_NAVER_CLIENT_ID=\"your-client-id\"",
+        "export OAUTH_NAVER_CLIENT_SECRET=\"your-client-secret\"",
+        "export OAUTH_NAVER_REDIRECT_URI=\"com.example.app://oauth/naver\""
+      ]
+    },
+    {
+      "id": "github",
+      "name": "GitHub",
+      "icon": "🐙",
+      "color": "#181717",
+      "consoleUrl": "https://github.com/settings/developers",
+      "docsUrl": "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps",
+      "fields": [
+        {
+          "key": "clientId",
+          "label": "Client ID",
+          "type": "text",
+          "required": true,
+          "description": "GitHub OAuth App에서 발급받은 Client ID"
+        },
+        {
+          "key": "clientSecret",
+          "label": "Client Secret",
+          "type": "password",
+          "required": true,
+          "description": "GitHub OAuth App에서 발급받은 Client Secret"
+        },
+        {
+          "key": "redirectUri",
+          "label": "Authorization callback URL",
+          "type": "text",
+          "required": true,
+          "description": "예: com.example.app://oauth/github",
+          "placeholder": "com.example.app://oauth/github"
+        }
+      ],
+      "setupSteps": [
+        "GitHub Settings → Developer settings → OAuth Apps",
+        "New OAuth App 클릭",
+        "Application name: 앱 이름 입력",
+        "Homepage URL: 앱의 메인 URL 입력",
+        "Authorization callback URL: Redirect URI 입력",
+        "Register application 클릭",
+        "Client ID와 Client Secret 복사"
+      ],
+      "windowsCommands": [
+        "$env:OAUTH_GITHUB_CLIENT_ID=\"your-client-id\"",
+        "$env:OAUTH_GITHUB_CLIENT_SECRET=\"your-client-secret\"",
+        "$env:OAUTH_GITHUB_REDIRECT_URI=\"com.example.app://oauth/github\""
+      ],
+      "macCommands": [
+        "export OAUTH_GITHUB_CLIENT_ID=\"your-client-id\"",
+        "export OAUTH_GITHUB_CLIENT_SECRET=\"your-client-secret\"",
+        "export OAUTH_GITHUB_REDIRECT_URI=\"com.example.app://oauth/github\""
+      ]
+    },
+    {
+      "id": "kakao",
+      "name": "Kakao",
+      "icon": "💬",
+      "color": "#FEE500",
+      "consoleUrl": "https://developers.kakao.com/",
+      "docsUrl": "https://developers.kakao.com/docs/latest/ko/kakaologin/rest-api",
+      "fields": [
+        {
+          "key": "restApiKey",
+          "label": "REST API Key",
+          "type": "text",
+          "required": true,
+          "description": "카카오 개발자 콘솔에서 발급받은 REST API Key"
+        },
+        {
+          "key": "clientSecret",
+          "label": "Client Secret",
+          "type": "password",
+          "required": true,
+          "description": "카카오 개발자 콘솔에서 발급받은 Client Secret"
+        },
+        {
+          "key": "redirectUri",
+          "label": "Redirect URI",
+          "type": "text",
+          "required": true,
+          "description": "예: com.example.app://oauth/kakao",
+          "placeholder": "com.example.app://oauth/kakao"
+        }
+      ],
+      "setupSteps": [
+        "카카오 개발자 콘솔 접속",
+        "내 애플리케이션 → 애플리케이션 추가하기",
+        "앱 이름 입력 후 저장",
+        "앱 설정 → 플랫폼 → 플랫폼 추가 (Android/iOS)",
+        "앱 키 → REST API 키 복사",
+        "제품 설정 → 카카오 로그인 활성화",
+        "Redirect URI 등록 (예: com.example.app://oauth/kakao)",
+        "보안 → Client Secret 확인 및 복사"
+      ],
+      "windowsCommands": [
+        "$env:OAUTH_KAKAO_REST_API_KEY=\"your-rest-api-key\"",
+        "$env:OAUTH_KAKAO_CLIENT_SECRET=\"your-client-secret\"",
+        "$env:OAUTH_KAKAO_REDIRECT_URI=\"com.example.app://oauth/kakao\""
+      ],
+      "macCommands": [
+        "export OAUTH_KAKAO_REST_API_KEY=\"your-rest-api-key\"",
+        "export OAUTH_KAKAO_CLIENT_SECRET=\"your-client-secret\"",
+        "export OAUTH_KAKAO_REDIRECT_URI=\"com.example.app://oauth/kakao\""
+      ],
+      "requiresKeyHash": true,
+      "requiresSha1": false,
+      "keyHashSetupGuide": [
+        "카카오 개발자 콘솔 접속",
+        "내 애플리케이션 → 앱 선택",
+        "플랫폼 → Android",
+        "키 해시 추가에 아래 값을 복사하여 붙여넣기"
+      ]
+    },
+    {
+      "id": "google",
+      "name": "Google",
+      "icon": "🔍",
+      "color": "#4285F4",
+      "consoleUrl": "https://console.cloud.google.com/apis/credentials",
+      "docsUrl": "https://developers.google.com/identity/protocols/oauth2",
+      "fields": [
+        {
+          "key": "clientId",
+          "label": "Client ID",
+          "type": "text",
+          "required": true,
+          "description": "Google Cloud Console에서 발급받은 Client ID"
+        },
+        {
+          "key": "clientSecret",
+          "label": "Client Secret",
+          "type": "password",
+          "required": true,
+          "description": "Google Cloud Console에서 발급받은 Client Secret"
+        },
+        {
+          "key": "redirectUri",
+          "label": "Redirect URI",
+          "type": "text",
+          "required": true,
+          "description": "예: com.example.app://oauth/google",
+          "placeholder": "com.example.app://oauth/google"
+        }
+      ],
+      "setupSteps": [
+        "Google Cloud Console 접속",
+        "프로젝트 선택 또는 생성",
+        "API 및 서비스 → 사용자 인증 정보",
+        "사용자 인증 정보 만들기 → OAuth 클라이언트 ID",
+        "애플리케이션 유형: iOS 또는 Android 선택",
+        "패키지 이름: 앱의 Bundle ID 입력",
+        "SHA-1 인증서 지문: Android의 경우 필요",
+        "승인된 리디렉션 URI: Redirect URI 입력",
+        "만들기 클릭 → Client ID와 Client Secret 복사"
+      ],
+      "windowsCommands": [
+        "$env:OAUTH_GOOGLE_CLIENT_ID=\"your-client-id\"",
+        "$env:OAUTH_GOOGLE_CLIENT_SECRET=\"your-client-secret\"",
+        "$env:OAUTH_GOOGLE_REDIRECT_URI=\"com.example.app://oauth/google\""
+      ],
+      "macCommands": [
+        "export OAUTH_GOOGLE_CLIENT_ID=\"your-client-id\"",
+        "export OAUTH_GOOGLE_CLIENT_SECRET=\"your-client-secret\"",
+        "export OAUTH_GOOGLE_REDIRECT_URI=\"com.example.app://oauth/google\""
+      ],
+      "requiresKeyHash": false,
+      "requiresSha1": true,
+      "sha1SetupGuide": [
+        "Firebase Console (https://console.firebase.google.com) 접속",
+        "프로젝트 설정 → 일반 → 내 앱 → Android 앱",
+        "SHA 인증서 지문 추가에 아래 SHA-1 값을 복사하여 붙여넣기",
+        "또는 Google Cloud Console → API 및 서비스 → 사용자 인증 정보에서 OAuth 클라이언트 ID 생성 시 SHA-1 지문 입력"
+      ]
+    },
+    {
+      "id": "x",
+      "name": "X (Twitter)",
+      "icon": "🐦",
+      "color": "#1DA1F2",
+      "consoleUrl": "https://developer.twitter.com/en/portal/dashboard",
+      "docsUrl": "https://developer.twitter.com/en/docs/authentication/oauth-2-0",
+      "fields": [
+        {
+          "key": "apiKey",
+          "label": "API Key",
+          "type": "text",
+          "required": true,
+          "description": "Twitter Developer Portal에서 발급받은 API Key"
+        },
+        {
+          "key": "apiSecret",
+          "label": "API Secret",
+          "type": "password",
+          "required": true,
+          "description": "Twitter Developer Portal에서 발급받은 API Secret"
+        },
+        {
+          "key": "bearerToken",
+          "label": "Bearer Token",
+          "type": "password",
+          "required": false,
+          "description": "선택사항: Bearer Token 인증용"
+        },
+        {
+          "key": "redirectUri",
+          "label": "Callback URL",
+          "type": "text",
+          "required": true,
+          "description": "예: com.example.app://oauth/x",
+          "placeholder": "com.example.app://oauth/x"
+        }
+      ],
+      "setupSteps": [
+        "Twitter Developer Portal 접속",
+        "Developer Portal에 로그인",
+        "Projects & Apps → Create App 클릭",
+        "App name: 앱 이름 입력",
+        "OAuth 2.0 설정 → Callback URI 입력",
+        "App permissions 설정 (Read, Write 등)",
+        "Keys and tokens 탭에서 API Key, API Secret 복사",
+        "Bearer Token 생성 (선택사항)"
+      ],
+      "windowsCommands": [
+        "$env:OAUTH_X_API_KEY=\"your-api-key\"",
+        "$env:OAUTH_X_API_SECRET=\"your-api-secret\"",
+        "$env:OAUTH_X_BEARER_TOKEN=\"your-bearer-token\"",
+        "$env:OAUTH_X_REDIRECT_URI=\"com.example.app://oauth/x\""
+      ],
+      "macCommands": [
+        "export OAUTH_X_API_KEY=\"your-api-key\"",
+        "export OAUTH_X_API_SECRET=\"your-api-secret\"",
+        "export OAUTH_X_BEARER_TOKEN=\"your-bearer-token\"",
+        "export OAUTH_X_REDIRECT_URI=\"com.example.app://oauth/x\""
+      ]
+    },
+    {
+      "id": "tiktok",
+      "name": "TikTok",
+      "icon": "🎵",
+      "color": "#000000",
+      "consoleUrl": "https://developers.tiktok.com/apps/",
+      "docsUrl": "https://developers.tiktok.com/doc/oauth-kit-web",
+      "fields": [
+        {
+          "key": "clientKey",
+          "label": "Client Key",
+          "type": "text",
+          "required": true,
+          "description": "TikTok Developer Portal에서 발급받은 Client Key"
+        },
+        {
+          "key": "clientSecret",
+          "label": "Client Secret",
+          "type": "password",
+          "required": true,
+          "description": "TikTok Developer Portal에서 발급받은 Client Secret"
+        },
+        {
+          "key": "redirectUri",
+          "label": "Redirect URI",
+          "type": "text",
+          "required": true,
+          "description": "예: com.example.app://oauth/tiktok",
+          "placeholder": "com.example.app://oauth/tiktok"
+        }
+      ],
+      "setupSteps": [
+        "TikTok Developer Portal 접속",
+        "Create an app 클릭",
+        "App name: 앱 이름 입력",
+        "App category 선택",
+        "Redirect URI 등록 (예: com.example.app://oauth/tiktok)",
+        "App 생성 후 Client Key와 Client Secret 복사"
+      ],
+      "windowsCommands": [
+        "$env:OAUTH_TIKTOK_CLIENT_KEY=\"your-client-key\"",
+        "$env:OAUTH_TIKTOK_CLIENT_SECRET=\"your-client-secret\"",
+        "$env:OAUTH_TIKTOK_REDIRECT_URI=\"com.example.app://oauth/tiktok\""
+      ],
+      "macCommands": [
+        "export OAUTH_TIKTOK_CLIENT_KEY=\"your-client-key\"",
+        "export OAUTH_TIKTOK_CLIENT_SECRET=\"your-client-secret\"",
+        "export OAUTH_TIKTOK_REDIRECT_URI=\"com.example.app://oauth/tiktok\""
+      ]
+    }
+  ]
+}
+    </script>
+    <!-- Pretendard 폰트 -->
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Pretendard Variable', 'Pretendard', '-apple-system', 'BlinkMacSystemFont', 'system-ui', 'Roboto', 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'sans-serif'],
+                    },
+                    colors: {
+                        dark: {
+                            bg: '#0f172a',
+                            card: '#1e293b',
+                            border: '#334155',
+                            text: '#e2e8f0',
+                            muted: '#94a3b8'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Tooltip Styles */
+        .tooltip-container {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+        }
+        .tooltip-trigger {
+            cursor: help;
+            margin-left: 6px;
+        }
+        .tooltip-content {
+            position: absolute;
+            bottom: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1e293b;
+            border: 1px solid #475569;
+            color: #e2e8f0;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            width: 280px;
+            z-index: 50;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s ease;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            line-height: 1.5;
+        }
+        .tooltip-content::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 8px solid transparent;
+            border-top-color: #475569;
+        }
+        .tooltip-container:hover .tooltip-content {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Code Block */
+        .code-block {
+            position: relative;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .code-block pre {
+            padding: 16px;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            color: #e2e8f0;
+            margin: 0;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+
+        /* Animations */
+        .fade-in {
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #22c55e;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            z-index: 1000;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Validation */
+        .input-error {
+            border-color: #ef4444 !important;
+        }
+        .error-message {
+            color: #ef4444;
+            font-size: 12px;
+            margin-top: 4px;
+        }
+
+        /* Provider Card */
+        .provider-card {
+            border: 2px solid #334155;
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #1e293b;
+        }
+        .provider-card:hover {
+            border-color: #60a5fa;
+            background: rgba(59, 130, 246, 0.05);
+        }
+        .provider-card.selected {
+            border-color: #22c55e;
+            background: rgba(34, 197, 94, 0.1);
+        }
+
+        /* Result Item */
+        .result-item {
+            background: #18181b;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 12px;
+            border: 1px solid #3f3f46;
+        }
+        .result-item .key {
+            font-weight: 600;
+            color: #60a5fa;
+            margin-bottom: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+        }
+        .result-item .value {
+            background: #27272a;
+            padding: 8px;
+            border-radius: 6px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.8rem;
+            word-break: break-all;
+            max-height: 80px;
+            overflow-y: auto;
+            color: #cbd5e1;
+        }
+        .copy-btn-small {
+            padding: 4px 10px;
+            font-size: 0.75rem;
+            background: #3f3f46;
+            border: none;
+            border-radius: 4px;
+            color: #e4e4e7;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .copy-btn-small:hover {
+            background: #52525b;
+        }
+        .copy-btn-small.copied {
+            background: #22c55e;
+        }
+
+        /* Skip Button */
+        .skip-btn {
+            color: #94a3b8;
+            font-size: 0.75rem;
+            text-decoration: underline;
+            cursor: pointer;
+            display: inline-block;
+            margin-top: 8px;
+        }
+        .skip-btn:hover {
+            color: #e2e8f0;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-200 min-h-screen font-sans">
+    <!-- 보안 경고 -->
+    <div id="securityWarning" class="fixed top-4 left-1/2 transform -translate-x-1/2 bg-yellow-900/90 border border-yellow-700 text-yellow-200 px-6 py-3 rounded-lg shadow-xl z-50 max-w-2xl hidden">
+        <div class="flex items-center gap-3">
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+            </svg>
+            <div class="flex-1">
+                <p class="text-sm font-medium">이 페이지를 닫으면 입력한 데이터가 사라집니다 (localStorage에 임시 저장됨)</p>
+            </div>
+            <button onclick="closeSecurityWarning()" class="text-yellow-400 hover:text-yellow-200">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <div class="max-w-4xl mx-auto p-4 md:p-6">
+        <!-- Header -->
+        <header class="text-center mb-10">
+            <h1 class="text-3xl md:text-4xl font-bold mb-3" style="background: linear-gradient(90deg, #60a5fa, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                🔐 OAuth 설정 마법사
+            </h1>
+            <p class="text-zinc-400 text-base md:text-lg flex items-center justify-center gap-3">
+                <a href="https://github.com/Cassiiopeia/SUH-DEVOPS-TEMPLATE" target="_blank" rel="noopener"
+                   class="hover:text-blue-400 transition inline-flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                    SUH-DEVOPS-TEMPLATE
+                </a>
+                <span class="text-slate-600">|</span>
+                <button onclick="openChangelogModal()" class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-gradient-to-r from-blue-500/20 to-purple-500/20 hover:from-blue-500/30 hover:to-purple-500/30 border border-blue-500/30 rounded-full text-sm text-blue-400 hover:text-blue-300 transition cursor-pointer">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
+                    <span id="versionBadge">v1.0.0</span>
+                </button>
+            </p>
+        </header>
+
+        <!-- Progress Steps (동적 생성) -->
+        <div id="progressSteps" class="flex justify-between mb-8 px-2 overflow-x-auto">
+            <!-- JavaScript로 동적 생성 -->
+        </div>
+
+        <!-- ========================================== -->
+        <!-- Step 1: 시작하기 - OAuth 제공자 선택 -->
+        <!-- ========================================== -->
+        <div class="card bg-slate-800 rounded-xl shadow-xl p-6 mb-6 step-content fade-in" data-step="1">
+            <h2 class="text-xl font-bold mb-6 flex items-center gap-3">
+                <span class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center text-sm">1</span>
+                OAuth 제공자 선택
+            </h2>
+
+            <div class="bg-blue-900/30 border border-blue-700 rounded-lg p-4 mb-6">
+                <div class="flex items-center justify-between mb-3">
+                    <div>
+                        <p class="text-sm text-blue-200 mb-1">📋 사용할 OAuth 제공자를 선택하세요. 여러 개 선택 가능합니다.</p>
+                        <p class="text-xs text-slate-400">선택한 제공자에 따라 설정 단계가 자동으로 생성됩니다.</p>
+                    </div>
+                    <div class="px-3 py-1.5 rounded-lg text-xs font-medium" id="osBadge" style="background: rgba(59, 130, 246, 0.2); border: 1px solid rgba(59, 130, 246, 0.3);">
+                        현재 OS: <span id="osName" class="font-bold">감지 중...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- OAuth 제공자 카드 그리드 -->
+            <div id="providerGrid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                <!-- JavaScript로 동적 생성 -->
+            </div>
+
+            <!-- 프로젝트 경로 -->
+            <div class="mb-6">
+                <label class="block text-sm font-medium mb-2 text-slate-300">
+                    Flutter 프로젝트 절대 경로 (선택)
+                </label>
+                <input type="text" id="projectPath"
+                    class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2.5 text-sm text-slate-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition"
+                    placeholder="/Users/username/my-flutter-project 또는 C:\Users\username\my-flutter-project">
+            </div>
+
+            <div class="flex justify-end mt-8">
+                <button class="px-6 py-2.5 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 rounded-lg font-medium transition" onclick="nextStep()" id="nextBtnStep1" disabled>
+                    다음 단계로 →
+                </button>
+            </div>
+        </div>
+
+        <!-- 동적 생성되는 Provider 설정 Step들 -->
+        <div id="providerSteps">
+            <!-- JavaScript로 선택한 제공자에 따라 동적 생성 -->
+        </div>
+
+        <!-- ========================================== -->
+        <!-- 마지막 Step: 완료 -->
+        <!-- ========================================== -->
+        <div class="card bg-slate-800 rounded-xl shadow-xl p-6 mb-6 step-content hidden" id="finalStep">
+            <h2 class="text-xl font-bold mb-6 flex items-center gap-3">
+                <span class="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center text-sm">✓</span>
+                완료! GitHub Secrets 설정값
+            </h2>
+
+            <div class="bg-green-900/30 border border-green-700 rounded-lg p-4 mb-6">
+                <p class="text-sm text-green-200">🎉 모든 설정이 완료되었습니다! 아래 값들을 GitHub Secrets에 등록하세요.</p>
+            </div>
+
+            <!-- GitHub Secrets 등록 방법 -->
+            <div class="bg-slate-700/50 border border-slate-600 rounded-lg p-4 mb-6">
+                <p class="text-sm font-medium text-blue-400 mb-2">📍 GitHub Secrets 등록 방법</p>
+                <ol class="text-xs text-slate-300 list-decimal list-inside space-y-1">
+                    <li>GitHub 저장소 → Settings → Secrets and variables → Actions</li>
+                    <li>"New repository secret" 클릭</li>
+                    <li>아래 각 항목의 Name과 Value를 입력</li>
+                </ol>
+            </div>
+
+            <h3 class="text-lg font-semibold mb-4 text-slate-200">등록할 Secrets 목록</h3>
+            <div id="results-container"></div>
+
+            <div class="mt-6 p-4 bg-gradient-to-r from-green-900/30 to-blue-900/30 border border-green-700 rounded-lg">
+                <p class="text-center text-slate-300 mb-4">💾 Secrets 정보를 파일로 저장하세요</p>
+                <div class="flex justify-center gap-4">
+                    <button class="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 rounded-lg font-medium transition flex items-center gap-2" onclick="downloadAsJson()">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                        </svg>
+                        JSON 다운로드
+                    </button>
+                    <button class="px-6 py-3 bg-slate-600 hover:bg-slate-500 rounded-lg font-medium transition flex items-center gap-2" onclick="downloadAsTxt()">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                        </svg>
+                        TXT 다운로드
+                    </button>
+                </div>
+            </div>
+
+            <div class="flex justify-between mt-8">
+                <button class="px-6 py-2.5 bg-slate-700 hover:bg-slate-600 rounded-lg font-medium transition" onclick="prevStep()">← 이전</button>
+                <button class="px-6 py-2.5 bg-slate-600 hover:bg-slate-500 rounded-lg font-medium transition" onclick="resetWizard()">🔄 처음부터 다시</button>
+            </div>
+        </div>
+
+        <footer class="text-center text-slate-500 text-sm py-8">
+            <p>🔒 로컬 실행 전용 - 서버에 데이터가 전송되지 않습니다</p>
+        </footer>
+    </div>
+
+    <!-- Changelog Modal -->
+    <div id="changelogModal" class="fixed inset-0 bg-black/70 z-100 hidden flex items-center justify-center" onclick="closeChangelogModal(event)">
+        <div class="bg-slate-800 border border-slate-600 rounded-xl max-w-500 w-90 max-h-80vh overflow-y-auto p-6" onclick="event.stopPropagation()">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold text-white">Changelog</h3>
+                <button onclick="closeChangelogModal()" class="text-slate-400 hover:text-white">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <div id="changelogContent" class="space-y-4">
+                <!-- Dynamically populated -->
+            </div>
+            <p id="changelogLastUpdated" class="text-xs text-slate-500 mt-4"></p>
+        </div>
+    </div>
+
+    <!-- Main JavaScript -->
+    <script src="oauth-wizard.js"></script>
+</body>
+</html>
+
