@@ -50,3 +50,15 @@ app.*.map.json
 
 # VS Code (commented out by default - uncomment if needed)
 #.vscode/
+
+# Play Store Keystore (자동 생성됨)
+android/key.properties
+
+# Play Store Keystore (자동 생성됨)
+android/app/keystore/
+
+# Play Store Keystore (자동 생성됨)
+*.jks
+
+# Play Store Keystore (자동 생성됨)
+*.keystore
