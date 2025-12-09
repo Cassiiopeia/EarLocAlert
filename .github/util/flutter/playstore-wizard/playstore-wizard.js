@@ -28,7 +28,7 @@ function detectOS() {
 
 const state = {
     currentStep: 1,
-    totalSteps: 6, // Step 1~6 (시작하기, Keystore, Service Account, Play Console, 설정 적용, 완료)
+    totalSteps: 7, // Step 1~7 (프로젝트, Keystore, AAB 빌드, 앱 생성, AAB 업로드, Service Account, 완료)
     projectPath: '',
     detectedOS: 'mac', // OS 감지 결과
     // Project Info
@@ -670,14 +670,14 @@ function showStep(stepNumber) {
 function initializeStep(stepNumber) {
     switch (stepNumber) {
         case 1:
-            // Step 1: 시작하기
+            // Step 1: 프로젝트 설정 (경로 + Application ID)
             // 프로젝트 경로 검증 UI 업데이트
             if (state.projectPath) {
                 updatePathValidation(state.projectPath);
                 // 프로젝트 경로가 있으면 자동으로 Application ID 감지 명령어 생성
                 autoDetectApplicationIdOnPathInput();
             }
-            
+
             // Application ID 복원
             if (state.applicationId) {
                 const detectedContainer = document.getElementById('detectedApplicationIdContainer');
@@ -694,7 +694,7 @@ function initializeStep(stepNumber) {
             }
             break;
         case 2:
-            // Keystore 생성
+            // Step 2: Keystore 생성
             restoreInputValues();
             // Application ID 기반으로 Key Alias 자동 생성
             if (state.applicationId && !state.keyAlias) {
@@ -720,24 +720,7 @@ function initializeStep(stepNumber) {
             }, 100);
             break;
         case 3:
-            // Service Account
-            restoreInputValues();
-            break;
-        case 4:
-            // Play Console 앱 생성 & 첫 AAB 업로드
-            // Application ID에서 앱 이름 추출하여 표시
-            if (state.applicationId) {
-                const appName = state.applicationId.split('.').pop() || state.applicationId;
-                // camelCase/snake_case를 읽기 좋게 변환 (ear_loc_alert -> EarLocAlert)
-                const formattedName = appName
-                    .split(/[_-]/)
-                    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-                    .join('');
-                const appNameDisplay = document.getElementById('appNameDisplay');
-                if (appNameDisplay) {
-                    appNameDisplay.textContent = formattedName;
-                }
-            }
+            // Step 3: AAB 빌드
             // 프로젝트 경로 기반 AAB 빌드 명령어 생성
             if (state.projectPath) {
                 const aabBuildCommand = document.getElementById('aabBuildCommand');
@@ -764,12 +747,45 @@ function initializeStep(stepNumber) {
                 }
             }
             break;
+        case 4:
+            // Step 4: Play Console 앱 생성
+            // Application ID에서 앱 이름 추출하여 표시
+            if (state.applicationId) {
+                const appName = state.applicationId.split('.').pop() || state.applicationId;
+                // camelCase/snake_case를 읽기 좋게 변환 (ear_loc_alert -> EarLocAlert)
+                const formattedName = appName
+                    .split(/[_-]/)
+                    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                    .join('');
+                const appNameDisplay = document.getElementById('appNameDisplay');
+                if (appNameDisplay) {
+                    appNameDisplay.textContent = formattedName;
+                }
+            }
+            break;
         case 5:
-            // 설정 적용
-            generateSetupCommand();
+            // Step 5: AAB 수동 업로드
+            // AAB 파일 경로 표시
+            if (state.projectPath) {
+                const aabUploadPath = document.getElementById('aabUploadPath');
+                const projectPath = state.projectPath;
+                if (aabUploadPath) {
+                    const os = state.detectedOS || 'mac';
+                    if (os === 'windows') {
+                        const winPath = projectPath.replace(/\//g, '\\');
+                        aabUploadPath.textContent = `${winPath}\\build\\app\\outputs\\bundle\\release\\app-release.aab`;
+                    } else {
+                        aabUploadPath.textContent = `${projectPath}/build/app/outputs/bundle/release/app-release.aab`;
+                    }
+                }
+            }
             break;
         case 6:
-            // 완료
+            // Step 6: Service Account
+            restoreInputValues();
+            break;
+        case 7:
+            // Step 7: 완료
             generateFinalResult();
             break;
     }
@@ -861,7 +877,7 @@ function resetWizard() {
         // State 초기화
         Object.keys(state).forEach(key => {
             if (key === 'currentStep') state[key] = 1;
-            else if (key === 'totalSteps') state[key] = 9;
+            else if (key === 'totalSteps') state[key] = 7;
             else if (key === 'certC') state[key] = 'KR';
             else if (key === 'gradleType') state[key] = 'kts';
             else if (key === 'validityDays') state[key] = '99999'; // 무제한 기본값
@@ -1473,7 +1489,7 @@ end`;
 }
 
 // ============================================
-// Step 7: Final Result Generation
+// Step 7: 완료 및 GitHub Secrets 목록 생성
 // ============================================
 
 function generateFinalResult() {

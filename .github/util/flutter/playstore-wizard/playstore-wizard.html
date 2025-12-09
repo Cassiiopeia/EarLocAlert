@@ -360,31 +360,35 @@
             </p>
         </header>
 
-        <!-- Progress Steps (6단계) -->
+        <!-- Progress Steps (7단계) -->
         <div class="flex justify-between mb-8 px-2 overflow-x-auto">
-            <div class="step-indicator flex flex-col items-center flex-1 relative min-w-[50px]" data-step="1">
-                <div class="step-circle w-9 h-9 rounded-full bg-gradient-to-r from-green-500 to-blue-500 text-white flex items-center justify-center font-bold text-sm z-10 shadow-lg shadow-green-500/30">1</div>
-                <span class="text-[9px] mt-1 text-slate-400 text-center">시작하기</span>
+            <div class="step-indicator flex flex-col items-center flex-1 relative min-w-[40px]" data-step="1">
+                <div class="step-circle w-8 h-8 rounded-full bg-gradient-to-r from-green-500 to-blue-500 text-white flex items-center justify-center font-bold text-xs z-10 shadow-lg shadow-green-500/30">1</div>
+                <span class="text-[8px] mt-1 text-slate-400 text-center">프로젝트</span>
             </div>
-            <div class="step-indicator flex flex-col items-center flex-1 relative min-w-[50px]" data-step="2">
-                <div class="step-circle w-9 h-9 rounded-full bg-slate-700 text-slate-400 flex items-center justify-center font-bold text-sm z-10">2</div>
-                <span class="text-[9px] mt-1 text-slate-500 text-center">Keystore</span>
+            <div class="step-indicator flex flex-col items-center flex-1 relative min-w-[40px]" data-step="2">
+                <div class="step-circle w-8 h-8 rounded-full bg-slate-700 text-slate-400 flex items-center justify-center font-bold text-xs z-10">2</div>
+                <span class="text-[8px] mt-1 text-slate-500 text-center">Keystore</span>
             </div>
-            <div class="step-indicator flex flex-col items-center flex-1 relative min-w-[50px]" data-step="3">
-                <div class="step-circle w-9 h-9 rounded-full bg-slate-700 text-slate-400 flex items-center justify-center font-bold text-sm z-10">3</div>
-                <span class="text-[9px] mt-1 text-slate-500 text-center">Service Account</span>
+            <div class="step-indicator flex flex-col items-center flex-1 relative min-w-[40px]" data-step="3">
+                <div class="step-circle w-8 h-8 rounded-full bg-slate-700 text-slate-400 flex items-center justify-center font-bold text-xs z-10">3</div>
+                <span class="text-[8px] mt-1 text-slate-500 text-center">AAB 빌드</span>
             </div>
-            <div class="step-indicator flex flex-col items-center flex-1 relative min-w-[50px]" data-step="4">
-                <div class="step-circle w-9 h-9 rounded-full bg-slate-700 text-slate-400 flex items-center justify-center font-bold text-sm z-10">4</div>
-                <span class="text-[9px] mt-1 text-slate-500 text-center">Play Console</span>
+            <div class="step-indicator flex flex-col items-center flex-1 relative min-w-[40px]" data-step="4">
+                <div class="step-circle w-8 h-8 rounded-full bg-slate-700 text-slate-400 flex items-center justify-center font-bold text-xs z-10">4</div>
+                <span class="text-[8px] mt-1 text-slate-500 text-center">앱 생성</span>
             </div>
-            <div class="step-indicator flex flex-col items-center flex-1 relative min-w-[50px]" data-step="5">
-                <div class="step-circle w-9 h-9 rounded-full bg-slate-700 text-slate-400 flex items-center justify-center font-bold text-sm z-10">5</div>
-                <span class="text-[9px] mt-1 text-slate-500 text-center">설정 적용</span>
+            <div class="step-indicator flex flex-col items-center flex-1 relative min-w-[40px]" data-step="5">
+                <div class="step-circle w-8 h-8 rounded-full bg-slate-700 text-slate-400 flex items-center justify-center font-bold text-xs z-10">5</div>
+                <span class="text-[8px] mt-1 text-slate-500 text-center">AAB 업로드</span>
             </div>
-            <div class="step-indicator flex flex-col items-center flex-1 min-w-[50px]" data-step="6">
-                <div class="step-circle w-9 h-9 rounded-full bg-slate-700 text-slate-400 flex items-center justify-center font-bold text-sm z-10">6</div>
-                <span class="text-[9px] mt-1 text-slate-500 text-center">완료</span>
+            <div class="step-indicator flex flex-col items-center flex-1 relative min-w-[40px]" data-step="6">
+                <div class="step-circle w-8 h-8 rounded-full bg-slate-700 text-slate-400 flex items-center justify-center font-bold text-xs z-10">6</div>
+                <span class="text-[8px] mt-1 text-slate-500 text-center">Service Account</span>
+            </div>
+            <div class="step-indicator flex flex-col items-center flex-1 min-w-[40px]" data-step="7">
+                <div class="step-circle w-8 h-8 rounded-full bg-slate-700 text-slate-400 flex items-center justify-center font-bold text-xs z-10">7</div>
+                <span class="text-[8px] mt-1 text-slate-500 text-center">완료</span>
             </div>
         </div>
 
@@ -408,18 +412,24 @@
             <div class="bg-blue-900/30 border border-blue-700 rounded-lg p-4 mb-6">
                 <div class="flex items-center justify-between mb-3">
                     <div class="flex-1">
-                        <p class="text-sm text-blue-200 mb-3">📋 Play Store 배포 전체 프로세스</p>
-                        <div class="dependency-flow">
-                            <div class="dependency-item bg-blue-600 text-white text-[11px]">① SDK 설정</div>
+                        <p class="text-sm text-blue-200 mb-3">📋 Play Store 배포 전체 프로세스 (이 마법사가 안내합니다)</p>
+                        <div class="dependency-flow flex-wrap gap-y-2">
+                            <div class="dependency-item bg-blue-600 text-white text-[10px]">① 프로젝트 설정</div>
                             <span class="dependency-arrow">→</span>
-                            <div class="dependency-item bg-green-600 text-white text-[11px]">② Play Console 앱 생성</div>
+                            <div class="dependency-item bg-green-600 text-white text-[10px]">② Keystore</div>
                             <span class="dependency-arrow">→</span>
-                            <div class="dependency-item bg-purple-600 text-white text-[11px]">③ Keystore</div>
+                            <div class="dependency-item bg-yellow-600 text-white text-[10px]">③ AAB 빌드</div>
                             <span class="dependency-arrow">→</span>
-                            <div class="dependency-item bg-pink-600 text-white text-[11px]">④ Service Account</div>
+                            <div class="dependency-item bg-orange-600 text-white text-[10px]">④ 앱 생성</div>
+                            <span class="dependency-arrow">→</span>
+                            <div class="dependency-item bg-red-600 text-white text-[10px]">⑤ AAB 업로드</div>
+                            <span class="dependency-arrow">→</span>
+                            <div class="dependency-item bg-purple-600 text-white text-[10px]">⑥ Service Account</div>
+                            <span class="dependency-arrow">→</span>
+                            <div class="dependency-item bg-pink-600 text-white text-[10px]">⑦ 완료</div>
                         </div>
-                        <p class="text-xs text-slate-400 text-center mt-2">
-                            이 마법사는 <span class="text-green-400">③ Keystore</span>부터 <span class="text-pink-400">④ Service Account</span>까지 설정합니다.
+                        <p class="text-xs text-green-400 text-center mt-2 font-bold">
+                            ✅ 처음 배포하는 분도 이 마법사를 따라하면 됩니다!
                         </p>
                     </div>
                     <div class="px-3 py-1.5 rounded-lg text-xs font-medium ml-4 flex-shrink-0" id="osBadge" style="background: rgba(59, 130, 246, 0.2); border: 1px solid rgba(59, 130, 246, 0.3);">
@@ -551,14 +561,17 @@ PATH=%PATH%;%ANDROID_HOME%\tools</pre>
                         <!-- 새로 앱을 만드는 경우 -->
                         <div class="bg-slate-800/50 rounded-lg p-3 border-t border-slate-700 mt-3">
                             <p class="text-xs font-semibold text-slate-300 mb-2">🆕 아직 앱을 만들지 않은 경우</p>
-                            <p class="text-xs text-slate-400 mb-2">아직 Play Console에 앱이 없다면:</p>
-                            <ol class="text-xs text-slate-400 ml-3 list-decimal space-y-1">
-                                <li>Play Console 메인 페이지에서 <span class="text-green-400 font-bold">"앱 만들기"</span> 버튼 클릭</li>
-                                <li>앱 이름, 기본 언어, 앱 유형, 무료/유료 선택</li>
-                                <li><span class="text-yellow-400 font-bold">Application ID 설정</span> (형식: <code class="bg-slate-700 px-1 rounded">com.example.app</code>)</li>
-                                <li class="text-red-400">⚠️ 한 번 설정하면 변경 불가!</li>
-                                <li>"앱 만들기" 클릭 → Application ID 확인</li>
-                            </ol>
+                            <p class="text-xs text-slate-400 mb-2">아직 Play Console에 앱이 없다면 걱정하지 마세요!</p>
+                            <div class="bg-blue-900/30 border border-blue-700 rounded p-2 mb-2">
+                                <p class="text-xs text-blue-300 font-bold mb-1">💡 Application ID는 Play Console에서 설정하는 것이 아닙니다!</p>
+                                <ul class="text-xs text-slate-400 ml-3 list-disc space-y-1">
+                                    <li>Application ID는 <span class="text-green-400 font-bold">Flutter 프로젝트의 build.gradle.kts</span>에 이미 정의되어 있음</li>
+                                    <li>Play Console에서 앱 만들기: 앱 이름, 언어, 유형만 선택하면 끝!</li>
+                                    <li>첫 AAB 업로드 시 Application ID가 자동으로 Play Console에 등록됨</li>
+                                    <li class="text-red-400">⚠️ AAB 업로드 후에는 Application ID 변경 불가!</li>
+                                </ul>
+                            </div>
+                            <p class="text-xs text-slate-500">→ 지금은 프로젝트의 build.gradle.kts에서 Application ID를 확인하세요. Step 4에서 Play Console 앱 생성을 안내합니다.</p>
                         </div>
                     </div>
                 </div>
@@ -703,7 +716,7 @@ PATH=%PATH%;%ANDROID_HOME%\tools</pre>
 
             <div class="flex justify-end mt-8">
                 <button class="px-6 py-2.5 bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 rounded-lg font-medium transition" onclick="nextStep()">
-                    다음: Keystore 생성 →
+                    다음: Keystore 생성 (Step 2) →
                 </button>
             </div>
         </div>
@@ -971,16 +984,302 @@ PATH=%PATH%;%ANDROID_HOME%\tools</pre>
 
             <div class="flex justify-between mt-8">
                 <button class="px-6 py-2.5 bg-slate-700 hover:bg-slate-600 rounded-lg font-medium transition" onclick="prevStep()">← 이전</button>
-                <button class="px-6 py-2.5 bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 rounded-lg font-medium transition" onclick="nextStep()">다음: Service Account →</button>
+                <button class="px-6 py-2.5 bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 rounded-lg font-medium transition" onclick="nextStep()">다음: AAB 빌드 (Step 3) →</button>
             </div>
         </div>
 
         <!-- ========================================== -->
-        <!-- Step 3: Google Play Service Account -->
+        <!-- Step 3: AAB 빌드 (새로 추가) -->
         <!-- ========================================== -->
         <div class="card bg-slate-800 rounded-xl shadow-xl p-6 mb-6 step-content hidden" data-step="3">
             <h2 class="text-xl font-bold mb-6 flex items-center gap-3">
-                <span class="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center text-sm">3</span>
+                <span class="w-8 h-8 bg-yellow-500 rounded-lg flex items-center justify-center text-sm">3</span>
+                AAB 빌드 (Release 버전)
+                <span class="text-xs font-normal text-yellow-400 bg-yellow-500/20 px-2 py-1 rounded">필수!</span>
+            </h2>
+
+            <!-- 설명 -->
+            <div class="bg-yellow-900/30 border border-yellow-700 rounded-lg p-4 mb-6">
+                <p class="text-sm text-yellow-200">
+                    📦 <strong>AAB(Android App Bundle)란?</strong> Google Play Store에 업로드하는 앱 패키지 형식입니다.
+                </p>
+                <p class="text-xs text-slate-400 mt-2">
+                    Step 2에서 만든 Keystore로 서명된 Release 버전 AAB를 빌드합니다.
+                </p>
+            </div>
+
+            <!-- 빌드 명령어 -->
+            <div class="mb-6">
+                <label class="block text-sm font-medium mb-2 text-slate-300">
+                    터미널에서 아래 명령어 실행:
+                </label>
+                <div class="code-block mb-3">
+                    <button class="copy-btn absolute top-2 right-2 px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded text-xs text-slate-300 transition" onclick="copyCode(this)">복사</button>
+                    <pre id="aabBuildCommandStep3" class="text-green-400">cd [프로젝트경로] && flutter build appbundle --release</pre>
+                </div>
+                <p class="text-xs text-slate-400">💡 프로젝트 경로는 Step 1에서 입력한 경로입니다.</p>
+            </div>
+
+            <!-- 빌드 결과 확인 -->
+            <div class="bg-blue-900/30 border border-blue-700 rounded-lg p-4 mb-6">
+                <p class="text-sm font-semibold text-blue-300 mb-2">✅ 빌드 성공 시 생성되는 파일:</p>
+                <div class="code-block">
+                    <button class="copy-btn absolute top-2 right-2 px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded text-xs text-slate-300 transition" onclick="copyCode(this)">복사</button>
+                    <pre id="aabOutputPathStep3" class="text-blue-400">[프로젝트경로]/build/app/outputs/bundle/release/app-release.aab</pre>
+                </div>
+                <p class="text-xs text-slate-400 mt-2">이 파일을 Step 5에서 Play Console에 업로드합니다.</p>
+            </div>
+
+            <!-- 빌드 확인 명령어 -->
+            <div class="bg-slate-700/50 border border-slate-600 rounded-lg p-4 mb-6">
+                <p class="text-sm font-medium text-slate-300 mb-2">🔍 빌드 확인 명령어:</p>
+                <div class="code-block">
+                    <button class="copy-btn absolute top-2 right-2 px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded text-xs text-slate-300 transition" onclick="copyCode(this)">복사</button>
+                    <pre id="aabCheckCommand" class="text-slate-300">ls -lah build/app/outputs/bundle/release/</pre>
+                </div>
+                <p class="text-xs text-slate-400 mt-2">app-release.aab 파일이 있으면 빌드 성공!</p>
+            </div>
+
+            <!-- 빌드 오류 시 -->
+            <div class="bg-red-900/30 border border-red-700 rounded-lg p-4 mb-6">
+                <p class="text-sm font-semibold text-red-300 mb-2">⚠️ 빌드 오류가 발생하면?</p>
+                <ul class="text-xs text-slate-300 space-y-1 list-disc list-inside">
+                    <li>Step 2의 Keystore 설정이 올바른지 확인</li>
+                    <li><code class="bg-slate-700 px-1 rounded">flutter clean</code> 후 다시 빌드</li>
+                    <li><code class="bg-slate-700 px-1 rounded">android/key.properties</code> 경로 확인</li>
+                </ul>
+            </div>
+
+            <!-- 체크리스트 -->
+            <div class="bg-slate-700/50 border border-slate-600 rounded-lg p-4 mb-6">
+                <p class="text-sm font-medium text-slate-300 mb-3">✅ Step 3 완료 체크리스트</p>
+                <ul class="text-xs text-slate-300 space-y-2">
+                    <li class="flex items-center gap-2">
+                        <input type="checkbox" id="check-step3-build" class="w-4 h-4 rounded">
+                        <label for="check-step3-build">flutter build appbundle --release 명령어 실행 완료</label>
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <input type="checkbox" id="check-step3-aab" class="w-4 h-4 rounded">
+                        <label for="check-step3-aab">app-release.aab 파일 생성 확인</label>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="flex justify-between mt-8">
+                <button class="px-6 py-2.5 bg-slate-700 hover:bg-slate-600 rounded-lg font-medium transition" onclick="prevStep()">← 이전</button>
+                <button class="px-6 py-2.5 bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 rounded-lg font-medium transition" onclick="nextStep()">다음: Play Console 앱 생성 (Step 4) →</button>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- Step 4: Play Console 앱 생성 (간소화) -->
+        <!-- ========================================== -->
+        <div class="card bg-slate-800 rounded-xl shadow-xl p-6 mb-6 step-content hidden" data-step="4">
+            <h2 class="text-xl font-bold mb-6 flex items-center gap-3">
+                <span class="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center text-sm">4</span>
+                Play Console 앱 생성
+            </h2>
+
+            <!-- 이미 앱이 있는 경우 -->
+            <div class="bg-green-900/30 border border-green-700 rounded-lg p-4 mb-6">
+                <div class="flex gap-3">
+                    <svg class="w-6 h-6 text-green-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <div>
+                        <p class="text-sm font-semibold text-green-300 mb-1">✅ 이미 Play Console에 앱이 있나요?</p>
+                        <p class="text-xs text-slate-300 mb-2">
+                            이미 앱을 만들었다면 이 단계를 건너뛰세요!
+                        </p>
+                        <button onclick="nextStep()" class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg text-sm font-medium transition">
+                            이미 앱 있음 → Step 5로 건너뛰기
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 바로가기 버튼 -->
+            <div class="mb-4">
+                <a href="https://play.google.com/console" target="_blank" rel="noopener"
+                   class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm font-medium transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                    </svg>
+                    Google Play Console 열기
+                </a>
+            </div>
+
+            <!-- 앱 생성 단계 -->
+            <div class="bg-orange-900/30 border border-orange-700 rounded-lg p-4 mb-6">
+                <p class="text-sm font-semibold text-orange-300 mb-3">📱 앱 생성 단계 (간단합니다!)</p>
+                <ol class="text-xs text-slate-300 list-decimal list-inside space-y-2">
+                    <li class="pl-2">Play Console 메인 페이지에서 <span class="text-green-400 font-bold">"앱 만들기"</span> 버튼 클릭</li>
+                    <li class="pl-2">앱 이름 입력 (예: <span class="text-blue-400">이어폰위치알림</span>)</li>
+                    <li class="pl-2">기본 언어 선택 (한국어 또는 영어)</li>
+                    <li class="pl-2">앱 유형: <span class="text-yellow-400">앱</span> (게임이 아닌 경우)</li>
+                    <li class="pl-2">무료/유료 선택</li>
+                    <li class="pl-2">선언 체크박스 모두 체크</li>
+                    <li class="pl-2"><span class="text-green-400 font-bold">"앱 만들기"</span> 클릭</li>
+                </ol>
+            </div>
+
+            <!-- 중요 안내 -->
+            <div class="bg-blue-900/30 border border-blue-700 rounded-lg p-4 mb-6">
+                <p class="text-sm font-semibold text-blue-300 mb-2">💡 알아두세요!</p>
+                <ul class="text-xs text-slate-300 space-y-1 list-disc list-inside">
+                    <li><strong>Application ID는 여기서 설정하지 않습니다!</strong></li>
+                    <li>Application ID는 이미 Flutter 프로젝트의 build.gradle.kts에 정의되어 있음</li>
+                    <li>앱을 만들면 바로 <span class="text-yellow-400">앱 대시보드</span>로 이동합니다</li>
+                    <li>다음 Step 5에서 AAB를 업로드하면 Application ID가 자동으로 등록됩니다</li>
+                </ul>
+            </div>
+
+            <!-- 체크리스트 -->
+            <div class="bg-slate-700/50 border border-slate-600 rounded-lg p-4 mb-6">
+                <p class="text-sm font-medium text-slate-300 mb-3">✅ Step 4 완료 체크리스트</p>
+                <ul class="text-xs text-slate-300 space-y-2">
+                    <li class="flex items-center gap-2">
+                        <input type="checkbox" id="check-step4-app" class="w-4 h-4 rounded">
+                        <label for="check-step4-app">Play Console에서 "앱 만들기" 완료</label>
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <input type="checkbox" id="check-step4-dashboard" class="w-4 h-4 rounded">
+                        <label for="check-step4-dashboard">앱 대시보드 화면 확인</label>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="flex justify-between mt-8">
+                <button class="px-6 py-2.5 bg-slate-700 hover:bg-slate-600 rounded-lg font-medium transition" onclick="prevStep()">← 이전</button>
+                <button class="px-6 py-2.5 bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 rounded-lg font-medium transition" onclick="nextStep()">다음: AAB 수동 업로드 (Step 5) →</button>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- Step 5: AAB 수동 업로드 -->
+        <!-- ========================================== -->
+        <div class="card bg-slate-800 rounded-xl shadow-xl p-6 mb-6 step-content hidden" data-step="5">
+            <h2 class="text-xl font-bold mb-6 flex items-center gap-3">
+                <span class="w-8 h-8 bg-red-500 rounded-lg flex items-center justify-center text-sm">5</span>
+                AAB 수동 업로드 (첫 번째만!)
+                <span class="text-xs font-normal text-red-400 bg-red-500/20 px-2 py-1 rounded">필수!</span>
+            </h2>
+
+            <!-- 왜 필요한지 설명 -->
+            <div class="bg-red-900/30 border border-red-700 rounded-lg p-4 mb-6">
+                <div class="flex gap-3">
+                    <svg class="w-6 h-6 text-red-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                    </svg>
+                    <div>
+                        <p class="text-sm font-semibold text-red-300 mb-1">⚠️ 이 단계는 자동화할 수 없습니다!</p>
+                        <p class="text-xs text-slate-300">
+                            Play Store 정책상 <strong>첫 번째 AAB는 반드시 수동으로</strong> 업로드해야 합니다.<br>
+                            이 단계를 완료해야 GitHub Actions 자동 배포가 작동합니다.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 이미 업로드한 경우 -->
+            <div class="bg-green-900/30 border border-green-700 rounded-lg p-4 mb-6">
+                <div class="flex gap-3">
+                    <svg class="w-6 h-6 text-green-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <div>
+                        <p class="text-sm font-semibold text-green-300 mb-1">✅ 이미 AAB를 업로드했나요?</p>
+                        <p class="text-xs text-slate-300 mb-2">
+                            이미 한 번이라도 AAB를 업로드했다면 건너뛰세요!
+                        </p>
+                        <button onclick="nextStep()" class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg text-sm font-medium transition">
+                            이미 업로드함 → Step 6으로 건너뛰기
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 업로드 단계 -->
+            <div class="bg-slate-700/50 border border-slate-600 rounded-lg p-4 mb-6">
+                <p class="text-sm font-semibold text-blue-300 mb-3">📤 내부 테스트 트랙에 AAB 업로드</p>
+                <ol class="text-xs text-slate-300 list-decimal list-inside space-y-3">
+                    <li class="pl-2">
+                        <div class="mt-1">
+                            <span class="font-medium">Play Console에서 앱 선택</span>
+                            <p class="text-slate-400 ml-4">Step 4에서 만든 앱 클릭</p>
+                        </div>
+                    </li>
+                    <li class="pl-2">
+                        <div class="mt-1">
+                            <span class="font-medium">왼쪽 메뉴에서 이동</span>
+                            <p class="text-slate-400 ml-4"><span class="text-yellow-400">"테스트 및 출시"</span> → <span class="text-yellow-400">"테스트"</span> → <span class="text-yellow-400">"내부 테스트"</span></p>
+                        </div>
+                    </li>
+                    <li class="pl-2">
+                        <div class="mt-1">
+                            <span class="font-medium text-green-400">"새 버전 만들기"</span> 버튼 클릭
+                        </div>
+                    </li>
+                    <li class="pl-2">
+                        <div class="mt-1">
+                            <span class="font-medium">"App Bundle 업로드"</span> 클릭 후 파일 선택
+                            <div class="mt-2 p-2 bg-slate-800 rounded">
+                                <p class="text-slate-400 text-[11px] mb-1">업로드할 파일 위치:</p>
+                                <code id="aabUploadPath" class="text-green-400 text-[11px]">[프로젝트경로]/build/app/outputs/bundle/release/app-release.aab</code>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="pl-2">
+                        <div class="mt-1">
+                            <span class="font-medium">업로드 완료 대기</span>
+                            <p class="text-slate-400 ml-4">파일 크기에 따라 1-5분 소요</p>
+                        </div>
+                    </li>
+                    <li class="pl-2">
+                        <div class="mt-1">
+                            <span class="font-medium text-green-400">"버전 검토"</span> → <span class="text-green-400 font-bold">"내부 테스트 트랙에 출시 시작"</span>
+                        </div>
+                    </li>
+                </ol>
+            </div>
+
+            <!-- 업로드 후 확인 -->
+            <div class="bg-blue-900/30 border border-blue-700 rounded-lg p-4 mb-6">
+                <p class="text-sm font-semibold text-blue-300 mb-2">🎉 업로드 완료 후</p>
+                <ul class="text-xs text-slate-300 space-y-1 list-disc list-inside">
+                    <li>Application ID가 Play Console에 자동으로 등록됩니다</li>
+                    <li>이제부터 GitHub Actions 자동 배포가 가능해집니다</li>
+                    <li>내부 테스트 트랙으로 배포되어 심사 없이 바로 테스터에게 배포 가능</li>
+                </ul>
+            </div>
+
+            <!-- 체크리스트 -->
+            <div class="bg-slate-700/50 border border-slate-600 rounded-lg p-4 mb-6">
+                <p class="text-sm font-medium text-slate-300 mb-3">✅ Step 5 완료 체크리스트</p>
+                <ul class="text-xs text-slate-300 space-y-2">
+                    <li class="flex items-center gap-2">
+                        <input type="checkbox" id="check-step5-upload" class="w-4 h-4 rounded">
+                        <label for="check-step5-upload">AAB 파일 업로드 완료</label>
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <input type="checkbox" id="check-step5-release" class="w-4 h-4 rounded">
+                        <label for="check-step5-release">"내부 테스트 트랙에 출시 시작" 완료</label>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="flex justify-between mt-8">
+                <button class="px-6 py-2.5 bg-slate-700 hover:bg-slate-600 rounded-lg font-medium transition" onclick="prevStep()">← 이전</button>
+                <button class="px-6 py-2.5 bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 rounded-lg font-medium transition" onclick="nextStep()">다음: Service Account (Step 6) →</button>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- Step 6: Google Play Service Account -->
+        <!-- ========================================== -->
+        <div class="card bg-slate-800 rounded-xl shadow-xl p-6 mb-6 step-content hidden" data-step="6">
+            <h2 class="text-xl font-bold mb-6 flex items-center gap-3">
+                <span class="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center text-sm">6</span>
                 Google Play Service Account 설정
                 <span class="tooltip-container">
                     <svg class="w-5 h-5 text-slate-400 tooltip-trigger" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1136,6 +1435,17 @@ PATH=%PATH%;%ANDROID_HOME%\tools</pre>
                             </div>
                         </div>
                     </li>
+                    <li class="pl-2">
+                        <div class="mt-2 p-3 bg-slate-800/50 rounded border-l-4 border-cyan-500">
+                            <span class="text-cyan-400 font-bold">앱에 권한 부여 (중요!)</span>
+                            <div class="mt-2 space-y-1 text-slate-400">
+                                <div>• Play Console → <span class="text-yellow-400">"설정"</span> → <span class="text-yellow-400">"API 액세스"</span></div>
+                                <div>• 서비스 계정 옆의 <span class="text-green-400 font-bold">"앱 권한 관리"</span> 클릭</div>
+                                <div>• Step 4에서 만든 앱 체크 → <span class="text-green-400 font-bold">"적용"</span></div>
+                                <div class="text-red-400 mt-1">⚠️ 이 단계를 놓치면 자동 배포가 "권한 없음" 오류로 실패합니다!</div>
+                            </div>
+                        </div>
+                    </li>
                 </ol>
             </div>
 
@@ -1201,270 +1511,34 @@ PATH=%PATH%;%ANDROID_HOME%\tools</pre>
                 </div>
             </div>
 
-            <div class="flex justify-between mt-8">
-                <button class="px-6 py-2.5 bg-slate-700 hover:bg-slate-600 rounded-lg font-medium transition" onclick="prevStep()">← 이전</button>
-                <button class="px-6 py-2.5 bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 rounded-lg font-medium transition" onclick="nextStep()">다음: Play Console 설정 →</button>
-            </div>
-        </div>
-
-        <!-- ========================================== -->
-        <!-- Step 4: Play Console 앱 생성 & 첫 AAB 업로드 -->
-        <!-- ========================================== -->
-        <div class="card bg-slate-800 rounded-xl shadow-xl p-6 mb-6 step-content hidden" data-step="4">
-            <h2 class="text-xl font-bold mb-6 flex items-center gap-3">
-                <span class="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center text-sm">4</span>
-                Play Console 앱 생성 & 첫 AAB 업로드
-                <span class="tooltip-container">
-                    <svg class="w-5 h-5 text-slate-400 tooltip-trigger" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                    <div class="tooltip-content">
-                        <strong>왜 수동 업로드가 필요한가요?</strong><br>
-                        Play Store 정책상 첫 번째 AAB는 수동으로 업로드해야 합니다. 이후부터 자동 배포가 가능합니다.
-                    </div>
-                </span>
-            </h2>
-
-            <!-- 이미 업로드한 경우 -->
-            <div class="bg-green-900/30 border border-green-700 rounded-lg p-4 mb-6">
-                <div class="flex gap-3">
-                    <svg class="w-6 h-6 text-green-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                    <div>
-                        <p class="text-sm font-semibold text-green-300 mb-1">✅ 이미 Play Console에 앱이 등록되어 있나요?</p>
-                        <p class="text-xs text-slate-300 mb-2">
-                            이미 Play Console에 앱을 만들고 AAB를 한 번이라도 업로드했다면, <strong>이 단계를 건너뛰세요!</strong>
-                        </p>
-                        <button onclick="nextStep()" class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg text-sm font-medium transition">
-                            이미 완료됨 → 다음 단계로 건너뛰기
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 주의사항 -->
-            <div class="bg-red-900/30 border border-red-700 rounded-lg p-4 mb-6">
-                <div class="flex gap-3">
-                    <svg class="w-6 h-6 text-red-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-                    </svg>
-                    <div>
-                        <p class="text-sm font-semibold text-red-300 mb-1">⚠️ 이 단계는 자동화할 수 없습니다</p>
-                        <p class="text-xs text-slate-300">
-                            Play Store 정책상 첫 번째 AAB는 <strong>반드시 수동으로</strong> Play Console에서 업로드해야 합니다.
-                            이 단계를 완료해야 GitHub Actions 자동 배포가 작동합니다.
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 1. Play Console 앱 생성 -->
+            <!-- 체크리스트 -->
             <div class="bg-slate-700/50 border border-slate-600 rounded-lg p-4 mb-6">
-                <p class="text-sm font-semibold text-orange-300 mb-3 flex items-center gap-2">
-                    <span class="w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center text-xs font-bold">1</span>
-                    Play Console에서 앱 생성
-                </p>
-                <a href="https://play.google.com/console" target="_blank" rel="noopener"
-                   class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm font-medium transition mb-4">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
-                    </svg>
-                    Google Play Console 열기
-                </a>
-                <div class="space-y-2 text-xs text-slate-300">
-                    <div class="flex items-start gap-2">
-                        <span class="text-slate-500">•</span>
-                        <span>"앱 만들기" 버튼 클릭</span>
-                    </div>
-                    <div class="flex items-start gap-2">
-                        <span class="text-slate-500">•</span>
-                        <span>앱 이름: <code id="appNameDisplay" class="bg-slate-700 px-1 rounded text-green-400">앱 이름</code></span>
-                    </div>
-                    <div class="flex items-start gap-2">
-                        <span class="text-slate-500">•</span>
-                        <span>기본 언어: 한국어 또는 영어</span>
-                    </div>
-                    <div class="flex items-start gap-2">
-                        <span class="text-slate-500">•</span>
-                        <span>앱 유형: <code class="bg-slate-700 px-1 rounded">앱</code> (게임 아님)</span>
-                    </div>
-                    <div class="flex items-start gap-2">
-                        <span class="text-slate-500">•</span>
-                        <span>무료/유료: <code class="bg-slate-700 px-1 rounded">무료</code> (또는 유료)</span>
-                    </div>
-                    <div class="flex items-start gap-2">
-                        <span class="text-slate-500">•</span>
-                        <span>선언 체크박스 모두 체크 후 "앱 만들기" 클릭</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 2. AAB 빌드 -->
-            <div class="bg-slate-700/50 border border-slate-600 rounded-lg p-4 mb-6">
-                <p class="text-sm font-semibold text-orange-300 mb-3 flex items-center gap-2">
-                    <span class="w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center text-xs font-bold">2</span>
-                    AAB 파일 빌드
-                </p>
-                <p class="text-xs text-slate-400 mb-3">아래 명령어를 복사하여 터미널에서 실행:</p>
-                <div class="code-block mb-3">
-                    <button class="copy-btn absolute top-2 right-2 px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded text-xs text-slate-300 transition" onclick="copyCode(this)">복사</button>
-                    <pre id="aabBuildCommand" class="text-green-400">flutter build appbundle --release</pre>
-                </div>
-                <p class="text-xs text-slate-400 mb-2">빌드된 AAB 파일 위치:</p>
-                <div class="code-block">
-                    <button class="copy-btn absolute top-2 right-2 px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded text-xs text-slate-300 transition" onclick="copyCode(this)">복사</button>
-                    <pre id="aabOutputPath" class="text-blue-400">build/app/outputs/bundle/release/app-release.aab</pre>
-                </div>
-            </div>
-
-            <!-- 3. AAB 업로드 -->
-            <div class="bg-slate-700/50 border border-slate-600 rounded-lg p-4 mb-6">
-                <p class="text-sm font-semibold text-orange-300 mb-3 flex items-center gap-2">
-                    <span class="w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center text-xs font-bold">3</span>
-                    내부 테스트로 AAB 업로드
-                </p>
-                <div class="space-y-2 text-xs text-slate-300">
-                    <div class="flex items-start gap-2">
-                        <span class="text-slate-500">•</span>
-                        <span>Play Console → 앱 선택</span>
-                    </div>
-                    <div class="flex items-start gap-2">
-                        <span class="text-slate-500">•</span>
-                        <span>왼쪽 메뉴: <code class="bg-slate-700 px-1 rounded text-yellow-400">테스트</code> → <code class="bg-slate-700 px-1 rounded text-yellow-400">내부 테스트</code></span>
-                    </div>
-                    <div class="flex items-start gap-2">
-                        <span class="text-slate-500">•</span>
-                        <span><code class="bg-slate-700 px-1 rounded text-green-400">"새 버전 만들기"</code> 클릭</span>
-                    </div>
-                    <div class="flex items-start gap-2">
-                        <span class="text-slate-500">•</span>
-                        <span><code class="bg-slate-700 px-1 rounded">app-release.aab</code> 파일 업로드</span>
-                    </div>
-                    <div class="flex items-start gap-2">
-                        <span class="text-slate-500">•</span>
-                        <span>버전 이름/노트 입력 후 <code class="bg-slate-700 px-1 rounded text-green-400">"저장"</code></span>
-                    </div>
-                </div>
-                <div class="mt-3 p-2 bg-blue-900/30 border border-blue-700 rounded text-xs text-blue-300">
-                    💡 <strong>팁:</strong> 내부 테스트는 심사 없이 바로 테스터에게 배포됩니다. 프로덕션 배포 전 테스트에 유용합니다.
-                </div>
-            </div>
-
-            <!-- 4. Service Account 권한 부여 -->
-            <div class="bg-slate-700/50 border border-slate-600 rounded-lg p-4 mb-6">
-                <p class="text-sm font-semibold text-orange-300 mb-3 flex items-center gap-2">
-                    <span class="w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center text-xs font-bold">4</span>
-                    Service Account에 앱 권한 부여
-                </p>
-                <div class="space-y-2 text-xs text-slate-300">
-                    <div class="flex items-start gap-2">
-                        <span class="text-slate-500">•</span>
-                        <span>Play Console → <code class="bg-slate-700 px-1 rounded text-yellow-400">설정</code> (⚙️) → <code class="bg-slate-700 px-1 rounded text-yellow-400">API 액세스</code></span>
-                    </div>
-                    <div class="flex items-start gap-2">
-                        <span class="text-slate-500">•</span>
-                        <span>Step 3에서 만든 Service Account 찾기</span>
-                    </div>
-                    <div class="flex items-start gap-2">
-                        <span class="text-slate-500">•</span>
-                        <span><code class="bg-slate-700 px-1 rounded text-green-400">"앱 권한 관리"</code> 클릭</span>
-                    </div>
-                    <div class="flex items-start gap-2">
-                        <span class="text-slate-500">•</span>
-                        <span>방금 생성한 앱 체크 → <code class="bg-slate-700 px-1 rounded text-green-400">"적용"</code></span>
-                    </div>
-                </div>
-                <div class="mt-3 p-2 bg-yellow-900/30 border border-yellow-700 rounded text-xs text-yellow-300">
-                    ⚠️ <strong>중요:</strong> 이 단계를 놓치면 자동 배포가 "권한 없음" 오류로 실패합니다!
-                </div>
-            </div>
-
-            <!-- 완료 체크리스트 -->
-            <div class="bg-purple-900/30 border border-purple-700 rounded-lg p-4 mb-6">
-                <p class="text-sm font-semibold text-purple-300 mb-3">✅ 완료 체크리스트</p>
-                <div class="space-y-2 text-xs text-slate-300">
-                    <label class="flex items-center gap-2 cursor-pointer">
-                        <input type="checkbox" class="w-4 h-4 rounded border-slate-500 bg-slate-700 text-green-500 focus:ring-green-500">
-                        <span>Play Console에 앱이 생성되었음</span>
-                    </label>
-                    <label class="flex items-center gap-2 cursor-pointer">
-                        <input type="checkbox" class="w-4 h-4 rounded border-slate-500 bg-slate-700 text-green-500 focus:ring-green-500">
-                        <span>AAB 파일이 내부 테스트에 업로드되었음</span>
-                    </label>
-                    <label class="flex items-center gap-2 cursor-pointer">
-                        <input type="checkbox" class="w-4 h-4 rounded border-slate-500 bg-slate-700 text-green-500 focus:ring-green-500">
-                        <span>Service Account에 앱 권한이 부여되었음</span>
-                    </label>
-                </div>
+                <p class="text-sm font-medium text-slate-300 mb-3">✅ Step 6 완료 체크리스트</p>
+                <ul class="text-xs text-slate-300 space-y-2">
+                    <li class="flex items-center gap-2">
+                        <input type="checkbox" id="check-step6-sa" class="w-4 h-4 rounded">
+                        <label for="check-step6-sa">Service Account JSON 파일 업로드 완료</label>
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <input type="checkbox" id="check-step6-permission" class="w-4 h-4 rounded">
+                        <label for="check-step6-permission">Play Console에서 앱 권한 부여 완료</label>
+                    </li>
+                </ul>
             </div>
 
             <div class="flex justify-between mt-8">
                 <button class="px-6 py-2.5 bg-slate-700 hover:bg-slate-600 rounded-lg font-medium transition" onclick="prevStep()">← 이전</button>
-                <button class="px-6 py-2.5 bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 rounded-lg font-medium transition" onclick="nextStep()">다음: 설정 적용 →</button>
+                <button class="px-6 py-2.5 bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 rounded-lg font-medium transition" onclick="nextStep()">다음: 완료 (Step 7) →</button>
             </div>
         </div>
 
         <!-- ========================================== -->
-        <!-- Step 5: 설정 적용 -->
+        <!-- Step 7: 완료 + GitHub Secrets -->
         <!-- ========================================== -->
-        <div class="card bg-slate-800 rounded-xl shadow-xl p-6 mb-6 step-content hidden" data-step="5">
-            <h2 class="text-xl font-bold mb-6 flex items-center gap-3">
-                <span class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-sm">5</span>
-                설정 적용
-            </h2>
-
-            <div class="bg-blue-900/30 border border-blue-700 rounded-lg p-4 mb-6">
-                <div class="flex gap-3">
-                    <svg class="w-6 h-6 text-blue-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                    <div>
-                        <p class="font-semibold text-blue-300 mb-1">터미널에서 스크립트 실행</p>
-                        <p class="text-sm text-slate-300">
-                            아래 명령어를 복사하여 터미널에서 실행하면 모든 설정이 자동으로 적용됩니다.
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="mb-6">
-                <label class="block text-sm font-medium mb-2 text-slate-300">터미널에서 실행:</label>
-                <div class="code-block">
-                    <button class="copy-btn absolute top-2 right-2 px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded text-xs text-slate-300 transition" onclick="copyCode(this)">복사</button>
-                    <pre id="setupCmd" class="text-xs">명령어 생성 중...</pre>
-                </div>
-            </div>
-
-            <div class="bg-yellow-900/30 border border-yellow-700 rounded-lg p-4 mb-6">
-                <div class="flex gap-3">
-                    <svg class="w-6 h-6 text-yellow-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-                    </svg>
-                    <div>
-                        <p class="font-semibold text-yellow-300 mb-1">주의사항</p>
-                        <ul class="text-sm text-slate-300 space-y-1 list-disc list-inside">
-                            <li>스크립트 실행 전에 프로젝트 경로가 올바른지 확인하세요</li>
-                            <li>기존 keystore가 있으면 덮어쓰기 확인이 필요합니다</li>
-                            <li>스크립트 실행 후 생성된 파일들을 확인하세요</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-
-            <div class="flex justify-between mt-8">
-                <button class="px-6 py-2.5 bg-slate-700 hover:bg-slate-600 rounded-lg font-medium transition" onclick="prevStep()">← 이전</button>
-                <button class="px-6 py-2.5 bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 rounded-lg font-medium transition" onclick="nextStep()">최종 결과 보기 →</button>
-            </div>
-        </div>
-
-        <!-- ========================================== -->
-        <!-- Step 6: 완료 -->
-        <!-- ========================================== -->
-        <div class="card bg-slate-800 rounded-xl shadow-xl p-6 mb-6 step-content hidden" data-step="6">
+        <div class="card bg-slate-800 rounded-xl shadow-xl p-6 mb-6 step-content hidden" data-step="7">
             <h2 class="text-xl font-bold mb-6 flex items-center gap-3">
                 <span class="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center text-sm">✓</span>
-                설정 완료!
+                설정 완료! GitHub Secrets 등록
             </h2>
 
             <div class="bg-green-900/30 border border-green-700 rounded-lg p-4 mb-6">
@@ -1473,15 +1547,34 @@ PATH=%PATH%;%ANDROID_HOME%\tools</pre>
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                     </svg>
                     <div>
-                        <p class="font-semibold text-green-300 mb-1">모든 설정이 준비되었습니다!</p>
+                        <p class="font-semibold text-green-300 mb-1">🎉 축하합니다! 모든 설정이 준비되었습니다!</p>
                         <p class="text-sm text-slate-300">
-                            아래 GitHub Secrets를 저장소에 등록하면 CI/CD가 작동합니다.
+                            아래 GitHub Secrets를 저장소에 등록하면 CI/CD 자동 배포가 작동합니다.
                         </p>
                     </div>
                 </div>
             </div>
 
-            <h3 class="text-lg font-semibold mb-4">GitHub Secrets 등록 목록</h3>
+            <!-- GitHub Secrets 등록 방법 -->
+            <div class="bg-blue-900/30 border border-blue-700 rounded-lg p-4 mb-6">
+                <div class="flex gap-3">
+                    <svg class="w-6 h-6 text-blue-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <div>
+                        <p class="font-semibold text-blue-300 mb-2">📍 GitHub Secrets 등록 방법</p>
+                        <ol class="text-xs text-slate-300 list-decimal list-inside space-y-1">
+                            <li>GitHub 저장소 페이지 이동</li>
+                            <li><span class="text-yellow-400">Settings</span> 탭 클릭</li>
+                            <li>왼쪽 메뉴에서 <span class="text-yellow-400">Secrets and variables</span> → <span class="text-yellow-400">Actions</span></li>
+                            <li><span class="text-green-400 font-bold">New repository secret</span> 버튼 클릭</li>
+                            <li>Name과 Secret 값 입력 후 <span class="text-green-400">Add secret</span></li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+
+            <h3 class="text-lg font-semibold mb-4">📋 등록해야 할 GitHub Secrets</h3>
 
             <div class="bg-slate-900 rounded-lg overflow-hidden mb-6">
                 <table class="w-full text-sm">
@@ -1498,142 +1591,62 @@ PATH=%PATH%;%ANDROID_HOME%\tools</pre>
                 </table>
             </div>
 
-            <div class="bg-blue-900/30 border border-blue-700 rounded-lg p-4 mb-6">
-                <div class="flex gap-3">
-                    <svg class="w-6 h-6 text-blue-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                    <div>
-                        <p class="font-semibold text-blue-300 mb-1">GitHub Secrets 등록 방법</p>
-                        <p class="text-sm text-slate-300">
-                            GitHub 저장소 → Settings → Secrets and variables → Actions → New repository secret
-                        </p>
+            <!-- 필수 Secrets 설명 -->
+            <div class="bg-yellow-900/30 border border-yellow-700 rounded-lg p-4 mb-6">
+                <p class="text-sm font-semibold text-yellow-300 mb-3">📝 각 Secret 설명</p>
+                <div class="space-y-3 text-xs text-slate-300">
+                    <div class="p-2 bg-slate-800/50 rounded">
+                        <code class="text-green-400 font-bold">RELEASE_KEYSTORE_BASE64</code>
+                        <p class="text-slate-400 mt-1">Step 2에서 생성한 Keystore 파일을 Base64로 인코딩한 값</p>
+                    </div>
+                    <div class="p-2 bg-slate-800/50 rounded">
+                        <code class="text-green-400 font-bold">RELEASE_KEYSTORE_PASSWORD</code>
+                        <p class="text-slate-400 mt-1">Keystore 생성 시 입력한 Store Password</p>
+                    </div>
+                    <div class="p-2 bg-slate-800/50 rounded">
+                        <code class="text-green-400 font-bold">RELEASE_KEY_ALIAS</code>
+                        <p class="text-slate-400 mt-1">Keystore 생성 시 입력한 Key Alias</p>
+                    </div>
+                    <div class="p-2 bg-slate-800/50 rounded">
+                        <code class="text-green-400 font-bold">RELEASE_KEY_PASSWORD</code>
+                        <p class="text-slate-400 mt-1">Keystore 생성 시 입력한 Key Password</p>
+                    </div>
+                    <div class="p-2 bg-slate-800/50 rounded">
+                        <code class="text-green-400 font-bold">GOOGLE_PLAY_SERVICE_ACCOUNT_JSON_BASE64</code>
+                        <p class="text-slate-400 mt-1">Step 6에서 업로드한 Service Account JSON을 Base64로 인코딩한 값</p>
                     </div>
                 </div>
             </div>
 
-            <!-- .env 파일 설정 -->
-            <h3 class="text-lg font-semibold mb-4 flex items-center gap-2">
-                <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                </svg>
-                .env 파일 설정 (선택사항)
-            </h3>
-
+            <!-- 선택사항 Secrets -->
             <div class="bg-purple-900/30 border border-purple-700 rounded-lg p-4 mb-6">
-                <div class="flex gap-3 mb-3">
-                    <svg class="w-6 h-6 text-purple-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                    <div class="flex-1">
-                        <p class="font-semibold text-purple-300 mb-1">로컬 개발 환경 설정</p>
-                        <p class="text-sm text-slate-300">
-                            프로젝트 루트의 <code class="bg-slate-700 px-1 rounded">.env</code> 파일에 아래 정보를 추가하면 로컬에서 개발 시 유용합니다.
-                        </p>
+                <p class="text-sm font-semibold text-purple-300 mb-3">🔧 선택사항 (Firebase 사용 시)</p>
+                <div class="space-y-2 text-xs text-slate-300">
+                    <div class="p-2 bg-slate-800/50 rounded">
+                        <code class="text-purple-400 font-bold">GOOGLE_SERVICES_JSON</code>
+                        <p class="text-slate-400 mt-1">Firebase 프로젝트의 google-services.json 내용 (Firebase 사용 시 필수)</p>
                     </div>
-                </div>
-
-                <div class="code-block">
-                    <button class="copy-btn absolute top-2 right-2 px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded text-xs text-slate-300 transition" onclick="copyCode(this)">복사</button>
-                    <pre id="envFileContent" class="text-xs"></pre>
-                </div>
-
-                <div class="bg-yellow-900/30 border border-yellow-700 rounded-lg p-3 mt-3">
-                    <div class="flex gap-2">
-                        <svg class="w-5 h-5 text-yellow-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-                        </svg>
-                        <div>
-                            <p class="text-sm font-semibold text-yellow-300 mb-1">보안 주의!</p>
-                            <p class="text-xs text-slate-300">
-                                <code class="bg-slate-700 px-1 rounded">.env</code> 파일은 <strong>절대로 Git에 커밋하지 마세요!</strong>
-                                이미 <code class="bg-slate-700 px-1 rounded">.gitignore</code>에 추가되어 있는지 확인하세요.
-                            </p>
-                        </div>
+                    <div class="p-2 bg-slate-800/50 rounded">
+                        <code class="text-purple-400 font-bold">ENV_FILE</code>
+                        <p class="text-slate-400 mt-1">.env 파일 내용 (환경변수가 필요한 경우)</p>
                     </div>
                 </div>
             </div>
 
-            <!-- 선택사항 설명: Firebase, ENV -->
-            <h3 class="text-lg font-semibold mb-4 flex items-center gap-2">
-                <svg class="w-5 h-5 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-                선택사항 설명 (GOOGLE_SERVICES_JSON, ENV_FILE)
-            </h3>
-
-            <div class="bg-orange-900/30 border border-orange-700 rounded-lg p-4 mb-6">
-                <div class="space-y-4">
-                    <div>
-                        <p class="text-sm font-semibold text-orange-300 mb-2">📱 GOOGLE_SERVICES_JSON (Firebase 설정)</p>
-                        <p class="text-xs text-slate-300 mb-2">
-                            <strong>Firebase를 사용하는 경우에만 필요합니다.</strong> Firebase Console에서 다운로드한
-                            <code class="bg-slate-700 px-1 rounded">google-services.json</code> 파일의 <strong>전체 내용</strong>을 GitHub Secret에 등록합니다.
-                        </p>
-                        <p class="text-xs text-slate-400">
-                            Firebase를 사용하지 않는다면 이 Secret은 비워두어도 됩니다.
-                        </p>
-                    </div>
-                    <div class="border-t border-orange-700 pt-4">
-                        <p class="text-sm font-semibold text-orange-300 mb-2">🔐 ENV_FILE (환경 변수)</p>
-                        <p class="text-xs text-slate-300 mb-2">
-                            <strong>앱에서 API 키 등 환경변수를 사용하는 경우에만 필요합니다.</strong>
-                            일반적인 Flutter 앱은 이 설정이 필요 없습니다.
-                        </p>
-                        <p class="text-xs text-slate-400">
-                            예: <code class="bg-slate-700 px-1 rounded">API_KEY=your_api_key</code> 형식으로 작성
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            <h3 class="text-lg font-semibold mb-4">다음 단계</h3>
-
-            <div class="space-y-3 mb-6">
-                <div class="bg-slate-900 rounded-lg p-4 flex items-start gap-3">
-                    <span class="w-6 h-6 bg-green-600 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">1</span>
-                    <div>
-                        <p class="font-medium text-slate-200">GitHub Secrets 등록</p>
-                        <p class="text-sm text-slate-400 mt-1">위 목록의 필수 Secret(RELEASE_KEYSTORE_BASE64, PASSWORD, ALIAS, GOOGLE_PLAY_SERVICE_ACCOUNT_JSON_BASE64)을 GitHub에 등록하세요.</p>
-                    </div>
-                </div>
-                <div class="bg-slate-900 rounded-lg p-4 flex items-start gap-3">
-                    <span class="w-6 h-6 bg-green-600 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">2</span>
-                    <div>
-                        <p class="font-medium text-slate-200">deploy 브랜치로 푸시하여 자동 배포 테스트</p>
-                        <p class="text-sm text-slate-400 mt-1">
-                            모든 설정이 완료되면, <code class="bg-slate-700 px-1 rounded">deploy</code> 브랜치에 코드를 푸시하면 자동으로 CI/CD가 실행됩니다.
-                        </p>
-                        <div class="mt-2 code-block">
-                            <button class="copy-btn absolute top-2 right-2 px-2 py-1 bg-slate-700 hover:bg-slate-600 rounded text-xs text-slate-300 transition" onclick="copyCode(this)">복사</button>
-                            <pre class="text-green-400">git push origin deploy</pre>
-                        </div>
-                        <p class="text-xs text-slate-500 mt-2">
-                            💡 GitHub Actions 탭에서 진행 상황을 확인하세요.
-                        </p>
-                    </div>
-                </div>
+            <!-- 다음 단계 -->
+            <div class="bg-slate-700/50 border border-slate-600 rounded-lg p-4 mb-6">
+                <p class="text-sm font-semibold text-slate-300 mb-3">🚀 설정 완료 후 다음 단계</p>
+                <ol class="text-xs text-slate-300 list-decimal list-inside space-y-2">
+                    <li>위의 모든 Secrets를 GitHub에 등록</li>
+                    <li><code class="bg-slate-700 px-1 rounded text-yellow-400">deploy</code> 브랜치에 Push 또는 main에서 버전 업데이트</li>
+                    <li>GitHub Actions가 자동으로 AAB 빌드 및 Play Store 내부 테스트에 배포</li>
+                    <li>Play Console에서 내부 테스트 → 비공개 테스트 → 프로덕션 순으로 승격</li>
+                </ol>
             </div>
 
             <div class="flex justify-between mt-8">
                 <button class="px-6 py-2.5 bg-slate-700 hover:bg-slate-600 rounded-lg font-medium transition" onclick="prevStep()">← 이전</button>
-                <div class="flex gap-3">
-                    <button class="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 rounded-lg font-medium transition flex items-center gap-2" onclick="downloadAsJson()">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-                        </svg>
-                        JSON 다운로드
-                    </button>
-                    <button class="px-6 py-2.5 bg-green-600 hover:bg-green-700 rounded-lg font-medium transition flex items-center gap-2" onclick="downloadAsTxt()">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-                        </svg>
-                        TXT 다운로드
-                    </button>
-                    <button class="px-6 py-2.5 bg-red-600 hover:bg-red-700 rounded-lg font-medium transition" onclick="resetWizard()">
-                        초기화
-                    </button>
-                </div>
+                <button class="px-6 py-2.5 bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 rounded-lg font-medium transition" onclick="resetWizard()">🔄 처음부터 다시 시작</button>
             </div>
         </div>
 
