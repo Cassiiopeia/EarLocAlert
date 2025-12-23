@@ -74,3 +74,8 @@ android/app/keystore/
 
 # FVM Version Cache
 .fvm/
+# Android signing
+
+android/app/keystore/*.jks
+
+android/app/keystore/*.keystore
