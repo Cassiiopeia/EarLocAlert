@@ -438,229 +438,55 @@
                 </div>
             </div>
 
-            <!-- Android Studio SDK 설정 가이드 -->
-            <div class="bg-yellow-900/30 border border-yellow-700 rounded-lg p-4 mb-6">
-                <div class="flex items-start gap-3 mb-3">
-                    <svg class="w-6 h-6 text-yellow-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path>
-                    </svg>
-                    <div class="flex-1">
-                        <p class="text-sm font-semibold text-yellow-300 mb-2">🔧 Android Studio SDK 설정 (필수)</p>
-                        <p class="text-xs text-slate-300 mb-3">keytool 명령어를 사용하기 위해 Android SDK가 필요합니다.</p>
-                        
-                        <div class="bg-slate-800/50 rounded-lg p-3 mb-3">
-                            <p class="text-xs font-medium text-slate-300 mb-2">1. Android Studio 열기</p>
-                            <p class="text-xs text-slate-400 mb-3">Android Studio > Preferences (Mac) 또는 File > Settings (Windows)</p>
-                            
-                            <p class="text-xs font-medium text-slate-300 mb-2">2. SDK Manager 열기</p>
-                            <p class="text-xs text-slate-400 mb-3">Appearance & Behavior > System Settings > Android SDK</p>
-                            
-                            <p class="text-xs font-medium text-slate-300 mb-2">3. 필요한 SDK 설치</p>
-                            <ul class="text-xs text-slate-400 ml-4 list-disc space-y-1 mb-3">
-                                <li>Android SDK Platform-Tools</li>
-                                <li>Android SDK Build-Tools</li>
-                                <li>Android SDK Command-line Tools</li>
-                            </ul>
-                            
-                            <p class="text-xs font-medium text-slate-300 mb-2">4. 환경 변수 설정</p>
-                            <div class="bg-slate-900 rounded p-2 mb-2">
-                                <p class="text-xs text-slate-400 mb-1"><strong>Mac/Linux:</strong></p>
-                                <pre class="text-xs text-green-400">export ANDROID_HOME=$HOME/Library/Android/sdk
-export PATH=$PATH:$ANDROID_HOME/platform-tools
-export PATH=$PATH:$ANDROID_HOME/tools</pre>
-                                <p class="text-xs text-slate-500 mt-1">~/.zshrc 또는 ~/.bash_profile에 추가</p>
-                            </div>
-                            <div class="bg-slate-900 rounded p-2">
-                                <p class="text-xs text-slate-400 mb-1"><strong>Windows:</strong></p>
-                                <pre class="text-xs text-green-400">ANDROID_HOME=C:\Users\YourName\AppData\Local\Android\Sdk
-PATH=%PATH%;%ANDROID_HOME%\platform-tools
-PATH=%PATH%;%ANDROID_HOME%\tools</pre>
-                                <p class="text-xs text-slate-500 mt-1">시스템 환경 변수에 추가</p>
-                            </div>
-                            
-                            <p class="text-xs font-medium text-slate-300 mt-3 mb-2">5. keytool 확인</p>
-                            <div class="bg-slate-900 rounded p-2">
-                                <pre class="text-xs text-green-400">keytool -help</pre>
-                                <p class="text-xs text-slate-500 mt-1">명령어가 작동하면 설정 완료!</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
-            <!-- 시작 전 확인사항 -->
-            <div class="bg-slate-700/50 border border-slate-600 rounded-lg p-4 mb-6">
-                <p class="text-sm font-medium text-slate-300 mb-3">✅ 시작 전 확인사항</p>
-                <ul class="text-xs text-slate-300 space-y-2">
-                    <li class="flex items-center gap-2">
-                        <input type="checkbox" id="check-sdk" class="w-4 h-4 rounded">
-                        <label for="check-sdk">Android Studio SDK 설치 및 환경 변수 설정 완료</label>
-                    </li>
-                    <li class="flex items-center gap-2">
-                        <input type="checkbox" id="check-keytool" class="w-4 h-4 rounded">
-                        <label for="check-keytool">keytool 명령어 작동 확인</label>
-                    </li>
-                    <li class="flex items-center gap-2">
-                        <input type="checkbox" id="check-play-console" class="w-4 h-4 rounded">
-                        <label for="check-play-console">Google Play Console 개발자 계정 있음 (이미 있다고 가정)</label>
-                    </li>
-                    <li class="flex items-center gap-2">
-                        <input type="checkbox" id="check-flutter" class="w-4 h-4 rounded">
-                        <label for="check-flutter">Flutter 프로젝트 준비됨</label>
-                    </li>
-                </ul>
-            </div>
-
-            <!-- Play Console Application ID 확인 가이드 -->
-            <div class="bg-green-900/30 border border-green-700 rounded-lg p-4 mb-6">
-                <div class="flex items-start gap-3 mb-3">
-                    <svg class="w-6 h-6 text-green-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                    <div class="flex-1">
-                        <p class="text-sm font-semibold text-green-300 mb-2">📱 Application ID 확인하기</p>
-                        <p class="text-xs text-slate-300 mb-3">Application ID는 Play Store에서 앱을 식별하는 고유 ID입니다. <strong>한 번 설정하면 변경할 수 없습니다!</strong></p>
-                        
-                        <div class="mb-3">
-                            <a href="https://play.google.com/console" target="_blank" rel="noopener"
-                               class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm font-medium transition">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
-                                </svg>
-                                Google Play Console 열기
-                            </a>
-                        </div>
-                        
-                        <!-- 이미 앱을 만든 경우 -->
-                        <div class="bg-blue-900/30 border border-blue-700 rounded-lg p-3 mb-3">
-                            <p class="text-xs font-semibold text-blue-300 mb-2">✅ 이미 앱을 만든 경우 (대부분의 경우)</p>
-                            <p class="text-xs text-slate-300 mb-2">이미 "이어폰위치알림" 같은 앱을 만들었다면, 아래 방법으로 Application ID를 찾으세요:</p>
-                            
-                            <p class="text-xs font-medium text-slate-300 mt-3 mb-2">📍 방법 1: 앱 목록에서 확인 (가장 빠름)</p>
-                            <ol class="text-xs text-slate-300 space-y-1 ml-3 list-decimal">
-                                <li>Play Console 메인 페이지에서 앱 목록 확인</li>
-                                <li>일부 앱은 이름 아래에 <span class="text-green-400 font-bold">패키지 이름</span>이 표시됨 (예: <code class="bg-slate-700 px-1 rounded">com.alom.romrom</code>)</li>
-                                <li class="text-yellow-400">💡 표시되지 않으면 방법 2로 진행</li>
-                            </ol>
-                            
-                            <p class="text-xs font-medium text-slate-300 mt-3 mb-2">📍 방법 2: 앱 클릭 → 설정에서 확인 (가장 확실함)</p>
-                            <ol class="text-xs text-slate-300 space-y-1 ml-3 list-decimal">
-                                <li>앱 목록에서 <span class="text-yellow-400 font-bold">"이어폰위치알림"</span> 클릭</li>
-                                <li>왼쪽 사이드바에서 <span class="text-yellow-400 font-bold">"설정"</span> (⚙️) 클릭</li>
-                                <li><span class="text-yellow-400 font-bold">"앱 설정"</span> 또는 <span class="text-yellow-400 font-bold">"앱 정보"</span> 클릭</li>
-                                <li><span class="text-green-400 font-bold">"앱 ID"</span> 또는 <span class="text-green-400 font-bold">"패키지 이름"</span>에서 확인</li>
-                                <li class="text-yellow-400 mt-1">💡 예: <code class="bg-slate-700 px-1 rounded">kr.suhsaechan.ear_loc_alert</code></li>
-                            </ol>
-                            
-                            <p class="text-xs font-medium text-slate-300 mt-3 mb-2">📍 방법 3: URL에서 확인</p>
-                            <p class="text-xs text-slate-300 ml-3">
-                                앱 상세 페이지 URL에 <code class="bg-slate-700 px-1 rounded">?id=com.example.app</code> 형식으로 표시됩니다.
-                            </p>
-                        </div>
-                        
-                        <!-- 새로 앱을 만드는 경우 -->
-                        <div class="bg-slate-800/50 rounded-lg p-3 border-t border-slate-700 mt-3">
-                            <p class="text-xs font-semibold text-slate-300 mb-2">🆕 아직 앱을 만들지 않은 경우</p>
-                            <p class="text-xs text-slate-400 mb-2">아직 Play Console에 앱이 없다면 걱정하지 마세요!</p>
-                            <div class="bg-blue-900/30 border border-blue-700 rounded p-2 mb-2">
-                                <p class="text-xs text-blue-300 font-bold mb-1">💡 Application ID는 Play Console에서 설정하는 것이 아닙니다!</p>
-                                <ul class="text-xs text-slate-400 ml-3 list-disc space-y-1">
-                                    <li>Application ID는 <span class="text-green-400 font-bold">Flutter 프로젝트의 build.gradle.kts</span>에 이미 정의되어 있음</li>
-                                    <li>Play Console에서 앱 만들기: 앱 이름, 언어, 유형만 선택하면 끝!</li>
-                                    <li>첫 AAB 업로드 시 Application ID가 자동으로 Play Console에 등록됨</li>
-                                    <li class="text-red-400">⚠️ AAB 업로드 후에는 Application ID 변경 불가!</li>
-                                </ul>
-                            </div>
-                            <p class="text-xs text-slate-500">→ 지금은 프로젝트의 build.gradle.kts에서 Application ID를 확인하세요. Step 4에서 Play Console 앱 생성을 안내합니다.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 프로젝트 경로 입력 -->
+            <!-- 1단계: 프로젝트 경로 입력 -->
             <div class="mb-6">
-                <label class="block text-sm font-medium mb-2 text-slate-300">
-                    Flutter 프로젝트 절대 경로
-                </label>
+                <h3 class="text-lg font-semibold mb-4 flex items-center gap-2">
+                    <span class="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center text-xs font-bold">1</span>
+                    프로젝트 경로 입력
+                </h3>
                 <div class="flex gap-3">
                     <input type="text" id="projectPath"
                         class="flex-1 bg-slate-900 border border-slate-600 rounded-lg px-4 py-2.5 text-sm text-slate-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition"
-                        placeholder="예: /Users/username/my-project 또는 C:\Users\username\my-project"
+                        placeholder="예: /Users/username/my-flutter-project"
                         autocomplete="off">
-                    <button class="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm font-medium transition flex items-center gap-2" onclick="copyPathCommand()" title="터미널 명령어 복사">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
-                        </svg>
-                        경로 복사
+                    <button class="px-4 py-2.5 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm font-medium transition" onclick="copyPathCommand()" title="터미널 명령어 복사">
+                        pwd 복사
                     </button>
                 </div>
-                <div class="mt-2 space-y-1">
-                    <p class="text-xs text-slate-400">
-                        💡 <strong>경로 확인 방법:</strong>
-                    </p>
-                    <ol class="text-xs text-slate-500 ml-4 list-decimal space-y-1">
-                        <li>터미널에서 프로젝트 폴더로 이동</li>
-                        <li>
-                            <code class="bg-slate-700 px-1.5 py-0.5 rounded">pwd</code> (Mac/Linux) 또는 
-                            <code class="bg-slate-700 px-1.5 py-0.5 rounded">(pwd).Path</code> (PowerShell) 실행
-                        </li>
-                        <li>출력된 경로를 복사하여 위 입력 필드에 붙여넣기</li>
-                    </ol>
-                </div>
+                <p class="text-xs text-slate-500 mt-2">💡 터미널에서 <code class="bg-slate-700 px-1 rounded">pwd</code> 실행 후 결과를 붙여넣기</p>
                 <div id="pathValidation" class="hidden mt-2">
                     <p class="text-xs" id="pathValidationMessage"></p>
                 </div>
             </div>
 
-            <!-- Application ID 자동 감지 -->
+            <!-- 2단계: 환경 검사 + Application ID 자동 감지 (한 번에) -->
             <div class="mb-6">
-                <label class="block text-sm font-medium mb-2 text-slate-300">
-                    Application ID (build.gradle.kts에서 자동 감지)
-                    <span class="tooltip-container">
-                        <svg class="w-4 h-4 text-slate-400 tooltip-trigger" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                        <div class="tooltip-content">
-                            <strong>Application ID란?</strong><br>
-                            build.gradle.kts의 applicationId 값입니다.<br><br>
-                            <strong>중요:</strong> Play Console의 Application ID와 일치해야 합니다!
-                        </div>
-                    </span>
-                </label>
-                
-                <!-- 자동 감지 명령어 (프로젝트 경로 입력 시 자동 표시) -->
-                <div id="detectAppIdCommandContainer" class="mb-4">
-                    <div class="bg-blue-900/20 border border-blue-700/50 rounded-lg p-4">
-                        <div class="flex items-start gap-3">
-                            <svg class="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                            <div class="flex-1">
-                                <p class="text-sm font-semibold text-blue-300 mb-2">📋 Application ID 자동 감지</p>
-                                <p class="text-xs text-slate-400 mb-3">프로젝트 경로를 입력하면 아래 명령어가 자동으로 생성됩니다. 터미널에서 실행하여 결과를 붙여넣으세요.</p>
-                                <div class="code-block mb-3">
-                                    <button class="copy-btn absolute top-2 right-2 px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded text-xs text-slate-300 transition" onclick="copyCode(this)">복사</button>
-                                    <pre id="detectAppIdCommand" class="text-xs">프로젝트 경로를 입력하면 명령어가 여기에 표시됩니다...</pre>
-                                </div>
-                                <div class="flex gap-2">
-                                    <textarea id="detectAppIdResult"
-                                        class="flex-1 bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-xs font-mono text-slate-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition"
-                                        rows="2"
-                                        placeholder='명령어 실행 결과를 붙여넣으세요 (예: {"applicationId": "com.example.app"})'></textarea>
-                                    <button onclick="parseDetectedApplicationId()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-xs font-medium transition flex items-center gap-2 whitespace-nowrap">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                        </svg>
-                                        적용
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
+                <h3 class="text-lg font-semibold mb-4 flex items-center gap-2">
+                    <span class="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center text-xs font-bold">2</span>
+                    환경 검사 + Application ID 감지
+                </h3>
+
+                <div class="bg-blue-900/20 border border-blue-700/50 rounded-lg p-4 mb-4">
+                    <p class="text-sm font-semibold text-blue-300 mb-2">📋 아래 명령어를 터미널에서 실행하세요</p>
+                    <p class="text-xs text-slate-400 mb-3">환경 검사와 Application ID 감지를 동시에 수행합니다. 문제가 있으면 자동으로 설정해줍니다.</p>
+                    <div class="code-block mb-3">
+                        <button class="copy-btn absolute top-2 right-2 px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded text-xs text-slate-300 transition" onclick="copyCode(this)">복사</button>
+                        <pre id="detectAppIdCommand" class="text-xs text-green-400">프로젝트 경로를 입력하면 명령어가 자동 생성됩니다...</pre>
+                    </div>
+                    <div class="flex gap-2">
+                        <textarea id="detectAppIdResult"
+                            class="flex-1 bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-xs font-mono text-slate-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition"
+                            rows="3"
+                            placeholder='위 명령어 실행 결과를 여기에 붙여넣으세요...'></textarea>
+                        <button onclick="parseDetectedApplicationId()" class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg text-xs font-medium transition whitespace-nowrap">
+                            적용
+                        </button>
                     </div>
                 </div>
-                
+
                 <!-- 감지된 Application ID 표시 -->
-                <div id="detectedApplicationIdContainer" class="hidden mb-4">
+                <div id="detectedApplicationIdContainer" class="hidden">
                     <div class="bg-green-900/30 border border-green-700 rounded-lg p-4">
                         <div class="flex items-center gap-3">
                             <svg class="w-6 h-6 text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -669,49 +495,10 @@ PATH=%PATH%;%ANDROID_HOME%\tools</pre>
                             <div class="flex-1">
                                 <p class="text-sm font-semibold text-green-300 mb-1">✅ Application ID 감지 완료</p>
                                 <code class="text-green-200 font-mono text-lg" id="detectedAppIdValue"></code>
-                                <p class="text-xs text-slate-400 mt-1">build.gradle.kts에서 자동으로 감지되었습니다.</p>
                             </div>
                         </div>
                     </div>
                 </div>
-                
-                <div class="mt-2 space-y-2">
-                    <p class="text-xs text-slate-500">
-                        💡 <strong>Application ID 자동 감지 방법:</strong>
-                    </p>
-                    <div class="bg-blue-900/20 border border-blue-700/50 rounded p-2">
-                        <p class="text-xs text-green-300 font-bold mb-1">✅ 프로젝트 경로 입력 시 자동으로 감지됩니다</p>
-                        <ol class="text-xs text-slate-400 ml-3 list-decimal space-y-1">
-                            <li>위의 프로젝트 경로 입력 필드에 경로를 입력하세요</li>
-                            <li>자동으로 생성된 명령어를 복사하여 터미널에서 실행하세요</li>
-                            <li>실행 결과를 붙여넣고 "적용" 버튼을 클릭하세요</li>
-                        </ol>
-                        <p class="text-xs text-yellow-400 mt-2">⚠️ 주의: Play Console에서 Application ID를 확인하려면 먼저 AAB를 업로드해야 합니다. 아직 AAB를 업로드하지 않았다면 build.gradle.kts의 applicationId를 사용하세요.</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 체크리스트 -->
-            <div class="bg-slate-700/50 border border-slate-600 rounded-lg p-4 mb-6">
-                <p class="text-sm font-medium text-slate-300 mb-3">✅ Step 1 완료 체크리스트</p>
-                <ul class="text-xs text-slate-300 space-y-2">
-                    <li class="flex items-center gap-2">
-                        <input type="checkbox" id="check-step1-sdk" class="w-4 h-4 rounded">
-                        <label for="check-step1-sdk">Android Studio SDK 설정 완료</label>
-                    </li>
-                    <li class="flex items-center gap-2">
-                        <input type="checkbox" id="check-step1-play-console" class="w-4 h-4 rounded">
-                        <label for="check-step1-play-console">Play Console에서 앱 생성 완료</label>
-                    </li>
-                    <li class="flex items-center gap-2">
-                        <input type="checkbox" id="check-step1-application-id" class="w-4 h-4 rounded">
-                        <label for="check-step1-application-id">Application ID 확인 완료</label>
-                    </li>
-                    <li class="flex items-center gap-2">
-                        <input type="checkbox" id="check-step1-project-path" class="w-4 h-4 rounded">
-                        <label for="check-step1-project-path">프로젝트 경로 입력 완료</label>
-                    </li>
-                </ul>
             </div>
 
             <div class="flex justify-end mt-8">
@@ -731,34 +518,11 @@ PATH=%PATH%;%ANDROID_HOME%\tools</pre>
                 <span class="text-xs font-normal text-green-400 bg-green-500/20 px-2 py-1 rounded">가장 먼저!</span>
             </h2>
 
-            <!-- 설명 -->
-            <div class="bg-green-900/30 border border-green-700 rounded-lg p-4 mb-6">
-                <p class="text-sm text-green-200">
-                    🔑 <strong>Keystore란?</strong> Android 앱에 서명하는 데 사용되는 비밀 키입니다. 앱 업데이트 시 동일한 키로 서명해야 합니다!
-                </p>
-                <p class="text-xs text-slate-400 mt-2">
-                    ⚠️ <strong>중요!</strong> Keystore를 잃어버리면 앱 업데이트가 불가능합니다. 안전하게 백업하세요!
-                </p>
-                <p class="text-xs text-green-300 mt-2 font-bold">
-                    ✨ 이 단계에서는 모든 설정이 자동으로 적용됩니다! 아래 정보를 입력하고 명령어를 실행하세요.
-                </p>
-            </div>
-
-            <!-- .gitignore 자동 설정 안내 -->
-            <div class="bg-yellow-900/30 border border-yellow-700 rounded-lg p-4 mb-6">
-                <div class="flex gap-3">
-                    <svg class="w-6 h-6 text-yellow-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-                    </svg>
-                    <div>
-                        <p class="text-sm font-semibold text-yellow-300 mb-1">🔒 보안: .gitignore 자동 설정</p>
-                        <p class="text-xs text-slate-300">
-                            스크립트가 자동으로 .gitignore를 설정합니다 (있으면 추가, 없으면 생성). 
-                            Keystore 파일이 Git에 커밋되지 않도록 보호합니다.
-                        </p>
-                    </div>
-                </div>
-            </div>
+            <!-- 1단계: Keystore 정보 입력 -->
+            <h3 class="text-lg font-semibold mb-4 flex items-center gap-2">
+                <span class="w-6 h-6 bg-green-600 rounded-full flex items-center justify-center text-xs font-bold">1</span>
+                Keystore 정보 입력
+            </h3>
 
             <!-- Keystore 설정 입력 -->
             <div class="grid md:grid-cols-2 gap-4 mb-6">
@@ -849,137 +613,25 @@ PATH=%PATH%;%ANDROID_HOME%\tools</pre>
                 </div>
             </div>
 
-            <!-- Keystore 생성 스크립트 실행 명령어 -->
+            <!-- Keystore 생성 명령어 -->
             <div class="mb-6">
-                <label class="block text-sm font-medium mb-2 text-slate-300">
-                    Keystore 생성 스크립트 실행
-                    <span class="tooltip-container">
-                        <svg class="w-4 h-4 text-slate-400 tooltip-trigger" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                        <div class="tooltip-content">
-                            <strong>자동화된 설정</strong><br>
-                            이 명령어를 실행하면 다음이 자동으로 처리됩니다:<br>
-                            • .gitignore 설정 (있으면 추가, 없으면 생성)<br>
-                            • Release Keystore 생성<br>
-                            • key.properties 생성<br>
-                            • build.gradle.kts 서명 설정 추가
-                        </div>
-                    </span>
-                </label>
-                <!-- 명령어 자동 생성 (버튼 제거) -->
-                <div id="keystoreCreationCommand" class="">
-                    <p class="text-xs text-slate-400 mb-2">터미널에서 실행할 명령어:</p>
-                    <div class="code-block mb-4">
-                        <button class="copy-btn absolute top-2 right-2 px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded text-xs text-slate-300 transition" onclick="copyCode(this)">복사</button>
-                        <pre id="keystoreCreationCommandText" class="text-xs"></pre>
-                    </div>
-                    
-                    <div class="bg-green-900/30 border border-green-700 rounded-lg p-3 mb-4">
-                        <p class="text-xs text-green-300 font-bold mb-2">✅ 실행 후 자동으로 처리되는 작업:</p>
-                        <ul class="text-xs text-slate-300 space-y-1 list-disc list-inside">
-                            <li>.gitignore 설정 (있으면 추가, 없으면 생성)</li>
-                            <li>Release Keystore 생성 (android/app/keystore/key.jks)</li>
-                            <li>key.properties 생성 (android/key.properties)</li>
-                            <li>build.gradle.kts 서명 설정 추가</li>
-                        </ul>
-                    </div>
-                    
-                    <div class="bg-blue-900/30 border border-blue-700 rounded-lg p-3">
-                        <p class="text-xs text-blue-300 font-bold mb-2">📝 실행 방법:</p>
-                        <ol class="text-xs text-slate-300 space-y-1 list-decimal list-inside">
-                            <li>위 명령어를 복사</li>
-                            <li>터미널에서 실행</li>
-                            <li>완료 메시지 확인</li>
-                            <li>"다음" 버튼 클릭하여 계속 진행</li>
-                        </ol>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Keystore 생성 확인 안내 -->
-            <div class="bg-blue-900/30 border border-blue-700 rounded-lg p-4 mb-6">
-                <div class="flex gap-3">
-                    <svg class="w-6 h-6 text-blue-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                    <div>
-                        <p class="text-sm font-semibold text-blue-300 mb-1">✅ Keystore 생성 확인</p>
-                        <p class="text-xs text-slate-300">
-                            스크립트 실행 후 다음 파일들이 생성되었는지 확인하세요:
-                        </p>
-                        <ul class="text-xs text-slate-400 mt-2 space-y-1 list-disc list-inside">
-                            <li><code class="bg-slate-700 px-1 rounded">android/app/keystore/key.jks</code> (Keystore 파일)</li>
-                            <li><code class="bg-slate-700 px-1 rounded">android/key.properties</code> (서명 정보)</li>
-                            <li><code class="bg-slate-700 px-1 rounded">android/app/build.gradle.kts</code> (서명 설정 추가됨)</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Keystore Base64 인코딩 (GitHub Secrets용) -->
-            <div class="mb-6">
-                <label class="block text-sm font-medium mb-2 text-slate-300">
-                    Keystore 파일 업로드 (GitHub Secrets용 Base64 인코딩)
-                    <span class="tooltip-container">
-                        <svg class="w-4 h-4 text-slate-400 tooltip-trigger" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                        <div class="tooltip-content">
-                            <strong>GitHub Secrets용</strong><br>
-                            생성된 keystore 파일을 업로드하면 Base64로 인코딩됩니다.<br>
-                            이 값은 Step 8에서 GitHub Secrets로 등록해야 합니다.
-                        </div>
-                    </span>
-                </label>
-                <div class="file-upload" id="keystoreUpload" onclick="document.getElementById('keystoreFile').click()">
-                    <input type="file" id="keystoreFile" accept=".jks,.keystore" class="hidden" onchange="handleKeystoreUpload(this)">
-                    <svg class="w-12 h-12 mx-auto text-slate-500 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
-                    </svg>
-                    <p class="text-slate-400">생성된 Keystore 파일을 업로드하세요 (선택사항)</p>
-                    <p class="text-xs text-slate-500 mt-1">💡 스크립트로 생성한 파일: android/app/keystore/key.jks</p>
-                </div>
-            </div>
-
-            <!-- Keystore Base64 결과 -->
-            <div id="keystoreBase64Result" class="hidden mb-6">
-                <div class="bg-green-900/30 border border-green-700 rounded-lg p-4 mb-4">
-                    <div class="flex gap-3">
-                        <svg class="w-6 h-6 text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                        </svg>
-                        <div>
-                            <p class="font-semibold text-green-300">Keystore Base64 인코딩 완료!</p>
-                            <p class="text-sm text-slate-300 mt-1">
-                                아래 값을 <code class="bg-slate-700 px-1 rounded">RELEASE_KEYSTORE_BASE64</code> Secret으로 등록하세요.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-                <div class="code-block">
+                <h3 class="text-lg font-semibold mb-4 flex items-center gap-2">
+                    <span class="w-6 h-6 bg-green-600 rounded-full flex items-center justify-center text-xs font-bold">2</span>
+                    아래 명령어 실행
+                </h3>
+                <div class="code-block mb-4">
                     <button class="copy-btn absolute top-2 right-2 px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded text-xs text-slate-300 transition" onclick="copyCode(this)">복사</button>
-                    <pre id="keystoreBase64" class="max-h-24 overflow-y-auto"></pre>
+                    <pre id="keystoreCreationCommandText" class="text-xs text-green-400"></pre>
                 </div>
+                <p class="text-xs text-slate-500">💡 Keystore 생성, .gitignore 설정, build.gradle.kts 서명 설정이 자동으로 처리됩니다.</p>
             </div>
 
-            <!-- 체크리스트 -->
+            <!-- 생성 확인 -->
             <div class="bg-slate-700/50 border border-slate-600 rounded-lg p-4 mb-6">
-                <p class="text-sm font-medium text-slate-300 mb-3">✅ Step 2 완료 체크리스트</p>
-                <ul class="text-xs text-slate-300 space-y-2">
-                    <li class="flex items-center gap-2">
-                        <input type="checkbox" id="check-step2-command" class="w-4 h-4 rounded">
-                        <label for="check-step2-command">Keystore 생성 명령어 실행 완료</label>
-                    </li>
-                    <li class="flex items-center gap-2">
-                        <input type="checkbox" id="check-step2-keystore" class="w-4 h-4 rounded">
-                        <label for="check-step2-keystore">android/app/keystore/key.jks 파일 생성 확인</label>
-                    </li>
-                    <li class="flex items-center gap-2">
-                        <input type="checkbox" id="check-step2-keyprops" class="w-4 h-4 rounded">
-                        <label for="check-step2-keyprops">android/key.properties 파일 생성 확인</label>
-                    </li>
-                </ul>
+                <p class="text-sm font-medium text-slate-300 mb-2">✅ 실행 후 확인</p>
+                <p class="text-xs text-slate-400">
+                    <code class="bg-slate-800 px-1 rounded">android/app/keystore/key.jks</code> 파일이 생성되었으면 완료!
+                </p>
             </div>
 
             <div class="flex justify-between mt-8">
@@ -1015,9 +667,9 @@ PATH=%PATH%;%ANDROID_HOME%\tools</pre>
                 </label>
                 <div class="code-block mb-3">
                     <button class="copy-btn absolute top-2 right-2 px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded text-xs text-slate-300 transition" onclick="copyCode(this)">복사</button>
-                    <pre id="aabBuildCommandStep3" class="text-green-400">cd [프로젝트경로] && flutter build appbundle --release</pre>
+                    <pre id="aabBuildCommandStep3" class="text-green-400">cd [프로젝트경로] && flutter clean && flutter pub get && flutter build appbundle --release</pre>
                 </div>
-                <p class="text-xs text-slate-400">💡 프로젝트 경로는 Step 1에서 입력한 경로입니다.</p>
+                <p class="text-xs text-slate-400">💡 캐시 정리 → 의존성 설치 → AAB 빌드 순서로 실행됩니다.</p>
             </div>
 
             <!-- 빌드 결과 확인 -->
@@ -1251,6 +903,27 @@ PATH=%PATH%;%ANDROID_HOME%\tools</pre>
                     <li>이제부터 GitHub Actions 자동 배포가 가능해집니다</li>
                     <li>내부 테스트 트랙으로 배포되어 심사 없이 바로 테스터에게 배포 가능</li>
                 </ul>
+            </div>
+
+            <!-- Application ID 확인 방법 (업로드 후) -->
+            <div class="bg-green-900/30 border border-green-700 rounded-lg p-4 mb-6">
+                <p class="text-sm font-semibold text-green-300 mb-2">✅ Application ID 확인하기 (업로드 후)</p>
+                <p class="text-xs text-slate-300 mb-3">AAB를 업로드하면 Application ID가 Play Console에 등록됩니다. 아래 방법으로 확인하세요:</p>
+                <ol class="text-xs text-slate-300 list-decimal list-inside space-y-2">
+                    <li class="pl-2">
+                        Play Console에서 앱 선택 → 왼쪽 메뉴 <span class="text-yellow-400 font-bold">"설정"</span> 클릭
+                    </li>
+                    <li class="pl-2">
+                        <span class="text-yellow-400 font-bold">"앱 정보"</span> 또는 <span class="text-yellow-400 font-bold">"앱 설정"</span> 클릭
+                    </li>
+                    <li class="pl-2">
+                        <span class="text-green-400 font-bold">"앱 ID"</span> 또는 <span class="text-green-400 font-bold">"패키지 이름"</span> 항목에서 확인
+                        <p class="text-slate-400 ml-4 mt-1">예: <code class="bg-slate-700 px-1 rounded text-green-400">kr.suhsaechan.suh_devops_template</code></p>
+                    </li>
+                </ol>
+                <div class="mt-3 p-2 bg-slate-800/50 rounded">
+                    <p class="text-xs text-slate-400">💡 이 Application ID가 Flutter 프로젝트의 <code class="text-green-400">build.gradle.kts</code>에 정의된 값과 일치해야 합니다!</p>
+                </div>
             </div>
 
             <!-- 체크리스트 -->

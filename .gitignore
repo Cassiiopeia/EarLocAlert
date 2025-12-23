@@ -71,3 +71,6 @@ android/app/keystore/
 
 # Play Store CI/CD - 민감한 파일 (자동 생성됨)
 .env.*.local
+
+# FVM Version Cache
+.fvm/

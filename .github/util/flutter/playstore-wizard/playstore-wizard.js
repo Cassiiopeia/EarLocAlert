@@ -723,26 +723,34 @@ function initializeStep(stepNumber) {
             // Step 3: AAB 빌드
             // 프로젝트 경로 기반 AAB 빌드 명령어 생성
             if (state.projectPath) {
-                const aabBuildCommand = document.getElementById('aabBuildCommand');
-                const aabOutputPath = document.getElementById('aabOutputPath');
+                const aabBuildCommand = document.getElementById('aabBuildCommandStep3');
+                const aabOutputPath = document.getElementById('aabOutputPathStep3');
+                const aabCheckCommand = document.getElementById('aabCheckCommand');
                 const projectPath = state.projectPath;
+                const os = state.detectedOS || 'mac';
 
                 if (aabBuildCommand) {
-                    const os = state.detectedOS || 'mac';
                     if (os === 'windows') {
                         const winPath = projectPath.replace(/\//g, '\\');
-                        aabBuildCommand.textContent = `cd "${winPath}" && flutter build appbundle --release`;
+                        aabBuildCommand.textContent = `cd "${winPath}" && flutter clean && flutter pub get && flutter build appbundle --release`;
                     } else {
-                        aabBuildCommand.textContent = `cd "${projectPath}" && flutter build appbundle --release`;
+                        aabBuildCommand.textContent = `cd "${projectPath}" && flutter clean && flutter pub get && flutter build appbundle --release`;
                     }
                 }
                 if (aabOutputPath) {
-                    const os = state.detectedOS || 'mac';
                     if (os === 'windows') {
                         const winPath = projectPath.replace(/\//g, '\\');
                         aabOutputPath.textContent = `${winPath}\\build\\app\\outputs\\bundle\\release\\app-release.aab`;
                     } else {
                         aabOutputPath.textContent = `${projectPath}/build/app/outputs/bundle/release/app-release.aab`;
+                    }
+                }
+                if (aabCheckCommand) {
+                    if (os === 'windows') {
+                        const winPath = projectPath.replace(/\//g, '\\');
+                        aabCheckCommand.textContent = `dir "${winPath}\\build\\app\\outputs\\bundle\\release\\"`;
+                    } else {
+                        aabCheckCommand.textContent = `ls -lah "${projectPath}/build/app/outputs/bundle/release/"`;
                     }
                 }
             }
@@ -752,7 +760,7 @@ function initializeStep(stepNumber) {
             // Application ID에서 앱 이름 추출하여 표시
             if (state.applicationId) {
                 const appName = state.applicationId.split('.').pop() || state.applicationId;
-                // camelCase/snake_case를 읽기 좋게 변환 (ear_loc_alert -> EarLocAlert)
+                // camelCase/snake_case를 읽기 좋게 변환 (suh_devops_template -> SuhDevopsTemplate)
                 const formattedName = appName
                     .split(/[_-]/)
                     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
@@ -915,7 +923,7 @@ function resetWizard() {
         // Application ID 입력 필드 placeholder 복원
         const applicationIdInput = document.getElementById('applicationId');
         if (applicationIdInput) {
-            applicationIdInput.placeholder = '예: com.example.app 또는 kr.suhsaechan.ear_loc_alert';
+            applicationIdInput.placeholder = '예: com.example.app 또는 kr.suhsaechan.suh_devops_template';
         }
         
         // 유효기간 초기화
