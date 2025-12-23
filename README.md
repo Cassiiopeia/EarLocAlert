@@ -1,4 +1,4 @@
-# EarLocAlert
+﻿# EarLocAlert
 
 [![Version](https://img.shields.io/badge/version-1.2.6-blue.svg)](https://github.com/Cassiiopeia/EarLocAlert)
 [![Flutter](https://img.shields.io/badge/Flutter-3.35.5-02569B?logo=flutter)](https://flutter.dev)
