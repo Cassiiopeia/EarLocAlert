@@ -75,6 +75,54 @@ function Write-Error {
     Write-Host "ERROR $Message" -ForegroundColor Red
 }
 
+# 파일을 사용 중인 프로세스 찾기 및 종료
+function Stop-ProcessesUsingFile {
+    param([string]$FilePath)
+    
+    if (-not (Test-Path $FilePath)) {
+        return $false
+    }
+    
+    Write-Info "Finding processes using file: $FilePath"
+    
+    # 현재 프로세스 ID 저장 (자기 자신을 종료하지 않도록)
+    $currentProcessId = $PID
+    $processesKilled = $false
+    
+    # 모든 Java/Gradle 프로세스 종료 (관리자 권한으로 실행 시 효과적)
+    Write-Warning "Attempting to kill all Java/Gradle processes..."
+    foreach ($procName in @("java", "javaw", "gradle", "gradlew")) {
+        try {
+            $procs = Get-Process -Name $procName -ErrorAction SilentlyContinue
+            foreach ($proc in $procs) {
+                try {
+                    # 현재 프로세스는 제외
+                    if ($proc.Id -eq $currentProcessId) {
+                        continue
+                    }
+                    
+                    Write-Warning "Killing $procName process: PID $($proc.Id)"
+                    Stop-Process -Id $proc.Id -Force -ErrorAction Stop
+                    $processesKilled = $true
+                    Start-Sleep -Milliseconds 500
+                } catch {
+                    # 프로세스가 이미 종료되었을 수 있음
+                }
+            }
+        } catch {
+            # 프로세스가 없을 수 있음
+        }
+    }
+    
+    if ($processesKilled) {
+        Write-Info "Processes killed. Waiting 5 seconds for file handles to be released..."
+        Start-Sleep -Seconds 5
+        return $true
+    }
+    
+    return $false
+}
+
 # Validation
 function Validate-Parameters {
     if (-not (Test-Path $ProjectPath)) {
@@ -265,6 +313,9 @@ function Commit-GitignoreChanges {
     }
 }
 
+# 전역 변수: keystore 생성 스킵 여부
+$script:KeystoreSkipped = $false
+
 # Create Keystore
 function Create-Keystore {
     Write-Step "Creating Keystore..."
@@ -277,17 +328,61 @@ function Create-Keystore {
     }
     
     if (Test-Path $keystorePath) {
-        Write-Warning "Existing keystore found: $keystorePath"
-        $response = Read-Host "Overwrite? (y/N)"
-        if ($response -ne 'y') {
-            Write-Info "Keystore creation skipped"
-            return
+        Write-Info "Existing keystore found: $keystorePath"
+        Write-Info "Overwriting existing keystore..."
+        
+        # 기존 keystore에서 alias 삭제 시도
+        Write-Info "Attempting to delete existing alias from keystore..."
+        try {
+            $deleteArgs = @(
+                "-delete"
+                "-alias", $KeyAlias
+                "-keystore", $keystorePath
+                "-storepass", $StorePassword
+            )
+            $deleteOutput = & keytool $deleteArgs 2>&1
+            $deleteExitCode = $LASTEXITCODE
+            
+            if ($deleteExitCode -eq 0) {
+                Write-Info "Existing alias deleted from keystore successfully"
+            } else {
+                Write-Warning "Failed to delete alias from keystore (may not exist or wrong password): $deleteOutput"
+            }
+        } catch {
+            Write-Warning "Error deleting alias from keystore: $($_.Exception.Message)"
         }
         
+        # 파일 삭제 시도
         $backupPath = "$keystorePath.bak"
-        # 백업 후 원본 삭제 (Bash의 mv와 동일한 동작으로 alias 충돌 방지)
-        Move-Item $keystorePath $backupPath -Force
-        Write-Info "Existing keystore backed up: $backupPath"
+        try {
+            # 백업 파일이 있으면 삭제
+            if (Test-Path $backupPath) {
+                Remove-Item $backupPath -Force -ErrorAction SilentlyContinue
+            }
+            
+            # Move-Item 시도
+            Move-Item $keystorePath $backupPath -Force -ErrorAction Stop
+            Write-Info "Existing keystore backed up: $backupPath"
+        } catch {
+            # 파일이 잠겨있으면 프로세스 종료 후 재시도
+            Write-Warning "Failed to move keystore file. Attempting to kill processes using the file..."
+            $processesKilled = Stop-ProcessesUsingFile -FilePath $keystorePath
+            
+            if ($processesKilled) {
+                try {
+                    Remove-Item $keystorePath -Force -ErrorAction Stop
+                    Write-Info "Existing keystore deleted after killing processes"
+                } catch {
+                    Write-Error "Failed to delete keystore after killing processes: $($_.Exception.Message)"
+                    Write-Error "Please manually delete the file or close programs using it: $keystorePath"
+                    exit 1
+                }
+            } else {
+                Write-Error "Failed to delete keystore file: $keystorePath"
+                Write-Error "Please manually delete the file or close programs using it."
+                exit 1
+            }
+        }
     }
     
     $dname = "CN=$CertCN, O=$CertO, L=$CertL, C=$CertC"
@@ -337,11 +432,51 @@ function Create-Keystore {
 function Create-KeyProperties {
     Write-Step "Creating key.properties..."
     
+    # keystore 생성이 스킵되었으면 key.properties도 스킵
+    if ($script:KeystoreSkipped) {
+        Write-Warning "key.properties creation skipped (keystore was not overwritten)"
+        Write-Warning "⚠️ 기존 keystore를 사용하므로 key.properties의 비밀번호를 수동으로 확인하세요!"
+        Write-Warning "   기존 keystore의 비밀번호를 android/key.properties에 입력해야 합니다."
+        Write-Warning "   또는 Step 2로 돌아가서 keystore를 덮어쓰기(y)로 다시 생성하세요."
+        return
+    }
+    
     $keyPropertiesPath = Join-Path $ProjectPath "android\key.properties"
     
     if (Test-Path $keyPropertiesPath) {
-        Copy-Item $keyPropertiesPath "$keyPropertiesPath.bak" -Force
-        Write-Warning "Existing key.properties backed up: $keyPropertiesPath.bak"
+        Write-Info "Existing key.properties found. Overwriting..."
+        $backupPath = "$keyPropertiesPath.bak"
+        
+        # 기존 파일 백업 및 삭제 시도
+        try {
+            # 백업 파일이 있으면 삭제
+            if (Test-Path $backupPath) {
+                Remove-Item $backupPath -Force -ErrorAction SilentlyContinue
+            }
+            
+            # 백업 후 원본 삭제
+            Copy-Item $keyPropertiesPath $backupPath -Force -ErrorAction Stop
+            Remove-Item $keyPropertiesPath -Force -ErrorAction Stop
+            Write-Info "Existing key.properties backed up: $backupPath"
+        } catch {
+            # 파일이 잠겨있으면 프로세스 종료 후 재시도
+            Write-Warning "Failed to backup/delete key.properties. Attempting to kill processes using the file..."
+            $processesKilled = Stop-ProcessesUsingFile -FilePath $keyPropertiesPath
+            
+            if ($processesKilled) {
+                try {
+                    Remove-Item $keyPropertiesPath -Force -ErrorAction Stop
+                } catch {
+                    Write-Error "Failed to delete key.properties after killing processes: $($_.Exception.Message)"
+                    Write-Error "Please manually delete the file or close programs using it: $keyPropertiesPath"
+                    exit 1
+                }
+            } else {
+                Write-Error "Failed to delete key.properties: $keyPropertiesPath"
+                Write-Error "Please manually delete the file or close programs using it."
+                exit 1
+            }
+        }
     }
     
     $content = @"
@@ -351,7 +486,43 @@ keyAlias=$KeyAlias
 storeFile=app/keystore/key.jks
 "@
     
-    Set-Content $keyPropertiesPath $content -Encoding UTF8
+    # 파일 쓰기 시도
+    try {
+        Set-Content $keyPropertiesPath $content -Encoding UTF8 -ErrorAction Stop
+    } catch {
+        # 파일이 잠겨있으면 프로세스 종료 후 재시도
+        Write-Warning "Failed to write key.properties. Attempting to kill processes using the file..."
+        $processesKilled = Stop-ProcessesUsingFile -FilePath $keyPropertiesPath
+        
+        if ($processesKilled) {
+            try {
+                Set-Content $keyPropertiesPath $content -Encoding UTF8 -ErrorAction Stop
+                Write-Info "key.properties written successfully after killing processes"
+            } catch {
+                Write-Error "Failed to write key.properties after killing processes: $($_.Exception.Message)"
+                Write-Error "The file may still be locked. Please manually close any programs using this file and try again."
+                exit 1
+            }
+        } else {
+            Write-Error "Failed to write key.properties: $($_.Exception.Message)"
+            Write-Error "The file may be locked by another process. Please close any programs using this file and try again."
+            exit 1
+        }
+    }
+    
+    # 파일이 제대로 생성되었는지 확인
+    if (-not (Test-Path $keyPropertiesPath)) {
+        Write-Error "key.properties file was not created: $keyPropertiesPath"
+        exit 1
+    }
+    
+    # 파일 내용 확인
+    $fileContent = Get-Content $keyPropertiesPath -Raw -ErrorAction SilentlyContinue
+    if (-not $fileContent -or $fileContent -notmatch "storePassword") {
+        Write-Error "key.properties file exists but content is invalid: $keyPropertiesPath"
+        exit 1
+    }
+    
     Write-Success "key.properties created successfully: $keyPropertiesPath"
     Write-Info "  - Store Password: $StorePassword"
     Write-Info "  - Key Alias: $KeyAlias"
@@ -417,6 +588,12 @@ if (keystorePropertiesFile.exists()) {
             $content = $content -replace $pattern, ('$1' + $signingConfigsBlock)
             Write-Info "signingConfigs block added"
         }
+    } else {
+        # Fix existing storeFile path if it uses file(it) instead of rootProject.file(it)
+        if ($content -match 'storeFile\s*=\s*keystoreProperties\["storeFile"\]\?\.let\s*\{\s*file\(it\)\s*\}') {
+            $content = $content -replace 'storeFile\s*=\s*keystoreProperties\["storeFile"\]\?\.let\s*\{\s*file\(it\)\s*\}', 'storeFile = keystoreProperties["storeFile"]?.let { rootProject.file(it) }'
+            Write-Info "Fixed storeFile path to use rootProject.file(it)"
+        }
     }
     
     # Add signingConfig to release buildType
@@ -431,6 +608,23 @@ if (keystorePropertiesFile.exists()) {
                 Write-Info "release buildType signingConfig added"
             } else {
                 Write-Warning "release buildType not found. Manual addition may be required."
+            }
+        }
+    }
+    
+    # Fix flutter.source to point to project root
+    # Flutter Gradle plugin needs to find lib/main.dart from project root, not android/app
+    if ($content -match "flutter\s*\{") {
+        # Check if source is already set to "../.."
+        if ($content -notmatch 'flutter\s*\{\s*[^}]*source\s*=\s*"\.\.\/\.\."') {
+            # Replace source = "." with source = "../.."
+            if ($content -match 'flutter\s*\{[^}]*source\s*=\s*"\."') {
+                $content = $content -replace '(flutter\s*\{[^}]*source\s*=\s*)"\."', '$1"../.."'
+                Write-Info "flutter.source updated to '../..' (project root)"
+            } elseif ($content -match 'flutter\s*\{') {
+                # Add source if flutter block exists but source is not set
+                $content = $content -replace '(flutter\s*\{)', '$1' + [System.Environment]::NewLine + '    source = "../.."'
+                Write-Info "flutter.source added as '../..' (project root)"
             }
         }
     }

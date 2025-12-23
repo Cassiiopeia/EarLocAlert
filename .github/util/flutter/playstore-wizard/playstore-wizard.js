@@ -503,7 +503,18 @@ function updateCommandsForOS() {
         if (windowsCommandEl) {
             windowsCommandEl.textContent = `cd "${winPath}"; powershell -ExecutionPolicy Bypass -File .github\\util\\flutter\\playstore-wizard\\playstore-wizard-setup.ps1`;
         }
+        
+        // Windows 사용자에게 관리자 권한 안내 표시
+        const adminWarningEl = document.getElementById('adminWarningWindows');
+        if (adminWarningEl) {
+            adminWarningEl.classList.remove('hidden');
+        }
     } else {
+        // Mac/Linux에서는 관리자 권한 안내 숨김
+        const adminWarningEl = document.getElementById('adminWarningWindows');
+        if (adminWarningEl) {
+            adminWarningEl.classList.add('hidden');
+        }
         // Mac/Linux 표시
         if (macSection) macSection.style.display = 'block';
         if (windowsSection) windowsSection.style.display = 'none';
@@ -721,6 +732,19 @@ function initializeStep(stepNumber) {
             break;
         case 3:
             // Step 3: AAB 빌드
+            // Windows 사용자에게 파일 잠금 안내 표시
+            if (state.detectedOS === 'windows') {
+                const fileLockErrorEl = document.getElementById('fileLockErrorWindows');
+                if (fileLockErrorEl) {
+                    fileLockErrorEl.classList.remove('hidden');
+                }
+            } else {
+                const fileLockErrorEl = document.getElementById('fileLockErrorWindows');
+                if (fileLockErrorEl) {
+                    fileLockErrorEl.classList.add('hidden');
+                }
+            }
+            
             // 프로젝트 경로 기반 AAB 빌드 명령어 생성
             if (state.projectPath) {
                 const aabBuildCommand = document.getElementById('aabBuildCommandStep3');
@@ -732,7 +756,13 @@ function initializeStep(stepNumber) {
                 if (aabBuildCommand) {
                     if (os === 'windows') {
                         const winPath = projectPath.replace(/\//g, '\\');
-                        aabBuildCommand.textContent = `cd "${winPath}"; flutter clean; flutter pub get; flutter build appbundle --release`;
+                        // 각 명령어를 개별 라인으로 분리하여 순차 실행
+                        // PowerShell에서 여러 줄 선택 후 실행 가능 (Shift+Enter 또는 선택 후 Enter)
+                        // 각 명령어 전에 cd로 디렉토리 재설정하여 작업 디렉토리 보장
+                        aabBuildCommand.textContent = `cd "${winPath}"
+cd "${winPath}"; flutter clean
+cd "${winPath}"; flutter pub get
+cd "${winPath}"; flutter build appbundle --release`;
                     } else {
                         aabBuildCommand.textContent = `cd "${projectPath}" && flutter clean && flutter pub get && flutter build appbundle --release`;
                     }

@@ -624,6 +624,28 @@
                     <pre id="keystoreCreationCommandText" class="text-xs text-green-400"></pre>
                 </div>
                 <p class="text-xs text-slate-500">💡 Keystore 생성, .gitignore 설정, build.gradle.kts 서명 설정이 자동으로 처리됩니다.</p>
+                
+                <!-- Windows 사용자에게만 표시되는 관리자 권한 안내 -->
+                <div id="adminWarningWindows" class="hidden bg-yellow-900/30 border border-yellow-700 rounded-lg p-4 mt-4">
+                    <div class="flex items-start gap-3">
+                        <svg class="w-5 h-5 text-yellow-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                        </svg>
+                        <div class="flex-1">
+                            <p class="text-sm font-semibold text-yellow-200 mb-1">⚠️ 파일 잠금 오류 발생 시</p>
+                            <p class="text-xs text-yellow-300 mb-2">
+                                "파일은 다른 프로세스에서 사용 중이므로 프로세스에서 액세스할 수 없습니다" 오류가 발생하면:
+                            </p>
+                            <ol class="text-xs text-yellow-200 list-decimal list-inside space-y-1 ml-2">
+                                <li>PowerShell을 <strong class="text-yellow-400">관리자 권한으로 실행</strong> (우클릭 → "관리자 권한으로 실행")</li>
+                                <li>동일한 명령어를 다시 실행</li>
+                            </ol>
+                            <p class="text-xs text-yellow-300 mt-2">
+                                💡 관리자 권한이 없어도 대부분의 경우 정상 작동합니다. 문제 발생 시에만 필요합니다.
+                            </p>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- 생성 확인 -->
@@ -695,11 +717,37 @@
             <!-- 빌드 오류 시 -->
             <div class="bg-red-900/30 border border-red-700 rounded-lg p-4 mb-6">
                 <p class="text-sm font-semibold text-red-300 mb-2">⚠️ 빌드 오류가 발생하면?</p>
-                <ul class="text-xs text-slate-300 space-y-1 list-disc list-inside">
-                    <li>Step 2의 Keystore 설정이 올바른지 확인</li>
-                    <li><code class="bg-slate-700 px-1 rounded">flutter clean</code> 후 다시 빌드</li>
-                    <li><code class="bg-slate-700 px-1 rounded">android/key.properties</code> 경로 확인</li>
-                </ul>
+                
+                <!-- Keystore 비밀번호 오류 -->
+                <div class="mb-3 p-2 bg-red-800/50 rounded border-l-4 border-red-500">
+                    <p class="text-xs font-semibold text-red-200 mb-1">🔑 "keystore password was incorrect" 오류인 경우:</p>
+                    <ul class="text-xs text-slate-300 space-y-1 list-disc list-inside ml-2">
+                        <li>기존 keystore 파일이 다른 비밀번호로 생성되었을 수 있습니다</li>
+                        <li>해결 방법: Step 2로 돌아가서 keystore를 다시 생성하거나, 기존 keystore의 올바른 비밀번호를 <code class="bg-slate-700 px-1 rounded">android/key.properties</code>에 입력</li>
+                        <li><code class="bg-slate-700 px-1 rounded">android/key.properties</code> 파일의 <code class="bg-slate-700 px-1 rounded">storePassword</code>와 <code class="bg-slate-700 px-1 rounded">keyPassword</code> 확인</li>
+                    </ul>
+                </div>
+                
+                <!-- 파일 잠금 오류 (Windows) -->
+                <div id="fileLockErrorWindows" class="hidden mb-3 p-2 bg-red-800/50 rounded border-l-4 border-red-500">
+                    <p class="text-xs font-semibold text-red-200 mb-1">🔒 "파일은 다른 프로세스에서 사용 중이므로 프로세스에서 액세스할 수 없습니다" 오류인 경우:</p>
+                    <ul class="text-xs text-slate-300 space-y-1 list-disc list-inside ml-2">
+                        <li>PowerShell을 <strong class="text-red-400">관리자 권한으로 실행</strong> (우클릭 → "관리자 권한으로 실행")</li>
+                        <li>Step 2의 명령어를 관리자 권한 PowerShell에서 다시 실행</li>
+                        <li>또는 Android Studio, IntelliJ IDEA 등 IDE를 종료한 후 다시 시도</li>
+                    </ul>
+                </div>
+                
+                <!-- 일반 빌드 오류 -->
+                <div class="mb-3">
+                    <p class="text-xs font-semibold text-slate-200 mb-1">📋 기타 빌드 오류:</p>
+                    <ul class="text-xs text-slate-300 space-y-1 list-disc list-inside ml-2">
+                        <li>Step 2의 Keystore 설정이 올바른지 확인</li>
+                        <li><code class="bg-slate-700 px-1 rounded">flutter clean</code> 후 다시 빌드</li>
+                        <li><code class="bg-slate-700 px-1 rounded">android/key.properties</code> 파일 존재 및 경로 확인</li>
+                        <li><code class="bg-slate-700 px-1 rounded">android/app/keystore/key.jks</code> 파일 존재 확인</li>
+                    </ul>
+                </div>
             </div>
 
             <!-- 체크리스트 -->
