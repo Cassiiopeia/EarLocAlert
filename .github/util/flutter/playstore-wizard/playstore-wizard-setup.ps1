@@ -285,8 +285,9 @@ function Create-Keystore {
         }
         
         $backupPath = "$keystorePath.bak"
-        Copy-Item $keystorePath $backupPath -Force
-        Write-Info "Existing keystore backed up: $keystorePath.bak"
+        # 백업 후 원본 삭제 (Bash의 mv와 동일한 동작으로 alias 충돌 방지)
+        Move-Item $keystorePath $backupPath -Force
+        Write-Info "Existing keystore backed up: $backupPath"
     }
     
     $dname = "CN=$CertCN, O=$CertO, L=$CertL, C=$CertC"
