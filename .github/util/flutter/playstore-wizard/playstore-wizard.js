@@ -732,7 +732,7 @@ function initializeStep(stepNumber) {
                 if (aabBuildCommand) {
                     if (os === 'windows') {
                         const winPath = projectPath.replace(/\//g, '\\');
-                        aabBuildCommand.textContent = `cd "${winPath}" && flutter clean && flutter pub get && flutter build appbundle --release`;
+                        aabBuildCommand.textContent = `cd "${winPath}"; flutter clean; flutter pub get; flutter build appbundle --release`;
                     } else {
                         aabBuildCommand.textContent = `cd "${projectPath}" && flutter clean && flutter pub get && flutter build appbundle --release`;
                     }
