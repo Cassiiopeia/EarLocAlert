@@ -50,3 +50,34 @@ app.*.map.json
 
 # VS Code (commented out by default - uncomment if needed)
 #.vscode/
+
+# Play Store Keystore (자동 생성됨)
+android/key.properties
+
+# Play Store Keystore (자동 생성됨)
+android/app/keystore/
+
+# Play Store Keystore (자동 생성됨)
+*.jks
+
+# Play Store Keystore (자동 생성됨)
+*.keystore
+
+# Play Store CI/CD - 민감한 파일 (자동 생성됨)
+.env
+
+# Play Store CI/CD - 민감한 파일 (자동 생성됨)
+.env.local
+
+# Play Store CI/CD - 민감한 파일 (자동 생성됨)
+.env.*.local
+
+# FVM Version Cache
+.fvm/
+
+# Android signing
+android/app/keystore/*.jks
+android/app/keystore/*.keystore
+
+# Report files (internal documentation)
+.report/
