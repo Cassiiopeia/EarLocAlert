@@ -1,11 +1,46 @@
 {
   "metadata": {
-    "lastUpdated": "2025-12-01T15:38:50Z",
-    "currentVersion": "1.2.2",
+    "lastUpdated": "2026-01-07T15:19:10Z",
+    "currentVersion": "1.2.12",
     "projectType": "flutter",
-    "totalReleases": 23
+    "totalReleases": 24
   },
   "releases": [
+    {
+      "version": "1.2.12",
+      "project_type": "flutter",
+      "date": "2026-01-07",
+      "pr_number": 39,
+      "raw_summary": "## Summary by CodeRabbit\n\n## 릴리스 노트\n\n* **새로운 기능**\n  * OAuth 설정 마법사 추가 (여러 OAuth 제공자 지원)\n  * Play Store 배포 설정 자동화 마법사 추가\n  * Android 릴리스 서명 및 키스토어 자동 구성\n  * TestFlight 배포 마법사 개선\n\n* **설정 및 구성**\n  * 프로젝트 버전을 1.2.12로 업데이트\n  * Android 빌드 설정에 키스토어 관리 통합\n  * Fastlane 배포 자동화 설정 추가\n  * .gitignore에 민감한 파일 패턴 추가\n\n* **Chores**\n  * Flutter/Dart SDK 호환성 범위 확대\n  * CI/CD 워크플로우 경로 업데이트",
+      "parsed_changes": {
+        "새로운_기능": {
+          "title": "새로운 기능",
+          "items": [
+            "OAuth 설정 마법사 추가 (여러 OAuth 제공자 지원)",
+            "Play Store 배포 설정 자동화 마법사 추가",
+            "Android 릴리스 서명 및 키스토어 자동 구성",
+            "TestFlight 배포 마법사 개선"
+          ]
+        },
+        "설정_및_구성": {
+          "title": "설정 및 구성",
+          "items": [
+            "프로젝트 버전을 1.2.12로 업데이트",
+            "Android 빌드 설정에 키스토어 관리 통합",
+            "Fastlane 배포 자동화 설정 추가",
+            ".gitignore에 민감한 파일 패턴 추가"
+          ]
+        },
+        "chores": {
+          "title": "Chores",
+          "items": [
+            "Flutter/Dart SDK 호환성 범위 확대",
+            "CI/CD 워크플로우 경로 업데이트"
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "1.2.2",
       "project_type": "flutter",
