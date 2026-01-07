@@ -28,6 +28,7 @@ function detectOS() {
 
 const state = {
     currentStep: 1,
+    maxReachedStep: 1, // 도달한 최대 단계 (이전 단계로 돌아가도 유지)
     totalSteps: 7, // Step 1~7 (프로젝트, Keystore, AAB 빌드, 앱 생성, AAB 업로드, Service Account, 완료)
     projectPath: '',
     detectedOS: 'mac', // OS 감지 결과
@@ -85,6 +86,14 @@ function loadState() {
             // currentStep이 totalSteps를 초과하면 보정
             if (state.currentStep > state.totalSteps) {
                 state.currentStep = state.totalSteps;
+            }
+
+            // maxReachedStep이 없거나 잘못된 경우 보정 (이전 버전 호환)
+            if (!state.maxReachedStep || state.maxReachedStep < state.currentStep) {
+                state.maxReachedStep = state.currentStep;
+            }
+            if (state.maxReachedStep > state.totalSteps) {
+                state.maxReachedStep = state.totalSteps;
             }
 
             restoreUIFromState();
@@ -183,12 +192,6 @@ function restoreUIFromState() {
             const p = upload.querySelector('p');
             if (p) p.textContent = '✅ Service Account 파일 로드됨';
         }
-        const result = document.getElementById('serviceAccountBase64Result');
-        if (result) {
-            result.classList.remove('hidden');
-            const pre = document.getElementById('serviceAccountBase64');
-            if (pre) pre.textContent = state.serviceAccountBase64;
-        }
     }
 
     // Project Info 복원
@@ -284,7 +287,6 @@ async function handleKeystoreUpload(input) {
     try {
         state.keystoreBase64 = await fileToBase64(file);
 
-        document.getElementById('keystoreBase64').textContent = state.keystoreBase64;
         document.getElementById('keystoreBase64Result').classList.remove('hidden');
         document.getElementById('keystoreUpload').classList.add('has-file');
         document.getElementById('keystoreUpload').querySelector('p').textContent = `✅ ${file.name} (${(file.size/1024).toFixed(1)}KB)`;
@@ -311,8 +313,6 @@ async function handleServiceAccountUpload(input) {
         reader.onload = function(e) {
             state.serviceAccountBase64 = btoa(e.target.result);
 
-            document.getElementById('serviceAccountBase64').textContent = state.serviceAccountBase64;
-            document.getElementById('serviceAccountBase64Result').classList.remove('hidden');
             document.getElementById('serviceAccountUpload').classList.add('has-file');
             document.getElementById('serviceAccountUpload').querySelector('p').textContent = `✅ ${file.name}`;
 
@@ -322,6 +322,42 @@ async function handleServiceAccountUpload(input) {
         reader.readAsText(file);
     } catch (error) {
         showToast('❌ 파일 읽기 실패: ' + error.message);
+    }
+}
+
+// 서비스 계정 이메일 복사
+function copyServiceAccountEmail() {
+    const emailInput = document.getElementById('serviceAccountEmail');
+    const email = emailInput ? emailInput.value : '';
+
+    if (email) {
+        navigator.clipboard.writeText(email).then(() => {
+            showToast('📋 이메일이 복사되었습니다!');
+        }).catch(() => {
+            // Fallback for older browsers
+            emailInput.select();
+            document.execCommand('copy');
+            showToast('📋 이메일이 복사되었습니다!');
+        });
+    } else {
+        showToast('⚠️ 이메일을 먼저 입력하세요');
+    }
+}
+
+// Step 3 이메일 입력 → Step 6 확인 팝업에 자동 반영
+function updateStep6Email() {
+    const emailInput = document.getElementById('serviceAccountEmail');
+    const step6Display = document.getElementById('step6EmailDisplay');
+
+    if (emailInput && step6Display) {
+        const email = emailInput.value;
+        if (email && email.length > 0) {
+            // 이메일이 너무 길면 축약
+            const displayEmail = email.length > 25 ? email.substring(0, 22) + '...' : email;
+            step6Display.textContent = displayEmail;
+        } else {
+            step6Display.textContent = 'your-bot@project.iam...';
+        }
     }
 }
 
@@ -644,22 +680,26 @@ function updateProgress() {
         const circle = indicator.querySelector('.step-circle');
         const label = indicator.querySelector('span:last-child');
 
-        if (stepNum < state.currentStep) {
-            // 완료된 스텝
-            circle.className = 'step-circle w-8 h-8 rounded-full bg-green-500 text-white flex items-center justify-center font-bold text-xs z-10 shadow-lg';
-            circle.innerHTML = '✓';
-            if (label) label.className = 'text-[9px] mt-1 text-green-400 text-center hidden md:block';
-        } else if (stepNum === state.currentStep) {
-            // 현재 스텝 - 파랑-보라 그라데이션
+        if (stepNum === state.currentStep) {
+            // 현재 보고 있는 스텝 - 파랑-보라 그라데이션
             circle.className = 'step-circle w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 text-white flex items-center justify-center font-bold text-xs z-10 shadow-lg shadow-blue-500/30';
             circle.innerHTML = stepNum;
             if (label) label.className = 'text-[9px] mt-1 text-blue-400 text-center hidden md:block';
+        } else if (stepNum <= state.maxReachedStep) {
+            // 방문한 적 있는 스텝 - 초록 체크
+            circle.className = 'step-circle w-8 h-8 rounded-full bg-green-500 text-white flex items-center justify-center font-bold text-xs z-10 shadow-lg';
+            circle.innerHTML = '✓';
+            if (label) label.className = 'text-[9px] mt-1 text-green-400 text-center hidden md:block';
         } else {
-            // 아직 안 한 스텝
+            // 아직 방문 안한 스텝 - 회색
             circle.className = 'step-circle w-8 h-8 rounded-full bg-slate-700 text-slate-400 flex items-center justify-center font-bold text-xs z-10';
             circle.innerHTML = stepNum;
             if (label) label.className = 'text-[9px] mt-1 text-slate-500 text-center hidden md:block';
         }
+
+        // 클릭하여 해당 스텝으로 이동 가능
+        indicator.style.cursor = 'pointer';
+        indicator.onclick = () => goToStep(stepNum);
     });
 }
 
@@ -892,6 +932,10 @@ function nextStep() {
 
     if (state.currentStep < state.totalSteps) {
         state.currentStep++;
+        // 최대 도달 단계 갱신
+        if (state.currentStep > state.maxReachedStep) {
+            state.maxReachedStep = state.currentStep;
+        }
         showStep(state.currentStep);
         updateProgress();
         saveState();
@@ -910,11 +954,27 @@ function prevStep() {
     }
 }
 
+function goToStep(stepNumber) {
+    // 현재 단계와 같으면 무시
+    if (stepNumber === state.currentStep) return;
+
+    // 유효 범위 체크
+    if (stepNumber >= 1 && stepNumber <= state.totalSteps) {
+        saveCurrentStepData();
+        state.currentStep = stepNumber;
+        showStep(state.currentStep);
+        updateProgress();
+        saveState();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+}
+
 function resetWizard() {
     if (confirm('모든 데이터를 초기화하시겠습니까?\n\n모든 입력값과 localStorage가 완전히 삭제됩니다.')) {
         // State 초기화
         Object.keys(state).forEach(key => {
             if (key === 'currentStep') state[key] = 1;
+            else if (key === 'maxReachedStep') state[key] = 1;
             else if (key === 'totalSteps') state[key] = 7;
             else if (key === 'certC') state[key] = 'KR';
             else if (key === 'gradleType') state[key] = 'kts';
