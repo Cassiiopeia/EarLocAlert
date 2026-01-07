@@ -188,11 +188,11 @@ jobs:
       - name: Create key.properties
         run: |
           cat > android/key.properties << EOF
-          storeFile=app/keystore/key.jks
-          storePassword=${{ secrets.RELEASE_KEYSTORE_PASSWORD }}
-          keyAlias=${{ secrets.RELEASE_KEY_ALIAS }}
-          keyPassword=${{ secrets.RELEASE_KEY_PASSWORD }}
-          EOF
+storeFile=app/keystore/key.jks
+storePassword=${{ secrets.RELEASE_KEYSTORE_PASSWORD }}
+keyAlias=${{ secrets.RELEASE_KEY_ALIAS }}
+keyPassword=${{ secrets.RELEASE_KEY_PASSWORD }}
+EOF
           echo "✅ key.properties 생성 완료"
           cat android/key.properties
 
