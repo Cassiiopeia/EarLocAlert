@@ -60,12 +60,21 @@ flutter pub get
 ### 개발 서버 실행
 ```bash
 # 기본 실행
+
+<!-- 수정하지마세요 자동으로 동기화 됩니다 -->
+## 최신 버전 : v1.2.12 (2026-01-07)
 flutter run
 
 # 웹 실행
+
+<!-- 수정하지마세요 자동으로 동기화 됩니다 -->
+## 최신 버전 : v1.2.12 (2026-01-07)
 flutter run -d chrome
 
 # 특정 플랫폼 실행
+
+<!-- 수정하지마세요 자동으로 동기화 됩니다 -->
+## 최신 버전 : v1.2.12 (2026-01-07)
 flutter run -d ios
 flutter run -d android
 ```
@@ -73,24 +82,42 @@ flutter run -d android
 ### 릴리스 빌드
 ```bash
 # Android APK
+
+<!-- 수정하지마세요 자동으로 동기화 됩니다 -->
+## 최신 버전 : v1.2.12 (2026-01-07)
 flutter build apk --release
 
 # Android App Bundle
+
+<!-- 수정하지마세요 자동으로 동기화 됩니다 -->
+## 최신 버전 : v1.2.12 (2026-01-07)
 flutter build appbundle --release
 
 # iOS
+
+<!-- 수정하지마세요 자동으로 동기화 됩니다 -->
+## 최신 버전 : v1.2.12 (2026-01-07)
 flutter build ipa --release
 
 # Web
+
+<!-- 수정하지마세요 자동으로 동기화 됩니다 -->
+## 최신 버전 : v1.2.12 (2026-01-07)
 flutter build web --release
 ```
 
 ### 코드 품질 검사
 ```bash
 # 코드 분석
+
+<!-- 수정하지마세요 자동으로 동기화 됩니다 -->
+## 최신 버전 : v1.2.12 (2026-01-07)
 flutter analyze
 
 # 테스트 실행
+
+<!-- 수정하지마세요 자동으로 동기화 됩니다 -->
+## 최신 버전 : v1.2.12 (2026-01-07)
 flutter test
 ```
 
