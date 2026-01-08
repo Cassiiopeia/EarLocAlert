@@ -187,12 +187,10 @@ jobs:
       # key.properties 생성 (Release 서명 정보)
       - name: Create key.properties
         run: |
-          cat > android/key.properties << EOF
-storeFile=app/keystore/key.jks
-storePassword=${{ secrets.RELEASE_KEYSTORE_PASSWORD }}
-keyAlias=${{ secrets.RELEASE_KEY_ALIAS }}
-keyPassword=${{ secrets.RELEASE_KEY_PASSWORD }}
-EOF
+          echo "storeFile=app/keystore/key.jks" > android/key.properties
+          echo "storePassword=${{ secrets.RELEASE_KEYSTORE_PASSWORD }}" >> android/key.properties
+          echo "keyAlias=${{ secrets.RELEASE_KEY_ALIAS }}" >> android/key.properties
+          echo "keyPassword=${{ secrets.RELEASE_KEY_PASSWORD }}" >> android/key.properties
           echo "✅ key.properties 생성 완료"
           cat android/key.properties
 
