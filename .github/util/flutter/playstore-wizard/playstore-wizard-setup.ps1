@@ -637,20 +637,32 @@ if (keystorePropertiesFile.exists()) {
 # Create Fastfile.playstore
 function Create-Fastfile {
     Write-Step "Creating Fastfile.playstore..."
-    
+
     $fastlaneDir = Join-Path $ProjectPath "android\fastlane"
     $fastfilePath = Join-Path $fastlaneDir "Fastfile.playstore"
-    
+    $templatePath = Join-Path $templateDir "Fastfile.playstore.template"
+
     if (-not (Test-Path $fastlaneDir)) {
         New-Item -ItemType Directory -Path $fastlaneDir -Force | Out-Null
     }
-    
+
     if (Test-Path $fastfilePath) {
         Copy-Item $fastfilePath "$fastfilePath.bak" -Force
         Write-Warning "Existing Fastfile.playstore backed up: $fastfilePath.bak"
     }
-    
-    $content = @'
+
+    # 템플릿 파일 사용 (Bash 스크립트와 동일한 방식)
+    if (Test-Path $templatePath) {
+        $content = Get-Content $templatePath -Raw -Encoding UTF8
+        $content = $content -replace '\{\{APPLICATION_ID\}\}', $ApplicationId
+        Set-Content $fastfilePath $content -Encoding UTF8
+        Write-Info "Created from template: $templatePath"
+    } else {
+        # fallback: 템플릿이 없을 경우 기본 내용으로 생성
+        Write-Warning "Template not found: $templatePath"
+        Write-Warning "Creating with default content..."
+
+        $content = @'
 # Fastfile.playstore
 # This file is used by GitHub Actions workflow for Play Store deployment
 
@@ -660,39 +672,39 @@ platform :android do
   desc "Deploy to Play Store Internal Testing"
   lane :deploy_internal do
     aab_path = ENV["AAB_PATH"] || "../build/app/outputs/bundle/release/app-release.aab"
-    
+
+    # ⚠️ release_status 설정 가이드:
+    #   - "draft": 앱이 Play Console에서 아직 한 번도 출시되지 않은 경우 (신규 앱)
+    #   - "completed": 앱이 이미 Play Console에서 검토 완료되어 활성화된 경우
+    # 신규 앱은 반드시 "draft"로 시작해야 합니다.
     upload_to_play_store(
       track: 'internal',
       aab: aab_path,
       skip_upload_metadata: true,
       skip_upload_images: true,
       skip_upload_screenshots: true,
-      release_status: 'completed'
+      release_status: 'draft'  # 승인 후: 'completed'로 변경
     )
   end
 
   desc "Deploy to Play Store Production"
   lane :deploy_production do
     aab_path = ENV["AAB_PATH"] || "../build/app/outputs/bundle/release/app-release.aab"
-    
+
     upload_to_play_store(
       track: 'production',
       aab: aab_path,
       skip_upload_metadata: true,
       skip_upload_images: true,
       skip_upload_screenshots: true,
-      release_status: 'completed'
+      release_status: 'draft'  # 승인 후: 'completed'로 변경
     )
   end
 end
 '@
-    
-    Set-Content $fastfilePath $content -Encoding UTF8
-    
-    if (Test-Path $fastfilePath) {
-        Write-Info "Created from template"
+        Set-Content $fastfilePath $content -Encoding UTF8
     }
-    
+
     Write-Success "Fastfile.playstore created successfully: $fastfilePath"
     Write-Info "  -> GitHub Actions workflow will use this file directly"
 }
