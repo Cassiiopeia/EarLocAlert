@@ -7,6 +7,9 @@ import '../../features/geofence/data/drift_geofence_state_repository.dart';
 import '../../features/geofence/domain/geofence_event_repository.dart';
 import '../../features/geofence/domain/geofence_evaluator.dart';
 import '../../features/geofence/domain/geofence_state_repository.dart';
+import '../../features/permission/data/permission_handler_service.dart';
+import '../../features/permission/domain/permission_gate.dart';
+import '../../features/permission/domain/permission_service.dart';
 import '../../features/places/data/drift_place_repository.dart';
 import '../../features/places/domain/place_repository.dart';
 import '../database/app_database.dart';
@@ -44,6 +47,13 @@ GeofenceStateRepository geofenceStateRepository(Ref ref) {
   return DriftGeofenceStateRepository(ref.watch(appDatabaseProvider));
 }
 
+@Riverpod(keepAlive: true)
+PermissionService permissionService(Ref ref) =>
+    const PermissionHandlerService();
+
 /// 판정 로직은 상태가 없는 순수 객체다
 @Riverpod(keepAlive: true)
 GeofenceEvaluator geofenceEvaluator(Ref ref) => const GeofenceEvaluator();
+
+@Riverpod(keepAlive: true)
+PermissionGate permissionGate(Ref ref) => const PermissionGate();
