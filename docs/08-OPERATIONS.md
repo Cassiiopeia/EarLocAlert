@@ -33,8 +33,9 @@ deploy 브랜치 push  →  Play Store 배포
 | `PROJECT-FLUTTER-ANDROID-PLAYSTORE-CICD` | Play Store 내부 테스트 배포 |
 | `PROJECT-FLUTTER-ANDROID-SYNOLOGY-CICD` | APK 를 NAS 로 배포 |
 | `PROJECT-FLUTTER-IOS-TESTFLIGHT` | TestFlight 배포 |
-| `PROJECT-FLUTTER-IOS-CICD` | iOS 빌드 산출물 NAS 배포 |
 | `PROJECT-TEMPLATE-INITIALIZER` · `TEMPLATE-UTIL-VERSION-SYNC` | 템플릿 초기화·동기화 |
+
+> `PROJECT-FLUTTER-IOS-CICD`(iOS 산출물 NAS 배포)는 **삭제했다** (#46). iOS 검증은 TestFlight 로 하며, NAS 에 iOS 빌드를 따로 쌓을 이유가 없다.
 
 ## 버전 관리 — `version.yml` 이 단일 출처
 
