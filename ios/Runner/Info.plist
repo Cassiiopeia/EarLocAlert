@@ -1,85 +1,84 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
-<dict>
-	<key>CFBundleDevelopmentRegion</key>
-	<string>$(DEVELOPMENT_LANGUAGE)</string>
-	<!-- ==========================================================
+	<dict>
+		<key>CFBundleDevelopmentRegion</key>
+		<string>$(DEVELOPMENT_LANGUAGE)</string>
+		<!-- ==========================================================
 	     위치 권한 사유 (docs/09-RELEASE.md)
 
 	     이 문구는 심사자가 읽고, 사용자도 권한 다이얼로그에서 읽는다.
 	     두 목적을 동시에 만족해야 한다.
 	     "위치 정보가 필요합니다" 같은 문구는 반려된다.
 	     ========================================================== -->
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>알림을 걸어둘 장소를 지도에서 고르고, 지금 어디쯤인지 표시하기 위해 사용합니다. 위치 정보는 기기에만 저장되며 외부로 전송되지 않습니다.</string>
-	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>앱을 열지 않아도 등록한 장소에 도착·출발할 때 알려드리기 위해 백그라운드에서도 위치를 확인합니다. 위치 정보는 기기에만 저장되며 외부로 전송되지 않습니다.</string>
-	<key>NSLocationAlwaysUsageDescription</key>
-	<string>앱을 열지 않아도 등록한 장소에 도착·출발할 때 알려드리기 위해 백그라운드에서도 위치를 확인합니다. 위치 정보는 기기에만 저장되며 외부로 전송되지 않습니다.</string>
-
-	<!-- 백그라운드 위치 — Apple 은 "정말 필요한가"를 심사한다.
+		<key>NSLocationWhenInUseUsageDescription</key>
+		<string>알림을 걸어둘 장소를 지도에서 고르고, 지금 어디쯤인지 표시하기 위해 사용합니다. 위치 정보는 기기에만 저장되며 외부로 전송되지 않습니다.</string>
+		<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+		<string>앱을 열지 않아도 등록한 장소에 도착·출발할 때 알려드리기 위해 백그라운드에서도 위치를 확인합니다. 위치 정보는 기기에만 저장되며 외부로 전송되지 않습니다.</string>
+		<key>NSLocationAlwaysUsageDescription</key>
+		<string>앱을 열지 않아도 등록한 장소에 도착·출발할 때 알려드리기 위해 백그라운드에서도 위치를 확인합니다. 위치 정보는 기기에만 저장되며 외부로 전송되지 않습니다.</string>
+		<!-- 백그라운드 위치 — Apple 은 "정말 필요한가"를 심사한다.
 	     이 앱은 앱을 보고 있지 않을 때 알리는 것이 목적이므로
 	     백그라운드 없이는 기능이 성립하지 않는다 (docs/09-RELEASE.md). -->
-	<key>UIBackgroundModes</key>
-	<array>
-		<string>location</string>
-		<string>audio</string>
-	</array>
-
-	<!-- ATT — 개인 맞춤 광고 사용 시 필요.
+		<key>UIBackgroundModes</key>
+		<array>
+			<string>location</string>
+			<string>audio</string>
+		</array>
+		<!-- ATT — 개인 맞춤 광고 사용 시 필요.
 	     권한 요청이 이미 세 개(위치·항상 위치·알림)라 온보딩 이탈이
 	     늘어날 수 있다. 최종 채택 여부는 미결이다
 	     (docs/10-DECISIONS.md 미결 표). -->
-	<key>NSUserTrackingUsageDescription</key>
-	<string>사용자에게 더 관련성 높은 광고를 표시하기 위해 사용합니다. 허용하지 않아도 앱의 모든 기능을 그대로 이용할 수 있습니다.</string>
-
-	<!-- AdMob 앱 ID — 공개 정보다. 실제 발급 후 교체한다.
+		<key>NSUserTrackingUsageDescription</key>
+		<string>사용자에게 더 관련성 높은 광고를 표시하기 위해 사용합니다. 허용하지 않아도 앱의 모든 기능을 그대로 이용할 수 있습니다.</string>
+		<!-- AdMob 앱 ID — 공개 정보다. 실제 발급 후 교체한다.
 	     현재는 Google 공개 테스트 ID (docs/07-MONETIZATION.md). -->
-	<key>GADApplicationIdentifier</key>
-	<string>ca-app-pub-3940256099942544~1458002511</string>
-	<key>CFBundleDisplayName</key>
-	<string>이어폰위치알림</string>
-	<key>CFBundleExecutable</key>
-	<string>$(EXECUTABLE_NAME)</string>
-	<key>CFBundleIdentifier</key>
-	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
-	<key>CFBundleInfoDictionaryVersion</key>
-	<string>6.0</string>
-	<key>CFBundleName</key>
-	<string>ear_loc_alert</string>
-	<key>CFBundlePackageType</key>
-	<string>APPL</string>
-	<key>CFBundleShortVersionString</key>
-	<string>$(FLUTTER_BUILD_NAME)</string>
-	<key>CFBundleSignature</key>
-	<string>????</string>
-	<key>CFBundleVersion</key>
-	<string>$(FLUTTER_BUILD_NUMBER)</string>
-	<key>LSRequiresIPhoneOS</key>
-	<true/>
-	<key>UILaunchStoryboardName</key>
-	<string>LaunchScreen</string>
-	<key>UIMainStoryboardFile</key>
-	<string>Main</string>
-	<key>UISupportedInterfaceOrientations</key>
-	<array>
-		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
-	</array>
-	<key>UISupportedInterfaceOrientations~ipad</key>
-	<array>
-		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationPortraitUpsideDown</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
-	</array>
-	<key>CADisableMinimumFrameDurationOnPhone</key>
-	<true/>
-	<key>UIApplicationSupportsIndirectInputEvents</key>
-	<true/>
-	<key>ITSAppUsesNonExemptEncryption</key>
-	<false/>
-</dict>
+		<key>GADApplicationIdentifier</key>
+		<string>ca-app-pub-3940256099942544~1458002511</string>
+		<key>CFBundleDisplayName</key>
+		<string>이어폰위치알림</string>
+		<key>CFBundleExecutable</key>
+		<string>$(EXECUTABLE_NAME)</string>
+		<key>CFBundleIdentifier</key>
+		<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+		<key>CFBundleInfoDictionaryVersion</key>
+		<string>6.0</string>
+		<key>CFBundleName</key>
+		<string>ear_loc_alert</string>
+		<key>CFBundlePackageType</key>
+		<string>APPL</string>
+		<key>CFBundleShortVersionString</key>
+		<string>$(FLUTTER_BUILD_NAME)</string>
+		<key>CFBundleSignature</key>
+		<string>????</string>
+		<key>CFBundleVersion</key>
+		<string>$(FLUTTER_BUILD_NUMBER)</string>
+		<key>LSRequiresIPhoneOS</key>
+		<true/>
+		<key>UILaunchStoryboardName</key>
+		<string>LaunchScreen</string>
+		<key>UIMainStoryboardFile</key>
+		<string>Main</string>
+		<key>UISupportedInterfaceOrientations</key>
+		<array>
+			<string>UIInterfaceOrientationPortrait</string>
+			<string>UIInterfaceOrientationLandscapeLeft</string>
+			<string>UIInterfaceOrientationLandscapeRight</string>
+		</array>
+		<key>UISupportedInterfaceOrientations~ipad</key>
+		<array>
+			<string>UIInterfaceOrientationPortrait</string>
+			<string>UIInterfaceOrientationPortraitUpsideDown</string>
+			<string>UIInterfaceOrientationLandscapeLeft</string>
+			<string>UIInterfaceOrientationLandscapeRight</string>
+		</array>
+		<key>CADisableMinimumFrameDurationOnPhone</key>
+		<true/>
+		<key>UIApplicationSupportsIndirectInputEvents</key>
+		<true/>
+		<key>ITSAppUsesNonExemptEncryption</key>
+		<false/>
+		<key>UIStatusBarHidden</key>
+		<false/>
+	</dict>
 </plist>
