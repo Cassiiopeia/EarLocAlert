@@ -6,7 +6,6 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../domain/permission_gate.dart';
-import '../domain/permission_kind.dart';
 import '../domain/permission_snapshot.dart';
 import 'permission_controller.dart';
 import 'permission_copy.dart';
