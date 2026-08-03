@@ -1,3 +1,4 @@
+import 'geofence_event.dart';
 import 'geofence_target.dart';
 import 'geofence_evaluation.dart';
 import 'geofence_state.dart';
@@ -66,6 +67,25 @@ class GeofenceEvaluator {
       next = current == GeofenceState.unknown ? GeofenceState.outside : current;
     }
 
+    return GeofenceEvaluation(
+      state: next,
+      transition: _transitionOf(current, next),
+    );
+  }
+
+  /// OS 지오펜스 이벤트로 다음 상태를 판정한다 (docs/10-DECISIONS.md 014).
+  ///
+  /// OS 위임 방식에서는 좌표·정확도가 아니라 **전이 자체**가 입력이다.
+  /// 규칙 3(unknown 첫 판정 무알림)·규칙 4(같은 상태 반복 무알림)를
+  /// 그대로 재사용한다 — 이것이 등록 직후 initialTrigger 와 iOS 재부팅 후
+  /// 중복 발화를 별도 코드 없이 걸러낸다.
+  GeofenceEvaluation evaluateOsTransition({
+    required GeofenceState current,
+    required GeofenceEventType eventType,
+  }) {
+    final next = eventType == GeofenceEventType.entered
+        ? GeofenceState.inside
+        : GeofenceState.outside;
     return GeofenceEvaluation(
       state: next,
       transition: _transitionOf(current, next),

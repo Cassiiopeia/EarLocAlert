@@ -3,8 +3,9 @@ description: "특정 위치에 도착·출발할 때 진동 또는 블루투스 
 publish_to: 'none'
 # 버전은 version.yml 이 단일 출처다. 직접 수정하지 않는다 (docs/08-OPERATIONS.md)
 version: 1.2.33+65
+# Dart 3.9+ (docs/02-ARCHITECTURE.md) — 와일드카드 파라미터 등 3.7+ 문법을 쓴다
 environment:
-  sdk: '>=3.0.0 <4.0.0'
+  sdk: '>=3.9.0 <4.0.0'
 # 의존성은 한 번에 몰아서 추가하지 않는다 — 내부망 환경에서 로컬 검증이 불가능하므로
 # CI 실패 시 원인을 좁힐 수 있게 feature 구현 시점에 나눠서 추가한다 (docs/08-OPERATIONS.md)
 dependencies:
@@ -38,6 +39,8 @@ dependencies:
   google_mobile_ads: ^5.2.0
   # 단일 설정값 저장 (docs/03-DOMAIN.md 저장소 경계)
   shared_preferences: ^2.5.2
+  # 백그라운드 지오펜스 — S-1 선정: OS 네이티브 API 위임 (docs/10-DECISIONS.md 014)
+  native_geofence: ^1.2.1
 dev_dependencies:
   flutter_test:
     sdk: flutter
