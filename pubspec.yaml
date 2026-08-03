@@ -2,7 +2,7 @@ name: ear_loc_alert
 description: "특정 위치에 도착·출발할 때 진동 또는 블루투스 이어폰으로만 알리는 위치 기반 알림 앱"
 publish_to: 'none'
 # 버전은 version.yml 이 단일 출처다. 직접 수정하지 않는다 (docs/08-OPERATIONS.md)
-version: 1.2.28+60
+version: 1.2.29+61
 environment:
   sdk: '>=3.0.0 <4.0.0'
 # 의존성은 한 번에 몰아서 추가하지 않는다 — 내부망 환경에서 로컬 검증이 불가능하므로
