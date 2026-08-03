@@ -28,6 +28,12 @@ dependencies:
   permission_handler: ^11.3.1
   # 반응형 치수 — 하드코딩된 px 금지 (docs/04-CONVENTIONS.md)
   flutter_screenutil: ^5.9.3
+  # 알림 발화 (docs/03-DOMAIN.md 규칙 5)
+  flutter_local_notifications: ^18.0.1
+  vibration: ^3.1.3
+  # 오디오 — 블루투스 연결 확인 후에만 재생한다 (F3.7)
+  audio_session: ^0.1.21
+  just_audio: ^0.9.42
 dev_dependencies:
   flutter_test:
     sdk: flutter
