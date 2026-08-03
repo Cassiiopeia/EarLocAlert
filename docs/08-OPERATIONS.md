@@ -125,6 +125,21 @@ GitHub 러너 이미지는 예고 없이 갱신된다. 특정 Xcode 버전을 �
 
 인증서와 프로비저닝 프로필은 **만료된다.** 만료 시점을 알기 어려운데, 빌드가 갑자기 실패하면 여기를 먼저 본다.
 
+> **2026-08-03 현재 만료 상태다.** 프로비저닝 프로필이 **2026-07-21 에 만료**되었고, `iOS Distribution` 인증서도 팀 ID `CUK22HY6YC` 로 매칭되지 않는다. iOS 빌드가 아카이브 단계에서 실패한다 (#46).
+>
+> ```
+> error: Provisioning profile "..." expired on Jul 21, 2026.
+> error: No signing certificate "iOS Distribution" found
+> ```
+>
+> **코드로 해결할 수 없다.** Apple Developer 계정에서 갱신한 뒤 `APPLE_CERTIFICATE_BASE64` · `APPLE_PROVISIONING_PROFILE_BASE64` · `IOS_PROVISIONING_PROFILE_NAME` 시크릿을 교체해야 한다.
+
+### 만료를 미리 알 수 있게 한다
+
+이번에도 "빌드가 갑자기 깨져서" 알았다. 프로필은 보통 1년이라 잊고 지내다 배포 직전에 막힌다.
+
+TestFlight 워크플로우에 만료일 검사 단계를 넣어, 만료 30일 전부터 경고를 출력하는 것을 검토한다 → [11-ROADMAP](11-ROADMAP.md)
+
 ---
 
 ## 앱이 필요로 하는 키
