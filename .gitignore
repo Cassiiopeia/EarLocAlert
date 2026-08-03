@@ -81,3 +81,6 @@ android/app/keystore/*.keystore
 
 # Report files (internal documentation)
 .report/
+
+# Play Store 배포 시크릿 (service account, keystore 등)
+playstore-secrets/

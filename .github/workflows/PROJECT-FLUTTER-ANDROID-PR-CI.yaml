@@ -83,6 +83,10 @@ jobs:
         id: install-deps
         run: flutter pub get
 
+      - name: 코드 생성 (build_runner)
+        id: run-codegen
+        run: dart run build_runner build --delete-conflicting-outputs
+
       - name: Gradle 설정
         id: setup-gradle
         working-directory: android
@@ -113,6 +117,25 @@ jobs:
         with:
           name: flutter-analyze-log
           path: flutter_analyze_output.txt
+
+      - name: 단위 테스트 실행
+        id: run-tests
+        run: |
+          set -o pipefail
+          flutter test > flutter_test_output.txt 2>&1 || {
+            echo "====== FLUTTER TEST RESULT ======"
+            cat flutter_test_output.txt
+            exit 1
+          }
+          echo "====== FLUTTER TEST RESULT ======"
+          tail -n 20 flutter_test_output.txt
+
+      - name: Upload test log
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: flutter-test-log
+          path: flutter_test_output.txt
 
       - name: APK 빌드
         id: build-apk
