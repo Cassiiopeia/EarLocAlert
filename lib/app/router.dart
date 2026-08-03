@@ -5,14 +5,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../core/domain/alert_direction.dart';
-import '../core/theme/app_spacing.dart';
-import '../core/theme/app_typography.dart';
+import '../features/ads/presentation/ads_providers.dart';
 import '../features/alert/domain/alert_controller.dart';
 import '../features/alert/presentation/alert_controller_provider.dart';
 import '../features/alert/presentation/alert_dismissed_screen.dart';
 import '../features/alert/presentation/alert_screen.dart';
-import '../features/ads/presentation/ads_providers.dart';
 import '../features/permission/presentation/onboarding_screen.dart';
+import '../features/places/domain/alert_place.dart';
+import '../features/places/presentation/place_form_screen.dart';
+import '../features/places/presentation/place_list_screen.dart';
 
 /// 앱 라우팅 (docs/02-ARCHITECTURE.md)
 ///
@@ -23,6 +24,8 @@ abstract final class AppRoutes {
   static const home = '/';
   static const alert = '/alert';
   static const alertDismissed = '/alert/dismissed';
+  static const placeNew = '/places/new';
+  static const placeEdit = '/places/edit';
 }
 
 GoRouter createRouter() {
@@ -36,7 +39,19 @@ GoRouter createRouter() {
       ),
       GoRoute(
         path: AppRoutes.home,
-        builder: (context, state) => const _HomePlaceholder(),
+        builder: (context, state) => const _HomeRoute(),
+      ),
+      GoRoute(
+        path: AppRoutes.placeNew,
+        builder: (context, state) =>
+            PlaceFormScreen(onSaved: () => context.go(AppRoutes.home)),
+      ),
+      GoRoute(
+        path: AppRoutes.placeEdit,
+        builder: (context, state) => PlaceFormScreen(
+          existing: state.extra as AlertPlace?,
+          onSaved: () => context.go(AppRoutes.home),
+        ),
       ),
       GoRoute(
         path: AppRoutes.alert,
@@ -110,48 +125,35 @@ class _AlertRoute extends ConsumerWidget {
   }
 }
 
-/// 메인 화면은 아직 구현 전이다 (docs/11-ROADMAP.md Phase 1)
-class _HomePlaceholder extends ConsumerWidget {
-  const _HomePlaceholder();
+/// 메인 화면 — 지도가 붙기 전까지 위치 목록이 홈이다 (docs/11-ROADMAP.md).
+///
+/// 지도 화면이 생기면 목록은 지도 위 시트로 옮겨간다.
+class _HomeRoute extends ConsumerWidget {
+  const _HomeRoute();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.map_outlined, size: 64),
-            const SizedBox(height: AppSpacing.sm),
-            Text('EarLocAlert', style: AppTypography.screenTitle),
-            const SizedBox(height: AppSpacing.xs),
-            Text('지도 화면 준비 중', style: AppTypography.caption),
-            const SizedBox(height: AppSpacing.lg),
-            // 백그라운드 감시 연결 전까지 알림 흐름을 확인하는 수단.
-            // 지오펜스 연동(S-1 스파이크 이후)이 끝나면 제거한다.
-            OutlinedButton(
-              onPressed: () async {
-                await ref
-                    .read(activeAlertProvider.notifier)
-                    .fire(
-                      AlertRequest(
-                        placeId: 'preview',
-                        placeName: '테스트 장소',
-                        direction: AlertDirection.enter,
-                        soundEnabled: true,
-                        occurredAt: DateTime.now().toUtc(),
-                      ),
-                    );
-                // 사용자가 해제할 때쯤 광고가 준비되어 있게 미리 불러둔다.
-                // 실패해도 아무 일도 일어나지 않는다.
-                unawaited(_preloadAd(ref));
-                if (context.mounted) context.go(AppRoutes.alert);
-              },
-              child: const Text('알림 화면 미리보기'),
-            ),
-          ],
-        ),
-      ),
+    return PlaceListScreen(
+      onAddPlace: () => context.go(AppRoutes.placeNew),
+      onEditPlace: (place) => context.go(AppRoutes.placeEdit, extra: place),
+      // 백그라운드 감시 연결 전까지 알림 흐름을 확인하는 수단 (S-4·S-5).
+      // 지오펜스 연동이 끝나면 제거한다.
+      onPreviewAlert: () async {
+        await ref
+            .read(activeAlertProvider.notifier)
+            .fire(
+              AlertRequest(
+                placeId: 'preview',
+                placeName: '테스트 장소',
+                direction: AlertDirection.enter,
+                soundEnabled: true,
+                occurredAt: DateTime.now().toUtc(),
+              ),
+            );
+        // 사용자가 해제할 때쯤 광고가 준비되어 있게 미리 불러둔다
+        unawaited(_preloadAd(ref));
+        if (context.mounted) context.go(AppRoutes.alert);
+      },
     );
   }
 }
