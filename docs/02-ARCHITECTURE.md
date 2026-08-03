@@ -20,6 +20,9 @@
 | 광고 | google_mobile_ads + UMP | — |
 | 권한 | permission_handler | — |
 | 반응형 치수 | flutter_screenutil | 하드코딩된 px |
+| 디자인 | **Material 3 + 자체 토큰** (ThemeExtension) | 서드파티 UI 킷 |
+| 아이콘 | **Material `Icons.*_outlined`** | filled·rounded 혼용, 별도 아이콘 패키지 |
+| 폰트 | Pretendard | — |
 | 테스트 | flutter_test + mocktail | — |
 
 선택 근거는 [10-DECISIONS](10-DECISIONS.md) 를 본다.
