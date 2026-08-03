@@ -78,8 +78,8 @@ URL 이 필요하다. GitHub Pages 로 충분하다. 앱 안에서도 열 수 �
 |---|---|---|
 | 개인정보 처리방침 URL | 위 참조 | 미작성 |
 | 데이터 보안 양식 | 아래 참조 | 미작성 |
-| 백그라운드 위치 권한 선언 | 사유 + 시연 영상 | 미작성 |
-| `AD_ID` 권한 선언 | 광고 ID 사용 신고 | 미작성 |
+| 백그라운드 위치 권한 선언 | 사유 + 시연 영상 | 사유 확정 · **영상 미제작** |
+| `AD_ID` 권한 선언 | 광고 ID 사용 신고 | 매니페스트 선언 완료 · 양식 미작성 |
 | 타겟 API 레벨 | **제출 시점의 Play 요구 수준을 확인한다** | 확인 필요 |
 | 콘텐츠 등급 설문 | | 미작성 |
 | 스토어 등록정보 | 아이콘·스크린샷·설명·그래픽 | 미작성 |
@@ -103,10 +103,11 @@ Play 에서 말하는 "수집"은 **데이터가 기기 밖으로 나가는 것*
 
 | 항목 | 내용 | 상태 |
 |---|---|---|
-| `NSLocationWhenInUseUsageDescription` | 사용 중 위치 사유 | 미작성 |
-| `NSLocationAlwaysAndWhenInUseUsageDescription` | **항상 허용 사유 — 심사 대상** | 미작성 |
-| `UIBackgroundModes: location` | 백그라운드 위치 선언 | 미작성 |
-| `NSUserTrackingUsageDescription` | ATT — 개인 맞춤 광고 시 | 미작성 |
+| `NSLocationWhenInUseUsageDescription` | 사용 중 위치 사유 | **작성 완료** |
+| `NSLocationAlwaysAndWhenInUseUsageDescription` | **항상 허용 사유 — 심사 대상** | **작성 완료** |
+| `UIBackgroundModes: location` | 백그라운드 위치 선언 | **작성 완료** |
+| `NSUserTrackingUsageDescription` | ATT — 개인 맞춤 광고 시 | 작성 완료 (채택 여부 미결) |
+| `GADApplicationIdentifier` | AdMob 앱 ID | **테스트 ID. 발급 후 교체** |
 | `PrivacyInfo.xcprivacy` | **Privacy Manifest. 없으면 업로드 거부** | 미작성 |
 | SKAdNetwork 식별자 | 광고 어트리뷰션 | 미작성 |
 | App Privacy (개인정보 라벨) | 위 처리방침과 일치해야 한다 | 미작성 |
