@@ -36,6 +36,8 @@ lib/
 ├── main.dart                 진입점. 초기화 후 App 실행만 한다
 ├── app/                      앱 조립 — 라우터 · 테마 · 전역 Provider · 부트스트랩
 ├── core/                     공통 기반. features 를 모른다
+│   ├── domain/               공유 어휘 (AlertDirection 등 — 여러 feature 가 쓰는 enum/값 타입)
+│   ├── theme/                디자인 토큰 · ThemeExtension (docs/06-UX.md)
 │   ├── result/               Result · Failure
 │   ├── logging/              로거
 │   ├── error/                예외 정의

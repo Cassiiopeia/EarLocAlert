@@ -1,8 +1,8 @@
-gradle-wrapper.jar
+# gradle-wrapper.jar — CI 빌드에 필요하여 커밋한다 (내부망 개발환경에서 재생성 불가)
 /.gradle
 /captures/
-/gradlew
-/gradlew.bat
+# /gradlew — 위와 동일
+# /gradlew.bat — 위와 동일
 /local.properties
 GeneratedPluginRegistrant.java
 .cxx/
