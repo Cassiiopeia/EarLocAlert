@@ -287,6 +287,27 @@ palim 은 서버라 `INTEGRATION`(외부 연동)·`SECURITY`(위협 모델)가 �
 
 ---
 
+## 017. 백그라운드 감시 패키지 — native_geofence, MVP 는 양 플랫폼 OS 위임 (004 수정)
+
+**버린 것** — Android 포그라운드 서비스 정밀 감시(004의 원안), flutter_background_geolocation(유료), geofence_service(deprecated), geofencing_api(무활동·앱 생존 시에만), flutter_foreground_task + geolocator 조합(iOS 15분 제약 + Android 만을 위한 별도 코드 경로)
+
+**근거**
+
+S-1 조사(2026-08-04, pub.dev·GitHub 실측)에서 **native_geofence** 가 요구사항 정합성이 가장 높았다:
+
+- 양 플랫폼 모두 OS 네이티브 지오펜스 API (Android GeofencingClient / iOS region monitoring)
+- **앱 종료(terminated) 상태 발화 + 재부팅 자동 재등록** — A-10 을 패키지가 해결한다
+- MIT 무료. 광고 수익 기반 무료 앱에 유료 라이선스($399+)는 성립하지 않는다
+- 활발한 유지보수 (2026-06 기준)
+
+004 는 Android 를 포그라운드 서비스로 정밀 감시하기로 했다. 그러나 FGS 는 **제조사 절전에 죽고, 죽으면 감시가 통째로 사라진다** — 이 앱의 최대 리스크(11-ROADMAP)다. OS 지오펜스는 앱 생존과 무관하게 OS 가 발화를 보장한다. MVP 에서는 "정밀하지만 죽을 수 있는 감시"보다 **"수십 초 늦어도 반드시 울리는 감시"** 가 낫다고 판단했다. 감지 지연은 등록 시 `notificationResponsiveness` 기본값(최대 응답성)으로 최소화한다.
+
+구현은 `GeofenceMonitor` 인터페이스 뒤에 있다 — Android 정밀 모드(FGS + 위치 스트림 + 기존 PositionSample 판정)를 추가해도 화면·도메인은 바뀌지 않는다.
+
+**재검토 조건** — 실기기 스파이크 S-2·S-3 실측에서 진입 감지 지연이 핵심 시나리오(셔틀버스 하차)를 깨뜨리면 Android 정밀 모드를 추가한다. iOS 재부팅 후 중복 발화(패키지 알려진 이슈)는 도메인 규칙 4(같은 상태 반복 무알림)가 걸러낸다 — 실기기에서 확인한다.
+
+---
+
 ## 미결 — 결정하지 않은 것들
 
 **결정하지 않았다는 사실을 기록한다.** 나중에 "왜 이건 안 정했지"를 헤매지 않기 위해서다.
@@ -298,6 +319,5 @@ palim 은 서버라 `INTEGRATION`(외부 연동)·`SECURITY`(위협 모델)가 �
 | iOS 20개 초과 처리 | 가까운 순 20개만 등록하고 교체할 것인가 | 사용자가 실제로 초과할 때 |
 | `EXIT_MARGIN` 수치 | 히스테리시스 마진 | 실측 후 |
 | iOS 반경 하한 | 50m 가 실용적인가 | 실기기 스파이크 |
-| 백그라운드 지오펜스 패키지 | 후보들의 유지보수 상태 확인 후 선정 | **코드 작성 전** |
 
-마지막 항목이 가장 시급하다. **이걸 정하지 않으면 `features/geofence/data/` 를 쓸 수 없다** → [11-ROADMAP](11-ROADMAP.md)
+백그라운드 지오펜스 패키지는 **017 에서 결정했다** (native_geofence). 남은 것은 실기기 검증이다 → [11-ROADMAP](11-ROADMAP.md)

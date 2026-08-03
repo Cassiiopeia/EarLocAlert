@@ -84,6 +84,21 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+
+        <!-- native_geofence (docs/10-DECISIONS.md 014) —
+             OS 지오펜스 이벤트 수신, 재부팅 후 자동 재등록(A-10),
+             콜백용 서비스. 재등록 리시버 덕에 앱이 부팅 브로드캐스트를
+             직접 처리할 필요가 없다. -->
+        <receiver android:name="com.chunkytofustudios.native_geofence.receivers.NativeGeofenceBroadcastReceiver"
+            android:exported="true"/>
+        <receiver android:name="com.chunkytofustudios.native_geofence.receivers.NativeGeofenceRebootBroadcastReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"></action>
+            </intent-filter>
+        </receiver>
+        <service android:name="com.chunkytofustudios.native_geofence.NativeGeofenceForegroundService"
+            android:permission="android.permission.BIND_JOB_SERVICE" android:exported="true"/>
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and
