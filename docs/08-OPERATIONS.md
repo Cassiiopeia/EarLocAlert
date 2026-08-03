@@ -33,8 +33,9 @@ deploy 브랜치 push  →  Play Store 배포
 | `PROJECT-FLUTTER-ANDROID-PLAYSTORE-CICD` | Play Store 내부 테스트 배포 |
 | `PROJECT-FLUTTER-ANDROID-SYNOLOGY-CICD` | APK 를 NAS 로 배포 |
 | `PROJECT-FLUTTER-IOS-TESTFLIGHT` | TestFlight 배포 |
-| `PROJECT-FLUTTER-IOS-CICD` | iOS 빌드 산출물 NAS 배포 |
 | `PROJECT-TEMPLATE-INITIALIZER` · `TEMPLATE-UTIL-VERSION-SYNC` | 템플릿 초기화·동기화 |
+
+> `PROJECT-FLUTTER-IOS-CICD`(iOS 산출물 NAS 배포)는 **삭제했다** (#46). iOS 검증은 TestFlight 로 하며, NAS 에 iOS 빌드를 따로 쌓을 이유가 없다.
 
 ## 버전 관리 — `version.yml` 이 단일 출처
 
@@ -52,15 +53,29 @@ project_type: "flutter"
 
 ---
 
-## 지금 고쳐야 할 것 — 템플릿 잔재
+## 실제로 깨져 있던 것들 (2026-08-03 v1.2.23 배포에서 발견)
 
-이 파이프라인은 [SUH-DEVOPS-TEMPLATE](https://github.com/Cassiiopeia/SUH-DEVOPS-TEMPLATE) 에서 가져온 것이라, **아직 템플릿 기본값이 남아 있다.** 실제 배포 전에 확인한다.
+**"CI/CD 완비"는 사실이 아니었다.** 첫 실제 배포에서 파이프라인 4개 중 2개가 실패했고, PR CI 도 Android 빌드가 한 번도 성공한 적 없는 상태였다.
 
-### 1. `PROJECT_NAME` 이 `"your-project"` 다
+| 결함 | 원인 | 조치 |
+|---|---|---|
+| PR CI Android 빌드 불가 | `android/.gitignore` 가 gradle wrapper 를 제외해 `gradlew` 가 없었다 | wrapper 커밋 + `.gitattributes` 로 LF 고정 (#43) |
+| PR CI 가 테스트를 안 돌림 | `analyze`·`build` 만 있고 `flutter test` 가 없었다 | `build_runner` + `flutter test` 단계 추가 (#43) |
+| Android Synology 배포 실패 | `fastlane build` 호출 — 그런데 `android/fastlane/` 에 `Fastfile` 이 없고 `build` lane 도 없다 | fastlane 제거, `flutter build apk` 직접 호출 (#46) |
+| iOS TestFlight 실패 | `Xcode 16.3` 고정 → 기본 SDK iOS 18.4 가 러너에 미설치 | Xcode 선택을 방어적으로 변경 + 플랫폼 확인/설치 (#46) |
+| `PROJECT_NAME: "your-project"` | 템플릿 기본값 잔존. APK 파일명·NAS 경로·이력 파일명에 실제 사용됨 | `EarLocAlert` 로 교체 (#46) |
 
-`PROJECT-FLUTTER-ANDROID-PLAYSTORE-CICD.yaml` 의 env 값이 템플릿 기본값 그대로다. 배포 산출물 이름·알림 문구에 그대로 쓰인다.
+> **교훈** — 배포 파이프라인은 실제로 끝까지 돌려보기 전까지 "된다"고 말할 수 없다. 워크플로우 파일이 존재하는 것과 그것이 성공하는 것은 다른 문제다.
 
-### 2. 시크릿 이름이 워크플로우마다 다르다
+### Xcode 버전을 고정하지 않는 이유
+
+GitHub 러너 이미지는 예고 없이 갱신된다. 특정 Xcode 버전을 하드코딩하면 이미지가 바뀔 때마다 같은 실패가 반복된다.
+
+현재는 지정 버전이 있으면 쓰고 없으면 러너 기본값으로 폴백하며, 선택한 Xcode 에 iOS 플랫폼이 없으면 `xcodebuild -downloadPlatform iOS` 로 설치를 시도한다.
+
+## 남은 정리 대상
+
+### 시크릿 이름이 워크플로우마다 다르다
 
 같은 키스토어를 가리키는데 이름이 갈린다.
 

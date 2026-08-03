@@ -1,11 +1,27 @@
 {
   "metadata": {
-    "lastUpdated": "2026-08-03T04:25:55Z",
-    "currentVersion": "1.2.23",
+    "lastUpdated": "2026-08-03T05:34:36Z",
+    "currentVersion": "1.2.24",
     "projectType": "flutter",
-    "totalReleases": 28
+    "totalReleases": 29
   },
   "releases": [
+    {
+      "version": "1.2.24",
+      "project_type": "flutter",
+      "date": "2026-08-03",
+      "pr_number": 48,
+      "raw_summary": "## Summary by CodeRabbit\n\n## 릴리스 노트\n\n* **기타**\n  * 앱 배포 과정의 오류를 수정했습니다\n\n> 이번 배포에는 사용자가 직접 확인할 수 있는 기능 변경이 없습니다.\n> 내부 테스트 트랙 대상이며, 앱 화면은 아직 준비 중입니다.",
+      "parsed_changes": {
+        "기타": {
+          "title": "기타",
+          "items": [
+            "앱 배포 과정의 오류를 수정했습니다"
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "1.2.23",
       "project_type": "flutter",
