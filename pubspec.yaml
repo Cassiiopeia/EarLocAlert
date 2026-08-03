@@ -2,7 +2,7 @@ name: ear_loc_alert
 description: "특정 위치에 도착·출발할 때 진동 또는 블루투스 이어폰으로만 알리는 위치 기반 알림 앱"
 publish_to: 'none'
 # 버전은 version.yml 이 단일 출처다. 직접 수정하지 않는다 (docs/08-OPERATIONS.md)
-version: 1.2.34+66
+version: 1.2.35+67
 # Dart 3.9+ (docs/02-ARCHITECTURE.md) — 와일드카드 파라미터 등 3.7+ 문법을 쓴다
 environment:
   sdk: '>=3.9.0 <4.0.0'
@@ -56,7 +56,6 @@ dev_dependencies:
   riverpod_lint: ^2.6.1
 flutter:
   uses-material-design: true
-
 # 앱 아이콘 생성: dart run flutter_launcher_icons (이슈 #65)
 flutter_launcher_icons:
   android: true
@@ -65,7 +64,6 @@ flutter_launcher_icons:
   adaptive_icon_background: "#0D0D0D"
   adaptive_icon_foreground: "assets/icon/app_icon_foreground.png"
   remove_alpha_ios: true
-
 # 스플래시 생성: dart run flutter_native_splash:create (이슈 #65)
 flutter_native_splash:
   color: "#0D0D0D"
