@@ -84,3 +84,7 @@ android/app/keystore/*.keystore
 
 # Play Store 배포 시크릿 (service account, keystore 등)
 playstore-secrets/
+
+# 코드 생성 산출물 — CI 의 build_runner 가 만든다 (내부망 개발환경에서 로컬 생성 불가)
+*.g.dart
+*.freezed.dart

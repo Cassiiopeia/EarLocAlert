@@ -1,6 +1,51 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- ==========================================================
+         권한 (docs/05-PLATFORM.md)
+
+         백그라운드 위치는 Play 심사에서 별도 권한 선언 양식과
+         기능 시연 영상을 요구한다. 반려율이 높은 항목이므로
+         docs/09-RELEASE.md 의 사유서를 함께 준비한다.
+         ========================================================== -->
+
+    <!-- 위치 -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <!-- API 29+ — 앱을 열지 않아도 도착·출발을 알리기 위해 필요하다.
+         API 30+ 는 앱 내 다이얼로그로 받을 수 없어 설정 화면으로 보낸다. -->
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+
+    <!-- 포그라운드 서비스 — Android 는 이것으로 정밀 감시한다.
+         사용자에게 상시 알림이 보이며, 이는 없앨 수 없다. -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <!-- API 34+ 필수 -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
+
+    <!-- 알림 — API 33+ 런타임 요청 -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <!-- 진동 (F3.1) -->
+    <uses-permission android:name="android.permission.VIBRATE" />
+
+    <!-- 재부팅 후 감시 복구 (A-10).
+         지오펜스 상태는 DB 에 있으므로 서비스만 다시 띄우면 된다. -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+    <!-- 전체화면 알림 — Android 14+ 는 알람·통화 계열에만 자동 부여된다.
+         이 앱이 받을 수 있는지 확정할 수 없으므로 전제하지 않는다.
+         높은 중요도 알림 + 반복 진동만으로 성립해야 한다
+         (docs/10-DECISIONS.md 006). -->
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
+
+    <!-- 광고 식별자 — Play 데이터 보안 양식에 수집 신고가 필요하다
+         (docs/09-RELEASE.md) -->
+    <uses-permission android:name="com.google.android.gms.permission.AD_ID" />
+
+    <!-- 네트워크 — 광고에만 쓴다. 위치는 전송하지 않는다 -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
-        android:label="ear_loc_alert"
+        android:label="이어폰위치알림"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
@@ -25,11 +70,35 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+
+        <!-- AdMob 앱 ID.
+             공개 정보라 소스에 두어도 된다 — APK 를 뜯으면 나온다.
+             실제 발급 후 교체한다. 현재 값은 Google 공개 테스트 ID 다
+             (docs/07-MONETIZATION.md). -->
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-3940256099942544~3347511713"/>
+
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+
+        <!-- native_geofence (docs/10-DECISIONS.md 014) —
+             OS 지오펜스 이벤트 수신, 재부팅 후 자동 재등록(A-10),
+             콜백용 서비스. 재등록 리시버 덕에 앱이 부팅 브로드캐스트를
+             직접 처리할 필요가 없다. -->
+        <receiver android:name="com.chunkytofustudios.native_geofence.receivers.NativeGeofenceBroadcastReceiver"
+            android:exported="true"/>
+        <receiver android:name="com.chunkytofustudios.native_geofence.receivers.NativeGeofenceRebootBroadcastReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"></action>
+            </intent-filter>
+        </receiver>
+        <service android:name="com.chunkytofustudios.native_geofence.NativeGeofenceForegroundService"
+            android:permission="android.permission.BIND_JOB_SERVICE" android:exported="true"/>
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and

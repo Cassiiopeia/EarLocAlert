@@ -64,6 +64,7 @@ on:
     workflows: ["CHANGELOG 자동 업데이트"]
     types: [completed]
     branches: [main]
+  # 수동 실행 — deploy 배포 없이 iOS 빌드만 검증할 때 쓴다 (#46)
   workflow_dispatch:
 
 # ============================================
@@ -125,17 +126,24 @@ jobs:
           fi
           echo "선택된 Xcode: $(xcodebuild -version | head -1)"
 
-          echo "설치된 iOS 플랫폼 확인..."
-          if xcodebuild -showsdks 2>/dev/null | grep -q "iphoneos"; then
-            xcodebuild -showsdks 2>/dev/null | grep "iphoneos" || true
-            echo "✅ iOS SDK 사용 가능"
-          else
-            echo "⚠️  iOS SDK 없음 → 플랫폼 다운로드 시도 (수 분 소요)"
-            sudo xcodebuild -downloadPlatform iOS || {
-              echo "❌ iOS 플랫폼 설치 실패"
-              exit 1
-            }
-          fi
+          echo "── 설치된 Xcode ──"
+          ls -d /Applications/Xcode*.app 2>/dev/null || echo "  (없음)"
+
+          echo "── SDK 목록 ──"
+          xcodebuild -showsdks 2>/dev/null | grep -i "ios" || echo "  (iOS SDK 없음)"
+
+          # -showsdks 는 SDK 존재만 보여줄 뿐 platform 이 실제 설치됐는지는 알려주지 않는다.
+          # Xcode 16 부터 iOS platform 이 on-demand 컴포넌트로 분리되어,
+          # SDK 는 보이는데 storyboard 컴파일(ibtool) 단계에서
+          # "iOS X.Y Platform Not Installed" 로 실패하는 경우가 있다 (#46 실측).
+          echo "── 설치된 platform ──"
+          xcodebuild -showdestinations -scheme Runner 2>/dev/null | head -20 || true
+          ls /Library/Developer/CoreSimulator/Profiles/Runtimes/ 2>/dev/null || echo "  (런타임 디렉터리 없음)"
+
+          echo "── iOS platform 설치 시도 ──"
+          # 이미 설치돼 있으면 즉시 끝나고, 없으면 내려받는다.
+          # 실패해도 빌드를 진행한다 — 빌드 에러 로그가 더 정확한 진단을 준다.
+          sudo xcodebuild -downloadPlatform iOS 2>&1 | tail -20 ||             echo "⚠️  platform 다운로드 실패 또는 미지원 — 빌드를 그대로 진행한다"
 
       - name: Create .env file
         run: |
@@ -274,17 +282,24 @@ jobs:
           fi
           echo "선택된 Xcode: $(xcodebuild -version | head -1)"
 
-          echo "설치된 iOS 플랫폼 확인..."
-          if xcodebuild -showsdks 2>/dev/null | grep -q "iphoneos"; then
-            xcodebuild -showsdks 2>/dev/null | grep "iphoneos" || true
-            echo "✅ iOS SDK 사용 가능"
-          else
-            echo "⚠️  iOS SDK 없음 → 플랫폼 다운로드 시도 (수 분 소요)"
-            sudo xcodebuild -downloadPlatform iOS || {
-              echo "❌ iOS 플랫폼 설치 실패"
-              exit 1
-            }
-          fi
+          echo "── 설치된 Xcode ──"
+          ls -d /Applications/Xcode*.app 2>/dev/null || echo "  (없음)"
+
+          echo "── SDK 목록 ──"
+          xcodebuild -showsdks 2>/dev/null | grep -i "ios" || echo "  (iOS SDK 없음)"
+
+          # -showsdks 는 SDK 존재만 보여줄 뿐 platform 이 실제 설치됐는지는 알려주지 않는다.
+          # Xcode 16 부터 iOS platform 이 on-demand 컴포넌트로 분리되어,
+          # SDK 는 보이는데 storyboard 컴파일(ibtool) 단계에서
+          # "iOS X.Y Platform Not Installed" 로 실패하는 경우가 있다 (#46 실측).
+          echo "── 설치된 platform ──"
+          xcodebuild -showdestinations -scheme Runner 2>/dev/null | head -20 || true
+          ls /Library/Developer/CoreSimulator/Profiles/Runtimes/ 2>/dev/null || echo "  (런타임 디렉터리 없음)"
+
+          echo "── iOS platform 설치 시도 ──"
+          # 이미 설치돼 있으면 즉시 끝나고, 없으면 내려받는다.
+          # 실패해도 빌드를 진행한다 — 빌드 에러 로그가 더 정확한 진단을 준다.
+          sudo xcodebuild -downloadPlatform iOS 2>&1 | tail -20 ||             echo "⚠️  platform 다운로드 실패 또는 미지원 — 빌드를 그대로 진행한다"
 
       - name: Download project files
         uses: actions/download-artifact@v4

@@ -20,11 +20,22 @@
 
 ---
 
-## 현재 상태
+## 현재 상태 (2026-08-04 기준)
 
-**앱 코드가 없다.** `lib/main.dart` 는 `flutter create` 기본 템플릿이다. CI/CD 만 완성되어 있다.
+**Phase 1 의 코드 작업 9단계가 전부 구현됐다.** 남은 것은 실기기 검증과 사용자 작업(지도 API 키·iOS 서명·AdMob)이다. 진행 현황과 남은 작업은 `docs/11-ROADMAP.md` 의 현황 표가 단일 출처다 — **작업을 시작하기 전에 반드시 그 표를 먼저 읽는다.**
 
-다음 작업은 코드가 아니라 **검증 스파이크**다 → `docs/11-ROADMAP.md` Phase 0
+구현된 것: 도메인 로직(지오펜스 판정·오디오 경로·광고 빈도) · Drift 저장소 · 권한 온보딩 · 알림 발화/해제 + 알림 화면 · 전면광고 통합 · 위치 목록/등록/편집 · 플랫폼 권한 선언 · **백그라운드 감시(#63, native_geofence — OS 위임)**. 테스트 121건.
+
+**막혀 있는 것과 이유:**
+
+| 작업 | 막힌 이유 |
+|---|---|
+| 지도 화면 | Google Maps API 키 미발급 (사용자 작업) |
+| 실기기 검증 (S-2~S-10) | 실기기 필요 — 백그라운드 감시·오디오 경로의 실동작 확인 |
+| iOS TestFlight 배포 | 서명 자산 만료 (#51, 사용자 작업) |
+| 실제 광고 송출 | AdMob 앱 미등록 (현재 테스트 ID 로 동작) |
+
+**개발 환경 주의** — Windows PC 는 내부망이라 `flutter pub get` 불가, 검증을 CI 에 위임했다. **Mac(외부망)에서는 로컬 검증이 가능하므로 CI 를 기다릴 필요 없이 `flutter analyze && flutter test` 를 직접 돌린다.** Mac 의 시스템 Flutter(3.38+/Dart 3.10)로는 codegen 이 죽는다(analyzer 7 상한) — **CI 와 동일한 `~/development/flutter-3.35.5/bin/flutter` 를 쓴다** (`export PATH="$HOME/development/flutter-3.35.5/bin:$PATH"`).
 
 ---
 
