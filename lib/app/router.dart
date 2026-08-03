@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -9,6 +11,7 @@ import '../features/alert/domain/alert_controller.dart';
 import '../features/alert/presentation/alert_controller_provider.dart';
 import '../features/alert/presentation/alert_dismissed_screen.dart';
 import '../features/alert/presentation/alert_screen.dart';
+import '../features/ads/presentation/ads_providers.dart';
 import '../features/permission/presentation/onboarding_screen.dart';
 
 /// 앱 라우팅 (docs/02-ARCHITECTURE.md)
@@ -74,6 +77,8 @@ class _AlertRoute extends ConsumerWidget {
       soundFailed: ref.read(activeAlertProvider.notifier).soundFailed,
       onDismiss: () async {
         final placeName = session.placeName;
+
+        // 1) 해제가 먼저다. 광고와 무관하게 여기서 진동·소리가 멈춘다
         final dismissed = await ref
             .read(activeAlertProvider.notifier)
             .dismiss();
@@ -82,13 +87,26 @@ class _AlertRoute extends ConsumerWidget {
         // 대기 중이던 다른 장소 알림이 이어서 울리면 이 화면에 머문다
         if (ref.read(activeAlertProvider) != null) return;
 
-        if (dismissed != null) {
-          context.go(AppRoutes.alertDismissed, extra: placeName);
-        } else {
+        if (dismissed == null) {
           context.go(AppRoutes.home);
+          return;
         }
+
+        // 2) 그 다음에 광고를 시도한다 (docs/02-ARCHITECTURE.md 규칙 4).
+        //    실패·지연은 조율자가 삼키므로 여기서 처리할 것이 없다.
+        context.go(AppRoutes.alertDismissed, extra: placeName);
+        unawaited(_tryShowAd(ref));
       },
     );
+  }
+
+  Future<void> _tryShowAd(WidgetRef ref) async {
+    try {
+      final coordinator = await ref.read(alertAdCoordinatorProvider.future);
+      await coordinator.onAlertDismissed(now: DateTime.now().toUtc());
+    } on Object {
+      // 광고는 부가 기능이다 — 실패해도 사용자 흐름에 영향이 없다
+    }
   }
 }
 
@@ -124,6 +142,9 @@ class _HomePlaceholder extends ConsumerWidget {
                         occurredAt: DateTime.now().toUtc(),
                       ),
                     );
+                // 사용자가 해제할 때쯤 광고가 준비되어 있게 미리 불러둔다.
+                // 실패해도 아무 일도 일어나지 않는다.
+                unawaited(_preloadAd(ref));
                 if (context.mounted) context.go(AppRoutes.alert);
               },
               child: const Text('알림 화면 미리보기'),
@@ -132,5 +153,18 @@ class _HomePlaceholder extends ConsumerWidget {
         ),
       ),
     );
+  }
+}
+
+/// 광고 미리 로딩 — 알림 발화 시점에 부른다.
+///
+/// **반드시 unawaited 로 호출한다.** 로딩을 기다리면 알림 흐름이 막힌다
+/// (docs/02-ARCHITECTURE.md 규칙 4).
+Future<void> _preloadAd(WidgetRef ref) async {
+  try {
+    final coordinator = await ref.read(alertAdCoordinatorProvider.future);
+    await coordinator.onAlertFired();
+  } on Object {
+    // 미리 로딩 실패는 무시한다
   }
 }
