@@ -83,6 +83,22 @@ class HangingSound implements AlertSoundService {
   Future<void> stop() async {}
 }
 
+/// 재생 완료 시점을 테스트가 직접 정하는 사운드 서비스
+class SlowSound implements AlertSoundService {
+  final _gate = Completer<void>();
+
+  void complete() => _gate.complete();
+
+  @override
+  Future<bool> isBluetoothConnected() async => true;
+
+  @override
+  Future<void> play() => _gate.future;
+
+  @override
+  Future<void> stop() async {}
+}
+
 AlertRequest makeRequest({
   String placeId = 'p1',
   String placeName = '도착지',
@@ -105,6 +121,14 @@ void main() {
   late AlertController controller;
 
   const interval = Duration(seconds: 3);
+
+  /// 오디오 판정은 발화를 막지 않고 뒤이어 진행된다.
+  /// 마이크로태스크 큐를 몇 번 비워 확정되게 한다.
+  Future<void> pumpAudio() async {
+    for (var i = 0; i < 5; i++) {
+      await Future<void>.delayed(Duration.zero);
+    }
+  }
 
   AlertController build({AlertSoundService? soundOverride}) {
     return AlertController(
@@ -145,47 +169,43 @@ void main() {
   group('오디오 경로 (F3.4~F3.7)', () {
     test('블루투스 연결 + 소리 허용 → 재생한다', () async {
       sound.connected = true;
-      final session = await controller.fire(
-        makeRequest(),
-        vibrationInterval: interval,
-      );
+      await controller.fire(makeRequest(), vibrationInterval: interval);
+      // 오디오 판정은 알림 전달을 막지 않으므로 비동기로 확정된다
+      await pumpAudio();
 
-      expect(session?.audioRoute, AudioRoute.bluetooth);
+      expect(controller.current?.audioRoute, AudioRoute.bluetooth);
       expect(sound.playCount, 1);
     });
 
     test('블루투스 미연결 → 재생하지 않는다 (스피커 유출 방지)', () async {
       sound.connected = false;
-      final session = await controller.fire(
-        makeRequest(),
-        vibrationInterval: interval,
-      );
+      await controller.fire(makeRequest(), vibrationInterval: interval);
 
-      expect(session?.audioRoute, AudioRoute.silent);
+      await pumpAudio();
+      expect(controller.current?.audioRoute, AudioRoute.silent);
       expect(sound.playCount, 0, reason: '연결 없이 play() 를 부르면 스피커로 샌다');
       expect(vibration.startCount, 1, reason: '진동은 여전히 동작해야 한다');
     });
 
     test('소리 설정이 꺼져 있으면 연결돼 있어도 재생하지 않는다', () async {
       sound.connected = true;
-      final session = await controller.fire(
+      await controller.fire(
         makeRequest(soundEnabled: false),
         vibrationInterval: interval,
       );
 
-      expect(session?.audioRoute, AudioRoute.silent);
+      await pumpAudio();
+      expect(controller.current?.audioRoute, AudioRoute.silent);
       expect(sound.playCount, 0);
     });
 
     test('연결 확인이 실패하면 미연결로 간주한다', () async {
       sound.failOnCheck = true;
-      final session = await controller.fire(
-        makeRequest(),
-        vibrationInterval: interval,
-      );
+      await controller.fire(makeRequest(), vibrationInterval: interval);
 
+      await pumpAudio();
       expect(
-        session?.audioRoute,
+        controller.current?.audioRoute,
         AudioRoute.silent,
         reason: '확인 못 한 상태로 재생하면 스피커로 샐 수 있다',
       );
@@ -195,12 +215,11 @@ void main() {
     test('재생 실패 시 재시도하지 않고 진동으로 떨어진다', () async {
       sound.connected = true;
       sound.failOnPlay = true;
-      final session = await controller.fire(
-        makeRequest(),
-        vibrationInterval: interval,
-      );
+      await controller.fire(makeRequest(), vibrationInterval: interval);
 
-      expect(session?.audioRoute, AudioRoute.silent);
+      await pumpAudio();
+      expect(controller.current?.audioRoute, AudioRoute.silent);
+      expect(controller.lastSoundFailed, isTrue);
       expect(sound.playCount, 1, reason: '재시도하면 라우팅이 바뀌어 스피커로 샐 수 있다');
     });
   });
@@ -287,31 +306,54 @@ void main() {
   });
 
   group('해제 즉시성 (docs/02-ARCHITECTURE.md 규칙 4)', () {
+    test('오디오 재생이 영원히 끝나지 않아도 발화가 완료된다', () async {
+      controller = build(soundOverride: HangingSound());
+
+      // 재생이 끝나지 않아도 fire() 는 반환되어야 한다.
+      // 기다리면 세션이 만들어지지 않아 해제할 대상 자체가 없어진다.
+      final session = await controller
+          .fire(makeRequest(), vibrationInterval: interval)
+          .timeout(
+            const Duration(seconds: 1),
+            onTimeout: () => throw StateError('발화가 재생을 기다렸다 — 규칙 4 위반'),
+          );
+
+      expect(session, isNotNull);
+      expect(controller.current, isNotNull, reason: '해제할 대상이 있어야 한다');
+    });
+
     test('오디오 재생이 영원히 끝나지 않아도 해제는 완료된다', () async {
-      final hanging = HangingSound();
-      controller = build(soundOverride: hanging);
+      controller = build(soundOverride: HangingSound());
+      await controller.fire(makeRequest(), vibrationInterval: interval);
 
-      // 발화는 재생 대기로 완료되지 않는다 — await 하지 않는다
-      unawaited(controller.fire(makeRequest(), vibrationInterval: interval));
-      await Future<void>.delayed(Duration.zero);
-
-      // 그래도 해제는 즉시 끝나야 한다
       final dismissed = await controller.dismiss().timeout(
         const Duration(seconds: 1),
         onTimeout: () => throw StateError('해제가 지연되었다 — 규칙 4 위반'),
       );
 
-      expect(vibration.stopCount, greaterThan(0));
+      expect(dismissed, isNotNull);
+      expect(vibration.stopCount, greaterThan(0), reason: '진동이 멈춰야 한다');
       expect(controller.current, isNull, reason: '재생 대기와 무관하게 세션이 정리되어야 한다');
-      expect(dismissed, anyOf(isNull, isNotNull));
+    });
+
+    test('해제 후 늦게 도착한 재생 결과가 세션을 되살리지 않는다', () async {
+      final slow = SlowSound();
+      controller = build(soundOverride: slow);
+
+      await controller.fire(makeRequest(), vibrationInterval: interval);
+      await controller.dismiss();
+
+      // 해제 뒤에 재생이 성공했다고 알려온다
+      slow.complete();
+      await pumpAudio();
+
+      expect(controller.current, isNull, reason: '해제된 세션이 되살아나면 유령 알림이 된다');
     });
 
     test('진동은 소리 판정보다 먼저 시작된다', () async {
-      final hanging = HangingSound();
-      controller = build(soundOverride: hanging);
+      controller = build(soundOverride: HangingSound());
 
-      unawaited(controller.fire(makeRequest(), vibrationInterval: interval));
-      await Future<void>.delayed(Duration.zero);
+      await controller.fire(makeRequest(), vibrationInterval: interval);
 
       expect(vibration.startCount, 1, reason: '소리 판정이 오래 걸려도 진동은 이미 전달되어야 한다');
     });

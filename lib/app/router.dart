@@ -71,6 +71,7 @@ class _AlertRoute extends ConsumerWidget {
 
     return AlertScreen(
       session: session,
+      soundFailed: ref.read(activeAlertProvider.notifier).soundFailed,
       onDismiss: () async {
         final placeName = session.placeName;
         final dismissed = await ref

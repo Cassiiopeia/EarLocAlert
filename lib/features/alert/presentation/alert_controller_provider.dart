@@ -29,12 +29,14 @@ AlertNotifier alertNotifier(Ref ref) =>
 
 @Riverpod(keepAlive: true)
 AlertController alertController(Ref ref) {
-  return AlertController(
+  final controller = AlertController(
     vibration: ref.watch(vibrationServiceProvider),
     sound: ref.watch(alertSoundServiceProvider),
     notifier: ref.watch(alertNotifierProvider),
     routeDecider: const AudioRouteDecider(),
   );
+  ref.onDispose(controller.dispose);
+  return controller;
 }
 
 /// 현재 울리고 있는 알림 세션.
@@ -44,16 +46,28 @@ AlertController alertController(Ref ref) {
 @riverpod
 class ActiveAlert extends _$ActiveAlert {
   @override
-  AlertSession? build() => null;
+  AlertSession? build() {
+    final controller = ref.watch(alertControllerProvider);
+
+    // 오디오 경로는 발화 직후 확정되지 않는다 — 재생이 늦게 성공하거나
+    // 실패할 수 있으므로 스트림으로 갱신을 받는다.
+    final sub = controller.sessionChanges.listen((session) => state = session);
+    ref.onDispose(sub.cancel);
+
+    return controller.current;
+  }
+
+  /// 마지막 발화에서 소리 재생이 실패했는가 — 화면 문구가 달라진다
+  bool get soundFailed => ref.read(alertControllerProvider).lastSoundFailed;
 
   Future<void> fire(
     AlertRequest request, {
     Duration vibrationInterval = const Duration(seconds: 3),
   }) async {
-    final session = await ref
+    // 세션 갱신은 sessionChanges 스트림이 처리한다
+    await ref
         .read(alertControllerProvider)
         .fire(request, vibrationInterval: vibrationInterval);
-    if (session != null) state = session;
   }
 
   /// 해제한다.
@@ -63,7 +77,8 @@ class ActiveAlert extends _$ActiveAlert {
   Future<AlertSession?> dismiss() async {
     final controller = ref.read(alertControllerProvider);
     final dismissed = await controller.dismiss();
-    // 대기열에 있던 다른 장소 알림이 이어서 울릴 수 있다
+    // 대기열에 있던 다른 장소 알림이 이어서 울릴 수 있다.
+    // 스트림도 갱신하지만 즉시 반영을 위해 여기서도 맞춘다.
     state = controller.current;
     return dismissed;
   }
