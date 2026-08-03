@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:ear_loc_alert/app/alert_ad_coordinator.dart';
-import 'package:ear_loc_alert/features/ads/domain/ad_frequency_policy.dart';
 import 'package:ear_loc_alert/features/ads/domain/ad_frequency_store.dart';
 import 'package:ear_loc_alert/features/ads/domain/interstitial_ad_service.dart';
 import 'package:flutter_test/flutter_test.dart';
