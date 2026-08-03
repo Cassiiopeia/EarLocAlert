@@ -106,8 +106,36 @@ jobs:
       - name: Pull latest changes
         run: git pull origin deploy
 
+      # Xcode 선택 — 러너 이미지는 예고 없이 바뀌므로 버전을 강제하지 않는다 (#46)
+      #
+      # 지정 버전이 있으면 쓰고, 없으면 러너 기본 Xcode 로 폴백한다.
+      # 선택한 Xcode 에 iOS 플랫폼이 없으면 (Xcode 16.3 + iOS 18.4 미설치 사례)
+      # 빌드가 "iOS X.Y Platform Not Installed" 로 실패하므로 미리 확인해 설치한다.
       - name: Select Xcode version
-        run: sudo xcode-select -s /Applications/Xcode_${{ env.XCODE_VERSION }}.app/Contents/Developer
+        run: |
+          TARGET="/Applications/Xcode_${{ env.XCODE_VERSION }}.app"
+          if [ -d "$TARGET" ]; then
+            sudo xcode-select -s "$TARGET/Contents/Developer"
+            echo "✅ Xcode ${{ env.XCODE_VERSION }} 선택"
+          else
+            echo "⚠️  Xcode ${{ env.XCODE_VERSION }} 없음 → 러너 기본 Xcode 사용"
+            echo "설치된 Xcode 목록:"
+            ls -d /Applications/Xcode*.app 2>/dev/null || echo "  (없음)"
+            sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+          fi
+          echo "선택된 Xcode: $(xcodebuild -version | head -1)"
+
+          echo "설치된 iOS 플랫폼 확인..."
+          if xcodebuild -showsdks 2>/dev/null | grep -q "iphoneos"; then
+            xcodebuild -showsdks 2>/dev/null | grep "iphoneos" || true
+            echo "✅ iOS SDK 사용 가능"
+          else
+            echo "⚠️  iOS SDK 없음 → 플랫폼 다운로드 시도 (수 분 소요)"
+            sudo xcodebuild -downloadPlatform iOS || {
+              echo "❌ iOS 플랫폼 설치 실패"
+              exit 1
+            }
+          fi
 
       - name: Create .env file
         run: |
@@ -227,8 +255,36 @@ jobs:
       - name: Pull latest changes
         run: git pull origin deploy
 
+      # Xcode 선택 — 러너 이미지는 예고 없이 바뀌므로 버전을 강제하지 않는다 (#46)
+      #
+      # 지정 버전이 있으면 쓰고, 없으면 러너 기본 Xcode 로 폴백한다.
+      # 선택한 Xcode 에 iOS 플랫폼이 없으면 (Xcode 16.3 + iOS 18.4 미설치 사례)
+      # 빌드가 "iOS X.Y Platform Not Installed" 로 실패하므로 미리 확인해 설치한다.
       - name: Select Xcode version
-        run: sudo xcode-select -s /Applications/Xcode_${{ env.XCODE_VERSION }}.app/Contents/Developer
+        run: |
+          TARGET="/Applications/Xcode_${{ env.XCODE_VERSION }}.app"
+          if [ -d "$TARGET" ]; then
+            sudo xcode-select -s "$TARGET/Contents/Developer"
+            echo "✅ Xcode ${{ env.XCODE_VERSION }} 선택"
+          else
+            echo "⚠️  Xcode ${{ env.XCODE_VERSION }} 없음 → 러너 기본 Xcode 사용"
+            echo "설치된 Xcode 목록:"
+            ls -d /Applications/Xcode*.app 2>/dev/null || echo "  (없음)"
+            sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+          fi
+          echo "선택된 Xcode: $(xcodebuild -version | head -1)"
+
+          echo "설치된 iOS 플랫폼 확인..."
+          if xcodebuild -showsdks 2>/dev/null | grep -q "iphoneos"; then
+            xcodebuild -showsdks 2>/dev/null | grep "iphoneos" || true
+            echo "✅ iOS SDK 사용 가능"
+          else
+            echo "⚠️  iOS SDK 없음 → 플랫폼 다운로드 시도 (수 분 소요)"
+            sudo xcodebuild -downloadPlatform iOS || {
+              echo "❌ iOS 플랫폼 설치 실패"
+              exit 1
+            }
+          fi
 
       - name: Download project files
         uses: actions/download-artifact@v4
