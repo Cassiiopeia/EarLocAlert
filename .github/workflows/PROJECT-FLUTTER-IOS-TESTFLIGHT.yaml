@@ -178,6 +178,10 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
+      # freezed·riverpod·drift 코드 생성 — 없으면 릴리스 빌드 실패 (#67)
+      - name: 코드 생성 (build_runner)
+        run: dart run build_runner build --delete-conflicting-outputs
+
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
@@ -331,6 +335,10 @@ jobs:
 
       - name: Install dependencies
         run: flutter pub get
+
+      # freezed·riverpod·drift 코드 생성 — 없으면 릴리스 빌드 실패 (#67)
+      - name: 코드 생성 (build_runner)
+        run: dart run build_runner build --delete-conflicting-outputs
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
