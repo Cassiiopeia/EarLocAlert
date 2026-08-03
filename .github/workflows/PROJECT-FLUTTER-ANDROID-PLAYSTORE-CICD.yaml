@@ -278,6 +278,10 @@ jobs:
           flutter clean
           flutter pub get
 
+          # freezed·riverpod·drift 코드 생성 — 이게 없으면 릴리스 빌드가
+          # undefined getter 로 실패한다 (#67)
+          dart run build_runner build --delete-conflicting-outputs
+
           # local.properties에 버전 정보 추가 (Flutter 플래그가 무시되는 문제 해결)
           echo "🔧 local.properties에 버전 정보 설정..."
 
