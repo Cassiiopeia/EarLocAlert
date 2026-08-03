@@ -12,11 +12,25 @@ dependencies:
     sdk: flutter
   cupertino_icons: ^1.0.8
   freezed_annotation: ^3.0.0
+  # 상태 관리 · DI — Riverpod 으로 통일한다. provider·get_it 병행 금지 (docs/02-ARCHITECTURE.md)
+  flutter_riverpod: ^2.6.1
+  riverpod_annotation: ^2.6.1
+  # 로컬 저장소 — Drift(SQLite). Hive·Isar 를 쓰지 않는다 (docs/10-DECISIONS.md 003)
+  drift: ^2.20.0
+  sqlite3_flutter_libs: ^0.5.24
+  path_provider: ^2.1.4
+  path: ^1.9.0
+  # 식별자 — 저장 전에 앱이 생성한다 (docs/03-DOMAIN.md)
+  uuid: ^4.5.1
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
   build_runner: ^2.4.6
   freezed: ^3.0.0
+  drift_dev: ^2.20.0
+  riverpod_generator: ^2.6.1
+  custom_lint: ^0.7.0
+  riverpod_lint: ^2.6.1
 flutter:
   uses-material-design: true
