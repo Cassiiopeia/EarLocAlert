@@ -1,7 +1,7 @@
 # EarLocAlert
 
 <!-- 수정하지마세요 자동으로 동기화 됩니다 -->
-## 최신 버전 : v1.2.17 (2026-01-08)
+## 최신 버전 : v1.2.23 (2026-08-03)
 
 [![Flutter](https://img.shields.io/badge/Flutter-3.35.5-02569B?logo=flutter)](https://flutter.dev)
 [![Platform](https://img.shields.io/badge/platform-Android%20%7C%20iOS-lightgrey)](https://flutter.dev/multi-platform)
