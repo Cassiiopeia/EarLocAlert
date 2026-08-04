@@ -75,19 +75,26 @@ GitHub 러너 이미지는 예고 없이 갱신된다. 특정 Xcode 버전을 �
 
 ## 남은 정리 대상
 
-### 시크릿 이름이 워크플로우마다 다르다
+### ~~시크릿 이름이 워크플로우마다 다르다~~ — 통일 완료 (2026-08-04)
 
-같은 키스토어를 가리키는데 이름이 갈린다.
+**이 문서는 "둘 다 등록해두면 동작은 한다"고 적고 있었지만 사실이 아니었다.** 실제로 등록된 것은 한쪽뿐이었다.
 
-| 용도 | PR CI | Play Store CI/CD |
-|---|---|---|
-| 키스토어 | `KEYSTORE_FILE` | `RELEASE_KEYSTORE_BASE64` |
-| 키스토어 비밀번호 | `KEYSTORE_PASSWORD` | `RELEASE_KEYSTORE_PASSWORD` |
-| 키 별칭 | `KEY_ALIAS` | `RELEASE_KEY_ALIAS` |
-| 키 비밀번호 | `KEY_PASSWORD` | `RELEASE_KEY_PASSWORD` |
-| 환경 파일 | `ENV` | `ENV_FILE` |
+| 워크플로우가 부르던 이름 | 등록 여부 |
+|---|---|
+| `ENV_FILE` · `RELEASE_*` | 있음 |
+| `ENV` · `KEYSTORE_FILE` · `KEYSTORE_PASSWORD` · `KEY_ALIAS` · `KEY_PASSWORD` | **없음** |
+| `SECRETS_XCCONFIG` · `GOOGLE_SERVICES_JSON` | **없음** |
 
-**둘 다 등록해두면 동작은 한다.** 하지만 키스토어를 교체할 때 한쪽만 갱신하면 그때 깨지고, 원인을 찾는 데 시간이 걸린다. 실제 배포에 들어가기 전에 한쪽으로 통일한다.
+그래서 **PR CI 는 계속 빈 `.env` 를 만들고 있었다.** `.env` 를 읽는 코드가 없어서 드러나지 않다가, Maps 키를 `.env` 에서 읽게 되면서 문제가 됐다.
+
+실제로 존재하는 이름(`ENV_FILE`·`RELEASE_*`)으로 통일했다. 없는 쪽으로 맞추면 새 시크릿을 만들 때까지 전부 깨지지만, 있는 쪽으로 맞추면 즉시 정상 동작한다.
+
+죽은 단계 두 개도 제거했다.
+
+- `SECRETS_XCCONFIG` — 파일을 만들기만 하고 어느 xcconfig 에서도 include 하지 않아 효과가 없었다
+- `GOOGLE_SERVICES_JSON` — 이 앱은 Firebase 를 쓰지 않는다
+
+> **교훈** — "둘 다 등록해두면 된다"는 문장은 확인 없이 쓰였다. 시크릿은 `gh secret list` 로 실물을 대조한다.
 
 ---
 
@@ -100,8 +107,8 @@ GitHub 러너 이미지는 예고 없이 갱신된다. 특정 Xcode 버전을 �
 | `RELEASE_KEYSTORE_BASE64` | 앱 서명 키스토어 |
 | `RELEASE_KEYSTORE_PASSWORD` · `RELEASE_KEY_ALIAS` · `RELEASE_KEY_PASSWORD` | 키스토어 접근 |
 | `GOOGLE_PLAY_SERVICE_ACCOUNT_JSON_BASE64` | Play Console 업로드 |
-| `GOOGLE_SERVICES_JSON` | Google 서비스 설정 |
-| `ENV_FILE` | 앱 런타임 환경 변수 |
+| `ENV_FILE` | 앱 런타임 환경 변수 (`.env` 본문) |
+| `MAPS_API_KEY` | Google Maps 키. `.env` 에 덧붙는다 |
 
 **키스토어를 잃어버리면 그 앱은 끝이다.** 같은 패키지명으로 업데이트를 올릴 수 없고, 새 패키지명으로 다시 출시하면 기존 사용자·리뷰·순위가 전부 사라진다.
 
@@ -120,8 +127,8 @@ GitHub 러너 이미지는 예고 없이 갱신된다. 특정 Xcode 버전을 �
 | `APPLE_CERTIFICATE_BASE64` · `APPLE_CERTIFICATE_PASSWORD` | 서명 인증서 |
 | `APPLE_PROVISIONING_PROFILE_BASE64` · `IOS_PROVISIONING_PROFILE_NAME` | 프로비저닝 |
 | `APP_STORE_CONNECT_API_KEY_BASE64` · `_KEY_ID` · `_ISSUER_ID` | 업로드 인증 |
-| `SECRETS_XCCONFIG` | 빌드 설정 주입 |
-| `ENV` | 앱 런타임 환경 변수 |
+| `ENV_FILE` | 앱 런타임 환경 변수 (`.env` 본문) |
+| `MAPS_API_KEY` | Google Maps 키. `.env` 에 덧붙는다 |
 
 인증서와 프로비저닝 프로필은 **만료된다.** 만료 시점을 알기 어려운데, 빌드가 갑자기 실패하면 여기를 먼저 본다.
 
@@ -144,22 +151,57 @@ TestFlight 워크플로우에 만료일 검사 단계를 넣어, 만료 30일 �
 
 ## 앱이 필요로 하는 키
 
-앞으로 추가될 것들이다. 지금은 없지만 구현하면 반드시 필요하다.
-
 | 키 | 쓰는 곳 | 주의 |
 |---|---|---|
-| Google Maps API 키 (Android) | `AndroidManifest.xml` | **패키지명 + 서명 인증서로 제한한다** |
-| Google Maps API 키 (iOS) | `AppDelegate` | 번들 ID 로 제한 |
+| Google Maps API 키 | `.env` → 네이티브 빌드 | **패키지명·번들 ID 로 제한한다** |
 | AdMob 앱 ID | 매니페스트 · plist | 공개 정보 — 숨길 필요 없다 |
 | AdMob 광고 단위 ID | 코드 | 빌드 종류로 자동 분기 |
+
+### Maps API 키 — 단일 소스는 `.env` 다
+
+키는 **Dart 런타임 값이 아니라 네이티브 빌드 시점 값**이다. `flutter_dotenv` 로 읽어서 쓰는 게 아니라, 빌드가 매니페스트·plist 에 박아 넣는다.
+
+```
+.env  (MAPS_API_KEY=AIza…, gitignore 됨)
+  │
+  ├─ Android  build.gradle.kts 가 .env 파싱
+  │           → manifestPlaceholders → AndroidManifest 의 ${MAPS_API_KEY}
+  │
+  └─ iOS      tool/sync_env.sh → ios/Flutter/MapsKey.xcconfig
+              → Info.plist 의 MapsApiKey → AppDelegate → GMSServices
+```
+
+**키가 없어도 빌드는 성공한다.** 지도만 회색으로 뜨고 나머지 기능은 정상 동작한다 — 키 없는 사람도 레포를 받아 빌드할 수 있어야 한다. iOS 는 빈 키를 SDK 에 넘기면 앱이 죽으므로 `AppDelegate` 가 빈 값이면 초기화를 건너뛴다.
+
+로컬 준비는 `cp .env.example .env` 후 값 채우기. iOS 빌드 전에는 `./tool/sync_env.sh` 를 한 번 돌린다.
+
+CI 에서는 **`MAPS_API_KEY` 를 별도 시크릿으로 두고** 각 워크플로우가 `.env` 에 덧붙인다.
+
+```yaml
+printf "%s\n" "${{ secrets.ENV_FILE }}" > .env
+echo "MAPS_API_KEY=${{ secrets.MAPS_API_KEY }}" >> .env
+```
+
+**`ENV_FILE` 본문에 넣지 않는 이유**는 시크릿을 읽을 수 없기 때문이다. GitHub 시크릿은 쓰기 전용이라, 한 줄을 추가하려면 전체를 다시 써야 하고 그 과정에서 기존 값이 날아갈 수 있다. 값 하나를 추가할 때는 시크릿을 하나 더 만드는 쪽이 안전하다.
+
+키를 교체할 때는 `gh secret set MAPS_API_KEY` 한 번이면 되고, 워크플로우는 손대지 않는다.
 
 ### Maps API 키는 반드시 제한을 건다
 
 APK 를 뜯으면 키가 보인다. **제한을 걸지 않으면 남이 내 키로 API 를 호출하고 과금이 나에게 온다.**
 
-- Android: 패키지명 + SHA-1 인증서 지문
-- iOS: 번들 ID
+- API 제한: `Maps SDK for Android` · `Maps SDK for iOS` 만
+- Android 앱 제한: 패키지명 `kr.suhsaechan.ear_loc_alert` + SHA-1 인증서 지문
+- iOS 앱 제한: 번들 ID `kr.suhsaechan.earlocAlert`
 - 사용량 상한(quota) 설정
+
+**앱 제한은 서명 키스토어가 있어야 SHA-1 을 뽑을 수 있다.** 발급 직후에는 API 제한만 걸고, 실기기 릴리스 빌드를 만들 때 앱 제한을 추가한다.
+
+```bash
+# 디버그 키스토어 SHA-1
+keytool -list -v -keystore ~/.android/debug.keystore -alias androiddebugkey \
+  -storepass android -keypass android | grep SHA1
+```
 
 ### 광고 ID 는 빌드가 결정한다
 

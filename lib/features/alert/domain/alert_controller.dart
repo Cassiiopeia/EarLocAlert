@@ -134,7 +134,7 @@ class AlertController {
   Future<void> _resolveAudio(AlertRequest request, int token) async {
     var connected = false;
     try {
-      connected = await _sound.isBluetoothConnected();
+      connected = await _sound.isHeadphoneConnected();
     } on Object {
       // 연결 확인이 실패하면 연결되지 않은 것으로 본다.
       // 확인 못 한 상태로 재생하면 스피커로 샐 수 있다.
@@ -144,7 +144,7 @@ class AlertController {
     if (_sessionToken != token) return; // 이미 해제됐다
 
     final route = _routeDecider.decide(
-      isBluetoothConnected: connected,
+      isHeadphoneConnected: connected,
       soundEnabled: request.soundEnabled,
     );
     if (route == AudioRoute.silent) return; // 세션은 이미 silent 다
@@ -152,7 +152,7 @@ class AlertController {
     try {
       await _sound.play();
       if (_sessionToken != token) return;
-      _updateRoute(AudioRoute.bluetooth, soundFailed: false);
+      _updateRoute(AudioRoute.headphones, soundFailed: false);
     } on Object {
       // 재시도하지 않는다 — 재시도 중 라우팅이 바뀌어 스피커로 새는 것이
       // 최악이다 (docs/10-DECISIONS.md 007)

@@ -30,21 +30,24 @@ jobs:
         with:
           fetch-depth: 0
 
+      # 시크릿 이름은 ENV_FILE·RELEASE_* 로 통일돼 있다 (docs/08-OPERATIONS.md).
+      # MAPS_API_KEY 는 별도 시크릿이라 ENV_FILE 을 건드리지 않고 덧붙인다.
       - name: 환경 변수 파일 생성
         id: create-env
         run: |
-          printf "%s\n" "${{ secrets.ENV }}" > .env
+          printf "%s\n" "${{ secrets.ENV_FILE }}" > .env
+          echo "MAPS_API_KEY=${{ secrets.MAPS_API_KEY }}" >> .env
 
       - name: 키스토어 설정
         id: setup-keystore
         run: |
           mkdir -p android/app/keystore
-          echo "${{ secrets.KEYSTORE_FILE }}" | base64 -d > android/app/keystore/key.jks
+          echo "${{ secrets.RELEASE_KEYSTORE_BASE64 }}" | base64 -d > android/app/keystore/key.jks
 
           echo "storeFile=keystore/key.jks" > android/key.properties
-          echo "storePassword=${{ secrets.KEYSTORE_PASSWORD }}" >> android/key.properties
-          echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> android/key.properties
-          echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> android/key.properties
+          echo "storePassword=${{ secrets.RELEASE_KEYSTORE_PASSWORD }}" >> android/key.properties
+          echo "keyAlias=${{ secrets.RELEASE_KEY_ALIAS }}" >> android/key.properties
+          echo "keyPassword=${{ secrets.RELEASE_KEY_PASSWORD }}" >> android/key.properties
 
       - name: Flutter 설정
         id: setup-flutter

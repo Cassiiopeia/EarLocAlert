@@ -41,6 +41,9 @@ dependencies:
   shared_preferences: ^2.5.2
   # 백그라운드 지오펜스 — S-1 선정: OS 네이티브 API 위임 (docs/10-DECISIONS.md 014)
   native_geofence: ^1.2.1
+  # 지도 — Google 로 통일한다 (docs/10-DECISIONS.md 008).
+  # API 키는 .env 단일 소스에서 네이티브 빌드로 주입된다 (docs/08-OPERATIONS.md)
+  google_maps_flutter: ^2.9.0
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -56,6 +59,10 @@ dev_dependencies:
   riverpod_lint: ^2.6.1
 flutter:
   uses-material-design: true
+
+  assets:
+    # 알림음. 이어폰이 연결된 경우에만 재생된다 (F3.7)
+    - assets/sounds/alert.wav
 # 앱 아이콘 생성: dart run flutter_launcher_icons (이슈 #65)
 flutter_launcher_icons:
   android: true

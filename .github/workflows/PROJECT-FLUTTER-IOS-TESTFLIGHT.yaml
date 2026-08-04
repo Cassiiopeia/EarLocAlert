@@ -32,10 +32,11 @@
 #   - APP_STORE_CONNECT_API_KEY_BASE64: AuthKey_XXXXXX.p8 파일 (base64 인코딩)
 #
 # 📝 환경 설정 (선택):
-#   - ENV                             : .env 파일 내용 (앱에서 사용하는 환경변수)
-#   - SECRETS_XCCONFIG                : ios/Flutter/Secrets.xcconfig 내용 (선택)
-#                                       iOS 네이티브 빌드 시 필요한 API 키 등
-#                                       (예: GOOGLE_MAPS_API_KEY=xxx)
+#   - ENV_FILE                        : .env 파일 내용 (앱에서 사용하는 환경변수)
+#   - MAPS_API_KEY                    : Google Maps API 키. ENV_FILE 을 건드리지 않고
+#                                       .env 에 덧붙인 뒤 tool/sync_env.sh 가
+#                                       ios/Flutter/MapsKey.xcconfig 로 옮긴다
+#                                       (docs/08-OPERATIONS.md)
 #
 # ===================================================================
 # 🛠️ 초기 설정 방법
@@ -145,22 +146,26 @@ jobs:
           # 실패해도 빌드를 진행한다 — 빌드 에러 로그가 더 정확한 진단을 준다.
           sudo xcodebuild -downloadPlatform iOS 2>&1 | tail -20 ||             echo "⚠️  platform 다운로드 실패 또는 미지원 — 빌드를 그대로 진행한다"
 
+      # 시크릿 이름은 ENV_FILE 로 통일돼 있다 (docs/08-OPERATIONS.md).
+      # MAPS_API_KEY 는 별도 시크릿이라 ENV_FILE 을 건드리지 않고 덧붙인다.
       - name: Create .env file
         run: |
           cat << 'EOF' > ${{ env.ENV_FILE_PATH }}
-          ${{ secrets.ENV }}
+          ${{ secrets.ENV_FILE }}
           EOF
+          echo "MAPS_API_KEY=${{ secrets.MAPS_API_KEY }}" >> ${{ env.ENV_FILE_PATH }}
           echo "✅ ${{ env.ENV_FILE_PATH }} file created"
 
-      - name: Create Secrets.xcconfig file
+      # Google Maps 키 주입 (docs/08-OPERATIONS.md).
+      # Android 는 build.gradle.kts 가 .env 를 직접 읽지만, iOS 는 xcconfig 를
+      # 거쳐야 Info.plist 치환이 된다. 키가 비어 있어도 실패하지 않는다.
+      - name: Google Maps 키 동기화 (.env → MapsKey.xcconfig)
         run: |
-          mkdir -p ios/Flutter
-          if [ -n "${{ secrets.SECRETS_XCCONFIG }}" ]; then
-            echo "${{ secrets.SECRETS_XCCONFIG }}" > ios/Flutter/Secrets.xcconfig
-            echo "Secrets.xcconfig created"
-          else
-            echo "// No secrets provided" > ios/Flutter/Secrets.xcconfig
-          fi
+          chmod +x ./tool/sync_env.sh
+          ./tool/sync_env.sh
+
+      # Secrets.xcconfig 단계를 제거했다 — 만들기만 하고 어느 xcconfig 에서도
+      # include 하지 않아 아무 효과가 없었다. 값이 필요하면 .env 를 쓴다.
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
@@ -315,10 +320,17 @@ jobs:
         run: |
           if [ ! -f "${{ env.ENV_FILE_PATH }}" ]; then
             cat << 'EOF' > ${{ env.ENV_FILE_PATH }}
-          ${{ secrets.ENV }}
+          ${{ secrets.ENV_FILE }}
           EOF
+            echo "MAPS_API_KEY=${{ secrets.MAPS_API_KEY }}" >> ${{ env.ENV_FILE_PATH }}
             echo "✅ ${{ env.ENV_FILE_PATH }} file created (fallback)"
           fi
+
+      # .env 를 새로 만든 job 에서도 xcconfig 를 다시 생성해야 한다
+      - name: Google Maps 키 동기화 (.env → MapsKey.xcconfig)
+        run: |
+          chmod +x ./tool/sync_env.sh
+          ./tool/sync_env.sh
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2

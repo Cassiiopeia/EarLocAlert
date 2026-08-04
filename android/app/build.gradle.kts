@@ -14,6 +14,24 @@ if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 }
 
+// Google Maps API 키 (docs/08-OPERATIONS.md).
+//
+// 단일 소스는 레포 루트의 .env 다 — 커밋되지 않으며, CI 는 Secret 으로 만든다.
+// 파일이 없거나 값이 비어 있어도 빌드는 성공한다. 지도만 회색으로 뜨고
+// 나머지 기능은 정상 동작한다 — 키가 없는 사람도 빌드할 수 있어야 한다.
+val dotenvFile = rootProject.file("../.env")
+val mapsApiKey: String = if (dotenvFile.exists()) {
+    dotenvFile.readLines()
+        .map { it.trim() }
+        .firstOrNull { it.startsWith("MAPS_API_KEY=") }
+        ?.substringAfter("=")
+        ?.trim()
+        ?.trim('"', '\'')
+        ?: ""
+} else {
+    ""
+}
+
 android {
 
     // Signing Configurations
@@ -52,6 +70,10 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+
+        // AndroidManifest 의 ${MAPS_API_KEY} 를 치환한다.
+        // 키를 매니페스트에 직접 적지 않는 이유는 커밋을 막기 위해서다.
+        manifestPlaceholders["MAPS_API_KEY"] = mapsApiKey
     }
 
     buildTypes {

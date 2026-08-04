@@ -53,6 +53,7 @@ jobs:
       - name: Create .env file from GitHub Secret
         run: |
           echo "${{ secrets.ENV_FILE }}" > .env
+          echo "MAPS_API_KEY=${{ secrets.MAPS_API_KEY }}" >> .env
           echo ".env file created"
           ls -la
 
@@ -70,12 +71,8 @@ jobs:
           echo "key.properties created"
           ls -la android/
 
-      # Google-services.json 생성
-      - name: Create Google-services.json
-        run: |
-          echo "${{ secrets.GOOGLE_SERVICES_JSON }}" > android/Google-services.json
-          echo "Google-services.json created"
-          ls -la android/
+      # Google-services.json 단계를 제거했다 — 이 앱은 Firebase 를 쓰지 않는다.
+      # 시크릿도 등록돼 있지 않아 빈 파일만 만들고 있었다.
 
       # Flutter 설정 및 버전 확인
       - name: Set up Flutter

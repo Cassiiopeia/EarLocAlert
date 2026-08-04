@@ -7,27 +7,27 @@ void main() {
   const decider = AudioRouteDecider();
 
   group('오디오 경로 결정 (docs/03-DOMAIN.md 규칙 5)', () {
-    test('블루투스 연결 + 소리 허용 → 이어폰 재생', () {
+    test('이어폰 연결 + 소리 허용 → 이어폰 재생', () {
       expect(
-        decider.decide(isBluetoothConnected: true, soundEnabled: true),
-        AudioRoute.bluetooth,
+        decider.decide(isHeadphoneConnected: true, soundEnabled: true),
+        AudioRoute.headphones,
       );
     });
 
-    test('블루투스 연결 + 소리 꺼짐 → 진동만', () {
+    test('이어폰 연결 + 소리 꺼짐 → 진동만', () {
       expect(
-        decider.decide(isBluetoothConnected: true, soundEnabled: false),
+        decider.decide(isHeadphoneConnected: true, soundEnabled: false),
         AudioRoute.silent,
       );
     });
 
-    test('블루투스 미연결 → 소리 설정과 무관하게 진동만', () {
+    test('이어폰 미연결 → 소리 설정과 무관하게 진동만', () {
       expect(
-        decider.decide(isBluetoothConnected: false, soundEnabled: true),
+        decider.decide(isHeadphoneConnected: false, soundEnabled: true),
         AudioRoute.silent,
       );
       expect(
-        decider.decide(isBluetoothConnected: false, soundEnabled: false),
+        decider.decide(isHeadphoneConnected: false, soundEnabled: false),
         AudioRoute.silent,
       );
     });
@@ -39,7 +39,7 @@ void main() {
     test('전 분기에서 스피커 출력 경로가 존재하지 않는다 (F3.7)', () {
       // AudioRoute 에 speaker 값 자체가 없다 — 타입 수준에서 차단된다.
       // 이 테스트는 enum 에 speaker 가 추가되는 것을 막는 가드다.
-      expect(AudioRoute.values, [AudioRoute.bluetooth, AudioRoute.silent]);
+      expect(AudioRoute.values, [AudioRoute.headphones, AudioRoute.silent]);
     });
   });
 }

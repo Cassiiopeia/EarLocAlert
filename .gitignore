@@ -72,6 +72,9 @@ android/app/keystore/
 # Play Store CI/CD - 민감한 파일 (자동 생성됨)
 .env.*.local
 
+# Google Maps API 키 — .env 에서 생성된다 (tool/sync_env.sh)
+ios/Flutter/MapsKey.xcconfig
+
 # FVM Version Cache
 .fvm/
 

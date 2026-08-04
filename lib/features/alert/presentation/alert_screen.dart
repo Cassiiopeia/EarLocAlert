@@ -137,9 +137,9 @@ class _AudioRouteBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final semantic = Theme.of(context).extension<AppSemanticColors>()!;
-    final isBluetooth = route == AudioRoute.bluetooth;
+    final isHeadphones = route == AudioRoute.headphones;
 
-    final label = switch ((isBluetooth, soundFailed)) {
+    final label = switch ((isHeadphones, soundFailed)) {
       (true, _) => '이어폰으로 알림 중',
       (false, true) => '소리를 재생하지 못해 진동으로 알림 중',
       (false, false) => '진동으로만 알림 중',
@@ -158,9 +158,9 @@ class _AudioRouteBadge extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
-            isBluetooth ? Icons.headphones_outlined : Icons.vibration_outlined,
+            isHeadphones ? Icons.headphones_outlined : Icons.vibration_outlined,
             size: 18,
-            color: isBluetooth
+            color: isHeadphones
                 ? semantic.audioBluetooth
                 : AppColors.textSecondary,
           ),
