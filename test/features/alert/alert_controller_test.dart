@@ -34,7 +34,7 @@ class FakeSound implements AlertSoundService {
   int stopCount = 0;
 
   @override
-  Future<bool> isBluetoothConnected() async {
+  Future<bool> isHeadphoneConnected() async {
     if (failOnCheck) throw Exception('연결 확인 실패');
     return connected;
   }
@@ -74,7 +74,7 @@ class HangingSound implements AlertSoundService {
   final _never = Completer<void>();
 
   @override
-  Future<bool> isBluetoothConnected() async => true;
+  Future<bool> isHeadphoneConnected() async => true;
 
   @override
   Future<void> play() => _never.future;
@@ -90,7 +90,7 @@ class SlowSound implements AlertSoundService {
   void complete() => _gate.complete();
 
   @override
-  Future<bool> isBluetoothConnected() async => true;
+  Future<bool> isHeadphoneConnected() async => true;
 
   @override
   Future<void> play() => _gate.future;
@@ -167,17 +167,17 @@ void main() {
   });
 
   group('오디오 경로 (F3.4~F3.7)', () {
-    test('블루투스 연결 + 소리 허용 → 재생한다', () async {
+    test('이어폰 연결 + 소리 허용 → 재생한다', () async {
       sound.connected = true;
       await controller.fire(makeRequest(), vibrationInterval: interval);
       // 오디오 판정은 알림 전달을 막지 않으므로 비동기로 확정된다
       await pumpAudio();
 
-      expect(controller.current?.audioRoute, AudioRoute.bluetooth);
+      expect(controller.current?.audioRoute, AudioRoute.headphones);
       expect(sound.playCount, 1);
     });
 
-    test('블루투스 미연결 → 재생하지 않는다 (스피커 유출 방지)', () async {
+    test('이어폰 미연결 → 재생하지 않는다 (스피커 유출 방지)', () async {
       sound.connected = false;
       await controller.fire(makeRequest(), vibrationInterval: interval);
 

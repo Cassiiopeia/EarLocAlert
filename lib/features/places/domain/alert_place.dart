@@ -26,7 +26,7 @@ abstract class AlertPlace with _$AlertPlace {
     /// 삭제하지 않고 잠시 끄는 수단 (F1.7)
     @Default(true) bool enabled,
 
-    /// 블루투스 연결 시 소리를 낼지
+    /// 이어폰(줄·블루투스) 연결 시 소리를 낼지
     @Default(true) bool soundEnabled,
     required DateTime createdAt,
   }) = _AlertPlace;

@@ -13,7 +13,10 @@ import '../features/alert/presentation/alert_screen.dart';
 import '../features/permission/presentation/onboarding_screen.dart';
 import '../features/places/domain/alert_place.dart';
 import '../features/places/presentation/place_form_screen.dart';
-import '../features/places/presentation/place_list_screen.dart';
+import '../features/places/presentation/place_map_home_screen.dart';
+import '../features/places/presentation/place_map_picker_screen.dart';
+import '../features/places/presentation/place_search_provider.dart';
+import 'home_status_provider.dart';
 
 /// 앱 라우팅 (docs/02-ARCHITECTURE.md)
 ///
@@ -26,6 +29,7 @@ abstract final class AppRoutes {
   static const alertDismissed = '/alert/dismissed';
   static const placeNew = '/places/new';
   static const placeEdit = '/places/edit';
+  static const placeMap = '/places/map';
 }
 
 GoRouter createRouter() {
@@ -43,15 +47,23 @@ GoRouter createRouter() {
       ),
       GoRoute(
         path: AppRoutes.placeNew,
-        builder: (context, state) =>
-            PlaceFormScreen(onSaved: () => context.go(AppRoutes.home)),
+        builder: (context, state) => PlaceFormScreen(
+          onSaved: () => context.go(AppRoutes.home),
+          onPickOnMap: (args) => _pickOnMap(context, args),
+        ),
       ),
       GoRoute(
         path: AppRoutes.placeEdit,
         builder: (context, state) => PlaceFormScreen(
           existing: state.extra as AlertPlace?,
           onSaved: () => context.go(AppRoutes.home),
+          onPickOnMap: (args) => _pickOnMap(context, args),
         ),
+      ),
+      GoRoute(
+        path: AppRoutes.placeMap,
+        builder: (context, state) =>
+            _MapPickerRoute(args: state.extra! as MapPickArgs),
       ),
       GoRoute(
         path: AppRoutes.alert,
@@ -66,6 +78,31 @@ GoRouter createRouter() {
       ),
     ],
   );
+}
+
+/// 지도 위치 선택 라우트 — 검색 서비스를 조립해 내려준다 (issue #72).
+class _MapPickerRoute extends ConsumerWidget {
+  const _MapPickerRoute({required this.args});
+
+  final MapPickArgs args;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return PlaceMapPickerScreen(
+      args: args,
+      searchService: ref.watch(placeSearchServiceProvider),
+      // 선택 결과를 push 를 기다리던 폼에게 돌려준다
+      onPicked: (result) => context.pop(result),
+    );
+  }
+}
+
+/// 지도 화면을 열고 선택 결과를 기다린다.
+///
+/// 폼은 `Navigator`·`GoRouter` 를 직접 만지지 않는다 — 화면 전환은 전부
+/// 여기서 조율한다 (docs/02-ARCHITECTURE.md).
+Future<MapPickResult?> _pickOnMap(BuildContext context, MapPickArgs args) {
+  return context.push<MapPickResult>(AppRoutes.placeMap, extra: args);
 }
 
 /// 알림 화면 라우트.
@@ -125,17 +162,27 @@ class _AlertRoute extends ConsumerWidget {
   }
 }
 
-/// 메인 화면 — 지도가 붙기 전까지 위치 목록이 홈이다 (docs/11-ROADMAP.md).
+/// 메인 화면 — 지도 위에 등록 장소와 감시 상태를 얹는다 (docs/06-UX.md).
 ///
-/// 지도 화면이 생기면 목록은 지도 위 시트로 옮겨간다.
+/// 감시·이어폰 상태는 geofence·alert feature 소유라 여기서 읽어 **값으로**
+/// 내려준다. 화면은 어느 feature 도 직접 import 하지 않는다
+/// (docs/02-ARCHITECTURE.md 규칙 1).
 class _HomeRoute extends ConsumerWidget {
   const _HomeRoute();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return PlaceListScreen(
+    final status =
+        ref.watch(homeStatusProvider).valueOrNull ?? HomeStatus.unknown;
+
+    return PlaceMapHomeScreen(
+      isMonitoring: status.isMonitoring,
+      isHeadphoneConnected: status.isHeadphoneConnected,
       onAddPlace: () => context.go(AppRoutes.placeNew),
       onEditPlace: (place) => context.go(AppRoutes.placeEdit, extra: place),
+      // 감시가 꺼져 있으면 권한 화면이 유일한 해결 경로다
+      onFixMonitoring: () => context.go(AppRoutes.onboarding),
+      onRefreshStatus: () => ref.invalidate(homeStatusProvider),
       // 백그라운드 감시 연결 전까지 알림 흐름을 확인하는 수단 (S-4·S-5).
       // 지오펜스 연동이 끝나면 제거한다.
       onPreviewAlert: () async {

@@ -2,7 +2,7 @@ name: ear_loc_alert
 description: "특정 위치에 도착·출발할 때 진동 또는 블루투스 이어폰으로만 알리는 위치 기반 알림 앱"
 publish_to: 'none'
 # 버전은 version.yml 이 단일 출처다. 직접 수정하지 않는다 (docs/08-OPERATIONS.md)
-version: 1.2.35+67
+version: 1.2.39+71
 # Dart 3.9+ (docs/02-ARCHITECTURE.md) — 와일드카드 파라미터 등 3.7+ 문법을 쓴다
 environment:
   sdk: '>=3.9.0 <4.0.0'
@@ -41,6 +41,9 @@ dependencies:
   shared_preferences: ^2.5.2
   # 백그라운드 지오펜스 — S-1 선정: OS 네이티브 API 위임 (docs/10-DECISIONS.md 014)
   native_geofence: ^1.2.1
+  # 지도 — Google 로 통일한다 (docs/10-DECISIONS.md 008).
+  # API 키는 .env 단일 소스에서 네이티브 빌드로 주입된다 (docs/08-OPERATIONS.md)
+  google_maps_flutter: ^2.9.0
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -56,6 +59,9 @@ dev_dependencies:
   riverpod_lint: ^2.6.1
 flutter:
   uses-material-design: true
+  assets:
+    # 알림음. 이어폰이 연결된 경우에만 재생된다 (F3.7)
+    - assets/sounds/alert.wav
 # 앱 아이콘 생성: dart run flutter_launcher_icons (이슈 #65)
 flutter_launcher_icons:
   android: true

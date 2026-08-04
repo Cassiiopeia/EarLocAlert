@@ -7,18 +7,31 @@ import '../../../core/theme/app_typography.dart';
 import '../domain/alert_place.dart';
 import '../domain/place_validator.dart';
 import 'place_list_controller.dart';
-import 'place_list_screen.dart' show placeErrorMessage;
+import 'place_empty_state.dart' show placeErrorMessage;
+import 'place_map_picker_screen.dart';
 
 /// 장소 등록/편집 폼 (docs/06-UX.md)
 ///
-/// 좌표 직접 입력은 **지도 연결 전 임시 수단**이다. Google Maps API 키가
-/// 준비되면 "지도에서 선택"으로 교체한다 — 이름·반경·방향·소리는 그대로다.
+/// 위치는 **지도에서 고르는 것이 기본**이다. 좌표 직접 입력은 접어둔
+/// 보조 수단으로 남긴다 — 지도 API 키가 없는 빌드에서도 장소를 등록할 수
+/// 있어야 하고, 좌표를 정확히 아는 경우가 드물게 있다.
 class PlaceFormScreen extends ConsumerStatefulWidget {
-  const PlaceFormScreen({this.existing, this.onSaved, super.key});
+  const PlaceFormScreen({
+    this.existing,
+    this.onSaved,
+    this.onPickOnMap,
+    super.key,
+  });
 
   /// null 이면 신규 등록
   final AlertPlace? existing;
   final VoidCallback? onSaved;
+
+  /// 지도 화면을 열고 선택 결과를 돌려준다.
+  ///
+  /// 화면 전환은 라우터가 한다 — 폼이 `Navigator` 를 직접 부르지 않는다
+  /// (docs/02-ARCHITECTURE.md).
+  final Future<MapPickResult?> Function(MapPickArgs args)? onPickOnMap;
 
   @override
   ConsumerState<PlaceFormScreen> createState() => _PlaceFormScreenState();
@@ -68,36 +81,55 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
             ),
             const SizedBox(height: AppSpacing.md),
 
-            // 지도 연결 전 임시 입력. 사용자 안내를 명시한다
-            Text('위치 좌표', style: AppTypography.caption),
+            Text('위치', style: AppTypography.caption),
             const SizedBox(height: AppSpacing.xs),
-            Row(
+            OutlinedButton.icon(
+              onPressed: widget.onPickOnMap == null ? null : _pickOnMap,
+              icon: const Icon(Icons.map_outlined),
+              label: Text(_hasCoordinates ? '지도에서 다시 선택' : '지도에서 선택'),
+            ),
+            const SizedBox(height: AppSpacing.xs),
+            Text(
+              _hasCoordinates ? _coordinateSummary : '아직 위치를 고르지 않았습니다',
+              style: AppTypography.caption,
+            ),
+
+            // 좌표를 직접 아는 경우와, 지도 키 없이 빌드된 경우의 보조 경로.
+            // 기본 경로가 아니므로 접어둔다
+            ExpansionTile(
+              title: Text('좌표 직접 입력', style: AppTypography.caption),
+              tilePadding: EdgeInsets.zero,
+              childrenPadding: const EdgeInsets.only(bottom: AppSpacing.xs),
               children: [
-                Expanded(
-                  child: TextField(
-                    controller: _latitude,
-                    decoration: const InputDecoration(labelText: '위도'),
-                    keyboardType: const TextInputType.numberWithOptions(
-                      decimal: true,
-                      signed: true,
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _latitude,
+                        decoration: const InputDecoration(labelText: '위도'),
+                        keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true,
+                          signed: true,
+                        ),
+                        onChanged: (_) => setState(() {}),
+                      ),
                     ),
-                  ),
-                ),
-                const SizedBox(width: AppSpacing.xs),
-                Expanded(
-                  child: TextField(
-                    controller: _longitude,
-                    decoration: const InputDecoration(labelText: '경도'),
-                    keyboardType: const TextInputType.numberWithOptions(
-                      decimal: true,
-                      signed: true,
+                    const SizedBox(width: AppSpacing.xs),
+                    Expanded(
+                      child: TextField(
+                        controller: _longitude,
+                        decoration: const InputDecoration(labelText: '경도'),
+                        keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true,
+                          signed: true,
+                        ),
+                        onChanged: (_) => setState(() {}),
+                      ),
                     ),
-                  ),
+                  ],
                 ),
               ],
             ),
-            const SizedBox(height: AppSpacing.xs),
-            Text('지도에서 선택하는 기능은 준비 중입니다', style: AppTypography.caption),
             const SizedBox(height: AppSpacing.md),
 
             // 반경 — 슬라이더 값이 즉시 보여야 한다.
@@ -144,7 +176,7 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
             SwitchListTile(
               title: Text('이어폰 소리 알림', style: AppTypography.body),
               subtitle: Text(
-                '블루투스 이어폰이 연결된 경우에만 소리가 납니다.\n스피커로는 절대 소리가 나지 않습니다.',
+                '이어폰(줄·블루투스)이 연결된 경우에만 소리가 납니다.\n스피커로는 절대 소리가 나지 않습니다.',
                 style: AppTypography.caption,
               ),
               value: _soundEnabled,
@@ -161,6 +193,37 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
         ),
       ),
     );
+  }
+
+  bool get _hasCoordinates =>
+      double.tryParse(_latitude.text.trim()) != null &&
+      double.tryParse(_longitude.text.trim()) != null;
+
+  /// 좌표를 화면에 보여줄 때만 만든다 — 로그에는 남기지 않는다
+  /// (docs/04-CONVENTIONS.md)
+  String get _coordinateSummary {
+    final latitude = double.tryParse(_latitude.text.trim());
+    final longitude = double.tryParse(_longitude.text.trim());
+    if (latitude == null || longitude == null) return '';
+    return '${latitude.toStringAsFixed(5)}, ${longitude.toStringAsFixed(5)}';
+  }
+
+  Future<void> _pickOnMap() async {
+    final picked = await widget.onPickOnMap!(
+      MapPickArgs(
+        latitude: double.tryParse(_latitude.text.trim()),
+        longitude: double.tryParse(_longitude.text.trim()),
+        radiusMeters: _radius.round(),
+      ),
+    );
+    if (picked == null || !mounted) return;
+
+    setState(() {
+      _latitude.text = picked.latitude.toString();
+      _longitude.text = picked.longitude.toString();
+      // 반경도 지도에서 원을 보며 정한다 — 돌아온 값이 최신이다
+      _radius = picked.radiusMeters.toDouble();
+    });
   }
 
   Future<void> _save() async {
