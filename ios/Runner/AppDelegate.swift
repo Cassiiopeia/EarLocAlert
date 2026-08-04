@@ -25,6 +25,23 @@ import native_geofence
         GeneratedPluginRegistrant.register(with: registry)
     }
     GeneratedPluginRegistrant.register(with: self)
+
+    // Google Maps API 키를 Dart(장소 검색 REST)에 넘긴다.
+    // 키의 단일 소스는 .env → Info.plist 주입이고, 여기서는 그 값을
+    // 도로 읽기만 한다 (docs/08-OPERATIONS.md).
+    if let controller = window?.rootViewController as? FlutterViewController {
+      FlutterMethodChannel(
+        name: "kr.suhsaechan.ear_loc_alert/maps_api_key",
+        binaryMessenger: controller.binaryMessenger
+      ).setMethodCallHandler { call, result in
+        guard call.method == "getMapsApiKey" else {
+          result(FlutterMethodNotImplemented)
+          return
+        }
+        result(Bundle.main.object(forInfoDictionaryKey: "MapsApiKey") as? String ?? "")
+      }
+    }
+
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
 }

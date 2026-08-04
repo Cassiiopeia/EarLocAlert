@@ -15,6 +15,7 @@ import '../features/places/domain/alert_place.dart';
 import '../features/places/presentation/place_form_screen.dart';
 import '../features/places/presentation/place_map_home_screen.dart';
 import '../features/places/presentation/place_map_picker_screen.dart';
+import '../features/places/presentation/place_search_provider.dart';
 import 'home_status_provider.dart';
 
 /// 앱 라우팅 (docs/02-ARCHITECTURE.md)
@@ -61,11 +62,8 @@ GoRouter createRouter() {
       ),
       GoRoute(
         path: AppRoutes.placeMap,
-        builder: (context, state) => PlaceMapPickerScreen(
-          args: state.extra! as MapPickArgs,
-          // 선택 결과를 push 를 기다리던 폼에게 돌려준다
-          onPicked: (result) => context.pop(result),
-        ),
+        builder: (context, state) =>
+            _MapPickerRoute(args: state.extra! as MapPickArgs),
       ),
       GoRoute(
         path: AppRoutes.alert,
@@ -80,6 +78,23 @@ GoRouter createRouter() {
       ),
     ],
   );
+}
+
+/// 지도 위치 선택 라우트 — 검색 서비스를 조립해 내려준다 (issue #72).
+class _MapPickerRoute extends ConsumerWidget {
+  const _MapPickerRoute({required this.args});
+
+  final MapPickArgs args;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return PlaceMapPickerScreen(
+      args: args,
+      searchService: ref.watch(placeSearchServiceProvider),
+      // 선택 결과를 push 를 기다리던 폼에게 돌려준다
+      onPicked: (result) => context.pop(result),
+    );
+  }
 }
 
 /// 지도 화면을 열고 선택 결과를 기다린다.

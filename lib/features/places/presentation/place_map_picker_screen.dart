@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
@@ -6,6 +8,7 @@ import '../../../core/theme/app_semantic_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/map_style.dart';
+import '../domain/place_search.dart';
 import '../domain/place_validator.dart';
 
 /// 지도에서 고른 결과 — 위치와 반경을 함께 돌려준다.
@@ -44,12 +47,21 @@ class MapPickArgs {
 /// 버스에서 한 손으로 조작할 때 이쪽이 정확하고 쉽다. 핀이 손가락에
 /// 가리지도 않는다.
 class PlaceMapPickerScreen extends StatefulWidget {
-  const PlaceMapPickerScreen({required this.args, this.onPicked, super.key});
+  const PlaceMapPickerScreen({
+    required this.args,
+    this.onPicked,
+    this.searchService,
+    super.key,
+  });
 
   final MapPickArgs args;
 
   /// 선택 완료. 라우터가 화면을 닫으며 결과를 돌려준다
   final ValueChanged<MapPickResult>? onPicked;
+
+  /// 장소 검색 (F1.2, issue #72). null 이면 검색창을 그리지 않는다 —
+  /// 지도·핀·저장은 검색 없이도 전부 동작해야 한다
+  final PlaceSearchService? searchService;
 
   /// 지도 초기 위치 — 좌표가 없을 때 쓴다.
   ///
@@ -66,6 +78,28 @@ class _PlaceMapPickerScreenState extends State<PlaceMapPickerScreen> {
   late LatLng _center = _initialCenter;
   late double _radius = widget.args.radiusMeters.toDouble();
 
+  GoogleMapController? _map;
+
+  // ── 검색 상태 ──
+  final _searchController = TextEditingController();
+  final _searchFocus = FocusNode();
+  Timer? _debounce;
+
+  /// 마지막으로 보낸 질의. 늦게 도착한 옛 응답이 새 결과를 덮지 못하게 한다
+  String _inFlightQuery = '';
+  List<PlaceSearchResult> _results = const [];
+  bool _searching = false;
+  bool _searchUnavailable = false;
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    _searchController.dispose();
+    _searchFocus.dispose();
+    _map?.dispose();
+    super.dispose();
+  }
+
   LatLng get _initialCenter {
     final latitude = widget.args.latitude;
     final longitude = widget.args.longitude;
@@ -73,6 +107,61 @@ class _PlaceMapPickerScreenState extends State<PlaceMapPickerScreen> {
       return PlaceMapPickerScreen._fallback;
     }
     return LatLng(latitude, longitude);
+  }
+
+  // ── 검색 ────────────────────────────────────────────────────
+
+  void _onQueryChanged(String query) {
+    _debounce?.cancel();
+    if (query.trim().length < 2) {
+      setState(() {
+        _results = const [];
+        _searching = false;
+      });
+      return;
+    }
+    // 타자마다 요청하지 않는다 — 과금 요청 수가 그대로 늘어난다
+    _debounce = Timer(const Duration(milliseconds: 400), () => _search(query));
+  }
+
+  Future<void> _search(String query) async {
+    final service = widget.searchService;
+    if (service == null) return;
+
+    setState(() {
+      _searching = true;
+      _searchUnavailable = false;
+    });
+    _inFlightQuery = query;
+
+    try {
+      final results = await service.search(query);
+      if (!mounted || _inFlightQuery != query) return;
+      setState(() {
+        _results = results;
+        _searching = false;
+      });
+    } on PlaceSearchUnavailable {
+      if (!mounted || _inFlightQuery != query) return;
+      setState(() {
+        _results = const [];
+        _searching = false;
+        _searchUnavailable = true;
+      });
+    }
+  }
+
+  /// 결과를 고르면 **카메라만 옮긴다.** 좌표 확정은 여전히 핀이다 —
+  /// 검색 좌표가 출입구 반대편일 수 있고, 최종 판단은 사용자의 눈이다.
+  void _onResultTapped(PlaceSearchResult result) {
+    _searchFocus.unfocus();
+    setState(() => _results = const []);
+    _map?.animateCamera(
+      CameraUpdate.newLatLngZoom(
+        LatLng(result.latitude, result.longitude),
+        _zoomForRadius(_radius),
+      ),
+    );
   }
 
   @override
@@ -85,6 +174,7 @@ class _PlaceMapPickerScreenState extends State<PlaceMapPickerScreen> {
       body: Stack(
         children: [
           GoogleMap(
+            onMapCreated: (controller) => _map = controller,
             initialCameraPosition: CameraPosition(
               target: _initialCenter,
               zoom: _zoomForRadius(_radius),
@@ -140,6 +230,18 @@ class _PlaceMapPickerScreenState extends State<PlaceMapPickerScreen> {
               ),
             ),
           ),
+
+          // 검색은 지도 위에 얹는다 — 핀·반경 조작을 가리지 않게 상단에만
+          if (widget.searchService != null)
+            _SearchOverlay(
+              controller: _searchController,
+              focusNode: _searchFocus,
+              results: _results,
+              searching: _searching,
+              unavailable: _searchUnavailable,
+              onChanged: _onQueryChanged,
+              onResultTapped: _onResultTapped,
+            ),
         ],
       ),
     );
@@ -153,6 +255,145 @@ class _PlaceMapPickerScreenState extends State<PlaceMapPickerScreen> {
     if (meters <= 300) return 16;
     if (meters <= 800) return 15;
     return 14;
+  }
+}
+
+/// 검색창 + 결과 목록 오버레이
+class _SearchOverlay extends StatelessWidget {
+  const _SearchOverlay({
+    required this.controller,
+    required this.focusNode,
+    required this.results,
+    required this.searching,
+    required this.unavailable,
+    required this.onChanged,
+    required this.onResultTapped,
+  });
+
+  final TextEditingController controller;
+  final FocusNode focusNode;
+  final List<PlaceSearchResult> results;
+  final bool searching;
+  final bool unavailable;
+  final ValueChanged<String> onChanged;
+  final ValueChanged<PlaceSearchResult> onResultTapped;
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned(
+      top: 0,
+      left: 0,
+      right: 0,
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.sm),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Material(
+              color: AppColors.bgSurface,
+              borderRadius: BorderRadius.circular(AppRadius.pill),
+              child: TextField(
+                controller: controller,
+                focusNode: focusNode,
+                onChanged: onChanged,
+                textInputAction: TextInputAction.search,
+                style: AppTypography.body,
+                decoration: InputDecoration(
+                  hintText: '장소·주소 검색',
+                  hintStyle: AppTypography.caption,
+                  border: InputBorder.none,
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.sm,
+                    vertical: AppSpacing.xs,
+                  ),
+                  prefixIcon: const Icon(Icons.search_outlined, size: 20),
+                  suffixIcon: searching
+                      ? const Padding(
+                          padding: EdgeInsets.all(AppSpacing.xs),
+                          child: SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
+                        )
+                      : controller.text.isEmpty
+                      ? null
+                      : IconButton(
+                          icon: const Icon(Icons.close_outlined, size: 18),
+                          onPressed: () {
+                            controller.clear();
+                            onChanged('');
+                          },
+                        ),
+                ),
+              ),
+            ),
+
+            if (unavailable)
+              Padding(
+                padding: const EdgeInsets.only(top: AppSpacing.xs),
+                child: _SearchMessage('검색을 사용할 수 없습니다 — 지도를 움직여 위치를 맞춰주세요'),
+              )
+            else if (results.isNotEmpty)
+              Container(
+                margin: const EdgeInsets.only(top: AppSpacing.xs),
+                constraints: const BoxConstraints(maxHeight: 280),
+                decoration: BoxDecoration(
+                  color: AppColors.bgSurface,
+                  borderRadius: BorderRadius.circular(AppRadius.small),
+                ),
+                child: ListView.separated(
+                  shrinkWrap: true,
+                  padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
+                  itemCount: results.length,
+                  separatorBuilder: (_, _) =>
+                      const Divider(height: 1, color: AppColors.bgElevated),
+                  itemBuilder: (context, index) {
+                    final result = results[index];
+                    return ListTile(
+                      dense: true,
+                      leading: const Icon(Icons.place_outlined, size: 20),
+                      title: Text(
+                        result.name,
+                        style: AppTypography.body,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      subtitle: result.address.isEmpty
+                          ? null
+                          : Text(
+                              result.address,
+                              style: AppTypography.caption,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                      onTap: () => onResultTapped(result),
+                    );
+                  },
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SearchMessage extends StatelessWidget {
+  const _SearchMessage(this.message);
+
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.sm),
+      decoration: BoxDecoration(
+        color: AppColors.bgSurface,
+        borderRadius: BorderRadius.circular(AppRadius.small),
+      ),
+      child: Text(message, style: AppTypography.caption),
+    );
   }
 }
 
