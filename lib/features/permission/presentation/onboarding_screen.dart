@@ -25,6 +25,17 @@ class OnboardingScreen extends ConsumerStatefulWidget {
 
 class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
     with WidgetsBindingObserver {
+  /// 이번 세션에서 미완료 단계를 본 적이 있는가.
+  ///
+  /// **처음부터 done 이면 이 화면을 보여줄 이유가 없다** — 권한을 이미
+  /// 끝낸 사용자가 앱을 켤 때마다 "준비되었습니다 → 시작하기"를 눌러야
+  /// 한다면 그건 온보딩이 아니라 통행세다. 곧장 홈으로 보낸다.
+  ///
+  /// 반대로 이번 세션에서 권한을 밟아온 끝의 done 은 완료 확인 화면으로서
+  /// 의미가 있으므로 그대로 보여준다.
+  bool _sawIncompleteStep = false;
+  bool _autoFinished = false;
+
   @override
   void initState() {
     super.initState();
@@ -61,6 +72,18 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
           ),
           data: (snapshot) {
             final step = gate.nextStep(snapshot);
+
+            if (step != OnboardingStep.done) {
+              _sawIncompleteStep = true;
+            } else if (!_sawIncompleteStep && !_autoFinished) {
+              // 재방문 사용자 — 완료 화면을 건너뛰고 곧장 홈으로
+              _autoFinished = true;
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (mounted) widget.onFinished?.call();
+              });
+              return const Center(child: CircularProgressIndicator());
+            }
+
             return _StepView(
               step: step,
               snapshot: snapshot,
