@@ -80,5 +80,11 @@
 		<false/>
 		<key>UIStatusBarHidden</key>
 		<false/>
+		<!-- Google Maps API 키 (docs/08-OPERATIONS.md).
+		     값은 MapsKey.xcconfig 에서 온다 — tool/sync_env.sh 가 .env 로
+		     만들며 커밋되지 않는다. AppDelegate 가 이 값을 읽어 SDK 를 켠다.
+		     비어 있으면 지도만 회색으로 뜨고 앱은 정상 동작한다. -->
+		<key>MapsApiKey</key>
+		<string>$(MAPS_API_KEY)</string>
 	</dict>
 </plist>

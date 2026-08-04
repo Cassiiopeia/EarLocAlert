@@ -35,7 +35,7 @@ class AlertNotifierImpl implements AlertNotifier {
     const iosDetails = DarwinNotificationDetails(
       presentAlert: true,
       presentBadge: false,
-      // 소리는 블루투스 연결 시에만 앱이 직접 재생한다 (F3.7)
+      // 소리는 이어폰 연결 시에만 앱이 직접 재생한다 (F3.7)
       presentSound: false,
     );
 

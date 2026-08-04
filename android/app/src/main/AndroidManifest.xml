@@ -79,6 +79,14 @@
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="ca-app-pub-3940256099942544~3347511713"/>
 
+        <!-- Google Maps API 키 (docs/08-OPERATIONS.md).
+             값은 build.gradle.kts 가 레포 루트 .env 에서 읽어 치환한다.
+             AdMob 앱 ID 와 달리 이 키는 과금 대상이라 소스에 두지 않는다.
+             비어 있으면 지도만 회색으로 뜨고 앱은 정상 동작한다. -->
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="${MAPS_API_KEY}"/>
+
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data

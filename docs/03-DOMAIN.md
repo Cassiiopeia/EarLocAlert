@@ -16,7 +16,7 @@
 | `radiusMeters` | `int` | 50 ~ 2000 |
 | `direction` | `AlertDirection` | `enter` / `exit` / `both` |
 | `enabled` | `bool` | 삭제하지 않고 끄는 수단 (F1.7) |
-| `soundEnabled` | `bool` | 블루투스 연결 시 소리를 낼지 |
+| `soundEnabled` | `bool` | 이어폰(줄·블루투스) 연결 시 소리를 낼지 |
 | `createdAt` | `DateTime` (UTC) | |
 
 **`id` 는 저장 전에 앱이 만든다.** DB 자동 증가를 쓰지 않는다 — 플랫폼 지오펜스에 등록할 때 식별자가 먼저 필요하고, 나중에 기기 간 동기화를 붙일 여지를 남긴다.
@@ -50,7 +50,7 @@ DB 에 저장하지 않는다. 앱이 죽으면 사라지는 것이 맞다.
 | `placeId` / `placeName` | 표시용 (feature 간 값 전달, 02-ARCHITECTURE 규칙 1) |
 | `direction` | 진입인지 이탈인지 |
 | `startedAt` | 발화 시각 |
-| `audioRoute` | `bluetooth` / `silent` — 판정 결과 |
+| `audioRoute` | `headphones` / `silent` — 판정 결과 |
 
 ---
 
@@ -132,19 +132,23 @@ if (distance < place.radiusMeters) { emit(...); }
 
 ```mermaid
 flowchart TD
-    A[알림 발화] --> B{블루투스 오디오 출력 연결?}
+    A[알림 발화] --> B{이어폰 연결?<br/>줄·USB-C·블루투스}
     B -->|연결됨| C{장소의 soundEnabled?}
     B -->|없음| D[진동만]
-    C -->|true| E[이어폰으로 재생 + 진동]
+    C -->|true| E[이어폰으로 반복 재생 + 진동]
     C -->|false| D
     E -.실패.-> D
 ```
 
 **어떤 분기로 가도 스피커 출력은 없다** (F3.7). 오디오 세션 설정이 실패하면 소리를 포기하고 진동으로 떨어진다 — 스피커로 나갈 위험을 감수하느니 소리를 안 내는 게 낫다.
 
+판정 기준은 **연결 방식이 아니라 "소리가 본인 귀로만 들어가는가"** 다. 줄이어폰·USB-C 이어폰·블루투스 이어폰·보청기가 포함되고, 차량 오디오·AirPlay·HDMI·라인아웃은 주변에 들릴 수 있어 제외된다. 허용 목록이라 **모르는 장치는 자동으로 제외된다** → [10-DECISIONS](10-DECISIONS.md) 018
+
 미리 판정해두지 않고 **발화하는 그 순간에** 확인한다. 사용자가 이어폰을 방금 빼거나 꽂았을 수 있다.
 
-이 판정 함수는 `bool isBluetoothConnected` 하나를 입력으로 받는 순수 함수로 만든다. 실기기 없이 네 가지 경우를 모두 테스트할 수 있어야 한다.
+이 판정 함수는 `bool isHeadphoneConnected` 하나를 입력으로 받는 순수 함수로 만든다. 실기기 없이 네 가지 경우를 모두 테스트할 수 있어야 한다. 장치 목록 자체는 데이터 계층에 두고, 목록의 포함/제외는 따로 테스트한다.
+
+소리는 **해제할 때까지 반복 재생**한다. 진동은 반복되는데 소리만 한 번 나고 마는 것은 졸다 깬 사용자에게 약하다. 반복 재생의 완료를 기다리면 안 된다 — 끝나지 않는 Future 라 알림 화면 표시가 막힌다.
 
 ---
 

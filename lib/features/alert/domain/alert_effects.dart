@@ -14,14 +14,18 @@ abstract interface class VibrationService {
 
 /// 알림음 재생 (docs/03-DOMAIN.md 규칙 5)
 abstract interface class AlertSoundService {
-  /// 블루투스 오디오 출력이 연결되어 있는가.
+  /// **본인만 듣는** 오디오 출력이 연결되어 있는가.
+  ///
+  /// 유선 이어폰·USB-C 이어폰·블루투스 이어폰을 모두 포함한다.
+  /// 스피커로 흘러나갈 수 있는 출력(차량 오디오·AirPlay·HDMI)은 제외한다
+  /// (docs/10-DECISIONS.md 018).
   ///
   /// **발화 시점에 확인한다** — 사용자가 방금 이어폰을 빼거나 꽂았을 수 있다.
-  Future<bool> isBluetoothConnected();
+  Future<bool> isHeadphoneConnected();
 
   /// 알림음을 재생한다.
   ///
-  /// 호출 전에 블루투스 연결이 확인된 상태여야 한다.
+  /// 호출 전에 이어폰 연결이 확인된 상태여야 한다.
   /// 실패하면 [AlertSoundException] 을 던지고, 호출자는 재시도하지 않고
   /// 진동으로 떨어진다 — 재시도 중 라우팅이 바뀌어 스피커로 새는 것이 최악이다.
   Future<void> play();

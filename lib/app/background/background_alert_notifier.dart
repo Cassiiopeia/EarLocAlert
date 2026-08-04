@@ -15,7 +15,7 @@ import 'pending_alert_store.dart';
 /// 없으므로, 여기서는 채널의 진동 패턴에 위임한다. Android 채널 설정은
 /// 최초 생성 시 고정되므로 채널을 공유하면 한쪽 요구가 반드시 깨진다.
 ///
-/// 소리는 어떤 경우에도 채널에서 내지 않는다 — 블루투스 확인 없는 재생은
+/// 소리는 어떤 경우에도 채널에서 내지 않는다 — 이어폰 확인 없는 재생은
 /// 스피커로 샐 수 있다 (F3.7, docs/03-DOMAIN.md 규칙 5).
 class BackgroundAlertNotifier implements BackgroundAlertPort {
   BackgroundAlertNotifier({

@@ -1,2 +1,4 @@
 #include? "Pods/Target Support Files/Pods-Runner/Pods-Runner.release.xcconfig"
 #include "Generated.xcconfig"
+// Google Maps API 키 — tool/sync_env.sh 가 .env 에서 생성한다 (커밋 안 됨)
+#include? "MapsKey.xcconfig"
