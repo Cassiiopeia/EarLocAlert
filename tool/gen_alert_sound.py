@@ -53,7 +53,7 @@ def main() -> None:
     peak = max(abs(v) for v in buffer) or 1.0
     scale = PEAK / peak
 
-    out = Path(__file__).resolve()
+    # 레포 루트 기준 — `python tool/gen_alert_sound.py` 로 실행한다
     target = Path("assets/sounds/alert.wav")
     target.parent.mkdir(parents=True, exist_ok=True)
 

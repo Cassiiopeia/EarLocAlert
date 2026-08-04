@@ -153,6 +153,9 @@ class _PlaceMapHomeScreenState extends ConsumerState<PlaceMapHomeScreen>
 
           _StatusBar(
             isMonitoring: widget.isMonitoring,
+            // 켜진 장소가 없어서 감시가 안 도는 것은 고장이 아니다 —
+            // 경고 대신 안내로 보여야 한다
+            hasEnabledPlaces: places.any((place) => place.enabled),
             isHeadphoneConnected: widget.isHeadphoneConnected,
             onFixMonitoring: widget.onFixMonitoring,
             onPreviewAlert: widget.onPreviewAlert,
@@ -334,22 +337,36 @@ class _PlaceMapHomeScreenState extends ConsumerState<PlaceMapHomeScreen>
 class _StatusBar extends StatelessWidget {
   const _StatusBar({
     required this.isMonitoring,
+    required this.hasEnabledPlaces,
     required this.isHeadphoneConnected,
     this.onFixMonitoring,
     this.onPreviewAlert,
   });
 
   final bool isMonitoring;
+
+  /// 켜진 장소가 하나라도 있는가.
+  ///
+  /// 감시가 안 도는 이유를 가른다 — 켜진 장소가 없으면 **정상 대기**이고,
+  /// 있는데도 안 돌면 **고장(권한 등)**이다. 첫 사용자에게 경고를
+  /// 들이밀면 안 된다.
+  final bool hasEnabledPlaces;
+
   final bool isHeadphoneConnected;
   final VoidCallback? onFixMonitoring;
   final VoidCallback? onPreviewAlert;
+
+  /// 고장 상태 — 켜진 장소가 있는데 감시가 안 돈다. 해결 경로가 필요하다
+  bool get _isBroken => hasEnabledPlaces && !isMonitoring;
 
   @override
   Widget build(BuildContext context) {
     final semantic = Theme.of(context).extension<AppSemanticColors>()!;
     final statusColor = isMonitoring
         ? semantic.statusActive
-        : semantic.statusInactive;
+        : _isBroken
+        ? semantic.statusInactive
+        : AppColors.textSecondary; // 정상 대기 — 경고색을 쓰지 않는다
 
     return SafeArea(
       child: Padding(
@@ -358,7 +375,9 @@ class _StatusBar extends StatelessWidget {
           color: AppColors.bgSurface,
           borderRadius: BorderRadius.circular(AppRadius.pill),
           child: InkWell(
-            onTap: isMonitoring ? null : onFixMonitoring,
+            // 고장일 때만 해결 경로(권한 화면)로 보낸다.
+            // 장소가 없어서 대기 중인 사용자를 온보딩에 다시 보내면 안 된다
+            onTap: _isBroken ? onFixMonitoring : null,
             borderRadius: BorderRadius.circular(AppRadius.pill),
             child: Padding(
               padding: const EdgeInsets.symmetric(
@@ -371,14 +390,20 @@ class _StatusBar extends StatelessWidget {
                   Icon(
                     isMonitoring
                         ? Icons.radar_outlined
-                        : Icons.warning_amber_outlined,
+                        : _isBroken
+                        ? Icons.warning_amber_outlined
+                        : Icons.pause_circle_outlined,
                     size: 18,
                     color: statusColor,
                   ),
                   const SizedBox(width: AppSpacing.xs),
                   Flexible(
                     child: Text(
-                      isMonitoring ? '감시 중' : '감시 꺼짐 · 눌러서 확인',
+                      isMonitoring
+                          ? '감시 중'
+                          : _isBroken
+                          ? '감시 꺼짐 · 눌러서 확인'
+                          : '감시 대기 · 장소를 켜면 시작됩니다',
                       style: AppTypography.caption.copyWith(color: statusColor),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
