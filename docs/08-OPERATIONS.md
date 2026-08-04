@@ -7,16 +7,21 @@
 ## 브랜치와 배포 흐름
 
 ```
-feature 브랜치
+develop 브랜치 (기본 작업 브랜치)
    └─ PR → main
-        ├─ PR CI               빌드·분석 검증
+        ├─ PR CI               빌드·분석·테스트·APK 검증
         └─ merge
-             ├─ 버전 자동 증가   version.yml → pubspec.yaml 동기화
-             ├─ CHANGELOG 생성
-             └─ Play Store 내부 테스트 배포
+             └─ 버전 자동 증가   version.yml → pubspec.yaml 동기화
 
-deploy 브랜치 push  →  Play Store 배포
-수동 실행           →  TestFlight 배포
+deploy 브랜치에 main 머지 후 push  →  Play Store 내부 테스트 배포
+수동 실행                          →  TestFlight 배포
+```
+
+**main 머지만으로는 스토어 배포가 되지 않는다 (2026-08-04 확인).** Play Store 워크플로우의 `workflow_run` 트리거가 `"CHANGELOG 자동 업데이트"` 라는 이름을 기다리는데 실제 CHANGELOG 워크플로우 이름은 `"AUTO UPDATE PROJECT CHANGELOG"` 라 그 연쇄는 동작한 적이 없다. 실제 배포는 전부 deploy 브랜치 push 로 나갔다.
+
+```bash
+# 배포 절차 (역대 패턴 그대로)
+git checkout deploy && git merge origin/main --no-edit && git push origin deploy
 ```
 
 ## 워크플로우
