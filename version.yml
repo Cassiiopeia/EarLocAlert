@@ -1,0 +1,58 @@
+# ===
+# Version format: x.y.z (semantic versioning)
+# - patch: auto-incremented by the release workflows
+# - version_code: monotonically increasing build number, bumped alongside version
+# - major/minor: auto-bumped when metadata.template.options.semver_auto is true
+#   (default) — feat: commits bump minor, a `!` breaking marker on any commit
+#   type bumps major. Set semver_auto: false to always patch-bump instead
+#   (then edit major/minor manually, e.g., 1.0.5 -> 1.1.0 or 2.0.0).
+# ===
+# Supported project types: spring, flutter, next, react, react-native,
+#                          react-native-expo, node, python, basic
+# Multi-type projects: list every type in the project_types array
+#   -> project_type (singular) always mirrors project_types[0] — do not edit it directly
+# Monorepo paths: project_paths maps each type to its subdir relative to the repo root
+#   (e.g., flutter: "app", react: "client"). Omitted -> repo root.
+#
+# Synced files per type:
+# - spring: build.gradle / build.gradle.kts
+# - flutter: pubspec.yaml
+# - next/react/node: package.json
+# - react-native: Info.plist + build.gradle
+# - react-native-expo: app.json
+# - python: pyproject.toml
+# - basic: version.yml only
+# ===
+
+version: "1.2.39"
+version_code: 71 # app build number — pubspec 의 1.2.39+71 과 맞춘 값.
+# 마법사가 신규 통합으로 보고 1 로 초기화했는데, version_manager.py 가
+# pubspec 을 "version+version_code" 로 덮어쓰므로 그대로 두면 다음 배포에서
+# versionCode 가 71 → 2 로 떨어져 Play Store 가 업로드를 거부한다.
+project_types: ["flutter"] # first entry is primary
+project_type: "flutter" # auto-mirror of project_types[0] — do not edit directly
+project_paths: # 타입별 프로젝트 폴더 (레포 루트 기준 상대경로)
+  flutter: "." # pubspec.yaml
+metadata:
+  last_updated: "2026-08-06 05:22:11"
+  last_updated_by: "project-auto-wizard"
+  default_branch: "main"
+  integration_date: "2026-08-06"
+  template:
+    source: "project-auto-wizard"
+    version: "0.1.18"
+    integrated_date: "2026-08-06"
+    last_update_date: "2026-08-06"
+    branches:
+      main: "main"
+      develop: "develop"
+      mode: "pr-flow" # pr-flow | trunk-based
+    options:
+      nexus: false
+      secret_backup: true
+      semver_auto: true
+
+deploy: # 마법사가 기억하는 배포 설정 (비민감 / 직접 수정 가능)
+  flutter:
+    APP_ARTIFACT_NAME: "EarLocAlert"
+    JAVA_VERSION: "17"
