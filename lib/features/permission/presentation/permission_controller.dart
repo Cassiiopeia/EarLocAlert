@@ -3,7 +3,9 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../../core/di/providers.dart';
 import '../domain/permission_gate.dart';
 import '../domain/permission_kind.dart';
+import '../domain/permission_service.dart';
 import '../domain/permission_snapshot.dart';
+import 'reliability_prompt_provider.dart';
 
 part 'permission_controller.g.dart';
 
@@ -38,10 +40,13 @@ class PermissionController extends _$PermissionController {
 
     final service = ref.read(permissionServiceProvider);
     final gate = ref.read(permissionGateProvider);
+    final promptSeen = ref.read(reliabilityPromptProvider).valueOrNull ?? false;
+
+    final step = gate.nextStep(snapshot, reliabilityPromptSeen: promptSeen);
 
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
-      return switch (gate.nextStep(snapshot)) {
+      return switch (step) {
         OnboardingStep.requestLocation => service.request(
           PermissionKind.location,
         ),
@@ -51,12 +56,46 @@ class PermissionController extends _$PermissionController {
         OnboardingStep.requestNotification => service.request(
           PermissionKind.notification,
         ),
+        OnboardingStep.requestAlertReliability => _requestReliability(service),
         OnboardingStep.openSettings => service.openAppSettings().then(
           (_) => service.check(),
         ),
         OnboardingStep.done => service.check(),
       };
     });
+  }
+
+  /// 신뢰성 권한 3종을 이어서 요청한다 (이슈 #74).
+  ///
+  /// 전부 시스템 설정 화면으로 나갔다 오는 권한이라 하나씩 순서대로
+  /// 처리한다. **이미 허용된 것은 건너뛴다** — 켜져 있는 설정 화면을
+  /// 다시 보여주면 사용자는 뭘 하라는 건지 알 수 없다.
+  ///
+  /// 중간에 하나가 실패해도 나머지를 계속한다. 하나가 막혔다고 나머지
+  /// 신뢰성을 포기할 이유가 없다.
+  Future<PermissionSnapshot> _requestReliability(
+    PermissionService service,
+  ) async {
+    var snapshot = state.valueOrNull ?? await service.check();
+
+    for (final kind in PermissionGate.reliabilityOrder) {
+      if (snapshot.statusOf(kind).isGranted) continue;
+      try {
+        snapshot = await service.request(kind);
+      } on Object {
+        // 설정 화면을 못 열었다 — 다음 권한으로 넘어간다
+      }
+    }
+
+    // 허용됐든 거절됐든 한 번 권한 것으로 친다.
+    // 이게 없으면 거절한 사용자가 앱을 켤 때마다 같은 화면을 본다.
+    await ref.read(reliabilityPromptProvider.notifier).markSeen();
+    return snapshot;
+  }
+
+  /// 신뢰성 권한 단계를 건너뛴다 — 다시 묻지 않는다
+  Future<void> skipReliabilityPrompt() async {
+    await ref.read(reliabilityPromptProvider.notifier).markSeen();
   }
 
   Future<void> openSettings() async {

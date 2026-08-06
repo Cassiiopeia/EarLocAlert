@@ -11,6 +11,7 @@ import '../features/alert/presentation/alert_controller_provider.dart';
 import '../features/alert/presentation/alert_dismissed_screen.dart';
 import '../features/alert/presentation/alert_screen.dart';
 import '../features/permission/presentation/onboarding_screen.dart';
+import '../features/permission/presentation/reliability_prompt_provider.dart';
 import '../features/places/domain/alert_place.dart';
 import '../features/places/presentation/place_form_screen.dart';
 import '../features/places/presentation/place_map_home_screen.dart';
@@ -178,10 +179,15 @@ class _HomeRoute extends ConsumerWidget {
     return PlaceMapHomeScreen(
       isMonitoring: status.isMonitoring,
       isHeadphoneConnected: status.isHeadphoneConnected,
+      canAlertReliably: status.canAlertReliably,
       onAddPlace: () => context.go(AppRoutes.placeNew),
       onEditPlace: (place) => context.go(AppRoutes.placeEdit, extra: place),
       // 감시가 꺼져 있으면 권한 화면이 유일한 해결 경로다
       onFixMonitoring: () => context.go(AppRoutes.onboarding),
+      // 신뢰성 권한(#74)을 다시 권한다. 한 번 거절했다는 기록을 지워야
+      // 온보딩이 그 단계를 다시 보여준다 — 사용자가 스스로 찾아온 것이므로
+      // 기록이 길을 막으면 안 된다.
+      onFixReliability: () => _reofferReliability(context, ref),
       onRefreshStatus: () => ref.invalidate(homeStatusProvider),
       // 백그라운드 감시 연결 전까지 알림 흐름을 확인하는 수단 (S-4·S-5).
       // 지오펜스 연동이 끝나면 제거한다.
@@ -203,6 +209,19 @@ class _HomeRoute extends ConsumerWidget {
       },
     );
   }
+}
+
+/// 신뢰성 권한(#74)을 다시 권하고 온보딩으로 보낸다.
+///
+/// 기록 삭제가 실패해도 화면은 이동한다 — 그 경우 온보딩이 곧장 완료
+/// 화면으로 넘어가지만, 사용자를 홈에 묶어두는 것보다는 낫다.
+Future<void> _reofferReliability(BuildContext context, WidgetRef ref) async {
+  try {
+    await ref.read(reliabilityPromptProvider.notifier).reset();
+  } on Object {
+    // 아래 이동은 그대로 진행한다
+  }
+  if (context.mounted) context.go(AppRoutes.onboarding);
 }
 
 /// 광고 미리 로딩 — 알림 발화 시점에 부른다.

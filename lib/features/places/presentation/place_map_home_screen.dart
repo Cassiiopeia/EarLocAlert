@@ -27,8 +27,10 @@ class PlaceMapHomeScreen extends ConsumerStatefulWidget {
     required this.isMonitoring,
     required this.isHeadphoneConnected,
     required this.onAddPlace,
+    this.canAlertReliably = true,
     this.onEditPlace,
     this.onFixMonitoring,
+    this.onFixReliability,
     this.onPreviewAlert,
     this.onRefreshStatus,
     super.key,
@@ -43,8 +45,19 @@ class PlaceMapHomeScreen extends ConsumerStatefulWidget {
   final VoidCallback onAddPlace;
   final void Function(AlertPlace place)? onEditPlace;
 
+  /// 백그라운드 알림이 놓치기 어려운 형태로 오는가 (이슈 #74).
+  ///
+  /// 기본값이 true 인 이유는, 모르는 상태에서 경고를 띄우면 정상인
+  /// 사용자에게 없는 문제를 보여주기 때문이다.
+  final bool canAlertReliably;
+
   /// 감시가 꺼져 있을 때 해결 경로로 보낸다 — 권한 화면
   final VoidCallback? onFixMonitoring;
+
+  /// 알림이 약할 때 신뢰성 권한을 다시 권하는 경로 (이슈 #74).
+  ///
+  /// 온보딩에서 "나중에 하기"를 누른 사용자에게 **유일한 재진입 경로**다.
+  final VoidCallback? onFixReliability;
 
   /// 알림 흐름 수동 확인 (실기기 스파이크 S-4·S-5 용).
   /// 지오펜스 실기기 검증이 끝나면 제거한다 (docs/11-ROADMAP.md).
@@ -157,7 +170,9 @@ class _PlaceMapHomeScreenState extends ConsumerState<PlaceMapHomeScreen>
             // 경고 대신 안내로 보여야 한다
             hasEnabledPlaces: places.any((place) => place.enabled),
             isHeadphoneConnected: widget.isHeadphoneConnected,
+            canAlertReliably: widget.canAlertReliably,
             onFixMonitoring: widget.onFixMonitoring,
+            onFixReliability: widget.onFixReliability,
             onPreviewAlert: widget.onPreviewAlert,
           ),
 
@@ -339,7 +354,9 @@ class _StatusBar extends StatelessWidget {
     required this.isMonitoring,
     required this.hasEnabledPlaces,
     required this.isHeadphoneConnected,
+    required this.canAlertReliably,
     this.onFixMonitoring,
+    this.onFixReliability,
     this.onPreviewAlert,
   });
 
@@ -353,11 +370,23 @@ class _StatusBar extends StatelessWidget {
   final bool hasEnabledPlaces;
 
   final bool isHeadphoneConnected;
+
+  /// 백그라운드 알림이 놓치기 어려운 형태로 오는가 (이슈 #74)
+  final bool canAlertReliably;
+
   final VoidCallback? onFixMonitoring;
+  final VoidCallback? onFixReliability;
   final VoidCallback? onPreviewAlert;
 
   /// 고장 상태 — 켜진 장소가 있는데 감시가 안 돈다. 해결 경로가 필요하다
   bool get _isBroken => hasEnabledPlaces && !isMonitoring;
+
+  /// 감시는 도는데 알림이 약하다 (이슈 #74).
+  ///
+  /// **고장과 구분한다.** 알림은 오고 있으므로 경고색을 쓰지 않고,
+  /// 감시가 아예 안 도는 상황에서는 그쪽이 먼저라 띄우지 않는다.
+  bool get _isWeak =>
+      !_isBroken && !canAlertReliably && onFixReliability != null;
 
   @override
   Widget build(BuildContext context) {
@@ -371,78 +400,138 @@ class _StatusBar extends StatelessWidget {
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.sm),
-        child: Material(
-          color: AppColors.bgSurface,
-          borderRadius: BorderRadius.circular(AppRadius.pill),
-          child: InkWell(
-            // 고장일 때만 해결 경로(권한 화면)로 보낸다.
-            // 장소가 없어서 대기 중인 사용자를 온보딩에 다시 보내면 안 된다
-            onTap: _isBroken ? onFixMonitoring : null,
-            borderRadius: BorderRadius.circular(AppRadius.pill),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.sm,
-                vertical: AppSpacing.xs,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _statusPill(semantic, statusColor),
+            if (_isWeak) ...[
+              const SizedBox(height: AppSpacing.xs),
+              _WeakAlertBanner(onTap: onFixReliability!),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _statusPill(AppSemanticColors semantic, Color statusColor) {
+    return Material(
+      color: AppColors.bgSurface,
+      borderRadius: BorderRadius.circular(AppRadius.pill),
+      child: InkWell(
+        // 고장일 때만 해결 경로(권한 화면)로 보낸다.
+        // 장소가 없어서 대기 중인 사용자를 온보딩에 다시 보내면 안 된다
+        onTap: _isBroken ? onFixMonitoring : null,
+        borderRadius: BorderRadius.circular(AppRadius.pill),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.sm,
+            vertical: AppSpacing.xs,
+          ),
+          child: Row(
+            children: [
+              // 색만으로 구분하지 않는다 — 아이콘과 문구를 함께 쓴다
+              Icon(
+                isMonitoring
+                    ? Icons.radar_outlined
+                    : _isBroken
+                    ? Icons.warning_amber_outlined
+                    : Icons.pause_circle_outlined,
+                size: 18,
+                color: statusColor,
               ),
-              child: Row(
-                children: [
-                  // 색만으로 구분하지 않는다 — 아이콘과 문구를 함께 쓴다
-                  Icon(
-                    isMonitoring
-                        ? Icons.radar_outlined
-                        : _isBroken
-                        ? Icons.warning_amber_outlined
-                        : Icons.pause_circle_outlined,
-                    size: 18,
-                    color: statusColor,
-                  ),
-                  const SizedBox(width: AppSpacing.xs),
-                  Flexible(
-                    child: Text(
-                      isMonitoring
-                          ? '감시 중'
-                          : _isBroken
-                          ? '감시 꺼짐 · 눌러서 확인'
-                          : '감시 대기 · 장소를 켜면 시작됩니다',
-                      style: AppTypography.caption.copyWith(color: statusColor),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  const SizedBox(width: AppSpacing.sm),
-                  Container(
-                    width: 1,
-                    height: 14,
-                    color: AppColors.textSecondary.withValues(alpha: 0.3),
-                  ),
-                  const SizedBox(width: AppSpacing.sm),
-                  Icon(
-                    isHeadphoneConnected
-                        ? Icons.headphones_outlined
-                        : Icons.vibration_outlined,
-                    size: 18,
-                    color: isHeadphoneConnected
-                        ? semantic.audioBluetooth
-                        : AppColors.textSecondary,
-                  ),
-                  const SizedBox(width: AppSpacing.xs),
-                  Text(
-                    isHeadphoneConnected ? '이어폰' : '진동만',
-                    style: AppTypography.caption,
-                  ),
-                  if (onPreviewAlert != null) ...[
-                    const Spacer(),
-                    IconButton(
-                      onPressed: onPreviewAlert,
-                      icon: const Icon(Icons.notifications_active_outlined),
-                      iconSize: 18,
-                      visualDensity: VisualDensity.compact,
-                      tooltip: '알림 미리보기',
-                    ),
-                  ],
-                ],
+              const SizedBox(width: AppSpacing.xs),
+              Flexible(
+                child: Text(
+                  isMonitoring
+                      ? '감시 중'
+                      : _isBroken
+                      ? '감시 꺼짐 · 눌러서 확인'
+                      : '감시 대기 · 장소를 켜면 시작됩니다',
+                  style: AppTypography.caption.copyWith(color: statusColor),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
-            ),
+              const SizedBox(width: AppSpacing.sm),
+              Container(
+                width: 1,
+                height: 14,
+                color: AppColors.textSecondary.withValues(alpha: 0.3),
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              Icon(
+                isHeadphoneConnected
+                    ? Icons.headphones_outlined
+                    : Icons.vibration_outlined,
+                size: 18,
+                color: isHeadphoneConnected
+                    ? semantic.audioBluetooth
+                    : AppColors.textSecondary,
+              ),
+              const SizedBox(width: AppSpacing.xs),
+              Text(
+                isHeadphoneConnected ? '이어폰' : '진동만',
+                style: AppTypography.caption,
+              ),
+              if (onPreviewAlert != null) ...[
+                const Spacer(),
+                IconButton(
+                  onPressed: onPreviewAlert,
+                  icon: const Icon(Icons.notifications_active_outlined),
+                  iconSize: 18,
+                  visualDensity: VisualDensity.compact,
+                  tooltip: '알림 미리보기',
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// 알림이 약할 때만 뜨는 안내 (이슈 #74)
+///
+/// **경고가 아니라 안내다.** 알림은 오고 있고, 이걸 켜면 더 확실해진다는
+/// 뜻이다. 온보딩에서 건너뛴 사용자에게 유일한 재진입 경로이기도 하다.
+class _WeakAlertBanner extends StatelessWidget {
+  const _WeakAlertBanner({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: AppColors.bgSurface,
+      borderRadius: BorderRadius.circular(AppRadius.pill),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(AppRadius.pill),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.sm,
+            vertical: AppSpacing.xs,
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(
+                Icons.notifications_paused_outlined,
+                size: 18,
+                color: AppColors.textSecondary,
+              ),
+              const SizedBox(width: AppSpacing.xs),
+              Flexible(
+                child: Text(
+                  '절전·다른 앱 사용 중에는 알림이 약합니다 · 눌러서 강화',
+                  style: AppTypography.caption,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
           ),
         ),
       ),

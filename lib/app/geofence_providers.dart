@@ -5,6 +5,8 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../core/di/providers.dart';
 import '../features/geofence/data/native_geofence_monitor.dart';
 import '../features/geofence/domain/geofence_monitor.dart';
+import 'background/alert_watch_channel.dart';
+import 'background/alert_watch_service.dart';
 import 'background/geofence_callback.dart';
 import 'background/pending_alert_store.dart';
 import 'geofence_registration_sync.dart';
@@ -21,12 +23,17 @@ part 'geofence_providers.g.dart';
 GeofenceMonitor geofenceMonitor(Ref ref) =>
     NativeGeofenceMonitor(callback: geofenceBackgroundCallback);
 
+/// 상시 감시 서비스 (이슈 #74). iOS 에는 채널이 없어 조용히 무시된다.
+@Riverpod(keepAlive: true)
+AlertWatchService alertWatchService(Ref ref) => const AlertWatchChannel();
+
 @Riverpod(keepAlive: true)
 GeofenceRegistrationSync geofenceRegistrationSync(Ref ref) {
   final sync = GeofenceRegistrationSync(
     places: ref.watch(placeRepositoryProvider),
     monitor: ref.watch(geofenceMonitorProvider),
     states: ref.watch(geofenceStateRepositoryProvider),
+    watch: ref.watch(alertWatchServiceProvider),
   );
   ref.onDispose(() => sync.stop());
   return sync;

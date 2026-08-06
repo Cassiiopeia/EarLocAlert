@@ -47,6 +47,20 @@ class PermissionCopy {
       body: '도착하거나 떠날 때 알려드리기 위해 사용합니다.',
       actionLabel: '계속',
     ),
+    // 이슈 #74 — 이 셋이 없으면 앱을 열어두지 않은 동안 알림이 약해진다.
+    // 필수는 아니지만 왜 필요한지를 증상으로 설명한다.
+    OnboardingStep.requestAlertReliability => const PermissionCopy(
+      title: '알림을 놓치지 않으려면',
+      body:
+          '휴대폰이 절전에 들어가거나 다른 앱을 보고 있으면, 도착 알림이 늦게 오거나 '
+          '작은 알림으로만 지나갑니다.\n\n'
+          '다음 세 가지를 켜면 화면을 덮는 알림이 해제할 때까지 계속됩니다.\n\n'
+          '• 배터리 사용량 최적화 제외 — 절전 중에도 제때 알립니다\n'
+          '• 다른 앱 위에 표시 — 영상을 보는 중에도 알림 화면이 뜹니다\n'
+          '• 전체 화면 알림 — 화면이 꺼져 있어도 깨웁니다',
+      actionLabel: '세 가지 모두 켜기',
+      footnote: '설정 화면이 차례로 열립니다. 건너뛰어도 진동과 알림은 그대로 동작합니다.',
+    ),
     OnboardingStep.openSettings => const PermissionCopy(
       title: '설정에서 권한을 켜주세요',
       body: '권한이 거부된 상태라 앱에서 다시 요청할 수 없습니다. 설정 화면에서 직접 허용해주세요.',

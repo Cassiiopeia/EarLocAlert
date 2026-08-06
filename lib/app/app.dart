@@ -34,8 +34,21 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
     });
   }
 
+  /// 앱이 떠 있는 동안 대기 알림을 확인하는 타이머 (이슈 #74).
+  ///
+  /// 지오펜스 이벤트는 앱이 포그라운드일 때도 **백그라운드 isolate** 로
+  /// 온다. 그 isolate 는 PendingAlert 를 저장하고 죽는데, 앱이 이미 떠
+  /// 있으면 `resumed` 생명주기가 오지 않아 아무도 그것을 꺼내지 않는다 —
+  /// 지도를 보며 도착한 사용자가 알림을 통째로 놓치는 경로다.
+  Timer? _pendingAlertPoll;
+
+  /// 도착 판정은 몇 초 단위로 다투는 일이 아니다. 화면이 떠 있는 동안만
+  /// 도는 타이머라 이 간격이면 체감 지연이 없다.
+  static const _pollInterval = Duration(seconds: 3);
+
   @override
   void dispose() {
+    _pendingAlertPoll?.cancel();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -69,6 +82,8 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
       // 권한 미허용 등 — 다음 장소 변경 때 재시도된다
     }
     await _resumePendingAlert();
+    // 첫 실행에는 resumed 생명주기 콜백이 오지 않는다 — 여기서 건다
+    _startPendingAlertPoll();
   }
 
   @override
@@ -76,7 +91,25 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
     // 백그라운드 알림 뒤 앱을 열면(탭이든 직접이든) 풀 세션으로 잇는다
     if (state == AppLifecycleState.resumed) {
       unawaited(_resumePendingAlert());
+      _startPendingAlertPoll();
+    } else {
+      _stopPendingAlertPoll();
     }
+  }
+
+  void _startPendingAlertPoll() {
+    // 화면이 이미 정리됐으면 타이머를 만들지 않는다 — 남으면 dispose 가
+    // 지나간 뒤에 도는 타이머가 된다
+    if (!mounted || _pendingAlertPoll != null) return;
+    _pendingAlertPoll = Timer.periodic(
+      _pollInterval,
+      (_) => unawaited(_resumePendingAlert()),
+    );
+  }
+
+  void _stopPendingAlertPoll() {
+    _pendingAlertPoll?.cancel();
+    _pendingAlertPoll = null;
   }
 
   Future<void> _resumePendingAlert() async {
@@ -85,6 +118,11 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
           .read(pendingAlertLauncherProvider)
           .takeRequest();
       if (request == null) return;
+
+      // 네이티브가 돌리던 반복 진동을 먼저 끊는다 (이슈 #74).
+      // **fire() 보다 반드시 먼저다** — 뒤집히면 네이티브 취소가 Dart 진동을
+      // 같이 끄거나, 둘이 겹쳐 패턴이 어긋난다.
+      await ref.read(alertWatchServiceProvider).stopNativeAlert();
 
       await ref.read(activeAlertProvider.notifier).fire(request);
       // 해제 시점에 광고가 준비되어 있게 미리 불러둔다
