@@ -7,17 +7,25 @@
 ## 브랜치와 배포 흐름
 
 ```
-feature 브랜치
+develop 브랜치 (기본 작업 브랜치)
+   ├─ push                    Flutter CI (분석·테스트·빌드)
    └─ PR → main
-        ├─ PR CI               빌드·분석 검증
-        └─ merge
+        ├─ PR CI               빌드·분석·테스트
+        └─ merge → main push
              ├─ 버전 자동 증가   version.yml → pubspec.yaml 동기화
-             ├─ CHANGELOG 생성
-             └─ Play Store 내부 테스트 배포
-
-deploy 브랜치 push  →  Play Store 배포
-수동 실행           →  TestFlight 배포
+             ├─ Play Store 내부 테스트 배포
+             ├─ Synology 자체 배포
+             └─ TestFlight 배포
 ```
+
+**deploy 브랜치는 없앴다 (2026-08-06).** 이전에는 Play Store 워크플로우의 `workflow_run` 트리거가 존재하지 않는 워크플로우 이름을 기다려 main 머지만으로 배포가 안 됐고, 그래서 deploy 브랜치 push 로 우회했다. 이제 배포 워크플로우 세 개가 **main push 를 직접 본다** — 별도 브랜치 조작이 필요 없다.
+
+```bash
+# 배포 절차
+# develop → main PR 을 머지하면 끝. 수동 조작 없음.
+```
+
+**Firebase App Distribution 은 자동 트리거를 내려뒀다** — `FIREBASE_SERVICE_ACCOUNT_JSON_BASE64` 가 등록돼 있지 않아 main push 마다 실패로 남기 때문이다. 시크릿을 등록하면 `push: branches: ["main"]` 을 되살린다.
 
 ## 워크플로우
 

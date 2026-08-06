@@ -9,6 +9,7 @@ import '../domain/permission_gate.dart';
 import '../domain/permission_snapshot.dart';
 import 'permission_controller.dart';
 import 'permission_copy.dart';
+import 'reliability_prompt_provider.dart';
 
 /// 권한 온보딩 화면 (docs/06-UX.md)
 ///
@@ -57,10 +58,33 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
     }
   }
 
+  /// 단계를 건너뛴다.
+  ///
+  /// 신뢰성 권한(#74)은 선택이므로 건너뛴 사실을 남겨 다시 묻지 않는다.
+  /// 기록에 실패해도 화면 이동은 막지 않는다 — 다음 실행에서 한 번 더
+  /// 묻는 것이 사용자를 온보딩에 가두는 것보다 낫다.
+  Future<void> _skip(OnboardingStep step) async {
+    if (step == OnboardingStep.requestAlertReliability) {
+      try {
+        await ref
+            .read(permissionControllerProvider.notifier)
+            .skipReliabilityPrompt();
+      } on Object {
+        // 기록 실패는 넘어간다
+      }
+      if (!mounted) return;
+    }
+    widget.onFinished?.call();
+  }
+
   @override
   Widget build(BuildContext context) {
     final asyncSnapshot = ref.watch(permissionControllerProvider);
     final gate = ref.watch(permissionGateProvider);
+    // 신뢰성 권한을 이미 권했는지 (이슈 #74).
+    // 아직 못 읽었으면 "권한 적 있다"로 본다 — 잘못 판단해 온보딩을
+    // 한 번 더 띄우는 것보다, 한 번 덜 띄우고 홈에서 안내하는 쪽이 낫다.
+    final promptSeen = ref.watch(reliabilityPromptProvider).valueOrNull ?? true;
 
     return Scaffold(
       body: SafeArea(
@@ -71,7 +95,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
                 ref.read(permissionControllerProvider.notifier).refresh(),
           ),
           data: (snapshot) {
-            final step = gate.nextStep(snapshot);
+            final step = gate.nextStep(
+              snapshot,
+              reliabilityPromptSeen: promptSeen,
+            );
 
             if (step != OnboardingStep.done) {
               _sawIncompleteStep = true;
@@ -97,9 +124,12 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
               // 영구 거부 상태에서도 앱을 열 수 있어야 한다 (A-12).
               // 온보딩에 사용자를 가둬두지 않는다.
               onSkip:
-                  gate.canLeaveOnboarding(snapshot) &&
+                  gate.canLeaveOnboarding(
+                        snapshot,
+                        reliabilityPromptSeen: promptSeen,
+                      ) &&
                       step != OnboardingStep.done
-                  ? widget.onFinished
+                  ? () => _skip(step)
                   : null,
             );
           },

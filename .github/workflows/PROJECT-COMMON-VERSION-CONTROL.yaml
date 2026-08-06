@@ -1,31 +1,29 @@
+# project-auto-wizard:managed-workflow
 # ===================================================================
-# 범용 프로젝트 버전 자동 관리 워크플로우 v2.1
+# PROJECT-COMMON-VERSION-CONTROL.yaml
+# Safety-net automatic version bump
 # ===================================================================
 #
-# 이 워크플로우는 다양한 프로젝트 타입에서 main 브랜치에 푸시될 때마다
-# patch 버전을 자동으로 증가시키고 모든 관련 파일을 동기화합니다.
+# [Safety net] Only when a direct push (one that did not go through a
+# release PR) lands on main (production), this workflow bumps
+# the patch version and syncs every version file.
 #
-# 주요 개선사항:
-# - 버전 동기화 자동화 (version.yml ↔ 프로젝트 파일)
-# - 에러 처리 강화
-# - 로깅 개선
-# - 스크립트 안정성 향상
-# - [v2.1] Race Condition 방지를 위한 pull-rebase + retry 로직 추가
+# Normal releases (develop -> main PR) get their
+# version confirmed by AUTO-CHANGELOG-CONTROL before the merge. The merge
+# commit carries the release-confirm pattern "chore(release):" and the
+# push includes a version.yml change, so this workflow skips via its guard.
 #
-# 지원 프로젝트 타입:
-# - spring: build.gradle
-# - flutter: pubspec.yaml  
-# - react/node: package.json
-# - react-native: Info.plist + build.gradle
-# - react-native-expo: app.json
-# - python: pyproject.toml
-# - basic: version.yml만 관리
+# In trunk-based mode (metadata.template.branches.mode: trunk-based)
+# RELEASE-PUBLISH owns version bumping, so this safety net is skipped
+# entirely to avoid double increments.
 #
+# Release-confirm pattern: "chore(release):" — keep in sync with
+# PROJECT-COMMON-AUTO-CHANGELOG-CONTROL and PROJECT-COMMON-RELEASE-PUBLISH.
 # ===================================================================
 
 name: PROJECT-VERSION-CONTROL
 
-# 동시 실행 방지 (https://github.com/Cassiiopeia/SUH-DEVOPS-TEMPLATE/issues/63)
+# Prevent concurrent version bumps
 concurrency:
   group: version-increment
   cancel-in-progress: false
@@ -36,7 +34,7 @@ on:
     paths-ignore:
       - 'CHANGELOG.md'
       - 'CHANGELOG.json'
-      - 'version.yml'  # 무한 루프 방지
+      - 'version.yml'  # prevent infinite loop
   workflow_dispatch:
 
 permissions:
@@ -44,97 +42,131 @@ permissions:
 
 jobs:
   version-bump:
-    name: 버전 자동 증가
+    name: Safety-net version bump
     runs-on: ubuntu-latest
 
     steps:
-      - name: 저장소 체크아웃
-        uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
-          ref: ${{ github.event.repository.default_branch || 'main' }}
+          ref: "main"
 
-      - name: 버전 관리 스크립트 권한 설정
+      - name: Release merge / mode guard
+        id: release_guard
         run: |
-          chmod +x .github/scripts/version_manager.sh
-          echo "버전 관리 스크립트 권한 설정 완료"
+          SKIP="false"
 
-      - name: 현재 버전 확인 및 동기화
+          # trunk-based mode: RELEASE-PUBLISH owns versioning — skip safety net
+          MODE=$(python3 -c 'import re; t=open("version.yml",encoding="utf-8").read(); m=re.search(r"^\s*mode:\s*\"?([A-Za-z-]+)", t, re.M); print(m.group(1) if m else "pr-flow")' 2>/dev/null || echo "pr-flow")
+          if [ "$MODE" = "trunk-based" ]; then
+            SKIP="true"
+            echo "trunk-based mode detected — RELEASE-PUBLISH owns version bumping, skipping"
+          fi
+
+          # release-confirm pattern: the merge commit of a release PR
+          HEAD_MSG=$(git log -1 --pretty=%B)
+          if echo "$HEAD_MSG" | grep -q "chore(release):"; then
+            SKIP="true"
+            echo "release-confirm commit detected (chore(release):) — skipping safety-net bump"
+          fi
+
+          # release merge detection: the release push includes a version.yml change
+          BEFORE="${{ github.event.before }}"
+          if [ "$BEFORE" = "0000000000000000000000000000000000000000" ] || ! git cat-file -e "$BEFORE" 2>/dev/null; then
+            RANGE="HEAD^..HEAD"
+          else
+            RANGE="$BEFORE..HEAD"
+          fi
+          if git diff --name-only $RANGE 2>/dev/null | grep -qx "version.yml"; then
+            SKIP="true"
+            echo "release merge detected (push contains a version.yml change) — skipping safety-net bump"
+          fi
+
+          echo "skip=$SKIP" >> $GITHUB_OUTPUT
+          if [ "$SKIP" = "false" ]; then
+            echo "direct push to main detected — running safety-net version bump"
+          fi
+
+      - name: Read current version
         id: current_version
+        if: steps.release_guard.outputs.skip != 'true'
         run: |
-          echo "🔍 현재 버전 확인 및 동기화 중..."
-          CURRENT_VERSION=$(./.github/scripts/version_manager.sh get | tail -n 1)
+          CURRENT_VERSION=$(python3 .github/scripts/version_manager.py get | tail -n 1)
           if [ -z "$CURRENT_VERSION" ]; then
-            echo "❌ 버전 확인 실패"
+            echo "failed to read current version"
             exit 1
           fi
           echo "current_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
-          echo "✅ 현재 버전: $CURRENT_VERSION"
+          echo "current version: $CURRENT_VERSION"
 
-      - name: 새 버전 계산 및 업데이트
+      - name: Bump patch version and sync
         id: version
+        if: steps.release_guard.outputs.skip != 'true'
         run: |
-          echo "⬆️ 패치 버전 증가 중..."
-          NEW_VERSION=$(./.github/scripts/version_manager.sh increment | tail -n 1)
+          NEW_VERSION=$(python3 .github/scripts/version_manager.py increment | tail -n 1)
           if [ -z "$NEW_VERSION" ]; then
-            echo "❌ 버전 업데이트 실패"
+            echo "version bump failed"
             exit 1
           fi
+          python3 .github/scripts/version_manager.py sync
           echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
-          echo "✅ 새 버전: $NEW_VERSION"
+          echo "new version: $NEW_VERSION"
 
-      - name: 프로젝트 타입 확인
+      - name: Read project type
         id: project_info
+        if: steps.release_guard.outputs.skip != 'true'
         run: |
           if [ -f "version.yml" ]; then
-            PROJECT_TYPE=$(grep "^project_type:" version.yml | sed 's/project_type: *"\([^"]*\)".*/\1/')
+            PROJECT_TYPE=$(grep "^project_type:" version.yml | sed 's/project_type: *"\([^"]*\)".*/\1/' || echo "unknown")
+            PROJECT_TYPES=$(grep "^project_types:" version.yml 2>/dev/null | sed -E 's/.*\[([^]]*)\].*/\1/' | tr -d '" ' || echo "")
+            if [ -z "$PROJECT_TYPES" ]; then
+              PROJECT_TYPES="$PROJECT_TYPE"
+            fi
             echo "project_type=$PROJECT_TYPE" >> $GITHUB_OUTPUT
-            echo "프로젝트 타입: $PROJECT_TYPE"
+            echo "project_types=$PROJECT_TYPES" >> $GITHUB_OUTPUT
+            echo "project type: $PROJECT_TYPE (types: $PROJECT_TYPES)"
           else
             echo "project_type=unknown" >> $GITHUB_OUTPUT
-            echo "⚠️ version.yml 파일을 찾을 수 없습니다."
+            echo "project_types=unknown" >> $GITHUB_OUTPUT
+            echo "version.yml not found"
           fi
 
-      - name: 변경사항 확인 및 커밋
+      - name: Commit and push changes
+        if: steps.release_guard.outputs.skip != 'true'
         run: |
-          echo "📝 Git 설정 및 변경사항 확인 중..."
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
 
-          # 모든 변경사항 스테이징
           git add -A
 
-          # 변경사항이 있는지 확인
           if git diff --staged --quiet; then
-            echo "ℹ️ 변경사항이 없습니다. (이미 동기화됨)"
+            echo "no changes to commit (already in sync)"
           else
-            echo "📤 변경사항 커밋 중..."
-            REPO_NAME=$(basename "${{ github.repository }}")
-            COMMIT_MSG="$REPO_NAME 버전 정보 관리: chore: 버전 ${{ steps.version.outputs.new_version }} [skip ci]"
+            NEW_VERSION="${{ steps.version.outputs.new_version }}"
+            COMMIT_MSG="chore(version): bump to v${NEW_VERSION} [skip ci]"
 
             if git commit -m "$COMMIT_MSG"; then
-              # Race Condition 방지: pull-rebase 후 push (최대 3회 재시도)
+              # Race-condition guard: pull-rebase then push (up to 3 retries)
               MAX_RETRIES=3
               RETRY_COUNT=0
               PUSH_SUCCESS=false
 
               while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
                 RETRY_COUNT=$((RETRY_COUNT + 1))
-                echo "🔄 Push 시도 $RETRY_COUNT/$MAX_RETRIES..."
+                echo "push attempt $RETRY_COUNT/$MAX_RETRIES..."
 
-                if git push; then
+                if git push origin HEAD:main; then
                   PUSH_SUCCESS=true
-                  echo "✅ 버전 업데이트 커밋 완료"
+                  echo "version bump commit pushed"
                   break
                 else
-                  echo "⚠️ Push 실패, remote 변경사항 동기화 중..."
-
-                  # remote에서 최신 변경사항 가져와서 rebase
-                  if git pull --rebase origin ${{ github.event.repository.default_branch || 'main' }}; then
-                    echo "✅ Rebase 성공, 다시 push 시도..."
+                  echo "push failed, syncing with remote..."
+                  if git pull --rebase origin main; then
+                    echo "rebase ok, retrying push..."
                   else
-                    echo "❌ Rebase 실패, 충돌 해결 필요"
+                    echo "rebase failed, manual conflict resolution required"
                     git rebase --abort 2>/dev/null || true
                     exit 1
                   fi
@@ -142,54 +174,20 @@ jobs:
               done
 
               if [ "$PUSH_SUCCESS" = false ]; then
-                echo "❌ $MAX_RETRIES회 시도 후에도 push 실패"
+                echo "push failed after $MAX_RETRIES attempts"
                 exit 1
               fi
             else
-              echo "❌ 커밋 실패"
+              echo "commit failed"
               exit 1
             fi
           fi
 
-      - name: Git 태그 생성
-        run: |
-          NEW_VERSION="${{ steps.version.outputs.new_version }}"
-          TAG_NAME="v$NEW_VERSION"
-          
-          echo "🏷️ Git 태그 생성 중: $TAG_NAME"
-          
-          # 기존 태그 확인
-          if git tag -l | grep -q "^$TAG_NAME$"; then
-            echo "⚠️ 태그 $TAG_NAME이 이미 존재합니다. 건너뛰기."
-          else
-            if git tag "$TAG_NAME" && git push origin "$TAG_NAME"; then
-              echo "✅ Git 태그 생성 완료: $TAG_NAME"
-            else
-              echo "❌ 태그 생성 실패: $TAG_NAME"
-              exit 1
-            fi
-          fi
-
-      - name: 버전 업데이트 완료 요약
+      - name: Summary
         if: always()
         run: |
-          echo ""
-          echo "🎉 버전 업데이트 워크플로우 완료!"
-          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-          echo "📊 업데이트 요약:"
-          echo "  📦 프로젝트 타입: ${{ steps.project_info.outputs.project_type }}"
-          echo "  📌 이전 버전: ${{ steps.current_version.outputs.current_version }}"
-          echo "  🆙 새 버전: ${{ steps.version.outputs.new_version }}"
-          echo "  🔖 Git 태그: v${{ steps.version.outputs.new_version }}"
-          echo "  📝 커밋: ${{ github.sha }}"
-          echo "  🌿 브랜치: ${{ github.ref_name }}"
-          echo "  🕐 시간: $(date '+%Y-%m-%d %H:%M:%S UTC')"
-          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-          echo ""
-          
-          # 실패한 경우에만 에러 표시
-          if [ "${{ job.status }}" != "success" ]; then
-            echo "❌ 일부 단계에서 오류가 발생했습니다. 로그를 확인해주세요."
-          else
-            echo "✅ 모든 단계가 성공적으로 완료되었습니다."
-          fi
+          echo "version-control workflow finished"
+          echo "  skipped (release merge / trunk-based): ${{ steps.release_guard.outputs.skip }}"
+          echo "  previous version: ${{ steps.current_version.outputs.current_version }}"
+          echo "  new version: ${{ steps.version.outputs.new_version }}"
+          echo "  branch: ${{ github.ref_name }}"

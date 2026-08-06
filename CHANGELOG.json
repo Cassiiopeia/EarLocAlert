@@ -1,11 +1,52 @@
 {
   "metadata": {
-    "lastUpdated": "2026-08-03T05:34:36Z",
-    "currentVersion": "1.2.24",
+    "lastUpdated": "2026-08-06T06:31:02Z",
+    "currentVersion": "1.2.40",
     "projectType": "flutter",
-    "totalReleases": 29
+    "totalReleases": 30,
+    "projectTypes": [
+      "flutter"
+    ]
   },
   "releases": [
+    {
+      "version": "1.2.40",
+      "project_type": "flutter",
+      "project_types": [
+        "flutter"
+      ],
+      "date": "2026-08-06",
+      "pr_number": 77,
+      "raw_summary": "## [1.2.40]\n\n### 🐛 수정\n- CI 빌드 단계 복구 — PR 검증 APK 를 debug 로 되돌려 키스토어 없는 CI 에서 packageRelease 가 죽던 문제 해소, iOS 플랫폼 번들 설치 단계 추가\n- CI/CD 흐름 복구 — 마법사 워크플로우 전체에 build_runner 코드생성 추가(analyze 전면 실패 해소), deploy 브랜치를 걷어내고 develop→main push 로 배포 통일, 중복 워크플로우 제거\n- 워크플로우 YAML 오류 수정 — 마법사 템플릿의 heredoc 본문이 컬럼 0에 있어 블록 스칼라를 탈출하던 것을 블록 기준 들여쓰기로 복구 (TEST-APK·IOS-TEST-TESTFLIGHT 2건, 파싱 실패로 0초 만에 실패하던 문제)\n- 백그라운드 알림 지속 발화 — 백그라운드 알림이 1회 발행 후 끊기던 구조를 상시 포그라운드 서비스로 교체, 반복 진동·앱 전면 승격·신뢰성 권한 온보딩 추가\n- Flutter PlayStore CICD 마법사 전체적으로 구현 완료 필요 — old projetops 로 설치된 템플릿 삭제\n- Flutter PlayStore CICD 마법사 전체적으로 구현 완료 필요 — 현재 관리되지않고 deprecated 된 파일 삭제\n\n### 📝 문서\n- 배포 흐름 문서 실측 반영 — main 머지만으로 스토어 배포가 되지 않음을 명시, deploy 브랜치 절차 기록\n\n### 🔧 변경사항\n- PR CI iOS 빌드 비활성화 — device_info_plus 가 Xcode 26 SDK 에서 컴파일되지 않아 통합 전 상태(Android 전용 CI)로 되돌림, 재개 조건은 이슈에 기록\n- CI/CD 템플릿 재통합 — project-auto-wizard v0.1.18 워크플로우 도입, version_code 를 pubspec 빌드번호(71)에 맞춤, 대체된 구 템플릿 초기화·버전동기화 파일 제거\n- 백그라운드 알림 지속 발화 및 CI/CD 마법사 포팅 (#75)",
+      "parsed_changes": {
+        "수정": {
+          "title": "🐛 수정",
+          "items": [
+            "CI 빌드 단계 복구 — PR 검증 APK 를 debug 로 되돌려 키스토어 없는 CI 에서 packageRelease 가 죽던 문제 해소, iOS 플랫폼 번들 설치 단계 추가",
+            "CI/CD 흐름 복구 — 마법사 워크플로우 전체에 build_runner 코드생성 추가(analyze 전면 실패 해소), deploy 브랜치를 걷어내고 develop→main push 로 배포 통일, 중복 워크플로우 제거",
+            "워크플로우 YAML 오류 수정 — 마법사 템플릿의 heredoc 본문이 컬럼 0에 있어 블록 스칼라를 탈출하던 것을 블록 기준 들여쓰기로 복구 (TEST-APK·IOS-TEST-TESTFLIGHT 2건, 파싱 실패로 0초 만에 실패하던 문제)",
+            "백그라운드 알림 지속 발화 — 백그라운드 알림이 1회 발행 후 끊기던 구조를 상시 포그라운드 서비스로 교체, 반복 진동·앱 전면 승격·신뢰성 권한 온보딩 추가",
+            "Flutter PlayStore CICD 마법사 전체적으로 구현 완료 필요 — old projetops 로 설치된 템플릿 삭제",
+            "Flutter PlayStore CICD 마법사 전체적으로 구현 완료 필요 — 현재 관리되지않고 deprecated 된 파일 삭제"
+          ]
+        },
+        "문서": {
+          "title": "📝 문서",
+          "items": [
+            "배포 흐름 문서 실측 반영 — main 머지만으로 스토어 배포가 되지 않음을 명시, deploy 브랜치 절차 기록"
+          ]
+        },
+        "변경사항": {
+          "title": "🔧 변경사항",
+          "items": [
+            "PR CI iOS 빌드 비활성화 — device_info_plus 가 Xcode 26 SDK 에서 컴파일되지 않아 통합 전 상태(Android 전용 CI)로 되돌림, 재개 조건은 이슈에 기록",
+            "CI/CD 템플릿 재통합 — project-auto-wizard v0.1.18 워크플로우 도입, version_code 를 pubspec 빌드번호(71)에 맞춤, 대체된 구 템플릿 초기화·버전동기화 파일 제거",
+            "백그라운드 알림 지속 발화 및 CI/CD 마법사 포팅 (#75)"
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "1.2.24",
       "project_type": "flutter",

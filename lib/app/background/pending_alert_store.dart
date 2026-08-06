@@ -43,6 +43,10 @@ class PendingAlertStore {
     final soundEnabled = prefs.getBool(_keySoundEnabled);
     final occurredAtRaw = prefs.getString(_keyOccurredAt);
 
+    // 아무것도 없으면 지울 것도 없다. 앱이 떠 있는 동안 주기적으로
+    // 확인하므로(#74), 빈 상태에서 매번 쓰기를 일으키면 안 된다.
+    if (placeId == null && occurredAtRaw == null) return null;
+
     await _clear(prefs);
 
     if (placeId == null ||

@@ -1,45 +1,58 @@
-# ===================================================================
-# 프로젝트 버전 관리 파일
-# ===================================================================
+# ===
+# Version format: x.y.z (semantic versioning)
+# - patch: auto-incremented by the release workflows
+# - version_code: monotonically increasing build number, bumped alongside version
+# - major/minor: auto-bumped when metadata.template.options.semver_auto is true
+#   (default) — feat: commits bump minor, a `!` breaking marker on any commit
+#   type bumps major. Set semver_auto: false to always patch-bump instead
+#   (then edit major/minor manually, e.g., 1.0.5 -> 1.1.0 or 2.0.0).
+# ===
+# Supported project types: spring, flutter, next, react, react-native,
+#                          react-native-expo, node, python, basic
+# Multi-type projects: list every type in the project_types array
+#   -> project_type (singular) always mirrors project_types[0] — do not edit it directly
+# Monorepo paths: project_paths maps each type to its subdir relative to the repo root
+#   (e.g., flutter: "app", react: "client"). Omitted -> repo root.
 #
-# 이 파일은 다양한 프로젝트 타입에서 버전 정보를 중앙 관리하기 위한 파일입니다.
-# GitHub Actions 워크플로우가 이 파일을 읽어 자동으로 버전을 관리합니다.
-#
-# 사용법:
-# 1. version: "1.0.0" - 사용자에게 표시되는 버전
-# 2. version_code: 1 - Play Store/App Store 빌드 번호 (1부터 자동 증가)
-# 3. project_type: 프로젝트 타입 지정
-#
-# 자동 버전 업데이트:
-# - patch: 자동으로 세 번째 자리 증가 (x.x.x -> x.x.x+1)
-# - version_code: 매 빌드마다 자동으로 1씩 증가
-# - minor/major: 수동으로 직접 수정 필요
-#
-# 프로젝트 타입별 동기화 파일:
-# - spring: build.gradle (version = "x.y.z")
-# - flutter: pubspec.yaml (version: x.y.z+i, buildNumber 포함)
-# - react/node: package.json ("version": "x.y.z")
-# - react-native: iOS Info.plist 또는 Android build.gradle
-# - react-native-expo: app.json (expo.version)
-# - python: pyproject.toml (version = "x.y.z")
-# - basic/기타: version.yml 파일만 사용
-#
-# 연관된 워크플로우:
-# - .github/workflows/PROJECT-VERSION-CONTROL.yaml
-# - .github/workflows/PROJECT-README-VERSION-UPDATE.yaml
-# - .github/workflows/PROJECT-AUTO-CHANGELOG-CONTROL.yaml
-#
-# 주의사항:
-# - project_type은 최초 설정 후 변경하지 마세요
-# - 버전은 항상 높은 버전으로 자동 동기화됩니다
-# ===================================================================
+# Synced files per type:
+# - spring: build.gradle / build.gradle.kts
+# - flutter: pubspec.yaml
+# - next/react/node: package.json
+# - react-native: Info.plist + build.gradle
+# - react-native-expo: app.json
+# - python: pyproject.toml
+# - basic: version.yml only
+# ===
 
-version: "1.2.39"
-version_code: 72 # app build number
-project_type: "flutter" # spring, flutter, react, react-native, react-native-expo, node, python, basic
+version: "1.2.40"
+version_code: 72  # app build number
+# 마법사가 신규 통합으로 보고 1 로 초기화했는데, version_manager.py 가
+# pubspec 을 "version+version_code" 로 덮어쓰므로 그대로 두면 다음 배포에서
+# versionCode 가 71 → 2 로 떨어져 Play Store 가 업로드를 거부한다.
+project_types: ["flutter"] # first entry is primary
+project_type: "flutter" # auto-mirror of project_types[0] — do not edit directly
+project_paths: # 타입별 프로젝트 폴더 (레포 루트 기준 상대경로)
+  flutter: "." # pubspec.yaml
 metadata:
-  last_updated: "2026-08-04 06:17:16"
+  last_updated: "2026-08-06"
   last_updated_by: "Cassiiopeia"
   default_branch: "main"
-  integrated_from: "SUH-DEVOPS-TEMPLATE"
-  integration_date: "2025-11-27"
+  integration_date: "2026-08-06"
+  template:
+    source: "project-auto-wizard"
+    version: "0.1.18"
+    integrated_date: "2026-08-06"
+    last_update_date: "2026-08-06"
+    branches:
+      main: "main"
+      develop: "develop"
+      mode: "pr-flow" # pr-flow | trunk-based
+    options:
+      nexus: false
+      secret_backup: true
+      semver_auto: true
+
+deploy: # 마법사가 기억하는 배포 설정 (비민감 / 직접 수정 가능)
+  flutter:
+    APP_ARTIFACT_NAME: "EarLocAlert"
+    JAVA_VERSION: "17"

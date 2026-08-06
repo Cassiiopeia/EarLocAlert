@@ -5,6 +5,7 @@ import '../features/geofence/domain/geofence_state_repository.dart';
 import '../features/geofence/domain/geofence_target.dart';
 import '../features/places/domain/alert_place.dart';
 import '../features/places/domain/place_repository.dart';
+import 'background/alert_watch_service.dart';
 
 /// 장소 목록 ↔ OS 지오펜스 등록 동기화 (이슈 #63)
 ///
@@ -16,14 +17,19 @@ class GeofenceRegistrationSync {
     required PlaceRepository places,
     required GeofenceMonitor monitor,
     required GeofenceStateRepository states,
+    AlertWatchService watch = const NoopAlertWatchService(),
     this.maxTargets = 20,
   }) : _places = places,
        _monitor = monitor,
-       _states = states;
+       _states = states,
+       _watch = watch;
 
   final PlaceRepository _places;
   final GeofenceMonitor _monitor;
   final GeofenceStateRepository _states;
+
+  /// 상시 감시 서비스 (이슈 #74) — 감시 대상이 있을 때만 켠다
+  final AlertWatchService _watch;
 
   /// iOS 는 앱당 20개가 OS 제한이다 (docs/05-PLATFORM.md).
   /// 등록 화면이 상한을 막지만, 여기서도 자르는 것이 마지막 방어선이다.
@@ -43,6 +49,9 @@ class GeofenceRegistrationSync {
   Future<void> stop() async {
     await _subscription?.cancel();
     _subscription = null;
+    // 감시를 멈추면 상시 알림도 사라져야 한다 — 아무것도 지켜보지 않는데
+    // 알림 줄에 남아 있으면 사용자는 앱이 뭘 하는지 알 수 없다
+    await _watch.stopWatching();
   }
 
   Future<void> _applySafely(List<AlertPlace> places) async {
@@ -83,5 +92,14 @@ class GeofenceRegistrationSync {
     }
 
     await _monitor.sync(targets);
+
+    // 상시 감시 서비스는 **지켜볼 것이 있을 때만** 띄운다 (이슈 #74).
+    // 등록이 끝난 뒤에 켜는 이유는, 서비스가 뜨자마자 대기 중인 알림을
+    // 확인하는데 그 시점에 등록이 비어 있으면 안 되기 때문이다.
+    if (targets.isEmpty) {
+      await _watch.stopWatching();
+    } else {
+      await _watch.startWatching();
+    }
   }
 }

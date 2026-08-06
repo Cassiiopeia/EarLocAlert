@@ -7,13 +7,18 @@ import 'background_alert_port.dart';
 import 'pending_alert.dart';
 import 'pending_alert_store.dart';
 
-/// 백그라운드 알림 발행 구현 (이슈 #63)
+/// 백그라운드 알림 발행 구현 (이슈 #63, #74)
 ///
 /// **채널을 포그라운드 알림(ear_loc_alert_alarm)과 분리한다.**
 /// 그 채널은 진동 off 다 — AlertController 가 직접 반복 진동을 돌리기
 /// 때문이다. 백그라운드 isolate 는 콜백 후 즉시 죽어 진동 루프를 돌릴 수
 /// 없으므로, 여기서는 채널의 진동 패턴에 위임한다. Android 채널 설정은
 /// 최초 생성 시 고정되므로 채널을 공유하면 한쪽 요구가 반드시 깨진다.
+///
+/// **이 알림 하나로 끝나지 않는다** (이슈 #74). 저장된 PendingAlert 를
+/// 네이티브 감시 서비스(AlertWatchService)가 감지해 반복 진동을 걸고 앱을
+/// 전면으로 띄운다. 서비스가 없거나 권한이 없는 경우에 남는 것이 이
+/// 알림이므로, 그 상황에서도 성립하도록 채널 진동을 유지한다.
 ///
 /// 소리는 어떤 경우에도 채널에서 내지 않는다 — 이어폰 확인 없는 재생은
 /// 스피커로 샐 수 있다 (F3.7, docs/03-DOMAIN.md 규칙 5).
@@ -45,9 +50,15 @@ class BackgroundAlertNotifier implements BackgroundAlertPort {
       enableVibration: true,
       vibrationPattern: _vibrationPattern,
       playSound: false,
-      // 전체화면 인텐트는 되면 좋고 안 돼도 성립해야 한다
-      // (docs/10-DECISIONS.md 006). 거부돼도 높은 중요도 알림은 뜬다.
+      // 화면이 꺼졌거나 잠겼을 때 알림 화면을 띄운다. 화면이 켜져 있으면
+      // OS 가 헤드업으로 강등하는데, 그 경우는 감시 서비스가 앱을 전면으로
+      // 올려 처리한다 (docs/10-DECISIONS.md 006 재검토, 이슈 #74).
       fullScreenIntent: true,
+      // 알람으로 분류한다 — Android 14+ 의 전체화면 알림 자동 부여 대상이
+      // 알람·통화 계열이고, 잠금화면 노출과 헤드업 우선순위도 이 값을 본다.
+      category: AndroidNotificationCategory.alarm,
+      // 잠금화면에서 내용까지 보여준다. 장소 이름을 봐야 내릴지 판단한다.
+      visibility: NotificationVisibility.public,
       autoCancel: true,
     );
 

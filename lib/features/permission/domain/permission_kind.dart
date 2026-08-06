@@ -12,6 +12,41 @@ enum PermissionKind {
 
   /// 알림 — Android 13+ 런타임 요청
   notification,
+
+  /// 배터리 최적화 예외 — **없으면 절전 중 지오펜스 이벤트가 지연·누락된다**
+  ///
+  /// Doze 와 제조사 절전(삼성 등)은 앱 프로세스를 재우고 콜백을 묶어서
+  /// 늦게 전달한다. "버스에서 내릴 곳"처럼 타이밍이 전부인 알림에서는
+  /// 몇 분 지연이 곧 실패다 (이슈 #74).
+  batteryOptimization,
+
+  /// 다른 앱 위에 표시 — **화면이 켜져 있을 때 알림 화면을 덮는 유일한 수단**
+  ///
+  /// 전체화면 알림(FSI)은 잠금화면에서만 액티비티를 띄운다. 사용자가
+  /// 영상을 보는 중이면 OS 가 헤드업 알림으로 강등하므로, 화면을 실제로
+  /// 덮으려면 이 권한이 필요하다. 백그라운드 액티비티 시작 제한의
+  /// 면제 조건이기도 하다 (이슈 #74).
+  overlay,
+
+  /// 전체화면 알림 — 화면이 꺼졌거나 잠긴 상태를 담당한다
+  ///
+  /// Android 14+ 는 매니페스트 선언만으로 부여되지 않는다. 알람·통화
+  /// 계열이 아닌 앱은 설정 화면에서 사용자가 직접 켜야 한다
+  /// (docs/10-DECISIONS.md 006 재검토).
+  fullScreenIntent;
+
+  /// 이것이 없으면 앱의 존재 이유가 사라지는 권한인가.
+  ///
+  /// 나머지(신뢰성 권한)는 **얹는 것이지 전제가 아니다** — 거부돼도
+  /// 고중요도 알림 + 반복 진동으로 앱이 성립해야 한다.
+  bool get isEssential => switch (this) {
+    PermissionKind.location ||
+    PermissionKind.backgroundLocation ||
+    PermissionKind.notification => true,
+    PermissionKind.batteryOptimization ||
+    PermissionKind.overlay ||
+    PermissionKind.fullScreenIntent => false,
+  };
 }
 
 /// 권한 상태 (docs/04-CONVENTIONS.md)

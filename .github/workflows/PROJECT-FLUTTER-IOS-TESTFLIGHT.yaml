@@ -1,3 +1,4 @@
+# project-auto-wizard:managed-workflow
 # ===================================================================
 # Flutter iOS TestFlight 자동 배포 워크플로우
 # ===================================================================
@@ -14,29 +15,26 @@
 #   1. flutter build ios --no-codesign (Flutter 빌드)
 #   2. xcodebuild archive (Xcode 아카이브 생성)
 #   3. xcodebuild -exportArchive (IPA 생성, ExportOptions.plist 사용)
-#   4. fastlane upload_testflight (마법사 생성 Fastfile 사용)
+#   4. fastlane deploy (마법사 생성 Fastfile 사용, DEPLOY_MODE에 따라 TestFlight/심사 제출)
 #
 # ===================================================================
-# 📋 필요한 GitHub Secrets
+# 🔑 필수 GitHub Secrets
 # ===================================================================
 #
-# 🔐 Apple 인증서 & 프로비저닝 프로파일 (필수):
-#   - APPLE_CERTIFICATE_BASE64        : .p12 인증서 (base64 인코딩)
-#   - APPLE_CERTIFICATE_PASSWORD      : .p12 인증서 비밀번호
-#   - APPLE_PROVISIONING_PROFILE_BASE64 : .mobileprovision 파일 (base64 인코딩)
-#   - IOS_PROVISIONING_PROFILE_NAME   : 프로비저닝 프로파일 이름 (예: "MyApp Distribution")
+# 🔐 Apple 인증서 & 프로비저닝 프로파일:
+# APPLE_CERTIFICATE_BASE64: .p12 인증서 (base64 인코딩)
+# APPLE_CERTIFICATE_PASSWORD: .p12 인증서 비밀번호
+# APPLE_PROVISIONING_PROFILE_BASE64: .mobileprovision 파일 (base64 인코딩)
+# IOS_PROVISIONING_PROFILE_NAME: 프로비저닝 프로파일 이름
 #
-# 🔑 App Store Connect API (필수):
-#   - APP_STORE_CONNECT_API_KEY_ID    : API Key ID (10자리, 예: ABC123DEF4)
-#   - APP_STORE_CONNECT_ISSUER_ID     : Issuer ID (UUID 형식)
-#   - APP_STORE_CONNECT_API_KEY_BASE64: AuthKey_XXXXXX.p8 파일 (base64 인코딩)
+# 🔑 App Store Connect API:
+# APP_STORE_CONNECT_API_KEY_ID: API Key ID (10자리)
+# APP_STORE_CONNECT_ISSUER_ID: Issuer ID (UUID 형식)
+# APP_STORE_CONNECT_API_KEY_BASE64: AuthKey_XXXXXX.p8 파일 (base64 인코딩)
 #
 # 📝 환경 설정 (선택):
-#   - ENV_FILE                        : .env 파일 내용 (앱에서 사용하는 환경변수)
-#   - MAPS_API_KEY                    : Google Maps API 키. ENV_FILE 을 건드리지 않고
-#                                       .env 에 덧붙인 뒤 tool/sync_env.sh 가
-#                                       ios/Flutter/MapsKey.xcconfig 로 옮긴다
-#                                       (docs/08-OPERATIONS.md)
+# ENV_FILE (선택): .env 파일 내용
+# SECRETS_XCCONFIG (선택): ios/Flutter/Secrets.xcconfig 내용
 #
 # ===================================================================
 # 🛠️ 초기 설정 방법
@@ -52,7 +50,7 @@
 #    git add ios/
 #    git commit -m "chore: iOS TestFlight 배포 설정"
 #
-# 4. deploy 브랜치로 푸시하여 배포 시작
+# 4. main 브랜치로 푸시하여 배포 시작
 #
 # ===================================================================
 
@@ -60,20 +58,26 @@ name: PROJECT-iOS-TestFlight-Deploy
 
 on:
   push:
-    branches: ["deploy"]
-  workflow_run:
-    workflows: ["CHANGELOG 자동 업데이트"]
-    types: [completed]
-    branches: [main]
-  # 수동 실행 — deploy 배포 없이 iOS 빌드만 검증할 때 쓴다 (#46)
+    branches: ["main"]
   workflow_dispatch:
+    inputs:
+      deploy_mode:
+        description: "배포 모드 (store_only=TestFlight까지 / store_prepare=ASC 제출직전 / store_submit=심사 자동제출)"
+        required: false
+        default: "store_only"
+        type: choice
+        options:
+          - store_only
+          - store_prepare
+          - store_submit
 
 # ============================================
 # 🔧 프로젝트별 설정 (아래 값들을 수정하세요)
 # ============================================
 env:
+  FLUTTER_ROOT: "."
   FLUTTER_VERSION: "3.35.5"
-  XCODE_VERSION: "16.3"
+  XCODE_VERSION: "26.0"
   PROJECT_TYPE: "flutter"
 
   # ============================================
@@ -87,10 +91,18 @@ env:
   # ============================================
   SKIP_WAITING_FOR_BUILD_PROCESSING: "false"
 
+  # ============================================
+  # 📝 배포 모드 (store_only | store_prepare | store_submit)
+  # ============================================
+  DEPLOY_MODE: ${{ github.event.inputs.deploy_mode || vars.IOS_DEPLOY_MODE || 'store_only' }}
+
 jobs:
   prepare-build:
     name: 환경 설정 및 준비
-    runs-on: macos-15
+    runs-on: macos-26
+    defaults:
+      run:
+        working-directory: ${{ env.FLUTTER_ROOT }}
     if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name != 'workflow_run' }}
 
     outputs:
@@ -100,72 +112,33 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
-          ref: deploy
+          ref: main
           fetch-depth: 0
 
       - name: Pull latest changes
-        run: git pull origin deploy
+        run: git pull origin main
 
-      # Xcode 선택 — 러너 이미지는 예고 없이 바뀌므로 버전을 강제하지 않는다 (#46)
-      #
-      # 지정 버전이 있으면 쓰고, 없으면 러너 기본 Xcode 로 폴백한다.
-      # 선택한 Xcode 에 iOS 플랫폼이 없으면 (Xcode 16.3 + iOS 18.4 미설치 사례)
-      # 빌드가 "iOS X.Y Platform Not Installed" 로 실패하므로 미리 확인해 설치한다.
       - name: Select Xcode version
-        run: |
-          TARGET="/Applications/Xcode_${{ env.XCODE_VERSION }}.app"
-          if [ -d "$TARGET" ]; then
-            sudo xcode-select -s "$TARGET/Contents/Developer"
-            echo "✅ Xcode ${{ env.XCODE_VERSION }} 선택"
-          else
-            echo "⚠️  Xcode ${{ env.XCODE_VERSION }} 없음 → 러너 기본 Xcode 사용"
-            echo "설치된 Xcode 목록:"
-            ls -d /Applications/Xcode*.app 2>/dev/null || echo "  (없음)"
-            sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
-          fi
-          echo "선택된 Xcode: $(xcodebuild -version | head -1)"
+        run: sudo xcode-select -s /Applications/Xcode_${{ env.XCODE_VERSION }}.app/Contents/Developer
 
-          echo "── 설치된 Xcode ──"
-          ls -d /Applications/Xcode*.app 2>/dev/null || echo "  (없음)"
-
-          echo "── SDK 목록 ──"
-          xcodebuild -showsdks 2>/dev/null | grep -i "ios" || echo "  (iOS SDK 없음)"
-
-          # -showsdks 는 SDK 존재만 보여줄 뿐 platform 이 실제 설치됐는지는 알려주지 않는다.
-          # Xcode 16 부터 iOS platform 이 on-demand 컴포넌트로 분리되어,
-          # SDK 는 보이는데 storyboard 컴파일(ibtool) 단계에서
-          # "iOS X.Y Platform Not Installed" 로 실패하는 경우가 있다 (#46 실측).
-          echo "── 설치된 platform ──"
-          xcodebuild -showdestinations -scheme Runner 2>/dev/null | head -20 || true
-          ls /Library/Developer/CoreSimulator/Profiles/Runtimes/ 2>/dev/null || echo "  (런타임 디렉터리 없음)"
-
-          echo "── iOS platform 설치 시도 ──"
-          # 이미 설치돼 있으면 즉시 끝나고, 없으면 내려받는다.
-          # 실패해도 빌드를 진행한다 — 빌드 에러 로그가 더 정확한 진단을 준다.
-          sudo xcodebuild -downloadPlatform iOS 2>&1 | tail -20 ||             echo "⚠️  platform 다운로드 실패 또는 미지원 — 빌드를 그대로 진행한다"
-
-      # 시크릿 이름은 ENV_FILE 로 통일돼 있다 (docs/08-OPERATIONS.md).
-      # MAPS_API_KEY 는 별도 시크릿이라 ENV_FILE 을 건드리지 않고 덧붙인다.
       - name: Create .env file
         run: |
           cat << 'EOF' > ${{ env.ENV_FILE_PATH }}
-          ${{ secrets.ENV_FILE }}
+          ${{ secrets.ENV_FILE || secrets.ENV }}
           EOF
-          echo "MAPS_API_KEY=${{ secrets.MAPS_API_KEY }}" >> ${{ env.ENV_FILE_PATH }}
           echo "✅ ${{ env.ENV_FILE_PATH }} file created"
 
-      # Google Maps 키 주입 (docs/08-OPERATIONS.md).
-      # Android 는 build.gradle.kts 가 .env 를 직접 읽지만, iOS 는 xcconfig 를
-      # 거쳐야 Info.plist 치환이 된다. 키가 비어 있어도 실패하지 않는다.
-      - name: Google Maps 키 동기화 (.env → MapsKey.xcconfig)
+      - name: Create Secrets.xcconfig file
         run: |
-          chmod +x ./tool/sync_env.sh
-          ./tool/sync_env.sh
-
-      # Secrets.xcconfig 단계를 제거했다 — 만들기만 하고 어느 xcconfig 에서도
-      # include 하지 않아 아무 효과가 없었다. 값이 필요하면 .env 를 쓴다.
+          mkdir -p ios/Flutter
+          if [ -n "${{ secrets.SECRETS_XCCONFIG }}" ]; then
+            echo "${{ secrets.SECRETS_XCCONFIG }}" > ios/Flutter/Secrets.xcconfig
+            echo "Secrets.xcconfig created"
+          else
+            echo "// No secrets provided" > ios/Flutter/Secrets.xcconfig
+          fi
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
@@ -181,11 +154,12 @@ jobs:
           restore-keys: ${{ runner.os }}-flutter-pub-
 
       - name: Install dependencies
-        run: flutter pub get
-
-      # freezed·riverpod·drift 코드 생성 — 없으면 릴리스 빌드 실패 (#67)
-      - name: 코드 생성 (build_runner)
-        run: dart run build_runner build --delete-conflicting-outputs
+        run: |
+          flutter pub get
+          # 코드 생성 — freezed·riverpod·drift 는 pub get 만으로 소스가 완성되지 않는다
+          if grep -q "build_runner" pubspec.yaml; then
+            dart run build_runner build --delete-conflicting-outputs
+          fi
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
@@ -198,16 +172,12 @@ jobs:
           gem install cocoapods
           cd ios && pod install
 
-      - name: 버전 관리 스크립트 권한 설정
-        run: |
-          chmod +x ./.github/scripts/version_manager.sh
-          chmod +x ./.github/scripts/changelog_manager.py
-
       - name: 현재 버전 정보 가져오기
         id: current_version
+        working-directory: ${{ github.workspace }}   # version_manager.py가 레포 루트 version.yml을 읽어야 함
         run: |
-          VERSION=$(./.github/scripts/version_manager.sh get | tail -n 1)
-          BUILD_NUMBER=$(./.github/scripts/version_manager.sh get-code | tail -n 1)
+          VERSION=$(python3 .github/scripts/version_manager.py get | tail -n 1)
+          BUILD_NUMBER=$(python3 .github/scripts/version_manager.py get-code | tail -n 1)
 
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "build_number=$BUILD_NUMBER" >> $GITHUB_OUTPUT
@@ -217,6 +187,7 @@ jobs:
 
       - name: 릴리즈 노트 생성
         id: release_notes
+        working-directory: ${{ github.workspace }}   # CHANGELOG.json·changelog_manager.py·final_release_notes.txt(upload 짝)는 레포 루트 기준
         run: |
           VERSION="${{ steps.current_version.outputs.version }}"
 
@@ -259,56 +230,41 @@ jobs:
   # ============================================
   build-ios:
     name: iOS 앱 빌드
-    runs-on: macos-15
+    runs-on: macos-26
+    defaults:
+      run:
+        working-directory: ${{ env.FLUTTER_ROOT }}
     needs: prepare-build
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
-          ref: deploy
+          ref: main
           fetch-depth: 0
 
       - name: Pull latest changes
-        run: git pull origin deploy
+        run: git pull origin main
 
-      # Xcode 선택 — 러너 이미지는 예고 없이 바뀌므로 버전을 강제하지 않는다 (#46)
-      #
-      # 지정 버전이 있으면 쓰고, 없으면 러너 기본 Xcode 로 폴백한다.
-      # 선택한 Xcode 에 iOS 플랫폼이 없으면 (Xcode 16.3 + iOS 18.4 미설치 사례)
-      # 빌드가 "iOS X.Y Platform Not Installed" 로 실패하므로 미리 확인해 설치한다.
       - name: Select Xcode version
+        run: sudo xcode-select -s /Applications/Xcode_${{ env.XCODE_VERSION }}.app/Contents/Developer
+
+      - name: Install iOS device platform
+        env:
+          # xcode-select만으로는 서브프로세스에 전파되지 않아 명시적으로 지정
+          DEVELOPER_DIR: /Applications/Xcode_${{ env.XCODE_VERSION }}.app/Contents/Developer
         run: |
-          TARGET="/Applications/Xcode_${{ env.XCODE_VERSION }}.app"
-          if [ -d "$TARGET" ]; then
-            sudo xcode-select -s "$TARGET/Contents/Developer"
-            echo "✅ Xcode ${{ env.XCODE_VERSION }} 선택"
-          else
-            echo "⚠️  Xcode ${{ env.XCODE_VERSION }} 없음 → 러너 기본 Xcode 사용"
-            echo "설치된 Xcode 목록:"
-            ls -d /Applications/Xcode*.app 2>/dev/null || echo "  (없음)"
-            sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
-          fi
-          echo "선택된 Xcode: $(xcodebuild -version | head -1)"
-
-          echo "── 설치된 Xcode ──"
-          ls -d /Applications/Xcode*.app 2>/dev/null || echo "  (없음)"
-
-          echo "── SDK 목록 ──"
-          xcodebuild -showsdks 2>/dev/null | grep -i "ios" || echo "  (iOS SDK 없음)"
-
-          # -showsdks 는 SDK 존재만 보여줄 뿐 platform 이 실제 설치됐는지는 알려주지 않는다.
-          # Xcode 16 부터 iOS platform 이 on-demand 컴포넌트로 분리되어,
-          # SDK 는 보이는데 storyboard 컴파일(ibtool) 단계에서
-          # "iOS X.Y Platform Not Installed" 로 실패하는 경우가 있다 (#46 실측).
-          echo "── 설치된 platform ──"
-          xcodebuild -showdestinations -scheme Runner 2>/dev/null | head -20 || true
-          ls /Library/Developer/CoreSimulator/Profiles/Runtimes/ 2>/dev/null || echo "  (런타임 디렉터리 없음)"
-
-          echo "── iOS platform 설치 시도 ──"
-          # 이미 설치돼 있으면 즉시 끝나고, 없으면 내려받는다.
-          # 실패해도 빌드를 진행한다 — 빌드 에러 로그가 더 정확한 진단을 준다.
-          sudo xcodebuild -downloadPlatform iOS 2>&1 | tail -20 ||             echo "⚠️  platform 다운로드 실패 또는 미지원 — 빌드를 그대로 진행한다"
+          echo "=== iPhoneOS.platform check ==="
+          ls "$DEVELOPER_DIR/Platforms/iPhoneOS.platform/" 2>/dev/null && echo "iPhoneOS.platform EXISTS" || echo "iPhoneOS.platform NOT FOUND"
+          echo "=== Installing MobileDevice packages ==="
+          sudo installer -pkg /Applications/Xcode_${{ env.XCODE_VERSION }}.app/Contents/Resources/Packages/MobileDevice.pkg -target /
+          sudo installer -pkg /Applications/Xcode_${{ env.XCODE_VERSION }}.app/Contents/Resources/Packages/MobileDeviceDevelopment.pkg -target /
+          echo "=== Accepting Xcode license ==="
+          sudo xcodebuild -license accept
+          echo "=== Initializing Xcode components ==="
+          xcrun simctl list >/dev/null 2>&1 || true
+          echo "=== Downloading iOS platform ==="
+          xcodebuild -downloadPlatform iOS
 
       - name: Download project files
         uses: actions/download-artifact@v4
@@ -320,17 +276,10 @@ jobs:
         run: |
           if [ ! -f "${{ env.ENV_FILE_PATH }}" ]; then
             cat << 'EOF' > ${{ env.ENV_FILE_PATH }}
-          ${{ secrets.ENV_FILE }}
+          ${{ secrets.ENV_FILE || secrets.ENV }}
           EOF
-            echo "MAPS_API_KEY=${{ secrets.MAPS_API_KEY }}" >> ${{ env.ENV_FILE_PATH }}
             echo "✅ ${{ env.ENV_FILE_PATH }} file created (fallback)"
           fi
-
-      # .env 를 새로 만든 job 에서도 xcconfig 를 다시 생성해야 한다
-      - name: Google Maps 키 동기화 (.env → MapsKey.xcconfig)
-        run: |
-          chmod +x ./tool/sync_env.sh
-          ./tool/sync_env.sh
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
@@ -346,11 +295,12 @@ jobs:
           restore-keys: ${{ runner.os }}-flutter-pub-
 
       - name: Install dependencies
-        run: flutter pub get
-
-      # freezed·riverpod·drift 코드 생성 — 없으면 릴리스 빌드 실패 (#67)
-      - name: 코드 생성 (build_runner)
-        run: dart run build_runner build --delete-conflicting-outputs
+        run: |
+          flutter pub get
+          # 코드 생성 — freezed·riverpod·drift 는 pub get 만으로 소스가 완성되지 않는다
+          if grep -q "build_runner" pubspec.yaml; then
+            dart run build_runner build --delete-conflicting-outputs
+          fi
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
@@ -385,6 +335,9 @@ jobs:
           fi
 
       - name: Flutter build (no codesign)
+        env:
+          # xcode-select만으로는 서브프로세스에 전파되지 않아 명시적으로 지정
+          DEVELOPER_DIR: /Applications/Xcode_${{ env.XCODE_VERSION }}.app/Contents/Developer
         run: |
           flutter build ios --release --no-codesign \
             --build-name="${{ needs.prepare-build.outputs.version }}" \
@@ -393,6 +346,8 @@ jobs:
       - name: Create Archive
         env:
           IOS_PROVISIONING_PROFILE_NAME: ${{ secrets.IOS_PROVISIONING_PROFILE_NAME }}
+          # xcode-select만으로는 서브프로세스에 전파되지 않아 명시적으로 지정
+          DEVELOPER_DIR: /Applications/Xcode_${{ env.XCODE_VERSION }}.app/Contents/Developer
         run: |
           cd ios
           xcodebuild -workspace Runner.xcworkspace \
@@ -416,7 +371,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ios-ipa
-          path: ios/build/ipa/*.ipa
+          path: ${{ env.FLUTTER_ROOT }}/ios/build/ipa/*.ipa
           retention-days: 1
 
   # ============================================
@@ -424,14 +379,17 @@ jobs:
   # ============================================
   deploy-testflight:
     name: TestFlight 배포
-    runs-on: macos-15
+    runs-on: macos-26
+    defaults:
+      run:
+        working-directory: ${{ env.FLUTTER_ROOT }}
     needs: [prepare-build, build-ios]
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
-          ref: deploy
+          ref: main
           fetch-depth: 0
 
       - name: Setup App Store Connect API Key
@@ -443,7 +401,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: ios-ipa
-          path: ios/build/ipa/
+          path: ${{ env.FLUTTER_ROOT }}/ios/build/ipa/
 
       - name: Download release notes
         uses: actions/download-artifact@v4
@@ -462,27 +420,32 @@ jobs:
           echo "✅ Fastfile 확인됨: ios/fastlane/Fastfile"
 
       - name: Install Fastlane
-        run: gem install fastlane
+        working-directory: ${{ env.FLUTTER_ROOT }}/ios
+        run: |
+          # multi_json: google-apis transitive 의존성이 선언 누락한 upstream 버그 회피 (gemspec 미선언 → Gem::LoadError)
+          printf 'source "https://rubygems.org"\ngem "fastlane"\ngem "multi_json"\n' > Gemfile
+          bundle install
+          echo "✅ Fastlane installed (Bundler)"
 
-      - name: Upload to TestFlight
+      - name: Upload to TestFlight (+ App Store Submit if store_submit)
         env:
           APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
           APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
           SKIP_WAITING_FOR_BUILD_PROCESSING: ${{ env.SKIP_WAITING_FOR_BUILD_PROCESSING }}
         run: |
-          # IPA 파일 찾기
-          IPA_PATH=$(find $GITHUB_WORKSPACE/ios/build/ipa -name "*.ipa" | head -1)
+          # IPA 절대경로 탐색
+          IPA_PATH=$(find "$GITHUB_WORKSPACE/${FLUTTER_ROOT}/ios/build/ipa" -name "*.ipa" | head -1)
           echo "📦 Found IPA at: $IPA_PATH"
 
           if [ ! -f "$IPA_PATH" ]; then
-            echo "❌ IPA 파일을 찾을 수 없습니다!"
-            ls -la ios/build/ipa/
-            exit 1
+            echo "❌ IPA 파일을 찾을 수 없습니다!"; ls -la ios/build/ipa/ || true; exit 1
           fi
 
-          # Release notes 준비
-          if [ -f "final_release_notes.txt" ]; then
-            RELEASE_NOTES=$(cat final_release_notes.txt)
+          # Release notes 준비 (final_release_notes.txt·truncate 스크립트는 레포 루트 기준 — working-directory가 FLUTTER_ROOT이므로 절대경로 사용)
+          if [ -f "$GITHUB_WORKSPACE/final_release_notes.txt" ]; then
+            # App Store Connect "What to Test" 한도(4000 바이트)에 맞춰 절단 (마진 두어 3800byte)
+            bash "$GITHUB_WORKSPACE/.github/scripts/truncate_release_notes.sh" "$GITHUB_WORKSPACE/final_release_notes.txt" 3800 byte
+            RELEASE_NOTES=$(cat "$GITHUB_WORKSPACE/final_release_notes.txt")
             echo "📝 Release Notes:"
             echo "$RELEASE_NOTES"
           else
@@ -490,19 +453,19 @@ jobs:
             echo "📝 기본 Release Notes: $RELEASE_NOTES"
           fi
 
-          # 환경변수 설정 (Fastfile에서 사용)
+          export APP_STORE_CONNECT_API_KEY_ID="${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}"
+          export APP_STORE_CONNECT_ISSUER_ID="${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}"
           export API_KEY_PATH="$HOME/.appstoreconnect/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}.p8"
           export IPA_PATH="$IPA_PATH"
           export RELEASE_NOTES="$RELEASE_NOTES"
+          export APP_IDENTIFIER="${{ secrets.IOS_BUNDLE_ID || vars.IOS_BUNDLE_ID }}"
+          export DEPLOY_MODE="${{ env.DEPLOY_MODE }}"
+          export APP_VERSION="${{ needs.prepare-build.outputs.version }}"
+          export BUILD_NUMBER="${{ needs.prepare-build.outputs.build_number }}"
 
-          # 디버깅 정보
-          echo "🔧 Working directory: $(pwd)"
-          echo "🔧 IPA_PATH: $IPA_PATH"
-          echo "🔧 API_KEY_PATH: $API_KEY_PATH"
-
-          # Fastlane 실행 (마법사가 생성한 Fastfile 사용)
+          echo "🔧 DEPLOY_MODE: $DEPLOY_MODE / APP_IDENTIFIER: $APP_IDENTIFIER"
           cd ios
-          fastlane upload_testflight
+          bundle exec fastlane deploy
 
       - name: Notify TestFlight Upload Success
         if: success()
