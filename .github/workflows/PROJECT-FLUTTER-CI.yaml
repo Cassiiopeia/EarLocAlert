@@ -78,16 +78,12 @@ env:
 
   # 🎯 빌드 대상 플랫폼 설정 (ANALYZE_ONLY=false일 때만 적용)
   ENABLE_ANDROID: "true"    # Android 빌드 활성화 (true/false)
-  # iOS 빌드는 꺼둔다 (이슈 #76).
+  # iOS 빌드 (이슈 #76).
   #
-  # 마법사 통합 전까지 이 레포의 PR CI 는 Android 전용이었고, iOS 를 켜자
-  # 전이 의존성이 Xcode 26 SDK 에서 컴파일되지 않는다:
-  #   device_info_plus 12.4.0 FPPDeviceInfoPlusPlugin.m:34
-  #   "No visible @interface for 'NSProcessInfo' declares the selector
-  #    'isiOSAppOnVision'"
-  # 앱 코드 문제가 아니라 툴체인·의존성 조합 문제이고, 확인에 Mac 이 필요하다.
-  # 해결되면 "true" 로 되돌린다.
-  ENABLE_IOS: "false"       # iOS 빌드 활성화 (true/false)
+  # device_info_plus 12.4.0 이 `isiOSAppOnVision` 을 쓰면서 컴파일이 깨졌던 것을
+  # pubspec 의 dependency_overrides 로 12.3.0 에 고정해 해소했다. 사유는 그쪽
+  # 주석에 있다. 다시 깨지면 여기를 "false" 로 내려 배포를 막지 않는다.
+  ENABLE_IOS: "true"        # iOS 빌드 활성화 (true/false)
 
   # 🔧 프로젝트별 설정
   FLUTTER_VERSION: "3.35.5"
