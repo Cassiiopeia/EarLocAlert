@@ -1,7 +1,16 @@
 # Changelog
 
-**현재 버전:** 1.2.40  
-**마지막 업데이트:** 2026-08-06T06:31:02Z  
+**현재 버전:** 1.2.41  
+**마지막 업데이트:** 2026-08-06T07:17:31Z  
+
+---
+
+## [1.2.41] - 2026-08-06
+
+**PR:** #78  
+
+**🐛 수정**
+- 릴리스 APK 첨부 및 배포 잔재 수정 — main push 에서 skip 되던 Synology 배포 잡 조건을 deploy→main 으로 정정, 빌드한 APK 를 GitHub Release 에 첨부, Play Store AAB 업로드 경로가 FLUTTER_ROOT 를 가리키던 것을 workspace 로 수정
 
 ---
 

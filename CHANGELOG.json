@@ -1,14 +1,33 @@
 {
   "metadata": {
-    "lastUpdated": "2026-08-06T06:31:02Z",
-    "currentVersion": "1.2.40",
+    "lastUpdated": "2026-08-06T07:17:31Z",
+    "currentVersion": "1.2.41",
     "projectType": "flutter",
-    "totalReleases": 30,
+    "totalReleases": 31,
     "projectTypes": [
       "flutter"
     ]
   },
   "releases": [
+    {
+      "version": "1.2.41",
+      "project_type": "flutter",
+      "project_types": [
+        "flutter"
+      ],
+      "date": "2026-08-06",
+      "pr_number": 78,
+      "raw_summary": "## [1.2.41]\n\n### 🐛 수정\n- 릴리스 APK 첨부 및 배포 잔재 수정 — main push 에서 skip 되던 Synology 배포 잡 조건을 deploy→main 으로 정정, 빌드한 APK 를 GitHub Release 에 첨부, Play Store AAB 업로드 경로가 FLUTTER_ROOT 를 가리키던 것을 workspace 로 수정",
+      "parsed_changes": {
+        "수정": {
+          "title": "🐛 수정",
+          "items": [
+            "릴리스 APK 첨부 및 배포 잔재 수정 — main push 에서 skip 되던 Synology 배포 잡 조건을 deploy→main 으로 정정, 빌드한 APK 를 GitHub Release 에 첨부, Play Store AAB 업로드 경로가 FLUTTER_ROOT 를 가리키던 것을 workspace 로 수정"
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "1.2.40",
       "project_type": "flutter",
