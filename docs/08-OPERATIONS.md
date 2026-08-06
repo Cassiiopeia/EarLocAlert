@@ -37,13 +37,41 @@ develop 브랜치 (기본 작업 브랜치)
 | `PROJECT-COMMON-SYNC-ISSUE-LABELS` | 이슈 라벨 동기화 |
 | `PROJECT-COMMON-QA-ISSUE-CREATION-BOT` | QA 이슈 생성 |
 | `PROJECT-COMMON-SUH-ISSUE-HELPER-*` | 이슈 헬퍼 연동 |
-| `PROJECT-FLUTTER-ANDROID-PR-CI` | PR 빌드 검증 |
+| `PROJECT-COMMON-RELEASE-PUBLISH` | main push 시 GitHub Release 발행 (**노트만** — 산출물은 붙이지 않는다) |
+| `PROJECT-COMMON-AI-PR-SUMMARY` | PR 요약 생성 |
+| `PROJECT-COMMON-SECRET-FILE-UPLOAD` | 시크릿 파일을 서버로 백업 |
+| `PROJECT-FLUTTER-CI` | PR·develop push 빌드 검증 (analyze·test·Android 빌드) |
 | `PROJECT-FLUTTER-ANDROID-PLAYSTORE-CICD` | Play Store 내부 테스트 배포 |
-| `PROJECT-FLUTTER-ANDROID-SYNOLOGY-CICD` | APK 를 NAS 로 배포 |
+| `PROJECT-FLUTTER-ANDROID-SYNOLOGY-CICD` | APK 를 NAS 로 배포 + **GitHub Release 에 APK 첨부** |
 | `PROJECT-FLUTTER-IOS-TESTFLIGHT` | TestFlight 배포 |
-| `PROJECT-TEMPLATE-INITIALIZER` · `TEMPLATE-UTIL-VERSION-SYNC` | 템플릿 초기화·동기화 |
+| `PROJECT-FLUTTER-ANDROID-FIREBASE-CICD` | Firebase 배포 — **자동 트리거 없음** (시크릿 미등록) |
+| `PROJECT-FLUTTER-ANDROID-TEST-APK` · `PROJECT-FLUTTER-IOS-TEST-TESTFLIGHT` | 이슈 댓글로 요청하는 테스트 빌드 |
 
 > `PROJECT-FLUTTER-IOS-CICD`(iOS 산출물 NAS 배포)는 **삭제했다** (#46). iOS 검증은 TestFlight 로 하며, NAS 에 iOS 빌드를 따로 쌓을 이유가 없다.
+>
+> `PROJECT-TEMPLATE-INITIALIZER` · `TEMPLATE-UTIL-VERSION-SYNC` · `version_manager.sh` · `template_initializer.sh` 는 **삭제했다** — `project-auto-wizard` 재통합(2026-08-06)으로 `version_manager.py` 체계가 대체했다. `PROJECT-FLUTTER-ANDROID-PR-CI` 도 `PROJECT-FLUTTER-CI` 가 흡수해 삭제했다.
+
+### `WORKFLOW_PAT` 이 없으면 배포가 조용히 안 된다
+
+`PROJECT-COMMON-AUTO-CHANGELOG-CONTROL` 이 릴리스 PR 을 automerge 할 때 쓰는 토큰이다.
+
+```yaml
+GH_TOKEN: ${{ secrets.WORKFLOW_PAT || github.token }}
+```
+
+**`GITHUB_TOKEN` 으로 한 머지는 후속 워크플로우를 트리거하지 않는다** (GitHub 정책 — 워크플로우 무한 루프 방지). 이게 없으면 main 에 머지는 되는데 버전 증가도 배포도 아무것도 돌지 않고, **에러 없이 조용히 아무 일도 일어나지 않는다.**
+
+`repo` · `workflow` 스코프만 있으면 된다. 없으면 main push 후 배포 워크플로우를 손으로 `workflow_dispatch` 해야 한다.
+
+### APK 는 Release 에 붙는다
+
+`RELEASE-PUBLISH` 는 노트만 만든다. 워크플로우 아티팩트는 **1일 뒤 사라지고 로그인해야 받을 수 있어** 실기기 설치용으로 못 쓴다.
+
+그래서 `SYNOLOGY-CICD` 가 APK 빌드 직후 릴리스에 첨부한다. 두 워크플로우가 main push 로 동시에 시작하므로 릴리스가 생길 때까지 기다렸다가 붙이고, 끝내 없으면 경고만 남기고 배포를 막지 않는다.
+
+```
+v1.2.41  →  EarLocAlert-v1.2.41-90589ba.apk
+```
 
 ## 버전 관리 — `version.yml` 이 단일 출처
 

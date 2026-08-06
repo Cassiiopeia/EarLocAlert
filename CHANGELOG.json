@@ -1,14 +1,39 @@
 {
   "metadata": {
-    "lastUpdated": "2026-08-06T07:40:56Z",
-    "currentVersion": "1.2.42",
+    "lastUpdated": "2026-08-06T08:11:02Z",
+    "currentVersion": "1.2.43",
     "projectType": "flutter",
-    "totalReleases": 32,
+    "totalReleases": 33,
     "projectTypes": [
       "flutter"
     ]
   },
   "releases": [
+    {
+      "version": "1.2.43",
+      "project_type": "flutter",
+      "project_types": [
+        "flutter"
+      ],
+      "date": "2026-08-06",
+      "pr_number": 80,
+      "raw_summary": "## [1.2.43]\n\n### 🐛 수정\n- iOS 빌드 복구 — device_info_plus 를 isiOSAppOnVision 도입 직전인 12.3.0 으로 고정해 Xcode SDK 컴파일 실패 해소, CI iOS 빌드 재활성화\n\n### 📝 문서\n- 배포 문서 실측 갱신 — 마법사 재통합 후 워크플로우 목록 정정, WORKFLOW_PAT 없으면 배포가 조용히 멈추는 이유와 APK 가 Release 에 붙는 경로 기록",
+      "parsed_changes": {
+        "수정": {
+          "title": "🐛 수정",
+          "items": [
+            "iOS 빌드 복구 — device_info_plus 를 isiOSAppOnVision 도입 직전인 12.3.0 으로 고정해 Xcode SDK 컴파일 실패 해소, CI iOS 빌드 재활성화"
+          ]
+        },
+        "문서": {
+          "title": "📝 문서",
+          "items": [
+            "배포 문서 실측 갱신 — 마법사 재통합 후 워크플로우 목록 정정, WORKFLOW_PAT 없으면 배포가 조용히 멈추는 이유와 APK 가 Release 에 붙는 경로 기록"
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "1.2.42",
       "project_type": "flutter",
