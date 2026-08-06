@@ -388,6 +388,10 @@ jobs:
       - name: Install dependencies
         run: |
           flutter pub get
+          # 코드 생성 — freezed·riverpod·drift 는 pub get 만으로 소스가 완성되지 않는다
+          if grep -q "build_runner" pubspec.yaml; then
+            dart run build_runner build --delete-conflicting-outputs
+          fi
           echo "✅ Dependencies installed"
 
       # Gradle 셋업

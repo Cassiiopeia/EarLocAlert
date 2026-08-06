@@ -154,7 +154,12 @@ jobs:
           restore-keys: ${{ runner.os }}-flutter-pub-
 
       - name: Install dependencies
-        run: flutter pub get
+        run: |
+          flutter pub get
+          # 코드 생성 — freezed·riverpod·drift 는 pub get 만으로 소스가 완성되지 않는다
+          if grep -q "build_runner" pubspec.yaml; then
+            dart run build_runner build --delete-conflicting-outputs
+          fi
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
@@ -290,7 +295,12 @@ jobs:
           restore-keys: ${{ runner.os }}-flutter-pub-
 
       - name: Install dependencies
-        run: flutter pub get
+        run: |
+          flutter pub get
+          # 코드 생성 — freezed·riverpod·drift 는 pub get 만으로 소스가 완성되지 않는다
+          if grep -q "build_runner" pubspec.yaml; then
+            dart run build_runner build --delete-conflicting-outputs
+          fi
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1

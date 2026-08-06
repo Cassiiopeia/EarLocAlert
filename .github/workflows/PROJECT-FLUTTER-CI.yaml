@@ -46,7 +46,7 @@ name: PROJECT-Flutter-CI
 
 on:
   pull_request:
-    branches: ["develop"]
+    branches: ["develop", "main"]
     types: [opened, synchronize, reopened]
   push:
     branches: ["develop"]
@@ -278,6 +278,10 @@ jobs:
       - name: Install dependencies
         run: |
           flutter pub get
+          # 코드 생성 — freezed·riverpod·drift 는 pub get 만으로 소스가 완성되지 않는다
+          if grep -q "build_runner" pubspec.yaml; then
+            dart run build_runner build --delete-conflicting-outputs
+          fi
           echo "✅ Dependencies installed"
 
       # Flutter Analyze 실행
@@ -377,6 +381,10 @@ jobs:
       - name: Install dependencies
         run: |
           flutter pub get
+          # 코드 생성 — freezed·riverpod·drift 는 pub get 만으로 소스가 완성되지 않는다
+          if grep -q "build_runner" pubspec.yaml; then
+            dart run build_runner build --delete-conflicting-outputs
+          fi
           echo "✅ Dependencies installed"
 
       # Java 설정
@@ -488,6 +496,10 @@ jobs:
       - name: Install dependencies
         run: |
           flutter pub get
+          # 코드 생성 — freezed·riverpod·drift 는 pub get 만으로 소스가 완성되지 않는다
+          if grep -q "build_runner" pubspec.yaml; then
+            dart run build_runner build --delete-conflicting-outputs
+          fi
           echo "✅ Dependencies installed"
 
       # Ruby 및 CocoaPods 설정
