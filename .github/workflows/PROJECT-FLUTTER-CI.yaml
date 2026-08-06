@@ -411,7 +411,12 @@ jobs:
         id: build
         run: |
           echo "📦 Flutter APK 빌드 시작..."
-          flutter build apk --release
+          # PR 검증 빌드는 debug 로 만든다.
+          # CI 잡에는 키스토어를 주입하지 않으므로 --release 로 돌리면
+          # signingConfig "release" 의 storeFile 이 비어 packageRelease 에서
+          # 죽는다. 서명이 필요한 것은 배포 워크플로우이고, 그쪽은 시크릿에서
+          # 키스토어를 직접 구성한다.
+          flutter build apk --debug
           echo "✅ APK 빌드 완료"
           ls -la ./build/app/outputs/flutter-apk/ || true
 
@@ -463,6 +468,12 @@ jobs:
 
       - name: Select Xcode version
         run: sudo xcode-select -s /Applications/Xcode_${{ env.XCODE_VERSION }}.app/Contents/Developer
+
+      # 러너 이미지에 Xcode 는 있어도 iOS 플랫폼 번들이 빠져 있는 경우가 있다
+      # ("Error (Xcode): iOS 26.0 Platform Not Installed"). 이미 있으면
+      # 즉시 끝나므로 항상 시도한다.
+      - name: Ensure iOS platform installed
+        run: sudo xcodebuild -downloadPlatform iOS -quiet || xcodebuild -downloadPlatform iOS
 
       # .env 파일 생성
       - name: Create .env file
