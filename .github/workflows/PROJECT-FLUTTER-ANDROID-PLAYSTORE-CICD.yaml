@@ -517,7 +517,10 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: android-aab
-          path: ${{ env.FLUTTER_ROOT }}/build/app/outputs/bundle/release/app-release.aab
+          # FLUTTER_ROOT 는 Flutter SDK 설치 경로(/opt/hostedtoolcache/...)라
+          # 산출물이 있는 곳이 아니다. 그 경로를 쓰면 AAB 가 정상 빌드돼도
+          # "No files were found" 로 업로드가 비어 다음 잡이 죽는다.
+          path: ${{ github.workspace }}/build/app/outputs/bundle/release/app-release.aab
           retention-days: 1
 
   deploy-playstore:
