@@ -12,6 +12,12 @@ enum OnboardingStep {
   /// 알림 권한 요청
   requestNotification,
 
+  /// 알림 신뢰성 권한 요청 — 배터리 최적화 예외·오버레이·전체화면 (이슈 #74)
+  ///
+  /// **선택 단계다.** 건너뛰어도 온보딩을 마칠 수 있고, 한 번 거절하면
+  /// 다시 묻지 않는다.
+  requestAlertReliability,
+
   /// 설정 화면으로 보내야 함 — 영구 거부된 권한이 있다
   openSettings,
 
@@ -38,12 +44,29 @@ class PermissionGate {
     PermissionKind.notification,
   ];
 
+  /// 알림 신뢰성 권한 요청 순서 (이슈 #74)
+  ///
+  /// 전부 시스템 설정 화면으로 나갔다 오는 권한이라 한 단계에서 이어서
+  /// 처리한다. 순서는 효과가 큰 것부터다 — 배터리 최적화 예외가 없으면
+  /// 이벤트 자체가 늦게 오고, 그다음이 화면을 덮는 능력이다.
+  static const List<PermissionKind> reliabilityOrder = [
+    PermissionKind.batteryOptimization,
+    PermissionKind.overlay,
+    PermissionKind.fullScreenIntent,
+  ];
+
   /// 현재 상태에서 다음에 해야 할 일.
   ///
   /// 영구 거부는 앱 내 재요청이 통하지 않으므로 설정 화면으로 보낸다.
   /// 다만 **아직 요청 가능한 권한이 남아 있으면 그것을 먼저** 처리한다 —
   /// 하나가 영구 거부됐다고 나머지 흐름을 막지 않는다.
-  OnboardingStep nextStep(PermissionSnapshot snapshot) {
+  ///
+  /// [reliabilityPromptSeen] 은 신뢰성 권한을 이미 한 번 권했는지다.
+  /// 거절한 사용자에게 앱을 켤 때마다 같은 화면을 보이면 통행세가 된다.
+  OnboardingStep nextStep(
+    PermissionSnapshot snapshot, {
+    bool reliabilityPromptSeen = false,
+  }) {
     for (final kind in requestOrder) {
       final status = snapshot.statusOf(kind);
       if (status.isGranted) continue;
@@ -55,6 +78,13 @@ class PermissionGate {
         .map(snapshot.statusOf)
         .any((s) => s.needsSettings);
     if (blocked) return OnboardingStep.openSettings;
+
+    // 필수가 끝났다 — 알림이 백그라운드에서 끊기지 않도록 한 번 더 권한다.
+    // 필수가 막혀 있는 동안에는 오지 않는다: 항상 위치 없이 오버레이만
+    // 받아봐야 알릴 것이 없다.
+    if (!reliabilityPromptSeen && !snapshot.canAlertReliably) {
+      return OnboardingStep.requestAlertReliability;
+    }
 
     return OnboardingStep.done;
   }
@@ -71,9 +101,18 @@ class PermissionGate {
   /// 모든 권한이 허용된 경우뿐 아니라, **더 이상 앱이 할 수 있는 것이
   /// 없을 때도 true 다** — 영구 거부 상태에서 온보딩에 사용자를 가둬두지
   /// 않는다. 앱은 열리고, 무엇이 안 되는지를 화면에 표시한다 (A-12).
-  bool canLeaveOnboarding(PermissionSnapshot snapshot) {
-    final step = nextStep(snapshot);
-    return step == OnboardingStep.done || step == OnboardingStep.openSettings;
+  bool canLeaveOnboarding(
+    PermissionSnapshot snapshot, {
+    bool reliabilityPromptSeen = false,
+  }) {
+    final step = nextStep(
+      snapshot,
+      reliabilityPromptSeen: reliabilityPromptSeen,
+    );
+    return step == OnboardingStep.done ||
+        step == OnboardingStep.openSettings ||
+        // 신뢰성 권한은 선택이다 — 여기서 사용자를 붙잡지 않는다
+        step == OnboardingStep.requestAlertReliability;
   }
 
   OnboardingStep _stepFor(PermissionKind kind) => switch (kind) {
@@ -81,5 +120,8 @@ class PermissionGate {
     PermissionKind.backgroundLocation =>
       OnboardingStep.requestBackgroundLocation,
     PermissionKind.notification => OnboardingStep.requestNotification,
+    PermissionKind.batteryOptimization ||
+    PermissionKind.overlay ||
+    PermissionKind.fullScreenIntent => OnboardingStep.requestAlertReliability,
   };
 }

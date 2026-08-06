@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:ear_loc_alert/app/background/alert_watch_service.dart';
 import 'package:ear_loc_alert/app/geofence_registration_sync.dart';
 import 'package:ear_loc_alert/core/domain/alert_direction.dart';
 import 'package:ear_loc_alert/features/geofence/domain/geofence_monitor.dart';
@@ -93,6 +94,94 @@ void main() {
 
     expect(places.listenCount, 1);
   });
+
+  group('상시 감시 서비스 (이슈 #74)', () {
+    late _FakeWatchService watch;
+
+    setUp(() {
+      watch = _FakeWatchService();
+      sync = GeofenceRegistrationSync(
+        places: places,
+        monitor: monitor,
+        states: states,
+        watch: watch,
+      );
+    });
+
+    test('감시할 장소가 있으면 서비스를 켠다', () async {
+      places.items = [place('a')];
+
+      await sync.start();
+
+      expect(watch.watching, isTrue);
+    });
+
+    test('감시할 장소가 하나도 없으면 켜지 않는다', () async {
+      places.items = [];
+
+      await sync.start();
+
+      expect(
+        watch.watching,
+        isFalse,
+        reason: '알릴 것이 없는데 상시 알림을 띄우면 배터리만 먹는 앱이다',
+      );
+    });
+
+    test('비활성 장소만 있으면 켜지 않는다', () async {
+      places.items = [place('a', enabled: false)];
+
+      await sync.start();
+
+      expect(watch.watching, isFalse);
+    });
+
+    test('마지막 장소가 빠지면 서비스를 끈다', () async {
+      places.items = [place('a')];
+      await sync.start();
+      expect(watch.watching, isTrue);
+
+      places.items = [];
+      places.controller.add(places.items);
+      await Future<void>.delayed(Duration.zero);
+
+      expect(watch.watching, isFalse);
+    });
+
+    test('장소가 다시 생기면 서비스를 켠다', () async {
+      places.items = [];
+      await sync.start();
+
+      places.items = [place('a')];
+      places.controller.add(places.items);
+      await Future<void>.delayed(Duration.zero);
+
+      expect(watch.watching, isTrue);
+    });
+
+    test('감시 중지는 서비스도 끈다', () async {
+      places.items = [place('a')];
+      await sync.start();
+
+      await sync.stop();
+
+      expect(watch.watching, isFalse);
+    });
+  });
+}
+
+class _FakeWatchService implements AlertWatchService {
+  bool watching = false;
+  int stopAlertCount = 0;
+
+  @override
+  Future<void> startWatching() async => watching = true;
+
+  @override
+  Future<void> stopWatching() async => watching = false;
+
+  @override
+  Future<void> stopNativeAlert() async => stopAlertCount++;
 }
 
 class _FakePlaceRepository implements PlaceRepository {
