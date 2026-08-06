@@ -1,14 +1,33 @@
 {
   "metadata": {
-    "lastUpdated": "2026-08-06T07:17:31Z",
-    "currentVersion": "1.2.41",
+    "lastUpdated": "2026-08-06T07:40:56Z",
+    "currentVersion": "1.2.42",
     "projectType": "flutter",
-    "totalReleases": 31,
+    "totalReleases": 32,
     "projectTypes": [
       "flutter"
     ]
   },
   "releases": [
+    {
+      "version": "1.2.42",
+      "project_type": "flutter",
+      "project_types": [
+        "flutter"
+      ],
+      "date": "2026-08-06",
+      "pr_number": 79,
+      "raw_summary": "## [1.2.42]\n\n### 🐛 수정\n- CI/CD 전면 감사 수정 — FLUTTER_ROOT 가 flutter-action 의 SDK 경로에 덮여 산출물 업로드가 비던 문제를 FLUTTER_PROJECT_DIR 로 개명해 해소, 마법사가 호출만 하고 배포하지 않은 truncate_release_notes.sh 추가",
+      "parsed_changes": {
+        "수정": {
+          "title": "🐛 수정",
+          "items": [
+            "CI/CD 전면 감사 수정 — FLUTTER_ROOT 가 flutter-action 의 SDK 경로에 덮여 산출물 업로드가 비던 문제를 FLUTTER_PROJECT_DIR 로 개명해 해소, 마법사가 호출만 하고 배포하지 않은 truncate_release_notes.sh 추가"
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "1.2.41",
       "project_type": "flutter",
