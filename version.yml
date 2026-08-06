@@ -24,8 +24,8 @@
 # - basic: version.yml only
 # ===
 
-version: "1.2.39"
-version_code: 71 # app build number — pubspec 의 1.2.39+71 과 맞춘 값.
+version: "1.2.40"
+version_code: 72  # app build number
 # 마법사가 신규 통합으로 보고 1 로 초기화했는데, version_manager.py 가
 # pubspec 을 "version+version_code" 로 덮어쓰므로 그대로 두면 다음 배포에서
 # versionCode 가 71 → 2 로 떨어져 Play Store 가 업로드를 거부한다.
@@ -34,8 +34,8 @@ project_type: "flutter" # auto-mirror of project_types[0] — do not edit direct
 project_paths: # 타입별 프로젝트 폴더 (레포 루트 기준 상대경로)
   flutter: "." # pubspec.yaml
 metadata:
-  last_updated: "2026-08-06 05:22:11"
-  last_updated_by: "project-auto-wizard"
+  last_updated: "2026-08-06"
+  last_updated_by: "Cassiiopeia"
   default_branch: "main"
   integration_date: "2026-08-06"
   template:
