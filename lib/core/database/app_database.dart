@@ -5,6 +5,13 @@ import 'package:drift/native.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
+// 생성 코드(app_database.g.dart)가 쓰는 타입들이다.
+// `part` 파일은 이 파일의 import 스코프를 그대로 쓰므로, 여기에 없으면
+// "Type 'AlertSchedule' not found" 로 빌드가 깨진다. analysis_options 가
+// 생성 파일을 분석에서 제외하기 때문에 `flutter analyze` 는 통과하고
+// 실제 컴파일에서만 터진다 — 지우지 않는다.
+import '../domain/alert_schedule.dart';
+import 'alert_schedule_converter.dart';
 import 'tables.dart';
 
 part 'app_database.g.dart';
