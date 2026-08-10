@@ -62,7 +62,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
@@ -105,9 +105,40 @@ jobs:
           echo "proceed=$PROCEED" >> $GITHUB_OUTPUT
           if [ "$PROCEED" = "true" ]; then
             echo "release gate open (mode=$MODE, event=$EVENT)"
-          else
-            echo "not a release-confirm push in pr-flow mode — skipping (clean exit)"
+            exit 0
           fi
+
+          echo "not a release-confirm push in pr-flow mode — skipping"
+
+          # Drift guard (issue #61): skipping is normal, but a version.yml that
+          # has run ahead of the newest tag is not — it means the version was
+          # bumped without a release, so npm silently stays behind. Six versions
+          # (0.1.26~0.1.31) went missing this way with every workflow green.
+          FILE_VERSION=$(grep -m1 '^version:' version.yml | sed 's/version:[ \t]*"\{0,1\}\([0-9][0-9.]*\)"\{0,1\}.*/\1/')
+          LATEST_TAG=$(git tag --list 'v*' --sort=-v:refname | head -n 1)
+          LATEST_VERSION="${LATEST_TAG#v}"
+
+          if [ -z "$FILE_VERSION" ] || [ -z "$LATEST_VERSION" ]; then
+            echo "drift guard skipped (no version.yml version or no tag yet)"
+            exit 0
+          fi
+
+          HIGHER=$(printf '%s\n%s\n' "$FILE_VERSION" "$LATEST_VERSION" | sort -V | tail -n 1)
+          if [ "$FILE_VERSION" != "$LATEST_VERSION" ] && [ "$HIGHER" = "$FILE_VERSION" ]; then
+            echo "::error::version.yml($FILE_VERSION) is ahead of the newest tag($LATEST_TAG) but no release was published — this version will never reach npm. Recover with: Actions → PROJECT-RELEASE-PUBLISH → Run workflow (workflow_dispatch bypasses this gate)."
+            {
+              echo "### ⚠️ 릴리스 누락 감지"
+              echo ""
+              echo "- version.yml: \`$FILE_VERSION\`"
+              echo "- 최신 태그: \`$LATEST_TAG\`"
+              echo ""
+              echo "릴리스 확정 없이 버전만 올라갔습니다. 이 버전은 npm에 배포되지 않습니다."
+              echo "복구: Actions → PROJECT-RELEASE-PUBLISH → Run workflow"
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+
+          echo "drift guard ok (version.yml=$FILE_VERSION, latest tag=$LATEST_TAG)"
 
       - name: Read semver_auto option from version.yml
         id: semver_options
@@ -192,13 +223,11 @@ jobs:
 
           # note: `grep | sed || echo default` never fires the default (the
           # pipeline exits with sed's 0) — default via ${var:-} instead
-          PROJECT_TYPE=$(grep "^project_type:" version.yml 2>/dev/null | sed 's/project_type: *"\([^"]*\)".*/\1/')
-          PROJECT_TYPE=${PROJECT_TYPE:-unknown}
           PROJECT_TYPES=$(grep "^project_types:" version.yml 2>/dev/null | sed -E 's/.*\[([^]]*)\].*/\1/' | tr -d '" ')
-          PROJECT_TYPES=${PROJECT_TYPES:-$PROJECT_TYPE}
+          PROJECT_TYPES=${PROJECT_TYPES:-unknown}
 
           export VERSION="$NEW_VERSION"
-          export PROJECT_TYPE PROJECT_TYPES
+          export PROJECT_TYPES
           export TODAY=$(date '+%Y-%m-%d')
           export TIMESTAMP=$(date '+%Y-%m-%dT%H:%M:%SZ')
 
@@ -322,7 +351,10 @@ jobs:
       - name: Create GitHub Release
         if: steps.gate.outputs.proceed == 'true' && steps.version.outputs.release_exists != 'true'
         env:
-          GH_TOKEN: ${{ github.token }}
+          # WORKFLOW_PAT으로 발행해야 release 이벤트가 후속 워크플로우(npm 배포 등)를 트리거한다.
+          # GITHUB_TOKEN이 만든 이벤트는 GitHub 정책상 다른 워크플로우를 깨우지 못한다.
+          # PAT이 없는 레포에서도 릴리스 자체는 계속 동작해야 하므로 기본 토큰으로 폴백한다.
+          GH_TOKEN: ${{ secrets.WORKFLOW_PAT || github.token }}
         run: |
           VERSION="${{ steps.version.outputs.version }}"
           gh release create "v$VERSION" --title "v$VERSION" --notes-file notes.md
