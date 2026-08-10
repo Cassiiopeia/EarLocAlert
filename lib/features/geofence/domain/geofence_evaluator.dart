@@ -1,3 +1,4 @@
+import '../../../core/domain/alert_schedule.dart';
 import 'geofence_event.dart';
 import 'geofence_target.dart';
 import 'geofence_evaluation.dart';
@@ -105,11 +106,21 @@ class GeofenceEvaluator {
   ///
   /// 전이 판정과 분리한 이유: 전이는 사실이고 알림은 설정이다.
   /// 이력(GeofenceEvent)은 알림 여부와 무관하게 전이를 전부 기록한다.
+  ///
+  /// [localNow] 는 **로컬 시각**이다 — 스케줄이 벽시계 규칙이라 UTC 를
+  /// 넘기면 사용자가 설정한 시각과 어긋난다 (이슈 #81).
+  ///
+  /// 스케줄을 여기서 거르는 이유는, OS 지오펜스 등록을 해제하는 방식이
+  /// 알림을 유실하기 때문이다. 등록에서 빠지면 상태가 `unknown` 으로
+  /// 되돌아가고, 창이 열려 재등록되면 `unknown → inside` 가 되어 규칙 3 에
+  /// 걸린다. 여기서 거르면 창 밖에서도 상태 추적이 끊기지 않는다.
   bool shouldNotify({
     required GeofenceTarget target,
     required GeofenceTransition transition,
+    required DateTime localNow,
   }) {
     if (!target.enabled) return false;
+    if (!isScheduleActive(target.schedules, localNow)) return false;
     return switch (transition) {
       GeofenceTransition.entered => target.direction.notifiesOnEnter,
       GeofenceTransition.exited => target.direction.notifiesOnExit,

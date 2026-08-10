@@ -1,3 +1,4 @@
+import 'package:ear_loc_alert/core/domain/alert_schedule.dart';
 import 'package:ear_loc_alert/features/places/domain/place_validator.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -9,6 +10,7 @@ void main() {
     double lng = 127.0,
     int count = 0,
     bool isNew = true,
+    List<AlertSchedule> schedules = const [],
   }) {
     return PlaceValidator.validate(
       name: name,
@@ -17,6 +19,7 @@ void main() {
       longitude: lng,
       currentCount: count,
       isNew: isNew,
+      schedules: schedules,
     );
   }
 
@@ -65,6 +68,72 @@ void main() {
     test('오류는 동시에 여러 개 보고된다', () {
       final errors = validate(name: '', radius: 10);
       expect(errors, hasLength(2));
+    });
+  });
+
+  group('알림 시간대 검증 (이슈 #81)', () {
+    test('창이 없는 것은 정상이다 — 항상 알림을 뜻한다', () {
+      expect(validate(schedules: const []), isEmpty);
+    });
+
+    test('정상 창은 통과한다', () {
+      expect(
+        validate(
+          schedules: const [
+            AlertSchedule(
+              daysOfWeek: {1, 2, 3, 4, 5},
+              startMinuteOfDay: 8 * 60,
+              endMinuteOfDay: 10 * 60,
+            ),
+          ],
+        ),
+        isEmpty,
+      );
+    });
+
+    test('자정을 넘기는 창도 통과한다', () {
+      expect(
+        validate(
+          schedules: const [
+            AlertSchedule(
+              daysOfWeek: {5},
+              startMinuteOfDay: 23 * 60,
+              endMinuteOfDay: 2 * 60,
+            ),
+          ],
+        ),
+        isEmpty,
+      );
+    });
+
+    test('시작과 종료가 같으면 거부한다 — 0분인지 24시간인지 모호하다', () {
+      expect(
+        validate(
+          schedules: const [
+            AlertSchedule(
+              daysOfWeek: {1},
+              startMinuteOfDay: 9 * 60,
+              endMinuteOfDay: 9 * 60,
+            ),
+          ],
+        ),
+        contains(PlaceValidationError.emptyScheduleWindow),
+      );
+    });
+
+    test('요일이 비면 거부한다 — 영영 열리지 않는 창이다', () {
+      expect(
+        validate(
+          schedules: const [
+            AlertSchedule(
+              daysOfWeek: {},
+              startMinuteOfDay: 8 * 60,
+              endMinuteOfDay: 10 * 60,
+            ),
+          ],
+        ),
+        contains(PlaceValidationError.scheduleWithoutDays),
+      );
     });
   });
 }

@@ -84,13 +84,19 @@ class GeofenceBackgroundProcessor {
       radiusMeters: place.radiusMeters,
       direction: place.direction,
       enabled: place.enabled,
+      schedules: place.schedules,
     );
+    // 같은 시계에서 갈린다 — **이력은 UTC, 스케줄 판정은 로컬.**
+    // 스케줄은 "그곳의 아침 8시"라는 벽시계 규칙이라 UTC 로 판정하면
+    // 시간대·서머타임에서 어긋난다 (이슈 #81).
+    final now = _clock();
     final notify = _evaluator.shouldNotify(
       target: target,
       transition: transition,
+      localNow: now.toLocal(),
     );
 
-    final occurredAt = _clock().toUtc();
+    final occurredAt = now.toUtc();
     await _events.record(
       GeofenceEvent(
         id: _idGenerator(),

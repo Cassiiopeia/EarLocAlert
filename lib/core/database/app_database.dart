@@ -21,8 +21,25 @@ class AppDatabase extends _$AppDatabase {
   /// 테스트용 — 인메모리 DB 를 주입한다
   AppDatabase.forTesting(super.executor);
 
+  /// v2 — `alert_places.schedules` 추가 (이슈 #81)
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
+
+  /// 기존 사용자의 데이터를 살린 채 컬럼을 더한다.
+  ///
+  /// **재생성(`deleteEverything`)을 쓰지 않는다.** 장소를 잃으면 사용자는
+  /// 앱을 다시 설정해야 하고, 지오펜스 상태까지 날아가 첫 진입 알림을
+  /// 놓친다 (docs/03-DOMAIN.md).
+  @override
+  MigrationStrategy get migration => MigrationStrategy(
+    onUpgrade: (m, from, to) async {
+      if (from < 2) {
+        // 컬럼 기본값이 '[]' 이므로 기존 장소는 전부 "항상 활성"으로
+        // 올라온다 — 동작이 바뀌지 않는다
+        await m.addColumn(alertPlaces, alertPlaces.schedules);
+      }
+    },
+  );
 }
 
 QueryExecutor _openConnection() {

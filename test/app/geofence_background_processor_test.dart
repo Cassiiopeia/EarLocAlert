@@ -4,6 +4,7 @@ import 'package:ear_loc_alert/app/background/background_alert_port.dart';
 import 'package:ear_loc_alert/app/background/geofence_background_processor.dart';
 import 'package:ear_loc_alert/app/background/pending_alert.dart';
 import 'package:ear_loc_alert/core/domain/alert_direction.dart';
+import 'package:ear_loc_alert/core/domain/alert_schedule.dart';
 import 'package:ear_loc_alert/features/geofence/domain/geofence_evaluator.dart';
 import 'package:ear_loc_alert/features/geofence/domain/geofence_event.dart';
 import 'package:ear_loc_alert/features/geofence/domain/geofence_event_repository.dart';
@@ -34,15 +35,22 @@ void main() {
   late _FakeAlertPort alertPort;
   late GeofenceBackgroundProcessor processor;
 
-  GeofenceBackgroundProcessor build() => GeofenceBackgroundProcessor(
-    places: places,
-    states: states,
-    events: events,
-    evaluator: const GeofenceEvaluator(),
-    alertPort: alertPort,
-    idGenerator: () => 'event-1',
-    clock: () => DateTime.utc(2026, 8, 4, 12),
-  );
+  /// [now] 를 주면 그 시각으로 고정한다.
+  ///
+  /// 스케줄 판정은 `clock().toLocal()` 을 쓰므로, 시간대에 의존하지 않으려면
+  /// **로컬 `DateTime`** 을 넘겨야 한다(로컬 값의 `toLocal()` 은 자기 자신이다).
+  /// 기본값이 UTC 인 것은 스케줄이 없는 기존 테스트에는 영향이 없기
+  /// 때문이다 — 창이 비면 시각과 무관하게 항상 활성이다 (이슈 #81).
+  GeofenceBackgroundProcessor build({DateTime? now}) =>
+      GeofenceBackgroundProcessor(
+        places: places,
+        states: states,
+        events: events,
+        evaluator: const GeofenceEvaluator(),
+        alertPort: alertPort,
+        idGenerator: () => 'event-1',
+        clock: () => now ?? DateTime.utc(2026, 8, 4, 12),
+      );
 
   setUp(() {
     places = _FakePlaceRepository([basePlace]);
@@ -133,6 +141,99 @@ void main() {
     test('비활성 장소 — 이력은 남고 알림은 없다', () async {
       places.items['place-1'] = basePlace.copyWith(enabled: false);
       states.states['place-1'] = GeofenceState.outside;
+
+      await processor.handle(
+        placeId: 'place-1',
+        eventType: GeofenceEventType.entered,
+      );
+
+      expect(events.recorded.single.notified, isFalse);
+      expect(alertPort.notified, isEmpty);
+    });
+  });
+
+  group('알림 시간대 (이슈 #81)', () {
+    // 평일 08:00 ~ 10:00. 2026-08-10 은 월요일이다.
+    const weekdayMorning = AlertSchedule(
+      daysOfWeek: {
+        DateTime.monday,
+        DateTime.tuesday,
+        DateTime.wednesday,
+        DateTime.thursday,
+        DateTime.friday,
+      },
+      startMinuteOfDay: 8 * 60,
+      endMinuteOfDay: 10 * 60,
+    );
+
+    setUp(() {
+      places.items['place-1'] = basePlace.copyWith(
+        schedules: const [weekdayMorning],
+      );
+    });
+
+    test('창 안의 진입 — 평소대로 알림이 나간다', () async {
+      states.states['place-1'] = GeofenceState.outside;
+      processor = build(now: DateTime(2026, 8, 10, 9, 10)); // 월 09:10 (로컬)
+
+      await processor.handle(
+        placeId: 'place-1',
+        eventType: GeofenceEventType.entered,
+      );
+
+      expect(states.states['place-1'], GeofenceState.inside);
+      expect(events.recorded.single.notified, isTrue);
+      expect(alertPort.notified, hasLength(1));
+    });
+
+    // ── 회귀 가드 ──────────────────────────────────────────────
+    // 이 설계의 전제는 **"창 밖에서도 상태 추적은 끊기지 않는다"** 이다.
+    // 누군가 "창 밖이면 일찍 return 하자"고 최적화하면 ① 이 깨지고,
+    // 그러면 창이 열린 뒤에도 상태가 unknown/outside 로 어긋나 첫 진입을
+    // 영영 놓친다. 세 가지를 한 테스트에서 함께 본다.
+    test('창 밖의 진입 — 상태는 저장되고, 이력은 남고, 알림만 없다', () async {
+      states.states['place-1'] = GeofenceState.outside;
+      processor = build(now: DateTime(2026, 8, 10, 7, 50)); // 월 07:50 (로컬)
+
+      await processor.handle(
+        placeId: 'place-1',
+        eventType: GeofenceEventType.entered,
+      );
+
+      // ① 상태 추적은 끊기지 않는다 — 가장 중요하다
+      expect(states.states['place-1'], GeofenceState.inside);
+      // ② 조사 수단이 남는다
+      expect(events.recorded, hasLength(1));
+      expect(events.recorded.single.notified, isFalse);
+      // ③ 알림만 나가지 않는다
+      expect(alertPort.notified, isEmpty);
+    });
+
+    test('창 밖에서 들어와 있다가 창 안에서 나가면 이탈 알림이 정상 발생한다', () async {
+      // 07:50 진입 (창 밖 — 조용히 상태만 inside 로)
+      states.states['place-1'] = GeofenceState.outside;
+      processor = build(now: DateTime(2026, 8, 10, 7, 50));
+      await processor.handle(
+        placeId: 'place-1',
+        eventType: GeofenceEventType.entered,
+      );
+      expect(alertPort.notified, isEmpty);
+
+      // 08:30 이탈 (창 안) — 앞서 상태가 inside 로 남아 있어야 전이가 잡힌다
+      processor = build(now: DateTime(2026, 8, 10, 8, 30));
+      await processor.handle(
+        placeId: 'place-1',
+        eventType: GeofenceEventType.exited,
+      );
+
+      expect(states.states['place-1'], GeofenceState.outside);
+      expect(alertPort.notified, hasLength(1));
+      expect(alertPort.notified.single.direction, AlertDirection.exit);
+    });
+
+    test('요일이 다르면 알림이 없다', () async {
+      states.states['place-1'] = GeofenceState.outside;
+      processor = build(now: DateTime(2026, 8, 15, 9)); // 토 09:00
 
       await processor.handle(
         placeId: 'place-1',

@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/domain/alert_direction.dart';
+import '../../../core/domain/alert_schedule.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../domain/alert_place.dart';
 import '../domain/place_validator.dart';
+import 'alert_schedule_editor.dart';
 import 'place_list_controller.dart';
 import 'place_empty_state.dart' show placeErrorMessage;
 import 'place_map_picker_screen.dart';
@@ -50,6 +52,10 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
   late AlertDirection _direction =
       widget.existing?.direction ?? AlertDirection.enter;
   late bool _soundEnabled = widget.existing?.soundEnabled ?? true;
+
+  /// 빈 목록이면 항상 알림 (이슈 #81)
+  late List<AlertSchedule> _schedules =
+      widget.existing?.schedules ?? const <AlertSchedule>[];
 
   bool _saving = false;
 
@@ -173,6 +179,14 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
             ),
             const SizedBox(height: AppSpacing.md),
 
+            // 알림 시점(무엇을) 바로 아래에 시간대(언제)를 둔다 — 두 축이
+            // 이어져 읽힌다 (이슈 #81)
+            AlertScheduleEditor(
+              schedules: _schedules,
+              onChanged: (next) => setState(() => _schedules = next),
+            ),
+            const SizedBox(height: AppSpacing.md),
+
             SwitchListTile(
               title: Text('이어폰 소리 알림', style: AppTypography.body),
               subtitle: Text(
@@ -244,6 +258,7 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
                 radiusMeters: _radius.round(),
                 direction: _direction,
                 soundEnabled: _soundEnabled,
+                schedules: _schedules,
               );
 
     if (!mounted) return;
