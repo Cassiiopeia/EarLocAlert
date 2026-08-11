@@ -12,8 +12,13 @@ import 'place_list_controller.dart';
 
 /// 장소 한 건 (docs/06-UX.md)
 ///
-/// 활성 상태를 **배경 반전**으로 표현한다 — 어두운 목록 안의 밝은 카드.
-/// 참조 미감(다크 핀테크)의 선택 표현을 그대로 따른다.
+/// 활성 상태를 **명도와 채도**로 표현한다 — 활성은 밝은 층(bgElevated)에
+/// 유색 아이콘, 비활성은 낮은 층에서 회색으로 가라앉는다 (이슈 #88).
+///
+/// 흰색 반전을 쓰지 않는 이유: 이 앱에서 활성은 예외가 아니라 **기본
+/// 상태**다. 등록한 장소는 대부분 켜져 있는데, 예외 표현(반전)을 기본
+/// 상태에 쓰면 다크 화면 하단이 통째로 하얗게 뜬다. 상태는 토글이 이미
+/// 말해주므로 배경 반전 없이도 구분된다.
 ///
 /// 지도 홈의 시트와 목록 양쪽에서 쓴다.
 class PlaceCard extends StatelessWidget {
@@ -33,7 +38,7 @@ class PlaceCard extends StatelessWidget {
 
   /// 지도에서 마커를 눌러 지목된 상태.
   ///
-  /// 활성/비활성(배경 반전)과 **다른 축이라 테두리로 표현한다.** 배경까지
+  /// 활성/비활성(배경 명도)과 **다른 축이라 테두리로 표현한다.** 배경까지
   /// 바꾸면 "켜져 있음"과 "지금 보고 있음"을 구분할 수 없다.
   final bool selected;
 
@@ -42,74 +47,84 @@ class PlaceCard extends StatelessWidget {
     final semantic = Theme.of(context).extension<AppSemanticColors>()!;
     final enabled = place.enabled;
 
-    final background = enabled ? AppColors.bgInverse : AppColors.bgSurface;
+    final background = enabled ? AppColors.bgElevated : AppColors.bgSurface;
     final foreground = enabled
-        ? AppColors.textOnInverse
-        : AppColors.textPrimary;
-    final secondary = enabled
-        ? AppColors.textOnInverse
+        ? AppColors.textPrimary
         : AppColors.textSecondary;
+    final secondary = AppColors.textSecondary;
 
     final (directionIcon, directionLabel, directionColor) = describeDirection(
       place.direction,
       semantic,
     );
 
-    return Material(
-      color: background,
-      borderRadius: BorderRadius.circular(AppRadius.card),
-      child: InkWell(
-        onTap: onTap,
-        onLongPress: onDelete,
+    // 토글 전환을 부드럽게 — 기존에 정의된 모션(지도 홈 시트의
+    // 200ms easeOut)을 그대로 쓴다. 잉크 리플이 색 위에 그려지도록
+    // Material 은 투명으로 두고 색은 AnimatedContainer 가 든다.
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      curve: Curves.easeOut,
+      decoration: BoxDecoration(
+        color: background,
         borderRadius: BorderRadius.circular(AppRadius.card),
-        child: Container(
-          padding: const EdgeInsets.all(AppSpacing.sm),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(AppRadius.card),
-            border: selected
-                ? Border.all(color: directionColor, width: 2)
-                : null,
-          ),
-          child: Row(
-            children: [
-              Icon(directionIcon, color: directionColor),
-              const SizedBox(width: AppSpacing.sm),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      place.name,
-                      style: AppTypography.body.copyWith(
-                        color: foreground,
-                        fontWeight: FontWeight.w600,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      '$directionLabel · 반경 ${place.radiusMeters}m',
-                      style: AppTypography.caption.copyWith(color: secondary),
-                    ),
-                    // 시간대가 걸려 있으면 드러낸다 — 창 밖이라 안 울린
-                    // 것을 알 방법이 없으면 사용자는 앱을 믿지 못한다
-                    // (F4.5 와 같은 이유, 이슈 #81)
-                    if (place.schedules.isNotEmpty) ...[
-                      const SizedBox(height: 2),
+        border: selected ? Border.all(color: directionColor, width: 2) : null,
+      ),
+      child: Material(
+        type: MaterialType.transparency,
+        child: InkWell(
+          onTap: onTap,
+          onLongPress: onDelete,
+          borderRadius: BorderRadius.circular(AppRadius.card),
+          child: Padding(
+            padding: const EdgeInsets.all(AppSpacing.sm),
+            child: Row(
+              children: [
+                // 꺼진 장소는 아이콘도 가라앉는다 — 색만 남으면
+                // "울리는 장소"로 오독된다
+                Icon(
+                  directionIcon,
+                  color: enabled ? directionColor : AppColors.textSecondary,
+                ),
+                const SizedBox(width: AppSpacing.sm),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
                       Text(
-                        describeSchedules(place.schedules),
-                        style: AppTypography.caption.copyWith(color: secondary),
+                        place.name,
+                        style: AppTypography.body.copyWith(
+                          color: foreground,
+                          fontWeight: FontWeight.w600,
+                        ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
+                      const SizedBox(height: 2),
+                      Text(
+                        '$directionLabel · 반경 ${place.radiusMeters}m',
+                        style: AppTypography.caption.copyWith(color: secondary),
+                      ),
+                      // 시간대가 걸려 있으면 드러낸다 — 창 밖이라 안 울린
+                      // 것을 알 방법이 없으면 사용자는 앱을 믿지 못한다
+                      // (F4.5 와 같은 이유, 이슈 #81)
+                      if (place.schedules.isNotEmpty) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          describeSchedules(place.schedules),
+                          style: AppTypography.caption.copyWith(
+                            color: secondary,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
                     ],
-                  ],
+                  ),
                 ),
-              ),
-              // 활성 토글은 삭제와 분리한다 (F1.7)
-              Switch(value: enabled, onChanged: onToggle),
-            ],
+                // 활성 토글은 삭제와 분리한다 (F1.7)
+                Switch(value: enabled, onChanged: onToggle),
+              ],
+            ),
           ),
         ),
       ),

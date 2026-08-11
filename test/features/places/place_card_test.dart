@@ -1,4 +1,5 @@
 import 'package:ear_loc_alert/core/domain/alert_direction.dart';
+import 'package:ear_loc_alert/core/theme/app_colors.dart';
 import 'package:ear_loc_alert/core/theme/app_theme.dart';
 import 'package:ear_loc_alert/features/places/domain/alert_place.dart';
 import 'package:ear_loc_alert/features/places/presentation/place_card.dart';
@@ -111,6 +112,60 @@ void main() {
       );
       final decoration = container.decoration! as BoxDecoration;
       expect(decoration.border, isNotNull);
+    });
+
+    testWidgets('활성 카드는 흰색 반전이 아니다 — 한 층 밝은 다크 배경이다 (#88)', (tester) async {
+      await tester.pumpWidget(
+        wrap(
+          PlaceCard(
+            place: makePlace(),
+            onTap: () {},
+            onToggle: (_) {},
+            onDelete: () {},
+          ),
+        ),
+      );
+
+      final container = tester.widget<Container>(
+        find
+            .descendant(
+              of: find.byType(PlaceCard),
+              matching: find.byType(Container),
+            )
+            .first,
+      );
+      final decoration = container.decoration! as BoxDecoration;
+      expect(
+        decoration.color,
+        AppColors.bgElevated,
+        reason: '흰 카드는 다크 화면에서 혼자 뜬다 — 활성은 명도 한 층 위다',
+      );
+    });
+
+    testWidgets('비활성 카드는 낮은 층으로 가라앉는다', (tester) async {
+      await tester.pumpWidget(
+        wrap(
+          PlaceCard(
+            place: makePlace(enabled: false),
+            onTap: () {},
+            onToggle: (_) {},
+            onDelete: () {},
+          ),
+        ),
+      );
+
+      final container = tester.widget<Container>(
+        find
+            .descendant(
+              of: find.byType(PlaceCard),
+              matching: find.byType(Container),
+            )
+            .first,
+      );
+      expect(
+        (container.decoration! as BoxDecoration).color,
+        AppColors.bgSurface,
+      );
     });
 
     testWidgets('방향별 문구가 카드에 그대로 나온다', (tester) async {

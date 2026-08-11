@@ -10,15 +10,9 @@ abstract final class AppColors {
   static const Color bgSurface = Color(0xFF1A1A1A);
   static const Color bgElevated = Color(0xFF262626);
 
-  /// 선택된 항목 (어두운 목록 안의 반전 카드)
-  static const Color bgInverse = Color(0xFFFFFFFF);
-
   // 텍스트
   static const Color textPrimary = Color(0xFFFFFFFF);
   static const Color textSecondary = Color(0xFF9E9E9E);
-
-  /// 반전 카드 위의 텍스트
-  static const Color textOnInverse = Color(0xFF0D0D0D);
 
   // 주색 2개 — 여기서 모든 의미 색이 파생된다. 새 색을 추가하지 않는다
   static const Color primary = Color(0xFFE5B65C);

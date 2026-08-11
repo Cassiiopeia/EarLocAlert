@@ -2,6 +2,7 @@ package kr.suhsaechan.ear_loc_alert
 
 import android.app.NotificationManager
 import android.content.Intent
+import android.media.AudioManager
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
@@ -68,6 +69,29 @@ class MainActivity : FlutterActivity() {
             }
         }
 
+        // 시스템 미디어 볼륨 제어 (이슈 #86).
+        //
+        // 시스템 볼륨이 0 이면 앱 재생 볼륨을 아무리 올려도 무음이다.
+        // 알림 시점에 설정값 수준까지 올리고, 해제되면 되돌린다.
+        // 여기서 소리를 내지는 않는다 — 재생 판정은 Dart 에만 있다
+        // (docs/10-DECISIONS.md 019). 이 채널이 하는 것은 볼륨 숫자 조정뿐이다.
+        MethodChannel(
+            flutterEngine.dartExecutor.binaryMessenger,
+            "kr.suhsaechan.ear_loc_alert/system_volume",
+        ).setMethodCallHandler { call, result ->
+            when (call.method) {
+                "raiseSystemVolume" -> {
+                    raiseSystemVolume(call.argument<Double>("fraction") ?: 0.0)
+                    result.success(null)
+                }
+                "restoreSystemVolume" -> {
+                    restoreSystemVolume()
+                    result.success(null)
+                }
+                else -> result.notImplemented()
+            }
+        }
+
         // 감시 서비스 제어 (이슈 #74)
         MethodChannel(
             flutterEngine.dartExecutor.binaryMessenger,
@@ -123,6 +147,47 @@ class MainActivity : FlutterActivity() {
             } catch (fallbackError: Exception) {
                 // 설정을 못 열어도 온보딩은 계속된다
             }
+        }
+    }
+
+    /**
+     * raiseSystemVolume 이 올리기 전의 볼륨. 원복에 쓴다 (이슈 #86).
+     *
+     * 올리지 않았으면 null 이고 restore 는 아무것도 하지 않는다 —
+     * 사용자가 직접 만진 볼륨을 앱이 멋대로 되돌리면 안 된다.
+     */
+    private var volumeBeforeRaise: Int? = null
+
+    /**
+     * 미디어 볼륨을 fraction(0.0~1.0) 수준까지 **올린다**. 이미 그보다
+     * 크면 건드리지 않는다 — 크게 듣고 있는 사용자를 낮추면 안 된다.
+     */
+    private fun raiseSystemVolume(fraction: Double) {
+        val audio = getSystemService(AudioManager::class.java) ?: return
+        try {
+            val max = audio.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
+            val target = (max * fraction).toInt().coerceIn(0, max)
+            val current = audio.getStreamVolume(AudioManager.STREAM_MUSIC)
+            if (current >= target) return
+            volumeBeforeRaise = current
+            // FLAG 없음 — 볼륨 UI 를 띄우지 않는다. 알림 화면이 뜨는 중에
+            // 시스템 볼륨 팝업까지 겹치면 소음이다.
+            audio.setStreamVolume(AudioManager.STREAM_MUSIC, target, 0)
+        } catch (error: Exception) {
+            // 방해금지 등에서 SecurityException 이 올 수 있다 —
+            // 볼륨을 못 올려도 재생과 진동은 계속된다
+            volumeBeforeRaise = null
+        }
+    }
+
+    private fun restoreSystemVolume() {
+        val saved = volumeBeforeRaise ?: return
+        volumeBeforeRaise = null
+        val audio = getSystemService(AudioManager::class.java) ?: return
+        try {
+            audio.setStreamVolume(AudioManager.STREAM_MUSIC, saved, 0)
+        } catch (error: Exception) {
+            // 원복 실패는 볼륨이 크게 남는 불편이지 고장이 아니다
         }
     }
 

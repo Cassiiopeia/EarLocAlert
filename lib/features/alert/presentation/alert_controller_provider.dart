@@ -5,6 +5,8 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../data/alert_notifier_impl.dart';
 import '../data/alert_sound_service_impl.dart';
+import '../data/prefs_alert_volume_store.dart';
+import '../data/system_volume_channel.dart';
 import '../data/vibration_service_impl.dart';
 import '../domain/alert_controller.dart';
 import '../domain/alert_effects.dart';
@@ -28,12 +30,20 @@ AlertNotifier alertNotifier(Ref ref) =>
     AlertNotifierImpl(ref.watch(notificationsPluginProvider));
 
 @Riverpod(keepAlive: true)
+AlertVolumeStore alertVolumeStore(Ref ref) => PrefsAlertVolumeStore();
+
+@Riverpod(keepAlive: true)
+SystemVolumeService systemVolumeService(Ref ref) => const SystemVolumeChannel();
+
+@Riverpod(keepAlive: true)
 AlertController alertController(Ref ref) {
   final controller = AlertController(
     vibration: ref.watch(vibrationServiceProvider),
     sound: ref.watch(alertSoundServiceProvider),
     notifier: ref.watch(alertNotifierProvider),
     routeDecider: const AudioRouteDecider(),
+    volumeStore: ref.watch(alertVolumeStoreProvider),
+    systemVolume: ref.watch(systemVolumeServiceProvider),
   );
   ref.onDispose(controller.dispose);
   return controller;
