@@ -1,5 +1,4 @@
 import '../features/alert/domain/alert_controller.dart';
-import 'background/pending_alert.dart';
 import 'background/pending_alert_store.dart';
 
 /// 백그라운드 알림을 포그라운드 풀 세션으로 잇는 진입로 (이슈 #63)
