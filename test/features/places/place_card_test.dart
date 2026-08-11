@@ -1,5 +1,5 @@
 import 'package:ear_loc_alert/core/domain/alert_direction.dart';
-import 'package:ear_loc_alert/core/theme/app_semantic_colors.dart';
+import 'package:ear_loc_alert/core/theme/app_theme.dart';
 import 'package:ear_loc_alert/features/places/domain/alert_place.dart';
 import 'package:ear_loc_alert/features/places/presentation/place_card.dart';
 import 'package:flutter/material.dart';
@@ -22,9 +22,12 @@ AlertPlace makePlace({
   );
 }
 
+/// **실제 앱 테마로 띄운다.** 손으로 만든 [ThemeData] 로 감싸면 테마가
+/// 강제하는 버튼 크기·색이 빠져, 앱에서만 재현되는 레이아웃 문제를 놓친다
+/// (시간대 시트의 주 버튼이 화면 밖으로 밀려난 적이 있다).
 Widget wrap(Widget child) {
   return MaterialApp(
-    theme: ThemeData(extensions: const [AppSemanticColors.dark]),
+    theme: AppTheme.dark(),
     home: Scaffold(body: child),
   );
 }
