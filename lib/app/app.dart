@@ -114,15 +114,22 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
 
   Future<void> _resumePendingAlert() async {
     try {
-      final request = await ref
+      final (:request, :hadPending) = await ref
           .read(pendingAlertLauncherProvider)
           .takeRequest();
-      if (request == null) return;
 
       // 네이티브가 돌리던 반복 진동을 먼저 끊는다 (이슈 #74).
       // **fire() 보다 반드시 먼저다** — 뒤집히면 네이티브 취소가 Dart 진동을
       // 같이 끄거나, 둘이 겹쳐 패턴이 어긋난다.
-      await ref.read(alertWatchServiceProvider).stopNativeAlert();
+      //
+      // **승격하지 못하는 경우에도 끊는다** (이슈 #83). 만료·손상이라
+      // 화면을 띄우지 못해도 네이티브는 그 알림으로 계속 울리고 있다.
+      // 예전에는 여기서 그냥 return 해버려, 진동은 10분 내내 이어지는데
+      // 앱을 열어도 끌 화면이 없었다 — 강제종료 말고는 방법이 없었다.
+      if (hadPending) {
+        await ref.read(alertWatchServiceProvider).stopNativeAlert();
+      }
+      if (request == null) return;
 
       await ref.read(activeAlertProvider.notifier).fire(request);
       // 해제 시점에 광고가 준비되어 있게 미리 불러둔다

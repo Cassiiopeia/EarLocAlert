@@ -31,8 +31,12 @@ class PendingAlertStore {
     );
   }
 
-  /// 저장된 알림을 꺼내고 지운다. 없으면 null.
-  Future<PendingAlert?> take() async {
+  /// 저장된 알림을 꺼내고 지운다.
+  ///
+  /// [hadStored] 는 **꺼낼 것이 있었는지**다. 값이 깨져 있어 [alert] 가
+  /// null 이어도 true 다 — 네이티브는 그 알림 때문에 진동하고 있으므로,
+  /// 읽지 못했다는 이유로 진동을 남겨두면 끌 방법이 없어진다 (이슈 #83).
+  Future<({PendingAlert? alert, bool hadStored})> take() async {
     final prefs = await SharedPreferences.getInstance();
     // 백그라운드 isolate 가 쓴 값을 보려면 디스크에서 다시 읽어야 한다
     await prefs.reload();
@@ -45,7 +49,9 @@ class PendingAlertStore {
 
     // 아무것도 없으면 지울 것도 없다. 앱이 떠 있는 동안 주기적으로
     // 확인하므로(#74), 빈 상태에서 매번 쓰기를 일으키면 안 된다.
-    if (placeId == null && occurredAtRaw == null) return null;
+    if (placeId == null && occurredAtRaw == null) {
+      return (alert: null, hadStored: false);
+    }
 
     await _clear(prefs);
 
@@ -54,19 +60,24 @@ class PendingAlertStore {
         directionName == null ||
         soundEnabled == null ||
         occurredAtRaw == null) {
-      return null;
+      return (alert: null, hadStored: true);
     }
 
     final direction = AlertDirection.values.asNameMap()[directionName];
     final occurredAt = DateTime.tryParse(occurredAtRaw);
-    if (direction == null || occurredAt == null) return null;
+    if (direction == null || occurredAt == null) {
+      return (alert: null, hadStored: true);
+    }
 
-    return PendingAlert(
-      placeId: placeId,
-      placeName: placeName,
-      direction: direction,
-      soundEnabled: soundEnabled,
-      occurredAt: occurredAt.toUtc(),
+    return (
+      alert: PendingAlert(
+        placeId: placeId,
+        placeName: placeName,
+        direction: direction,
+        soundEnabled: soundEnabled,
+        occurredAt: occurredAt.toUtc(),
+      ),
+      hadStored: true,
     );
   }
 

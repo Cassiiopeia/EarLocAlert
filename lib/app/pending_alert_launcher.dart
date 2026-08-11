@@ -23,20 +23,32 @@ class PendingAlertLauncher {
   /// 트레이에 남아 있으므로 정보는 사라지지 않는다.
   final Duration timeToLive;
 
-  /// 미처리 알림이 있으면 꺼내 발화 요청으로 바꾼다. 없거나 만료면 null.
-  Future<AlertRequest?> takeRequest() async {
-    final PendingAlert? pending = await _store.take();
-    if (pending == null) return null;
+  /// 미처리 알림을 꺼낸다.
+  ///
+  /// [request] 는 지금 승격할 알림이다. 만료됐거나 값이 깨졌으면 null 이다.
+  ///
+  /// [hadPending] 은 **꺼낼 것이 있었는지**다. 승격하지 못한 경우에도
+  /// true 이며, 이때 네이티브는 그 알림으로 여전히 진동하고 있다.
+  /// 호출자는 이 값이 true 이면 **반드시 네이티브 알림을 정리해야 한다** —
+  /// 그러지 않으면 울리는데 끌 화면이 없는 상태가 된다 (이슈 #83).
+  Future<({AlertRequest? request, bool hadPending})> takeRequest() async {
+    final (:alert, :hadStored) = await _store.take();
+    if (alert == null) return (request: null, hadPending: hadStored);
 
-    final age = _clock().toUtc().difference(pending.occurredAt);
-    if (age > timeToLive || age.isNegative) return null;
+    final age = _clock().toUtc().difference(alert.occurredAt);
+    if (age > timeToLive || age.isNegative) {
+      return (request: null, hadPending: true);
+    }
 
-    return AlertRequest(
-      placeId: pending.placeId,
-      placeName: pending.placeName,
-      direction: pending.direction,
-      soundEnabled: pending.soundEnabled,
-      occurredAt: pending.occurredAt,
+    return (
+      request: AlertRequest(
+        placeId: alert.placeId,
+        placeName: alert.placeName,
+        direction: alert.direction,
+        soundEnabled: alert.soundEnabled,
+        occurredAt: alert.occurredAt,
+      ),
+      hadPending: true,
     );
   }
 }
