@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/theme/app_theme.dart';
 import '../features/ads/presentation/ads_providers.dart';
 import '../features/alert/presentation/alert_controller_provider.dart';
+import 'background/background_alert_notifier.dart';
 import 'geofence_providers.dart';
 import 'router.dart';
 
@@ -81,6 +82,13 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
     } on Object {
       // 권한 미허용 등 — 다음 장소 변경 때 재시도된다
     }
+    // 지난 세션이 남긴 알림을 먼저 치운다 (이슈 #84).
+    //
+    // 백그라운드 알림은 스와이프로 지워지지 않게 걸려 있어, 아무도 지우지
+    // 않으면 영영 남는다. 앱이 새로 뜨는 시점의 알림은 정의상 지난 것이고,
+    // 지금 살아 있는 알림이라면 바로 아래 승격이 화면으로 이어준다.
+    await _cancelBackgroundNotification();
+
     await _resumePendingAlert();
     // 첫 실행에는 resumed 생명주기 콜백이 오지 않는다 — 여기서 건다
     _startPendingAlertPoll();
@@ -114,15 +122,25 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
 
   Future<void> _resumePendingAlert() async {
     try {
-      final request = await ref
+      final (:request, :hadPending) = await ref
           .read(pendingAlertLauncherProvider)
           .takeRequest();
-      if (request == null) return;
 
       // 네이티브가 돌리던 반복 진동을 먼저 끊는다 (이슈 #74).
       // **fire() 보다 반드시 먼저다** — 뒤집히면 네이티브 취소가 Dart 진동을
       // 같이 끄거나, 둘이 겹쳐 패턴이 어긋난다.
-      await ref.read(alertWatchServiceProvider).stopNativeAlert();
+      //
+      // **승격하지 못하는 경우에도 끊는다** (이슈 #83). 만료·손상이라
+      // 화면을 띄우지 못해도 네이티브는 그 알림으로 계속 울리고 있다.
+      // 예전에는 여기서 그냥 return 해버려, 진동은 10분 내내 이어지는데
+      // 앱을 열어도 끌 화면이 없었다 — 강제종료 말고는 방법이 없었다.
+      if (hadPending) {
+        await ref.read(alertWatchServiceProvider).stopNativeAlert();
+        // 백그라운드 알림은 스와이프로 지워지지 않게 걸어두었다 (이슈 #84).
+        // 지우는 책임이 여기 있다 — 안 지우면 영영 남는 알림이 된다.
+        await _cancelBackgroundNotification();
+      }
+      if (request == null) return;
 
       await ref.read(activeAlertProvider.notifier).fire(request);
       // 해제 시점에 광고가 준비되어 있게 미리 불러둔다
@@ -130,6 +148,20 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
       _router.go(AppRoutes.alert);
     } on Object {
       // 알림 승격 실패가 앱 시작을 막으면 안 된다
+    }
+  }
+
+  /// 백그라운드가 띄운 알림을 지운다 (이슈 #84).
+  ///
+  /// 실패해도 흐름을 막지 않는다 — 알림이 남는 것보다 해제가 늦어지는
+  /// 쪽이 훨씬 나쁘다 (docs/02-ARCHITECTURE.md 규칙 4와 같은 이유).
+  Future<void> _cancelBackgroundNotification() async {
+    try {
+      await ref
+          .read(notificationsPluginProvider)
+          .cancel(BackgroundAlertNotifier.notificationId);
+    } on Object {
+      // 알림이 남는 것은 불편이지 고장이 아니다
     }
   }
 

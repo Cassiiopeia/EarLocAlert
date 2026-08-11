@@ -32,7 +32,10 @@ class BackgroundAlertNotifier implements BackgroundAlertPort {
   final FlutterLocalNotificationsPlugin _plugin;
   final PendingAlertStore _store;
 
-  static const int _notificationId = 2001;
+  /// 오버레이 권한이 없을 때 **해제 화면에 닿는 유일한 길**이 이 알림이다.
+  /// 앱이 승격하거나 정리할 때 지워야 하므로 id 를 공개한다 (이슈 #84).
+  static const int notificationId = 2001;
+
   static const String _channelId = 'ear_loc_alert_geofence';
 
   @override
@@ -59,7 +62,16 @@ class BackgroundAlertNotifier implements BackgroundAlertPort {
       category: AndroidNotificationCategory.alarm,
       // 잠금화면에서 내용까지 보여준다. 장소 이름을 봐야 내릴지 판단한다.
       visibility: NotificationVisibility.public,
+      // 탭해서 앱으로 들어오면 사라진다.
       autoCancel: true,
+      // **스와이프로는 지워지지 않는다** (이슈 #84). 오버레이·전체화면
+      // 권한이 없으면 알림 화면이 저절로 뜨지 않으므로, 이 알림이 해제
+      // 화면에 닿는 유일한 길이다. 실수로 쓸어 넘기면 진동은 계속되는데
+      // 끌 방법이 사라진다.
+      //
+      // 지우는 책임은 앱에 있다 — 승격하거나 정리할 때 반드시 취소한다.
+      // 그러지 않으면 이번엔 영영 남는 알림이 된다.
+      ongoing: true,
     );
 
     const iosDetails = DarwinNotificationDetails(
@@ -70,7 +82,7 @@ class BackgroundAlertNotifier implements BackgroundAlertPort {
     );
 
     await _plugin.show(
-      _notificationId,
+      notificationId,
       alert.placeName,
       alert.direction == AlertDirection.exit ? '떠났습니다' : '도착했습니다',
       NotificationDetails(android: androidDetails, iOS: iosDetails),
