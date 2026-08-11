@@ -123,21 +123,25 @@ class _AlertScheduleSheetState extends State<_AlertScheduleSheet> {
             ),
 
           const SizedBox(height: AppSpacing.lg),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text('취소'),
-              ),
-              const SizedBox(width: AppSpacing.xs),
-              FilledButton(
-                onPressed: _isValid
-                    ? () => Navigator.of(context).pop(_current)
-                    : null,
-                child: Text(isEdit ? '저장' : '추가'),
-              ),
-            ],
+          // 주 버튼은 전체 폭 pill 이다 (docs/06-UX.md). 테마가 그것을
+          // `minimumSize: Size.fromHeight(56)` 으로 강제하는데, 이 값은
+          // **최소 너비가 무한대**라는 뜻이다. Column 은 자식에게 화면 폭을
+          // 물려주므로 문제가 없지만, Row 는 폭을 제한하지 않아 버튼이
+          // 무한히 넓어져 화면 밖으로 밀려난다 — 실제로 취소만 보이고
+          // 추가 버튼이 사라졌다. 두 버튼을 세로로 쌓아 폭을 되돌린다.
+          FilledButton(
+            onPressed: _isValid
+                ? () => Navigator.of(context).pop(_current)
+                : null,
+            child: Text(isEdit ? '저장' : '추가'),
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          SizedBox(
+            width: double.infinity,
+            child: TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('취소'),
+            ),
           ),
         ],
       ),
