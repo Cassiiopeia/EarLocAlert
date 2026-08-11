@@ -32,6 +32,7 @@ class PlaceMapHomeScreen extends ConsumerStatefulWidget {
     this.onFixMonitoring,
     this.onFixReliability,
     this.onPreviewAlert,
+    this.onOpenVolumeSettings,
     this.onRefreshStatus,
     super.key,
   });
@@ -62,6 +63,10 @@ class PlaceMapHomeScreen extends ConsumerStatefulWidget {
   /// 알림 흐름 수동 확인 (실기기 스파이크 S-4·S-5 용).
   /// 지오펜스 실기기 검증이 끝나면 제거한다 (docs/11-ROADMAP.md).
   final VoidCallback? onPreviewAlert;
+
+  /// 알림음 크기 설정을 연다 (이슈 #86).
+  /// 알림 설정은 alert feature 소관이라 app 계층이 콜백으로 잇는다 (규칙 1).
+  final VoidCallback? onOpenVolumeSettings;
 
   /// 앱이 다시 앞으로 왔을 때 상태를 다시 읽는다.
   ///
@@ -174,6 +179,7 @@ class _PlaceMapHomeScreenState extends ConsumerState<PlaceMapHomeScreen>
             onFixMonitoring: widget.onFixMonitoring,
             onFixReliability: widget.onFixReliability,
             onPreviewAlert: widget.onPreviewAlert,
+            onOpenVolumeSettings: widget.onOpenVolumeSettings,
           ),
 
           _AddPlaceButton(
@@ -358,6 +364,7 @@ class _StatusBar extends StatelessWidget {
     this.onFixMonitoring,
     this.onFixReliability,
     this.onPreviewAlert,
+    this.onOpenVolumeSettings,
   });
 
   final bool isMonitoring;
@@ -377,6 +384,9 @@ class _StatusBar extends StatelessWidget {
   final VoidCallback? onFixMonitoring;
   final VoidCallback? onFixReliability;
   final VoidCallback? onPreviewAlert;
+
+  /// 알림음 크기 설정 (이슈 #86)
+  final VoidCallback? onOpenVolumeSettings;
 
   /// 고장 상태 — 켜진 장소가 있는데 감시가 안 돈다. 해결 경로가 필요하다
   bool get _isBroken => hasEnabledPlaces && !isMonitoring;
@@ -474,8 +484,19 @@ class _StatusBar extends StatelessWidget {
                 isHeadphoneConnected ? '이어폰' : '진동만',
                 style: AppTypography.caption,
               ),
-              if (onPreviewAlert != null) ...[
+              if (onPreviewAlert != null || onOpenVolumeSettings != null)
                 const Spacer(),
+              // 이어폰 상태 바로 옆이 볼륨 설정의 제자리다 (이슈 #86) —
+              // "이어폰으로 얼마나 크게"가 한 시야에 들어온다
+              if (onOpenVolumeSettings != null)
+                IconButton(
+                  onPressed: onOpenVolumeSettings,
+                  icon: const Icon(Icons.tune_outlined),
+                  iconSize: 18,
+                  visualDensity: VisualDensity.compact,
+                  tooltip: '알림음 크기',
+                ),
+              if (onPreviewAlert != null)
                 IconButton(
                   onPressed: onPreviewAlert,
                   icon: const Icon(Icons.notifications_active_outlined),
@@ -483,7 +504,6 @@ class _StatusBar extends StatelessWidget {
                   visualDensity: VisualDensity.compact,
                   tooltip: '알림 미리보기',
                 ),
-              ],
             ],
           ),
         ),

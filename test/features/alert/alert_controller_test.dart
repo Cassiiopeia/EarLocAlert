@@ -33,6 +33,9 @@ class FakeSound implements AlertSoundService {
   int playCount = 0;
   int stopCount = 0;
 
+  /// 마지막 재생에 쓰인 볼륨 — 설정값이 실제로 전달되는지 본다 (이슈 #86)
+  double? lastVolume;
+
   @override
   Future<bool> isHeadphoneConnected() async {
     if (failOnCheck) throw Exception('연결 확인 실패');
@@ -40,8 +43,9 @@ class FakeSound implements AlertSoundService {
   }
 
   @override
-  Future<void> play() async {
+  Future<void> play({required double volume}) async {
     playCount++;
+    lastVolume = volume;
     if (failOnPlay) throw const AlertSoundException('재생 실패');
   }
 
@@ -66,6 +70,35 @@ class FakeNotifier implements AlertNotifier {
   }
 }
 
+/// 가짜 볼륨 설정 저장소 (이슈 #86)
+class FakeVolumeStore implements AlertVolumeStore {
+  FakeVolumeStore({this.stored = 0.6});
+
+  double stored;
+  bool failOnRead = false;
+
+  @override
+  Future<double> volume() async {
+    if (failOnRead) throw Exception('설정 읽기 실패');
+    return stored;
+  }
+
+  @override
+  Future<void> save(double volume) async => stored = volume;
+}
+
+/// 가짜 시스템 볼륨 (이슈 #86)
+class FakeSystemVolume implements SystemVolumeService {
+  final List<double> raised = [];
+  int restoreCount = 0;
+
+  @override
+  Future<void> raiseTo(double fraction) async => raised.add(fraction);
+
+  @override
+  Future<void> restore() async => restoreCount++;
+}
+
 /// **영원히 끝나지 않는** 사운드 서비스.
 ///
 /// docs/02-ARCHITECTURE.md 규칙 4를 강제하는 핵심 도구다 —
@@ -77,7 +110,7 @@ class HangingSound implements AlertSoundService {
   Future<bool> isHeadphoneConnected() async => true;
 
   @override
-  Future<void> play() => _never.future;
+  Future<void> play({required double volume}) => _never.future;
 
   @override
   Future<void> stop() async {}
@@ -93,7 +126,7 @@ class SlowSound implements AlertSoundService {
   Future<bool> isHeadphoneConnected() async => true;
 
   @override
-  Future<void> play() => _gate.future;
+  Future<void> play({required double volume}) => _gate.future;
 
   @override
   Future<void> stop() async {}
@@ -118,6 +151,8 @@ void main() {
   late FakeVibration vibration;
   late FakeSound sound;
   late FakeNotifier notifier;
+  late FakeVolumeStore volumeStore;
+  late FakeSystemVolume systemVolume;
   late AlertController controller;
 
   const interval = Duration(seconds: 3);
@@ -136,6 +171,8 @@ void main() {
       sound: soundOverride ?? sound,
       notifier: notifier,
       routeDecider: const AudioRouteDecider(),
+      volumeStore: volumeStore,
+      systemVolume: systemVolume,
     );
   }
 
@@ -143,6 +180,8 @@ void main() {
     vibration = FakeVibration();
     sound = FakeSound();
     notifier = FakeNotifier();
+    volumeStore = FakeVolumeStore();
+    systemVolume = FakeSystemVolume();
     controller = build();
   });
 
@@ -221,6 +260,57 @@ void main() {
       expect(controller.current?.audioRoute, AudioRoute.silent);
       expect(controller.lastSoundFailed, isTrue);
       expect(sound.playCount, 1, reason: '재시도하면 라우팅이 바뀌어 스피커로 샐 수 있다');
+    });
+  });
+
+  group('알림음 볼륨 (이슈 #86)', () {
+    test('설정한 볼륨으로 재생하고 시스템 볼륨을 그 수준까지 올린다', () async {
+      sound.connected = true;
+      volumeStore.stored = 0.7;
+
+      await controller.fire(makeRequest(), vibrationInterval: interval);
+      await pumpAudio();
+
+      expect(sound.lastVolume, 0.7);
+      expect(systemVolume.raised, [0.7], reason: '시스템 볼륨이 0 이면 앱 볼륨만으로는 무음이다');
+    });
+
+    test('해제하면 시스템 볼륨을 원복한다', () async {
+      sound.connected = true;
+      await controller.fire(makeRequest(), vibrationInterval: interval);
+      await pumpAudio();
+
+      await controller.dismiss();
+
+      expect(
+        systemVolume.restoreCount,
+        greaterThan(0),
+        reason: '올린 채로 두면 사용자의 기기 설정을 영구히 바꾼 것이다',
+      );
+    });
+
+    test('설정 읽기가 실패하면 기본값으로 재생한다 — 알림음이 사라지면 안 된다', () async {
+      sound.connected = true;
+      volumeStore.failOnRead = true;
+
+      await controller.fire(makeRequest(), vibrationInterval: interval);
+      await pumpAudio();
+
+      expect(sound.playCount, 1);
+      expect(sound.lastVolume, AlertVolumeStore.defaultVolume);
+    });
+
+    test('이어폰이 없으면 시스템 볼륨을 건드리지 않는다', () async {
+      sound.connected = false;
+
+      await controller.fire(makeRequest(), vibrationInterval: interval);
+      await pumpAudio();
+
+      expect(
+        systemVolume.raised,
+        isEmpty,
+        reason: '재생이 없는데 볼륨만 올리면 다른 앱 소리가 갑자기 커진다',
+      );
     });
   });
 
