@@ -82,7 +82,7 @@ class BackgroundAlertNotifier implements BackgroundAlertPort {
     );
 
     await _plugin.show(
-      _notificationId,
+      notificationId,
       alert.placeName,
       alert.direction == AlertDirection.exit ? '떠났습니다' : '도착했습니다',
       NotificationDetails(android: androidDetails, iOS: iosDetails),
