@@ -4,6 +4,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../core/di/providers.dart';
 import '../../../core/domain/alert_direction.dart';
+import '../../../core/domain/alert_schedule.dart';
 import '../../../core/domain/id_generator.dart';
 import '../domain/alert_place.dart';
 import '../domain/place_validator.dart';
@@ -31,6 +32,9 @@ class PlaceActions extends _$PlaceActions {
     required int radiusMeters,
     required AlertDirection direction,
     required bool soundEnabled,
+
+    /// 빈 목록이면 항상 알림 (이슈 #81)
+    List<AlertSchedule> schedules = const [],
   }) async {
     final repo = ref.read(placeRepositoryProvider);
     final isNew = id == null;
@@ -42,6 +46,7 @@ class PlaceActions extends _$PlaceActions {
       longitude: longitude,
       currentCount: await repo.count(),
       isNew: isNew,
+      schedules: schedules,
     );
     if (errors.isNotEmpty) return errors;
 
@@ -56,6 +61,7 @@ class PlaceActions extends _$PlaceActions {
         radiusMeters: radiusMeters,
         direction: direction,
         soundEnabled: soundEnabled,
+        schedules: schedules,
         enabled: existing?.enabled ?? true,
         createdAt: existing?.createdAt ?? DateTime.now().toUtc(),
       ),

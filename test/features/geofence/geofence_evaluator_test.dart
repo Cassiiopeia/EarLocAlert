@@ -1,4 +1,5 @@
 import 'package:ear_loc_alert/core/domain/alert_direction.dart';
+import 'package:ear_loc_alert/core/domain/alert_schedule.dart';
 import 'package:ear_loc_alert/features/geofence/domain/geofence_evaluation.dart';
 import 'package:ear_loc_alert/features/geofence/domain/geofence_evaluator.dart';
 import 'package:ear_loc_alert/features/geofence/domain/geofence_state.dart';
@@ -187,11 +188,16 @@ void main() {
   });
 
   group('알림 여부 판정 (shouldNotify)', () {
+    // 스케줄이 없는 대상의 판정은 시각과 무관하다. 아무 시각이나 고정해
+    // 넘겨 기존 규칙이 그대로인지 본다.
+    final anyTime = DateTime(2026, 8, 10, 9); // 월요일 09:00
+
     test('진입 전이 + enter/both 방향이면 알림', () {
       expect(
         evaluator.shouldNotify(
           target: target, // both
           transition: GeofenceTransition.entered,
+          localNow: anyTime,
         ),
         isTrue,
       );
@@ -209,6 +215,7 @@ void main() {
         evaluator.shouldNotify(
           target: exitOnly,
           transition: GeofenceTransition.entered,
+          localNow: anyTime,
         ),
         isFalse,
       );
@@ -227,6 +234,7 @@ void main() {
         evaluator.shouldNotify(
           target: disabled,
           transition: GeofenceTransition.entered,
+          localNow: anyTime,
         ),
         isFalse,
       );
@@ -234,6 +242,7 @@ void main() {
         evaluator.shouldNotify(
           target: disabled,
           transition: GeofenceTransition.exited,
+          localNow: anyTime,
         ),
         isFalse,
       );
@@ -244,6 +253,7 @@ void main() {
         evaluator.shouldNotify(
           target: target,
           transition: GeofenceTransition.none,
+          localNow: anyTime,
         ),
         isFalse,
       );
@@ -251,9 +261,100 @@ void main() {
         evaluator.shouldNotify(
           target: target,
           transition: GeofenceTransition.deferred,
+          localNow: anyTime,
         ),
         isFalse,
       );
+    });
+
+    // 이슈 #81 — 스케줄
+    group('알림 시간대 (이슈 #81)', () {
+      // 평일 08:00 ~ 10:00
+      const weekdayMorning = GeofenceTarget(
+        placeId: 'p',
+        latitude: 0,
+        longitude: 0,
+        radiusMeters: 100,
+        direction: AlertDirection.both,
+        schedules: [
+          AlertSchedule(
+            daysOfWeek: {
+              DateTime.monday,
+              DateTime.tuesday,
+              DateTime.wednesday,
+              DateTime.thursday,
+              DateTime.friday,
+            },
+            startMinuteOfDay: 8 * 60,
+            endMinuteOfDay: 10 * 60,
+          ),
+        ],
+      );
+
+      test('창 안이면 기존 방향 규칙 그대로 알림', () {
+        expect(
+          evaluator.shouldNotify(
+            target: weekdayMorning,
+            transition: GeofenceTransition.entered,
+            localNow: DateTime(2026, 8, 10, 9, 10), // 월 09:10
+          ),
+          isTrue,
+        );
+      });
+
+      test('창 밖(시각)이면 알림 없음', () {
+        expect(
+          evaluator.shouldNotify(
+            target: weekdayMorning,
+            transition: GeofenceTransition.entered,
+            localNow: DateTime(2026, 8, 10, 7, 50), // 월 07:50
+          ),
+          isFalse,
+        );
+        expect(
+          evaluator.shouldNotify(
+            target: weekdayMorning,
+            transition: GeofenceTransition.entered,
+            localNow: DateTime(2026, 8, 10, 14), // 월 14:00
+          ),
+          isFalse,
+        );
+      });
+
+      test('창 밖(요일)이면 알림 없음', () {
+        expect(
+          evaluator.shouldNotify(
+            target: weekdayMorning,
+            transition: GeofenceTransition.entered,
+            localNow: DateTime(2026, 8, 15, 9), // 토 09:00
+          ),
+          isFalse,
+        );
+      });
+
+      test('창이 비어 있으면 항상 알림 — 기존 장소의 동작이 바뀌지 않는다', () {
+        expect(target.schedules, isEmpty);
+        expect(
+          evaluator.shouldNotify(
+            target: target,
+            transition: GeofenceTransition.entered,
+            localNow: DateTime(2026, 8, 15, 3), // 토 새벽 3시
+          ),
+          isTrue,
+        );
+      });
+
+      test('창 안이어도 비활성 장소는 알림 없음 — enabled 가 우선한다', () {
+        final disabledWithSchedule = weekdayMorning.copyWith(enabled: false);
+        expect(
+          evaluator.shouldNotify(
+            target: disabledWithSchedule,
+            transition: GeofenceTransition.entered,
+            localNow: DateTime(2026, 8, 10, 9, 10),
+          ),
+          isFalse,
+        );
+      });
     });
   });
 }

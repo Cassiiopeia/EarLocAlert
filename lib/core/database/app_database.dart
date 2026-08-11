@@ -5,6 +5,13 @@ import 'package:drift/native.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
+// 생성 코드(app_database.g.dart)가 쓰는 타입들이다.
+// `part` 파일은 이 파일의 import 스코프를 그대로 쓰므로, 여기에 없으면
+// "Type 'AlertSchedule' not found" 로 빌드가 깨진다. analysis_options 가
+// 생성 파일을 분석에서 제외하기 때문에 `flutter analyze` 는 통과하고
+// 실제 컴파일에서만 터진다 — 지우지 않는다.
+import '../domain/alert_schedule.dart';
+import 'alert_schedule_converter.dart';
 import 'tables.dart';
 
 part 'app_database.g.dart';
@@ -21,8 +28,25 @@ class AppDatabase extends _$AppDatabase {
   /// 테스트용 — 인메모리 DB 를 주입한다
   AppDatabase.forTesting(super.executor);
 
+  /// v2 — `alert_places.schedules` 추가 (이슈 #81)
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
+
+  /// 기존 사용자의 데이터를 살린 채 컬럼을 더한다.
+  ///
+  /// **재생성(`deleteEverything`)을 쓰지 않는다.** 장소를 잃으면 사용자는
+  /// 앱을 다시 설정해야 하고, 지오펜스 상태까지 날아가 첫 진입 알림을
+  /// 놓친다 (docs/03-DOMAIN.md).
+  @override
+  MigrationStrategy get migration => MigrationStrategy(
+    onUpgrade: (m, from, to) async {
+      if (from < 2) {
+        // 컬럼 기본값이 '[]' 이므로 기존 장소는 전부 "항상 활성"으로
+        // 올라온다 — 동작이 바뀌지 않는다
+        await m.addColumn(alertPlaces, alertPlaces.schedules);
+      }
+    },
+  );
 }
 
 QueryExecutor _openConnection() {

@@ -1,6 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../../core/domain/alert_direction.dart';
+import '../../../core/domain/alert_schedule.dart';
 
 part 'geofence_target.freezed.dart';
 
@@ -18,5 +19,8 @@ abstract class GeofenceTarget with _$GeofenceTarget {
     required int radiusMeters,
     required AlertDirection direction,
     @Default(true) bool enabled,
+
+    /// 알림이 활성인 시간 창 (이슈 #81). 빈 목록이면 항상 활성이다.
+    @Default(<AlertSchedule>[]) List<AlertSchedule> schedules,
   }) = _GeofenceTarget;
 }

@@ -1,5 +1,7 @@
 import 'package:drift/drift.dart';
 
+import 'alert_schedule_converter.dart';
+
 /// 알림을 걸어둔 장소 (docs/03-DOMAIN.md)
 @DataClassName('AlertPlaceRow')
 class AlertPlaces extends Table {
@@ -20,6 +22,14 @@ class AlertPlaces extends Table {
   BoolColumn get enabled => boolean().withDefault(const Constant(true))();
 
   BoolColumn get soundEnabled => boolean().withDefault(const Constant(true))();
+
+  /// 알림이 활성인 시간 창 목록 (이슈 #81) — JSON 배열
+  ///
+  /// 기본값 `'[]'` 가 곧 "항상 활성"이다. 마이그레이션된 기존 장소가
+  /// 이 값으로 올라오므로 사용자가 체감하는 변화가 없다.
+  TextColumn get schedules => text()
+      .map(const AlertScheduleListConverter())
+      .withDefault(const Constant('[]'))();
 
   /// UTC (docs/04-CONVENTIONS.md)
   DateTimeColumn get createdAt => dateTime()();

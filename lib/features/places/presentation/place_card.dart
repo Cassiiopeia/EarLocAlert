@@ -7,6 +7,7 @@ import '../../../core/theme/app_semantic_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../domain/alert_place.dart';
+import 'alert_schedule_summary.dart';
 import 'place_list_controller.dart';
 
 /// 장소 한 건 (docs/06-UX.md)
@@ -91,6 +92,18 @@ class PlaceCard extends StatelessWidget {
                       '$directionLabel · 반경 ${place.radiusMeters}m',
                       style: AppTypography.caption.copyWith(color: secondary),
                     ),
+                    // 시간대가 걸려 있으면 드러낸다 — 창 밖이라 안 울린
+                    // 것을 알 방법이 없으면 사용자는 앱을 믿지 못한다
+                    // (F4.5 와 같은 이유, 이슈 #81)
+                    if (place.schedules.isNotEmpty) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        describeSchedules(place.schedules),
+                        style: AppTypography.caption.copyWith(color: secondary),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
                   ],
                 ),
               ),

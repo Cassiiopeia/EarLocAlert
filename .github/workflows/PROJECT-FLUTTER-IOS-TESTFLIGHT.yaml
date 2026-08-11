@@ -75,12 +75,9 @@ on:
 # 🔧 프로젝트별 설정 (아래 값들을 수정하세요)
 # ============================================
 env:
-  # Flutter 프로젝트 디렉토리 (레포 루트 기준). 모노레포면 하위 경로.
-  #
-  # **이름이 FLUTTER_ROOT 이면 안 된다.** subosito/flutter-action 이
-  # 같은 이름으로 Flutter SDK 설치 경로(/opt/hostedtoolcache/...)를
-  # $GITHUB_ENV 에 내보내 이 값을 덮어쓴다. 그러면 산출물 경로가
-  # SDK 안을 가리켜, 빌드는 성공하는데 업로드가 비어 다음 잡이 죽는다.
+  # **이 변수를 FLUTTER_ROOT 로 되돌리지 않는다.** subosito/flutter-action 이
+  # 같은 이름으로 Flutter SDK 설치 경로를 $GITHUB_ENV 에 내보내 값을 덮어쓴다.
+  # 그러면 빌드는 성공하는데 산출물 업로드가 비어 다음 잡이 죽는다 (마법사 이슈 #50).
   FLUTTER_PROJECT_DIR: "."
   FLUTTER_VERSION: "3.35.5"
   XCODE_VERSION: "26.0"
@@ -118,7 +115,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
         with:
           ref: main
           fetch-depth: 0
@@ -153,7 +150,7 @@ jobs:
           cache: true
 
       - name: Cache Flutter dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.pub-cache
           key: ${{ runner.os }}-flutter-pub-${{ hashFiles('**/pubspec.lock') }}
@@ -162,7 +159,6 @@ jobs:
       - name: Install dependencies
         run: |
           flutter pub get
-          # 코드 생성 — freezed·riverpod·drift 는 pub get 만으로 소스가 완성되지 않는다
           if grep -q "build_runner" pubspec.yaml; then
             dart run build_runner build --delete-conflicting-outputs
           fi
@@ -213,14 +209,15 @@ jobs:
           fi
 
       - name: Upload release notes
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: release-notes
           path: final_release_notes.txt
           retention-days: 1
+          if-no-files-found: error
 
       - name: Upload project files
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: project-files
           path: |
@@ -230,6 +227,7 @@ jobs:
             lib/
             assets/
           retention-days: 1
+          if-no-files-found: error
 
   # ============================================
   # iOS 빌드 (xcodebuild 직접 사용)
@@ -244,7 +242,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
         with:
           ref: main
           fetch-depth: 0
@@ -273,7 +271,7 @@ jobs:
           xcodebuild -downloadPlatform iOS
 
       - name: Download project files
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: project-files
           path: .
@@ -294,7 +292,7 @@ jobs:
           cache: true
 
       - name: Cache Flutter dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.pub-cache
           key: ${{ runner.os }}-flutter-pub-${{ hashFiles('**/pubspec.lock') }}
@@ -303,7 +301,6 @@ jobs:
       - name: Install dependencies
         run: |
           flutter pub get
-          # 코드 생성 — freezed·riverpod·drift 는 pub get 만으로 소스가 완성되지 않는다
           if grep -q "build_runner" pubspec.yaml; then
             dart run build_runner build --delete-conflicting-outputs
           fi
@@ -374,11 +371,12 @@ jobs:
             -exportOptionsPlist ExportOptions.plist
 
       - name: Upload IPA artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ios-ipa
           path: ${{ env.FLUTTER_PROJECT_DIR }}/ios/build/ipa/*.ipa
           retention-days: 1
+          if-no-files-found: error
 
   # ============================================
   # TestFlight 배포 (마법사 생성 Fastfile 사용)
@@ -393,7 +391,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
         with:
           ref: main
           fetch-depth: 0
@@ -404,13 +402,13 @@ jobs:
           echo "${{ secrets.APP_STORE_CONNECT_API_KEY_BASE64 }}" | base64 --decode > ~/.appstoreconnect/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}.p8
 
       - name: Download IPA artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: ios-ipa
           path: ${{ env.FLUTTER_PROJECT_DIR }}/ios/build/ipa/
 
       - name: Download release notes
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: release-notes
           path: .

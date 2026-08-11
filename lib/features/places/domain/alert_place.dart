@@ -1,6 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../../core/domain/alert_direction.dart';
+import '../../../core/domain/alert_schedule.dart';
 
 part 'alert_place.freezed.dart';
 
@@ -28,6 +29,12 @@ abstract class AlertPlace with _$AlertPlace {
 
     /// 이어폰(줄·블루투스) 연결 시 소리를 낼지
     @Default(true) bool soundEnabled,
+
+    /// 알림이 활성인 시간 창 (이슈 #81).
+    ///
+    /// **빈 목록이면 항상 활성**이다 — 창을 더하면 그 시간에만 울린다.
+    /// 여러 창은 OR 이다.
+    @Default(<AlertSchedule>[]) List<AlertSchedule> schedules,
     required DateTime createdAt,
   }) = _AlertPlace;
 }
