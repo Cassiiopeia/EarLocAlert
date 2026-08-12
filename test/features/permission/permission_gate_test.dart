@@ -87,14 +87,6 @@ void main() {
       expect(gate.nextStep(partial), OnboardingStep.requestAlertReliability);
     });
 
-    test('신뢰성 권한 단계에서도 온보딩을 나갈 수 있다', () {
-      expect(
-        gate.canLeaveOnboarding(essentialsGranted),
-        isTrue,
-        reason: '선택 권한이 앱 진입을 막으면 안 된다',
-      );
-    });
-
     test('필수가 남아 있으면 신뢰성 권한을 먼저 묻지 않는다', () {
       const snapshot = PermissionSnapshot(
         location: PermissionStatus.granted,
@@ -165,29 +157,9 @@ void main() {
     });
   });
 
-  group('온보딩 이탈 허용 (A-12)', () {
-    test('전부 허용되면 나갈 수 있다', () {
-      expect(gate.canLeaveOnboarding(allGranted), isTrue);
-    });
-
-    test('영구 거부 상태에서도 나갈 수 있다 — 사용자를 온보딩에 가두지 않는다', () {
-      const snapshot = PermissionSnapshot(
-        location: PermissionStatus.permanentlyDenied,
-        backgroundLocation: PermissionStatus.permanentlyDenied,
-        notification: PermissionStatus.permanentlyDenied,
-      );
-      expect(
-        gate.canLeaveOnboarding(snapshot),
-        isTrue,
-        reason: '앱은 열리고, 무엇이 안 되는지를 화면에 표시한다',
-      );
-    });
-
-    test('아직 요청할 것이 남아 있으면 나갈 수 없다', () {
-      const snapshot = PermissionSnapshot();
-      expect(gate.canLeaveOnboarding(snapshot), isFalse);
-    });
-  });
+  // 온보딩 이탈 허용(A-12)은 더 이상 판정 대상이 아니다 — 언제나 나갈 수
+  // 있으므로 판정이 아니라 화면의 원칙이다 (이슈 #90).
+  // 검증은 `onboarding_screen_test.dart` 로 옮겼다.
 
   group('missing — 부족한 권한 목록', () {
     test('허용된 것은 빠진다', () {

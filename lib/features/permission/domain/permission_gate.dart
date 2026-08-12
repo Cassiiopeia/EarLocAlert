@@ -96,24 +96,16 @@ class PermissionGate {
         .toList();
   }
 
-  /// 온보딩을 마쳐도 되는가.
-  ///
-  /// 모든 권한이 허용된 경우뿐 아니라, **더 이상 앱이 할 수 있는 것이
-  /// 없을 때도 true 다** — 영구 거부 상태에서 온보딩에 사용자를 가둬두지
-  /// 않는다. 앱은 열리고, 무엇이 안 되는지를 화면에 표시한다 (A-12).
-  bool canLeaveOnboarding(
-    PermissionSnapshot snapshot, {
-    bool reliabilityPromptSeen = false,
-  }) {
-    final step = nextStep(
-      snapshot,
-      reliabilityPromptSeen: reliabilityPromptSeen,
-    );
-    return step == OnboardingStep.done ||
-        step == OnboardingStep.openSettings ||
-        // 신뢰성 권한은 선택이다 — 여기서 사용자를 붙잡지 않는다
-        step == OnboardingStep.requestAlertReliability;
-  }
+  // 온보딩을 나갈 수 있는지는 **판정하지 않는다** (이슈 #90).
+  //
+  // 언제나 나갈 수 있기 때문이다. 이전에는 "영구 거부라 더 할 게 없을 때만"
+  // 내보냈는데, 그러면 한 번 거부(재요청 가능)한 사용자가 갇힌다. iOS 는
+  // 한 번 거부하면 다이얼로그를 다시 띄우지 않으므로 버튼이 아무 일도
+  // 하지 않는 화면이 된다 — 권한 없이도 기본 화면에는 닿아야 한다는
+  // App Store 심사 방침에도 어긋난다 (A-12).
+  //
+  // 대신 화면이 완료 단계가 아닌 모든 단계에 "나중에 하기"를 둔다.
+  // 무엇이 안 되는지는 홈에서 상시 표시한다.
 
   OnboardingStep _stepFor(PermissionKind kind) => switch (kind) {
     PermissionKind.location => OnboardingStep.requestLocation,
