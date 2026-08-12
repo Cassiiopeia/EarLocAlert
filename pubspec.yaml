@@ -2,7 +2,7 @@ name: ear_loc_alert
 description: "특정 위치에 도착·출발할 때 진동 또는 블루투스 이어폰으로만 알리는 위치 기반 알림 앱"
 publish_to: 'none'
 # 버전은 version.yml 이 단일 출처다. 직접 수정하지 않는다 (docs/08-OPERATIONS.md)
-version: 1.4.0+78
+version: 1.4.1+79
 # Dart 3.9+ (docs/02-ARCHITECTURE.md) — 와일드카드 파라미터 등 3.7+ 문법을 쓴다
 environment:
   sdk: '>=3.9.0 <4.0.0'
