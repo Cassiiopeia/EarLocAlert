@@ -82,9 +82,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
     final asyncSnapshot = ref.watch(permissionControllerProvider);
     final gate = ref.watch(permissionGateProvider);
     // 신뢰성 권한을 이미 권했는지 (이슈 #74).
-    // 아직 못 읽었으면 "권한 적 있다"로 본다 — 잘못 판단해 온보딩을
-    // 한 번 더 띄우는 것보다, 한 번 덜 띄우고 홈에서 안내하는 쪽이 낫다.
-    final promptSeen = ref.watch(reliabilityPromptProvider).valueOrNull ?? true;
+    final asyncPromptSeen = ref.watch(reliabilityPromptProvider);
 
     return Scaffold(
       body: SafeArea(
@@ -95,6 +93,19 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
                 ref.read(permissionControllerProvider.notifier).refresh(),
           ),
           data: (snapshot) {
+            // **읽지 못한 값을 추측하지 않는다** (이슈 #90).
+            //
+            // 권한 조회와 이 저장값은 각각 끝난다. 예전에는 저장값을 아직
+            // 못 읽었으면 "이미 권했다"로 보고 넘어갔는데, 권한이 이미
+            // 허용된 사용자는 권한 조회가 먼저 끝나므로 안내 화면이
+            // 통째로 사라졌다. 기록도 남지 않아 다음 실행에서도 반복됐다.
+            if (!asyncPromptSeen.hasValue && asyncPromptSeen.isLoading) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            // 읽기에 실패했으면 "아직 안 권했다"로 본다 — 저장소 구현과
+            // 같은 기본값이다. 한 번 더 묻는 쪽이 영영 안 묻는 쪽보다 낫다.
+            final promptSeen = asyncPromptSeen.valueOrNull ?? false;
+
             final step = gate.nextStep(
               snapshot,
               reliabilityPromptSeen: promptSeen,
@@ -121,16 +132,12 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
                 }
                 await ref.read(permissionControllerProvider.notifier).proceed();
               },
-              // 영구 거부 상태에서도 앱을 열 수 있어야 한다 (A-12).
-              // 온보딩에 사용자를 가둬두지 않는다.
-              onSkip:
-                  gate.canLeaveOnboarding(
-                        snapshot,
-                        reliabilityPromptSeen: promptSeen,
-                      ) &&
-                      step != OnboardingStep.done
-                  ? () => _skip(step)
-                  : null,
+              // **어느 단계에서든 나갈 수 있다** (A-12, 이슈 #90).
+              //
+              // 권한을 거부해도 앱 기본 화면에는 닿아야 한다. 무엇이
+              // 안 되는지는 홈에서 상시 표시하고 켜러 갈 길을 준다.
+              // 완료 화면에만 두지 않는다 — 건너뛸 것이 없기 때문이다.
+              onSkip: step != OnboardingStep.done ? () => _skip(step) : null,
             );
           },
         ),

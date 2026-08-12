@@ -51,13 +51,16 @@ class AlertSoundServiceImpl implements AlertSoundService {
   }
 
   @override
-  Future<void> play() async {
+  Future<void> play({required double volume}) async {
     try {
       final session = await AudioSession.instance;
       await session.configure(const AudioSessionConfiguration.speech());
       await session.setActive(true);
 
       final player = _player ??= AudioPlayer();
+      // 사용자가 설정한 알림음 크기 (이슈 #86). 재생 시작 전에 걸어야
+      // 첫 소리부터 그 크기다 — 큰 소리가 한 번 나가고 줄어드는 것은 늦다.
+      await player.setVolume(volume.clamp(0.0, 1.0));
       // 음원 로딩까지는 기다린다 — 여기서 실패해야 진동으로 떨어질 수 있다
       await player.setAsset(_assetPath);
       // 해제할 때까지 반복한다. 진동이 반복되는 동안 소리만 한 번 나고

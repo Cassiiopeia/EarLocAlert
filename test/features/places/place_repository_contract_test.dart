@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:ear_loc_alert/core/domain/alert_direction.dart';
+import 'package:ear_loc_alert/core/domain/alert_schedule.dart';
 import 'package:ear_loc_alert/features/places/domain/alert_place.dart';
 import 'package:ear_loc_alert/features/places/domain/place_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -64,6 +65,7 @@ AlertPlace makePlace({
   String name = '장소',
   bool enabled = true,
   int createdAtOffsetMinutes = 0,
+  List<AlertSchedule> schedules = const <AlertSchedule>[],
 }) {
   return AlertPlace(
     id: id,
@@ -73,6 +75,7 @@ AlertPlace makePlace({
     radiusMeters: 100,
     direction: AlertDirection.both,
     enabled: enabled,
+    schedules: schedules,
     createdAt: DateTime.utc(
       2026,
       8,
@@ -152,6 +155,45 @@ void main() {
         await repo.save(makePlace(id: 'p$i', createdAtOffsetMinutes: i));
       }
       expect(await repo.count(), 20);
+    });
+
+    test('스케줄은 저장과 조회를 왕복해도 그대로다 (#81)', () async {
+      const commute = AlertSchedule(
+        daysOfWeek: {
+          DateTime.monday,
+          DateTime.tuesday,
+          DateTime.wednesday,
+          DateTime.thursday,
+          DateTime.friday,
+        },
+        startMinuteOfDay: 8 * 60,
+        endMinuteOfDay: 10 * 60,
+      );
+      const lastTrain = AlertSchedule(
+        daysOfWeek: {DateTime.friday},
+        startMinuteOfDay: 23 * 60,
+        endMinuteOfDay: 2 * 60, // 자정 넘김
+      );
+
+      await repo.save(
+        makePlace(id: 'a', schedules: const [commute, lastTrain]),
+      );
+
+      // 순서까지 포함해 같아야 한다 — 목록 카드 요약이 이 순서로 보인다.
+      expect((await repo.findById('a'))?.schedules, const [commute, lastTrain]);
+    });
+
+    test('스케줄을 주지 않은 장소는 빈 목록이다 — 항상 활성 (#81)', () async {
+      await repo.save(makePlace(id: 'a'));
+
+      final found = await repo.findById('a');
+      expect(found?.schedules, isEmpty);
+      // 빈 목록의 의미는 "제한 없음"이지 "한 번도 안 울림"이 아니다.
+      // 마이그레이션된 기존 장소가 이 경로로 들어온다.
+      expect(
+        isScheduleActive(found!.schedules, DateTime(2026, 8, 11, 3)),
+        isTrue,
+      );
     });
 
     test('watchAll 은 변경 시마다 목록을 흘려보낸다', () async {

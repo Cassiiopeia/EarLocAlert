@@ -76,6 +76,9 @@ class GeofenceRegistrationSync {
             radiusMeters: p.radiusMeters,
             direction: p.direction,
             enabled: p.enabled,
+            // OS 등록 여부는 스케줄과 무관하다 — 창 밖에도 등록을 유지해야
+            // 상태 추적이 끊기지 않는다 (이슈 #81). 값만 실어 보낸다.
+            schedules: p.schedules,
           ),
         )
         .toList();

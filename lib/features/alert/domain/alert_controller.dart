@@ -37,15 +37,21 @@ class AlertController {
     required AlertSoundService sound,
     required AlertNotifier notifier,
     required AudioRouteDecider routeDecider,
+    required AlertVolumeStore volumeStore,
+    required SystemVolumeService systemVolume,
   }) : _vibration = vibration,
        _sound = sound,
        _notifier = notifier,
-       _routeDecider = routeDecider;
+       _routeDecider = routeDecider,
+       _volumeStore = volumeStore,
+       _systemVolume = systemVolume;
 
   final VibrationService _vibration;
   final AlertSoundService _sound;
   final AlertNotifier _notifier;
   final AudioRouteDecider _routeDecider;
+  final AlertVolumeStore _volumeStore;
+  final SystemVolumeService _systemVolume;
 
   AlertSession? _current;
   final List<AlertRequest> _queue = [];
@@ -150,7 +156,26 @@ class AlertController {
     if (route == AudioRoute.silent) return; // 세션은 이미 silent 다
 
     try {
-      await _sound.play();
+      // 설정 읽기 실패가 알림음을 없애면 안 된다 — 기본값으로 간다
+      var volume = AlertVolumeStore.defaultVolume;
+      try {
+        volume = await _volumeStore.volume();
+      } on Object {
+        // 기본값 유지
+      }
+
+      // 시스템 볼륨이 0 이면 앱 볼륨을 아무리 올려도 무음이다 (이슈 #86).
+      // 설정값 수준까지 끌어올린다 — 이어폰 경로가 확정된 뒤라 스피커로
+      // 새지 않고, 해제 시 _silence() 가 되돌린다. iOS 는 no-op 이다.
+      await _systemVolume.raiseTo(volume);
+      if (_sessionToken != token) {
+        // 올리는 사이 해제됐다 — 원복은 _silence() 가 이미 했을 수도,
+        // 아직일 수도 있다. 한 번 더 되돌려도 해가 없다(원복은 멱등이다).
+        await _systemVolume.restore();
+        return;
+      }
+
+      await _sound.play(volume: volume);
       if (_sessionToken != token) return;
       _updateRoute(AudioRoute.headphones, soundFailed: false);
     } on Object {
@@ -201,7 +226,14 @@ class AlertController {
   }
 
   Future<void> _silence() async {
-    for (final stop in [_vibration.stop, _sound.stop, _notifier.dismiss]) {
+    // 시스템 볼륨 원복이 여기 있다 (이슈 #86) — 올린 채로 두면 사용자의
+    // 기기 설정을 앱이 영구히 바꾼 것이 된다. 올린 적이 없으면 no-op 이다.
+    for (final stop in [
+      _vibration.stop,
+      _sound.stop,
+      _systemVolume.restore,
+      _notifier.dismiss,
+    ]) {
       try {
         await stop();
       } on Object {

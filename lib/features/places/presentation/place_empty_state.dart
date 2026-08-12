@@ -64,4 +64,7 @@ String placeErrorMessage(PlaceValidationError error) => switch (error) {
   PlaceValidationError.invalidCoordinates => '위치 좌표가 올바르지 않습니다',
   PlaceValidationError.limitReached =>
     '장소는 최대 ${PlaceValidator.maxPlaces}개까지 등록할 수 있습니다',
+  PlaceValidationError.emptyScheduleWindow =>
+    '시간대의 시작과 종료가 같습니다. 하루 종일 알리려면 시간대를 지우세요',
+  PlaceValidationError.scheduleWithoutDays => '시간대에 요일을 하나 이상 골라주세요',
 };

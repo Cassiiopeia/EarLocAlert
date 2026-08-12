@@ -10,6 +10,7 @@ import '../features/alert/domain/alert_controller.dart';
 import '../features/alert/presentation/alert_controller_provider.dart';
 import '../features/alert/presentation/alert_dismissed_screen.dart';
 import '../features/alert/presentation/alert_screen.dart';
+import '../features/alert/presentation/alert_volume_sheet.dart';
 import '../features/permission/presentation/onboarding_screen.dart';
 import '../features/permission/presentation/reliability_prompt_provider.dart';
 import '../features/places/domain/alert_place.dart';
@@ -207,6 +208,8 @@ class _HomeRoute extends ConsumerWidget {
         unawaited(_preloadAd(ref));
         if (context.mounted) context.go(AppRoutes.alert);
       },
+      // 알림음 크기 설정 (이슈 #86) — alert feature 의 시트를 app 이 잇는다
+      onOpenVolumeSettings: () => showAlertVolumeSheet(context),
     );
   }
 }
