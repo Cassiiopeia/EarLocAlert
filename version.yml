@@ -24,8 +24,8 @@
 # - basic: version.yml only
 # ===
 
-version: "1.4.0"
-version_code: 78  # app build number
+version: "1.4.1"
+version_code: 79  # app build number
 # 마법사 재통합 때 1 로 초기화되지 않도록 주의한다. version_manager.py 가
 # pubspec 을 "version+version_code" 로 덮어쓰므로, 이 값이 뒤로 가면 다음
 # 배포에서 versionCode 가 역행해 Play Store 가 업로드를 거부한다.
@@ -33,7 +33,7 @@ project_types: ["flutter"] # first entry is primary
 project_paths: # 타입별 프로젝트 폴더 (레포 루트 기준 상대경로)
   flutter: "." # pubspec.yaml
 metadata:
-  last_updated: "2026-08-11"
+  last_updated: "2026-08-12"
   last_updated_by: "Cassiiopeia"
   default_branch: "main"
   integration_date: "2026-08-10"
