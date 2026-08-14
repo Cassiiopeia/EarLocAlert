@@ -19,6 +19,15 @@ abstract interface class AlertWatchService {
   /// **Dart 알림 세션이 시작되기 직전에 부른다.** 순서가 뒤집히면
   /// 네이티브 취소가 Dart 진동을 같이 끄거나, 둘이 겹쳐 패턴이 어긋난다.
   Future<void> stopNativeAlert();
+
+  /// 지오펜스 등록을 서비스에 위임한다 (이슈 #93).
+  ///
+  /// 등록 주체가 서비스인 이유는 **앱이 죽어도 등록이 살아있어야 하기**
+  /// 때문이다. 액티비티가 소유하면 프로세스 회수와 함께 사라진다.
+  ///
+  /// 페이로드 키는 `AndroidGeofenceMonitor` 가 만들고 Kotlin
+  /// `GeofenceRegistrar.sync` 가 읽는다 — 양쪽이 계약이다.
+  Future<void> syncGeofences(List<Map<String, Object?>> geofences);
 }
 
 /// 아무것도 하지 않는 구현 — 플랫폼 미지원(iOS)·테스트용
@@ -33,4 +42,7 @@ class NoopAlertWatchService implements AlertWatchService {
 
   @override
   Future<void> stopNativeAlert() async {}
+
+  @override
+  Future<void> syncGeofences(List<Map<String, Object?>> geofences) async {}
 }

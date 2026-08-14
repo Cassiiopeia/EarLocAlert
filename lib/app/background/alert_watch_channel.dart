@@ -23,9 +23,13 @@ class AlertWatchChannel implements AlertWatchService {
   @override
   Future<void> stopNativeAlert() => _invoke('stopAlert');
 
-  Future<void> _invoke(String method) async {
+  @override
+  Future<void> syncGeofences(List<Map<String, Object?>> geofences) =>
+      _invoke('syncGeofences', {'geofences': geofences});
+
+  Future<void> _invoke(String method, [Object? arguments]) async {
     try {
-      await _channel.invokeMethod<void>(method);
+      await _channel.invokeMethod<void>(method, arguments);
     } on Object {
       // iOS 에는 채널 자체가 없다(MissingPluginException). Android 에서도
       // 서비스 승격 실패는 여기로 온다 — 둘 다 정상 경로다.
