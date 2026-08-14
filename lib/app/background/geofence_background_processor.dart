@@ -5,19 +5,30 @@ import '../../features/geofence/domain/geofence_event.dart';
 import '../../features/geofence/domain/geofence_event_repository.dart';
 import '../../features/geofence/domain/geofence_state_repository.dart';
 import '../../features/geofence/domain/geofence_target.dart';
+import '../../features/geofence/domain/position_sample.dart';
+import '../../features/places/domain/alert_place.dart';
 import '../../features/places/domain/place_repository.dart';
 import 'background_alert_port.dart';
 import 'pending_alert.dart';
 
-/// 백그라운드 지오펜스 이벤트 조율 (이슈 #63)
+/// 백그라운드 지오펜스 이벤트 조율 (이슈 #63, #93)
 ///
 /// feature 간 협력은 app 계층이 조율한다 (docs/02-ARCHITECTURE.md 규칙 1) —
 /// geofence 판정 결과를 places 정보와 합쳐 알림 여부를 정하는 것이 이
 /// 클래스다. 플랫폼 API 를 직접 부르지 않아 전체 흐름이 실기기 없이
 /// 테스트된다.
 ///
-/// 백그라운드에서 하는 일은 **판정·저장·알림 발행**이 전부다
-/// (docs/02-ARCHITECTURE.md 규칙 5).
+/// **진입점이 셋이고 그 뒤는 하나다** (이슈 #93):
+///
+/// | 진입점 | 입력 | 알림 발행 | 쓰는 곳 |
+/// |---|---|---|---|
+/// | [handle] | OS 전이 | 한다 | 기존 백그라운드 콜백 (iOS) |
+/// | [handleTransition] | OS 전이 | 안 한다 | 감시 서비스 폴백 경로 |
+/// | [handlePosition] | 좌표 측정 | 안 한다 | 감시 서비스 정밀 모드 |
+///
+/// 판정 이후(상태 저장·이력 기록·`shouldNotify`)는 [_recordAndDecide] 하나로
+/// 모인다. 이 부분을 복제하면 경로마다 규칙이 어긋나 한쪽에서만 울리거나
+/// 두 번 울린다.
 class GeofenceBackgroundProcessor {
   GeofenceBackgroundProcessor({
     required PlaceRepository places,
@@ -43,11 +54,31 @@ class GeofenceBackgroundProcessor {
   final String Function() _idGenerator;
   final DateTime Function() _clock;
 
-  /// OS 지오펜스 이벤트 하나를 처리한다.
+  /// OS 지오펜스 이벤트 하나를 처리하고 **알림까지 발행한다.**
   ///
   /// [latitude]/[longitude] 는 이벤트 시점 기기 좌표 — Android 만 주고
   /// 그마저 null 일 수 있다. 없으면 이력에 장소 중심 좌표를 대신 남긴다.
   Future<void> handle({
+    required String placeId,
+    required GeofenceEventType eventType,
+    double? latitude,
+    double? longitude,
+  }) async {
+    final alert = await handleTransition(
+      placeId: placeId,
+      eventType: eventType,
+      latitude: latitude,
+      longitude: longitude,
+    );
+    if (alert == null) return;
+    await _alertPort.notify(alert);
+  }
+
+  /// OS 지오펜스 전이를 판정하고 알림 후보를 돌려준다 (이슈 #93).
+  ///
+  /// [handle] 과 달리 **알림을 발행하지 않는다** — 발행 주체가 네이티브
+  /// 감시 서비스이기 때문이다. 판정 규칙은 완전히 같다.
+  Future<PendingAlert?> handleTransition({
     required String placeId,
     required GeofenceEventType eventType,
     double? latitude,
@@ -58,7 +89,7 @@ class GeofenceBackgroundProcessor {
       // 삭제된 장소의 이벤트가 뒤늦게 도착했다 — 상태만 정리하고 끝낸다.
       // OS 등록 해제는 다음 포그라운드 동기화가 처리한다.
       await _states.remove(placeId);
-      return;
+      return null;
     }
 
     final current = await _states.stateOf(placeId);
@@ -71,21 +102,77 @@ class GeofenceBackgroundProcessor {
     // 하고, 재부팅 후에도 살아 있어야 한다 (docs/03-DOMAIN.md)
     await _states.updateState(placeId, evaluation.state);
 
-    final transition = evaluation.transition;
-    if (transition != GeofenceTransition.entered &&
-        transition != GeofenceTransition.exited) {
-      return;
+    return _recordAndDecide(
+      place: place,
+      target: _targetOf(place),
+      transition: evaluation.transition,
+      latitude: latitude,
+      longitude: longitude,
+    );
+  }
+
+  /// 정밀 측정 하나로 모든 활성 장소를 판정한다 (이슈 #93).
+  ///
+  /// OS 전이 판정과 달리 **좌표가 입력이다.** 근접 반경 안에서 감시
+  /// 서비스가 위치를 직접 받을 때 쓴다.
+  ///
+  /// 여러 장소가 동시에 전이할 수 있지만 **알림은 하나만 돌려준다** —
+  /// 진동과 화면은 하나뿐이다. 나머지 장소의 상태·이력은 정상 기록된다.
+  /// 먼저 발견된 것을 쓰는 이유는 목록 순서가 생성 시각 오름차순이라
+  /// 결정적이기 때문이다.
+  Future<PendingAlert?> handlePosition({required PositionSample sample}) async {
+    final places = await _places.findAll();
+    PendingAlert? firstAlert;
+
+    for (final place in places) {
+      // 비활성 장소는 상태도 건드리지 않는다 — 다시 켤 때 묵은 상태와
+      // initialTrigger 가 만나 가짜 알림이 터지는 것을 막는다
+      if (!place.enabled) continue;
+
+      final target = _targetOf(place);
+      final current = await _states.stateOf(place.id);
+      final evaluation = _evaluator.evaluate(
+        target: target,
+        current: current,
+        sample: sample,
+      );
+
+      await _states.updateState(place.id, evaluation.state);
+
+      final alert = await _recordAndDecide(
+        place: place,
+        target: target,
+        transition: evaluation.transition,
+        latitude: sample.latitude,
+        longitude: sample.longitude,
+        accuracyMeters: sample.accuracyMeters,
+      );
+      firstAlert ??= alert;
     }
 
-    final target = GeofenceTarget(
-      placeId: place.id,
-      latitude: place.latitude,
-      longitude: place.longitude,
-      radiusMeters: place.radiusMeters,
-      direction: place.direction,
-      enabled: place.enabled,
-      schedules: place.schedules,
-    );
+    return firstAlert;
+  }
+
+  /// 전이를 이력에 남기고 알림이 필요한지 판단한다.
+  ///
+  /// **세 진입점이 공유한다** — 여기를 복제하면 OS 경로와 정밀 경로의
+  /// 규칙이 반드시 어긋난다.
+  ///
+  /// [accuracyMeters] 가 null 이면 OS 이벤트다. GPS 정확도가 없으므로
+  /// 0(완벽)으로 오독되지 않게 -1 을 "정보 없음" 센티널로 쓴다.
+  Future<PendingAlert?> _recordAndDecide({
+    required AlertPlace place,
+    required GeofenceTarget target,
+    required GeofenceTransition transition,
+    double? latitude,
+    double? longitude,
+    double? accuracyMeters,
+  }) async {
+    if (transition != GeofenceTransition.entered &&
+        transition != GeofenceTransition.exited) {
+      return null;
+    }
+
     // 같은 시계에서 갈린다 — **이력은 UTC, 스케줄 판정은 로컬.**
     // 스케줄은 "그곳의 아침 8시"라는 벽시계 규칙이라 UTC 로 판정하면
     // 시간대·서머타임에서 어긋난다 (이슈 #81).
@@ -107,25 +194,36 @@ class GeofenceBackgroundProcessor {
         occurredAt: occurredAt,
         latitude: latitude ?? place.latitude,
         longitude: longitude ?? place.longitude,
-        // OS 이벤트에는 GPS 정확도가 없다. 0(완벽)으로 오독되지 않게
-        // -1 을 "정보 없음" 센티널로 쓴다
-        accuracyMeters: -1,
+        accuracyMeters: accuracyMeters ?? -1,
         notified: notify,
       ),
     );
 
-    if (!notify) return;
+    if (!notify) return null;
 
-    await _alertPort.notify(
-      PendingAlert(
-        placeId: place.id,
-        placeName: place.name,
-        direction: transition == GeofenceTransition.entered
-            ? AlertDirection.enter
-            : AlertDirection.exit,
-        soundEnabled: place.soundEnabled,
-        occurredAt: occurredAt,
-      ),
+    return PendingAlert(
+      placeId: place.id,
+      placeName: place.name,
+      direction: transition == GeofenceTransition.entered
+          ? AlertDirection.enter
+          : AlertDirection.exit,
+      soundEnabled: place.soundEnabled,
+      occurredAt: occurredAt,
     );
   }
+
+  /// AlertPlace → GeofenceTarget 매핑 (docs/02-ARCHITECTURE.md 규칙 1)
+  ///
+  /// geofence 는 places 를 모른다. 판정에 필요한 값만 옮긴다.
+  GeofenceTarget _targetOf(AlertPlace place) => GeofenceTarget(
+    placeId: place.id,
+    latitude: place.latitude,
+    longitude: place.longitude,
+    radiusMeters: place.radiusMeters,
+    direction: place.direction,
+    enabled: place.enabled,
+    // OS 등록 여부는 스케줄과 무관하다 — 창 밖에도 등록을 유지해야
+    // 상태 추적이 끊기지 않는다 (이슈 #81). 값만 실어 보낸다.
+    schedules: place.schedules,
+  );
 }

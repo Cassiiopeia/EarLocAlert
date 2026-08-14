@@ -110,6 +110,28 @@ class MainActivity : FlutterActivity() {
                     sendToWatchService(AlertWatchService.ACTION_STOP_ALERT)
                     result.success(null)
                 }
+                // 지오펜스 등록 (이슈 #93).
+                //
+                // 등록 주체가 서비스인 이유는 **앱이 죽어도 등록이 살아있어야**
+                // 하기 때문이다. 액티비티가 소유하면 프로세스 회수와 함께 사라진다.
+                "syncGeofences" -> {
+                    val fences = call.argument<List<Map<String, Any?>>>("geofences")
+                        ?: emptyList()
+                    // Intent extra 로 넘기려면 Serializable 이어야 한다
+                    val payload = ArrayList(fences.map { HashMap(it) })
+                    val intent = Intent(this, AlertWatchService::class.java)
+                        .setAction(AlertWatchService.ACTION_SYNC_GEOFENCES)
+                        .putExtra(AlertWatchService.EXTRA_GEOFENCES, payload)
+                    try {
+                        startForegroundService(intent)
+                    } catch (error: Exception) {
+                        // 서비스를 못 띄우면 등록도 못 한다 — 다음 목록 변경에서 재시도된다
+                    }
+                    result.success(null)
+                }
+                "registeredPlaceIds" -> result.success(
+                    AlertWatchService.registeredPlaceIds(),
+                )
                 else -> result.notImplemented()
             }
         }

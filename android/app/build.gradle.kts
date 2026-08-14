@@ -90,4 +90,9 @@ flutter {
 dependencies {
     // core library desugaring — flutter_local_notifications 요구 (#57)
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
+
+    // 지오펜스·정밀 위치를 앱이 직접 다룬다 (이슈 #93).
+    // native_geofence 가 transitive 로 가져오지만, 우리 코드가 직접 쓰는
+    // 이상 명시한다 — 그 패키지 의존을 걷어낼 때 조용히 깨지면 안 된다.
+    implementation("com.google.android.gms:play-services-location:21.3.0")
 }
