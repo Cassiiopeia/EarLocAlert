@@ -50,6 +50,14 @@ class WatchEngine(private val context: Context) {
     private var ready = false
 
     /**
+     * Dart 가 요청한 지오펜스 복원을 서비스로 넘긴다 (이슈 #93).
+     *
+     * OS 는 재부팅 시 지오펜스 등록을 잃는다. 앱이 켜질 때만 등록하던
+     * 구조에서는 **재부팅 후 앱을 켜지 않으면 도착을 영영 감지하지 못했다.**
+     */
+    var onSyncRequested: ((List<Map<String, Any?>>) -> Unit)? = null
+
+    /**
      * 엔진 준비 전에 도착한 판정 요청.
      *
      * 서비스가 막 떠서 엔진이 부팅 중일 때 지오펜스 이벤트가 오면 여기
@@ -85,13 +93,22 @@ class WatchEngine(private val context: Context) {
 
         val ch = MethodChannel(created.dartExecutor.binaryMessenger, CHANNEL)
         ch.setMethodCallHandler { call, result ->
-            if (call.method == "engineReady") {
-                ready = true
-                pending.forEach { it() }
-                pending.clear()
-                result.success(null)
-            } else {
-                result.notImplemented()
+            when (call.method) {
+                "engineReady" -> {
+                    ready = true
+                    pending.forEach { it() }
+                    pending.clear()
+                    result.success(null)
+                }
+                // 엔진이 저장된 장소로 등록 복원을 요청한다 (이슈 #93)
+                "syncGeofences" -> {
+                    @Suppress("UNCHECKED_CAST")
+                    val fences = call.argument<List<Map<String, Any?>>>("geofences")
+                        ?: emptyList()
+                    onSyncRequested?.invoke(fences)
+                    result.success(null)
+                }
+                else -> result.notImplemented()
             }
         }
 

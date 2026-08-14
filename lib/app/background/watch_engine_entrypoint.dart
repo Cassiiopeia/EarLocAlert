@@ -10,6 +10,7 @@ import '../../core/domain/id_generator.dart';
 import '../../features/geofence/data/drift_geofence_event_repository.dart';
 import '../../features/geofence/data/drift_geofence_state_repository.dart';
 import '../../features/geofence/domain/geofence_evaluator.dart';
+import '../../features/geofence/domain/proximity_radius.dart';
 import '../../features/places/data/drift_place_repository.dart';
 import 'background_alert_notifier.dart';
 import 'geofence_background_processor.dart';
@@ -61,6 +62,7 @@ void watchEngineMain() {
     store: PendingAlertStore(),
   );
 
+  final places = DriftPlaceRepository(db);
   const channel = MethodChannel('kr.suhsaechan.ear_loc_alert/watch_engine');
 
   channel.setMethodCallHandler((call) async {
@@ -99,4 +101,48 @@ void watchEngineMain() {
   // 네이티브에 준비 완료를 알린다 — 이 신호 전에 온 요청은 서비스가 큐에
   // 담아두었다가 여기서 흘려보낸다. 버리면 그 도착이 유실된다.
   channel.invokeMethod<void>('engineReady');
+
+  // **지오펜스를 스스로 복원한다** (이슈 #93).
+  //
+  // OS 는 재부팅 시 지오펜스 등록을 잃는다. BootReceiver 가 서비스를
+  // 되살려도 등록이 비어 있으면 도착을 감지하지 못한다 — 실제로 재부팅 후
+  // 앱을 켜지 않으면 알림이 오지 않았다.
+  //
+  // 앱(MainActivity)이 켜질 때만 등록을 밀어넣던 것을 엔진도 하게 만든다.
+  // 앱이 이미 등록했다면 같은 id 로 덮어써도 결과가 같아 안전하다.
+  unawaited(_restoreGeofences(places, channel));
+}
+
+/// 저장된 장소로 지오펜스 등록을 복원한다 (이슈 #93).
+///
+/// 페이로드 형태는 `AndroidGeofenceMonitor.sync` 와 같아야 한다 —
+/// Kotlin `GeofenceRegistrar.sync` 가 같은 키를 읽는다.
+Future<void> _restoreGeofences(
+  DriftPlaceRepository places,
+  MethodChannel channel,
+) async {
+  try {
+    final all = await places.findAll();
+    final enabled = all.where((p) => p.enabled).take(20).toList();
+    if (enabled.isEmpty) {
+      Diagnostics.log('engine', '복원할 지오펜스 없음');
+      return;
+    }
+
+    await channel.invokeMethod<void>('syncGeofences', {
+      'geofences': [
+        for (final p in enabled)
+          {
+            'placeId': p.id,
+            'latitude': p.latitude,
+            'longitude': p.longitude,
+            'radiusMeters': p.radiusMeters.toDouble(),
+            'proximityRadiusMeters': proximityRadiusMeters(p.radiusMeters),
+          },
+      ],
+    });
+    Diagnostics.log('engine', '지오펜스 복원 요청 ${enabled.length}건');
+  } on Object catch (error) {
+    Diagnostics.log('engine', '지오펜스 복원 실패 $error');
+  }
 }
