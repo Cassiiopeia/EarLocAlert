@@ -92,6 +92,29 @@ class MainActivity : FlutterActivity() {
             }
         }
 
+        // 현재 위치 1회 조회 (이슈 #98).
+        //
+        // 지도의 "내 위치" 버튼을 직접 만들기 위해 필요하다. SDK 기본 버튼은
+        // 우상단 고정이라 상태 알약에 가려 잘려 보였다.
+        MethodChannel(
+            flutterEngine.dartExecutor.binaryMessenger,
+            "kr.suhsaechan.ear_loc_alert/current_location",
+        ).setMethodCallHandler { call, result ->
+            if (call.method == "getCurrentLocation") {
+                CurrentLocationProvider(this).fetch { location ->
+                    if (location == null) {
+                        result.success(null)
+                    } else {
+                        result.success(
+                            mapOf("latitude" to location.first, "longitude" to location.second),
+                        )
+                    }
+                }
+            } else {
+                result.notImplemented()
+            }
+        }
+
         // 감시 서비스 제어 (이슈 #74)
         MethodChannel(
             flutterEngine.dartExecutor.binaryMessenger,

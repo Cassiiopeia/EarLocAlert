@@ -19,6 +19,7 @@ import '../features/places/presentation/place_map_home_screen.dart';
 import '../features/places/presentation/place_map_picker_screen.dart';
 import '../features/diagnostics/presentation/diagnostics_screen.dart';
 import '../features/places/presentation/place_search_provider.dart';
+import '../features/settings/presentation/settings_screen.dart';
 import 'home_status_provider.dart';
 
 /// 앱 라우팅 (docs/02-ARCHITECTURE.md)
@@ -36,6 +37,9 @@ abstract final class AppRoutes {
 
   /// 진단 기록 (이슈 #95) — 백그라운드 문제를 확인하는 유일한 창구
   static const diagnostics = '/diagnostics';
+
+  /// 설정 (이슈 #98) — 알림음 크기·진단 기록이 여기 모인다
+  static const settings = '/settings';
 }
 
 GoRouter createRouter() {
@@ -54,7 +58,7 @@ GoRouter createRouter() {
       GoRoute(
         path: AppRoutes.placeNew,
         builder: (context, state) => PlaceFormScreen(
-          onSaved: () => context.go(AppRoutes.home),
+          onSaved: () => _leaveForm(context),
           onPickOnMap: (args) => _pickOnMap(context, args),
         ),
       ),
@@ -62,7 +66,7 @@ GoRouter createRouter() {
         path: AppRoutes.placeEdit,
         builder: (context, state) => PlaceFormScreen(
           existing: state.extra as AlertPlace?,
-          onSaved: () => context.go(AppRoutes.home),
+          onSaved: () => _leaveForm(context),
           onPickOnMap: (args) => _pickOnMap(context, args),
         ),
       ),
@@ -74,6 +78,10 @@ GoRouter createRouter() {
       GoRoute(
         path: AppRoutes.diagnostics,
         builder: (context, state) => const DiagnosticsScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.settings,
+        builder: (context, state) => const _SettingsRoute(),
       ),
       GoRoute(
         path: AppRoutes.alert,
@@ -113,6 +121,23 @@ class _MapPickerRoute extends ConsumerWidget {
 /// 여기서 조율한다 (docs/02-ARCHITECTURE.md).
 Future<MapPickResult?> _pickOnMap(BuildContext context, MapPickArgs args) {
   return context.push<MapPickResult>(AppRoutes.placeMap, extra: args);
+}
+
+/// 장소 폼에서 빠져나온다 (이슈 #97).
+///
+/// 홈에서 `push` 로 들어왔으면 `pop` 이 자연스럽다 — 스택이 유지되어
+/// 뒤로가기 동작과 결과가 같다.
+///
+/// **`canPop` 을 확인하는 이유** — 딥링크나 알림 탭처럼 스택 없이 이 화면에
+/// 바로 진입하는 경로가 있다. 그때 `pop` 하면 갈 곳이 없어 아무 일도
+/// 일어나지 않고, 사용자는 저장했는데 화면이 그대로인 상태에 갇힌다.
+/// 그것이 정확히 이 이슈에서 고치려는 증상이다.
+void _leaveForm(BuildContext context) {
+  if (context.canPop()) {
+    context.pop();
+  } else {
+    context.go(AppRoutes.home);
+  }
 }
 
 /// 알림 화면 라우트.
@@ -189,18 +214,38 @@ class _HomeRoute extends ConsumerWidget {
       isMonitoring: status.isMonitoring,
       isHeadphoneConnected: status.isHeadphoneConnected,
       canAlertReliably: status.canAlertReliably,
-      onAddPlace: () => context.go(AppRoutes.placeNew),
-      onEditPlace: (place) => context.go(AppRoutes.placeEdit, extra: place),
+      // **push 다 — go 를 쓰면 스택이 교체되어 돌아갈 곳이 사라진다** (이슈 #97).
+      // 그러면 AppBar 가 뒤로가기 버튼을 만들지 않고 시스템 뒤로가기도
+      // 먹지 않아, 등록을 마치거나 앱을 강제 종료하는 것 외에 나올 길이 없다.
+      onAddPlace: () => context.push(AppRoutes.placeNew),
+      onEditPlace: (place) => context.push(AppRoutes.placeEdit, extra: place),
       // 감시가 꺼져 있으면 권한 화면이 유일한 해결 경로다
       onFixMonitoring: () => context.go(AppRoutes.onboarding),
       // 신뢰성 권한(#74)을 다시 권한다. 한 번 거절했다는 기록을 지워야
       // 온보딩이 그 단계를 다시 보여준다 — 사용자가 스스로 찾아온 것이므로
       // 기록이 길을 막으면 안 된다.
       onFixReliability: () => _reofferReliability(context, ref),
-      onOpenDiagnostics: () => context.go(AppRoutes.diagnostics),
+      onOpenSettings: () => context.push(AppRoutes.settings),
       onRefreshStatus: () => ref.invalidate(homeStatusProvider),
+    );
+  }
+}
+
+/// 설정 라우트 (이슈 #98).
+///
+/// 알림음 크기·진단 기록·알림 미리보기가 여기 모인다. 홈 상태 바에
+/// 아이콘이 셋 늘어서면서 정작 중요한 감시 상태가 묻혔기 때문이다.
+class _SettingsRoute extends ConsumerWidget {
+  const _SettingsRoute();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return SettingsScreen(
+      // 알림음 크기 (이슈 #86) — alert feature 의 시트를 app 이 잇는다
+      onOpenVolumeSettings: () => showAlertVolumeSheet(context),
+      onOpenDiagnostics: () => context.push(AppRoutes.diagnostics),
       // 백그라운드 감시 연결 전까지 알림 흐름을 확인하는 수단 (S-4·S-5).
-      // 지오펜스 연동이 끝나면 제거한다.
+      // 지오펜스 실기기 검증이 끝나면 제거한다.
       onPreviewAlert: () async {
         await ref
             .read(activeAlertProvider.notifier)
@@ -217,8 +262,6 @@ class _HomeRoute extends ConsumerWidget {
         unawaited(_preloadAd(ref));
         if (context.mounted) context.go(AppRoutes.alert);
       },
-      // 알림음 크기 설정 (이슈 #86) — alert feature 의 시트를 app 이 잇는다
-      onOpenVolumeSettings: () => showAlertVolumeSheet(context),
     );
   }
 }
