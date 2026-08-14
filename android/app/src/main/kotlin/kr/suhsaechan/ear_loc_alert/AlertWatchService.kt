@@ -128,6 +128,12 @@ class AlertWatchService : Service() {
         // 서비스가 살아있는지가 알림 발화의 전제다 — 죽은 구간을
         // 시간순으로 확인할 수 있어야 한다 (이슈 #95)
         DiagnosticLog.write(this, "watch", "감시 서비스 생성")
+
+        // 엔진이 저장된 장소로 등록을 복원하면 그대로 OS 에 밀어넣는다 (이슈 #93).
+        // **재부팅 후 앱을 켜지 않아도 감시가 되살아나는 지점이다** — OS 는
+        // 재부팅 시 지오펜스를 잃고, 예전에는 앱이 켜져야만 다시 등록됐다.
+        engine.onSyncRequested = { fences -> applyGeofences(fences) }
+
         // 엔진을 먼저 띄운다 — 이벤트가 오기 전에 준비되어야 한다.
         // 부팅 중 도착한 요청은 WatchEngine 이 큐에 담았다가 흘려보낸다.
         engine.start()
@@ -242,7 +248,16 @@ class AlertWatchService : Service() {
         @Suppress("UNCHECKED_CAST", "DEPRECATION")
         val fences = intent.getSerializableExtra(EXTRA_GEOFENCES)
             as? ArrayList<HashMap<String, Any?>> ?: return
+        applyGeofences(fences)
+    }
 
+    /**
+     * 등록 목록을 OS 에 반영한다.
+     *
+     * 두 경로가 공유한다 — 앱이 보낸 것(`ACTION_SYNC_GEOFENCES`)과 엔진이
+     * 재부팅 후 스스로 복원한 것(`WatchEngine.onSyncRequested`).
+     */
+    private fun applyGeofences(fences: List<Map<String, Any?>>) {
         registrar.sync(fences)
         lastRegisteredIds = registrar.registeredIds()
 
