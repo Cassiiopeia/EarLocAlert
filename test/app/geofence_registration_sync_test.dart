@@ -174,6 +174,9 @@ class _FakeWatchService implements AlertWatchService {
   bool watching = false;
   int stopAlertCount = 0;
 
+  /// 마지막으로 위임받은 지오펜스 페이로드 (이슈 #93)
+  List<Map<String, Object?>>? syncedGeofences;
+
   @override
   Future<void> startWatching() async => watching = true;
 
@@ -182,6 +185,10 @@ class _FakeWatchService implements AlertWatchService {
 
   @override
   Future<void> stopNativeAlert() async => stopAlertCount++;
+
+  @override
+  Future<void> syncGeofences(List<Map<String, Object?>> geofences) async =>
+      syncedGeofences = geofences;
 }
 
 class _FakePlaceRepository implements PlaceRepository {

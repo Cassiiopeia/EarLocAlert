@@ -11,7 +11,16 @@ import '../domain/geofence_target.dart';
 typedef GeofenceEventCallback =
     Future<void> Function(ng.GeofenceCallbackParams params);
 
-/// native_geofence 래퍼 (docs/10-DECISIONS.md 014)
+/// native_geofence 래퍼 — **iOS 전용** (docs/10-DECISIONS.md 017 · 024)
+///
+/// **Android 에서는 쓰지 않는다** (이슈 #93). 이 패키지의 Android 경로는
+/// 지오펜스 이벤트를 WorkManager 로 넘기는데, 즉시 실행 쿼터가 소진되면
+/// 강등되어 Doze 제한을 받고 작업 체인이 한 번 실패하면 이후 이벤트가
+/// 전부 실행되지 않는다. 그래서 Android 는 [AndroidGeofenceMonitor] 로
+/// 대체했다.
+///
+/// iOS 는 CLLocationManager region monitoring 을 직접 쓰므로 그 결함이
+/// 없다. 여기서는 그대로 유지한다.
 ///
 /// 콜백은 생성자로 주입받는다 — 실제 이벤트 처리(판정·저장·알림)는
 /// app 계층의 백그라운드 진입점이 담당하고, data 계층은 feature 밖을

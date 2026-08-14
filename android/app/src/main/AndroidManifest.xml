@@ -126,15 +126,37 @@
         <service android:name="com.chunkytofustudios.native_geofence.NativeGeofenceForegroundService"
             android:permission="android.permission.BIND_JOB_SERVICE" android:exported="true"/>
 
-        <!-- 감시 상시 유지·알림 발화 서비스 (이슈 #74).
+        <!-- 감시 상시 유지·알림 발화 서비스 (이슈 #74, #93).
              native_geofence 의 서비스는 콜백 실행용 단발성이라 프로세스를
              살려두지 못한다. 이 서비스가 절전 중에도 감시를 유지하고,
+             Flutter 엔진을 상시 보유해 지오펜스 이벤트를 직접 판정하며,
              알림이 발생하면 반복 진동과 함께 앱을 전면으로 띄운다.
              위치 감시가 존재 이유이므로 location 타입이다. -->
         <service
             android:name=".AlertWatchService"
             android:exported="false"
             android:foregroundServiceType="location" />
+
+        <!-- 지오펜스 이벤트 수신 (이슈 #93).
+             native_geofence 의 리시버는 이벤트를 WorkManager 로 넘겨
+             즉시 실행 쿼터 소진 시 강등되고, 작업 체인이 한 번 실패하면
+             이후 이벤트가 전부 사라진다. Android 는 앱이 직접 등록하고
+             이 리시버가 받아 감시 서비스로 곧바로 넘긴다. -->
+        <receiver
+            android:name=".GeofenceReceiver"
+            android:exported="false" />
+
+        <!-- 재부팅 후 감시 복구 (이슈 #93).
+             위의 RECEIVE_BOOT_COMPLETED 권한과 주석은 있었으나 정작 이
+             리시버가 없어, 재부팅 후 앱을 켜지 않으면 감시가 죽은 채로
+             남아 있었다. -->
+        <receiver
+            android:name=".BootReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and
