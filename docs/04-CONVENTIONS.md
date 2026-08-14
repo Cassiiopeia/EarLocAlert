@@ -197,6 +197,31 @@ Kotlin 계층도 같은 파일에 쓴다 (`DiagnosticLog.write`). 네이티브�
 
 ## 백그라운드 진입점 규약
 
+### 진입점 함수는 도달 가능한 라이브러리에 둔다 (이슈 #93)
+
+**`@pragma('vm:entry-point')` 만으로는 부족하다.** 그것은 함수가 트리셰이킹되는 것을 막을 뿐, **라이브러리 자체가 번들에서 빠지는 것은 막지 못한다.** Dart 컴파일러는 어떤 진입점에서도 도달할 수 없는 라이브러리를 통째로 제외한다.
+
+네이티브가 라이브러리 경로 + 함수 이름으로 진입점을 찾는 구조(`WatchEngine.kt`)에서, 그 파일을 Dart 쪽 어디에서도 import 하지 않으면 이렇게 실패한다.
+
+```
+Dart_LookupLibrary: library '...watch_engine_entrypoint.dart' not found
+Could not resolve main entrypoint function.
+Could not create root isolate.
+```
+
+**증상이 고약하다** — 지오펜스 이벤트는 네이티브까지 정상 도착하는데 판정이 하나도 돌지 않는다. 로그를 보기 전까지는 판정 로직을 의심하게 된다.
+
+두 가지 중 하나를 지킨다.
+
+| 방법 | 예 |
+|---|---|
+| 진입점을 `main.dart` 에 두고 구현에 위임 | `WatchEngine` 이 `package:ear_loc_alert/main.dart` 를 가리킨다 |
+| 다른 코드가 그 함수를 **값으로** 참조 | `NativeGeofenceMonitor(callback: geofenceBackgroundCallback)` |
+
+`geofenceBackgroundCallback` 이 동작한 이유가 후자다 — `geofence_providers.dart` 가 함수를 값으로 넘겨 라이브러리가 살아 있었다.
+
+
+
 Android 포그라운드 서비스 콜백과 iOS 지오펜스 콜백은 **앱 UI 없이 실행된다.** 여기서 지켜야 할 것:
 
 | 규칙 | 이유 |
