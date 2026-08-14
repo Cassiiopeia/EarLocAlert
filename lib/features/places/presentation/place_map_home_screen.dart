@@ -10,6 +10,7 @@ import '../../../core/theme/app_semantic_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/map_style.dart';
+import '../data/current_location_channel.dart';
 import '../domain/alert_place.dart';
 import 'place_card.dart';
 import 'place_empty_state.dart';
@@ -31,10 +32,9 @@ class PlaceMapHomeScreen extends ConsumerStatefulWidget {
     this.onEditPlace,
     this.onFixMonitoring,
     this.onFixReliability,
-    this.onPreviewAlert,
-    this.onOpenVolumeSettings,
-    this.onOpenDiagnostics,
+    this.onOpenSettings,
     this.onRefreshStatus,
+    this.locationService = const CurrentLocationChannel(),
     super.key,
   });
 
@@ -61,20 +61,16 @@ class PlaceMapHomeScreen extends ConsumerStatefulWidget {
   /// 온보딩에서 "나중에 하기"를 누른 사용자에게 **유일한 재진입 경로**다.
   final VoidCallback? onFixReliability;
 
-  /// 알림 흐름 수동 확인 (실기기 스파이크 S-4·S-5 용).
-  /// 지오펜스 실기기 검증이 끝나면 제거한다 (docs/11-ROADMAP.md).
-  final VoidCallback? onPreviewAlert;
+  /// 현재 위치 조회 (이슈 #98) — "내 위치" 버튼이 쓴다.
+  /// 테스트에서 갈아끼울 수 있게 주입받는다.
+  final CurrentLocationService locationService;
 
-  /// 알림음 크기 설정을 연다 (이슈 #86).
-  /// 알림 설정은 alert feature 소관이라 app 계층이 콜백으로 잇는다 (규칙 1).
-  final VoidCallback? onOpenVolumeSettings;
-
-  /// 진단 기록을 연다 (이슈 #95).
+  /// 설정 화면을 연다 (이슈 #98).
   ///
-  /// **"도착했는데 안 울렸다"를 확인할 수 있는 유일한 창구다.**
-  /// 이 앱은 백그라운드 동작이 핵심이라 재현이 어렵고, 로그가 없으면
-  /// 사용자도 개발자도 아무것도 볼 수 없다.
-  final VoidCallback? onOpenDiagnostics;
+  /// 알림음 크기·진단 기록·알림 미리보기가 전부 여기로 들어갔다.
+  /// 상태 바에 아이콘이 셋 늘어서면서 정작 중요한 감시 상태가 묻혔기
+  /// 때문이다 — 상태 바는 "지금 감시 중인가"를 보여주는 곳이다.
+  final VoidCallback? onOpenSettings;
 
   /// 앱이 다시 앞으로 왔을 때 상태를 다시 읽는다.
   ///
@@ -162,9 +158,15 @@ class _PlaceMapHomeScreenState extends ConsumerState<PlaceMapHomeScreen>
             // 무엇을 보고 있는지 헷갈린다
             onTap: (_) => _select(null),
             myLocationEnabled: true,
-            // 지도 SDK 의 버튼을 쓴다. 직접 만들면 현재 위치를 알아낼 방법이
-            // 없어 "내 위치"라고 써놓고 확대만 하는 버튼이 된다
-            myLocationButtonEnabled: true,
+            // **SDK 기본 버튼을 끈다** (이슈 #98). 그 버튼은 우상단 고정이라
+            // 상태 알약이 위를 덮어 잘려 보였고, 사용자가 존재 자체를 몰랐다.
+            // 좌하단 커스텀 버튼으로 대체한다 — 오른쪽 아래는 장소 추가가
+            // 이미 쓰고 있다.
+            //
+            // 예전에는 "직접 만들면 현재 위치를 알아낼 방법이 없다"는 이유로
+            // SDK 버튼을 썼는데, 이슈 #93 에서 play-services-location 을
+            // 넣으면서 그 제약이 사라졌다.
+            myLocationButtonEnabled: false,
             zoomControlsEnabled: false,
             mapToolbarEnabled: false,
             // 시트가 지도 하단을 덮는다. padding 을 주면 구글 로고와
@@ -186,9 +188,12 @@ class _PlaceMapHomeScreenState extends ConsumerState<PlaceMapHomeScreen>
             canAlertReliably: widget.canAlertReliably,
             onFixMonitoring: widget.onFixMonitoring,
             onFixReliability: widget.onFixReliability,
-            onPreviewAlert: widget.onPreviewAlert,
-            onOpenVolumeSettings: widget.onOpenVolumeSettings,
-            onOpenDiagnostics: widget.onOpenDiagnostics,
+            onOpenSettings: widget.onOpenSettings,
+          ),
+
+          _MyLocationButton(
+            bottomFraction: _sheetExtent,
+            onPressed: _moveToCurrentLocation,
           ),
 
           _AddPlaceButton(
@@ -223,6 +228,29 @@ class _PlaceMapHomeScreenState extends ConsumerState<PlaceMapHomeScreen>
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  /// 현재 위치로 지도를 옮긴다 (이슈 #98).
+  ///
+  /// 실패하면 **이유를 알려준다.** 아무 일도 일어나지 않으면 사용자는
+  /// 버튼이 고장 났다고 생각하고 계속 누른다.
+  Future<void> _moveToCurrentLocation() async {
+    final location = await widget.locationService.current();
+    if (!mounted) return;
+
+    if (location == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('현재 위치를 확인할 수 없습니다. 위치 권한을 확인해주세요')),
+      );
+      return;
+    }
+
+    await _map?.animateCamera(
+      CameraUpdate.newLatLngZoom(
+        LatLng(location.latitude, location.longitude),
+        16,
       ),
     );
   }
@@ -372,9 +400,7 @@ class _StatusBar extends StatelessWidget {
     required this.canAlertReliably,
     this.onFixMonitoring,
     this.onFixReliability,
-    this.onPreviewAlert,
-    this.onOpenVolumeSettings,
-    this.onOpenDiagnostics,
+    this.onOpenSettings,
   });
 
   final bool isMonitoring;
@@ -393,13 +419,9 @@ class _StatusBar extends StatelessWidget {
 
   final VoidCallback? onFixMonitoring;
   final VoidCallback? onFixReliability;
-  final VoidCallback? onPreviewAlert;
 
-  /// 알림음 크기 설정 (이슈 #86)
-  final VoidCallback? onOpenVolumeSettings;
-
-  /// 진단 기록 (이슈 #95) — "안 울렸다"를 확인하는 창구
-  final VoidCallback? onOpenDiagnostics;
+  /// 설정 화면 (이슈 #98) — 알림음 크기·진단 기록이 여기 있다
+  final VoidCallback? onOpenSettings;
 
   /// 고장 상태 — 켜진 장소가 있는데 감시가 안 돈다. 해결 경로가 필요하다
   bool get _isBroken => hasEnabledPlaces && !isMonitoring;
@@ -497,37 +519,19 @@ class _StatusBar extends StatelessWidget {
                 isHeadphoneConnected ? '이어폰' : '진동만',
                 style: AppTypography.caption,
               ),
-              if (onPreviewAlert != null || onOpenVolumeSettings != null)
+              if (onOpenSettings != null) ...[
                 const Spacer(),
-              // 이어폰 상태 바로 옆이 볼륨 설정의 제자리다 (이슈 #86) —
-              // "이어폰으로 얼마나 크게"가 한 시야에 들어온다
-              if (onOpenVolumeSettings != null)
+                // **아이콘 하나만 남긴다** (이슈 #98). 셋이 늘어서니
+                // 정작 중요한 감시 상태가 묻혔다. 상태 바는 "지금 감시
+                // 중인가"를 보여주는 곳이지 설정 모음이 아니다.
                 IconButton(
-                  onPressed: onOpenVolumeSettings,
-                  icon: const Icon(Icons.tune_outlined),
+                  onPressed: onOpenSettings,
+                  icon: const Icon(Icons.settings_outlined),
                   iconSize: 18,
                   visualDensity: VisualDensity.compact,
-                  tooltip: '알림음 크기',
+                  tooltip: '설정',
                 ),
-              if (onPreviewAlert != null)
-                IconButton(
-                  onPressed: onPreviewAlert,
-                  icon: const Icon(Icons.notifications_active_outlined),
-                  iconSize: 18,
-                  visualDensity: VisualDensity.compact,
-                  tooltip: '알림 미리보기',
-                ),
-              // "안 울렸다"를 확인하는 창구 (이슈 #95).
-              // 감시 상태 바로 옆이 제자리다 — 알림이 안 왔을 때 사용자가
-              // 가장 먼저 보는 곳이고, 그 다음 질문이 "왜?"이기 때문이다.
-              if (onOpenDiagnostics != null)
-                IconButton(
-                  onPressed: onOpenDiagnostics,
-                  icon: const Icon(Icons.receipt_long_outlined),
-                  iconSize: 18,
-                  visualDensity: VisualDensity.compact,
-                  tooltip: '진단 기록',
-                ),
+              ],
             ],
           ),
         ),
@@ -586,6 +590,36 @@ class _WeakAlertBanner extends StatelessWidget {
 /// 장소 추가 버튼 — 시트 높이를 따라 움직인다.
 ///
 /// 고정해두면 시트를 올렸을 때 버튼이 그 아래로 숨는다.
+/// 내 위치로 이동 (이슈 #98)
+///
+/// **왼쪽 아래에 둔다.** 오른쪽 아래는 장소 추가 버튼이 쓰고 있고,
+/// 오른쪽 위는 상태 알약이 덮는다 — 그게 이 버튼이 잘려 보이던 이유다.
+class _MyLocationButton extends StatelessWidget {
+  const _MyLocationButton({
+    required this.bottomFraction,
+    required this.onPressed,
+  });
+
+  final double bottomFraction;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned(
+      left: AppSpacing.sm,
+      bottom:
+          MediaQuery.sizeOf(context).height * bottomFraction + AppSpacing.sm,
+      child: FloatingActionButton.small(
+        onPressed: onPressed,
+        heroTag: 'myLocation',
+        backgroundColor: AppColors.bgElevated,
+        foregroundColor: AppColors.textPrimary,
+        child: const Icon(Icons.my_location_outlined),
+      ),
+    );
+  }
+}
+
 class _AddPlaceButton extends StatelessWidget {
   const _AddPlaceButton({
     required this.bottomFraction,
