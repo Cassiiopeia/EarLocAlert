@@ -109,6 +109,80 @@ GitHub 러너 이미지는 예고 없이 갱신된다. 특정 Xcode 버전을 �
 
 현재는 지정 버전이 있으면 쓰고 없으면 러너 기본값으로 폴백하며, 선택한 Xcode 에 iOS 플랫폼이 없으면 `xcodebuild -downloadPlatform iOS` 로 설치를 시도한다.
 
+## 릴리스가 조용히 누락된다 (2026-08-14 v1.6.0 에서 발견)
+
+**워크플로우가 전부 초록불인데 태그도 릴리스도 안 만들어졌다.** v1.6.0 은 main 에 머지됐고 `version.yml` 도 1.6.0 인데 GitHub 릴리스가 v1.5.0 에서 멈춰 있어 **APK 를 받을 수 없었다.**
+
+### 원인 — 게이트 판정과 버전 커밋의 경합
+
+`PROJECT-COMMON-RELEASE-PUBLISH.yaml` 은 릴리스 여부를 이렇게 판정한다.
+
+```yaml
+HEAD_MSG=$(git log -1 --pretty=%B)
+...
+elif printf '%s\n' "$HEAD_MSG" | grep -q "chore(release):"; then
+  PROCEED=true
+```
+
+`pr-flow` 모드에서는 **체크아웃된 HEAD 의 커밋 메시지에 `chore(release):` 가 있어야** 릴리스를 만든다. 그런데 main push 로 여러 워크플로우가 동시에 시작하고, `VERSION-CONTROL` 이 먼저 `chore(version): confirm vX.Y.Z ... [skip ci]` 커밋을 main 에 push 하면 RELEASE-PUBLISH 의 체크아웃이 **그 커밋을 잡는다.** 거기엔 `chore(release):` 가 없으므로 게이트가 닫히고, 로그에 이렇게 남는다.
+
+```
+not a release-confirm push in pr-flow mode — skipping
+```
+
+**둘의 순서가 실행마다 달라지므로 간헐적으로 누락된다.** v1.5.0 은 통과했고 v1.6.0 은 실패했다.
+
+### 드리프트 가드도 못 잡았다
+
+이 상황을 잡으라고 있는 가드가 있다.
+
+```
+drift guard ok (version.yml=1.6.0, latest tag=v2.1.3)
+```
+
+`git tag --list 'v*' --sort=-v:refname | head -n 1` 로 최신 태그를 고르는데, 이 저장소에 **`v2.1.3` 태그가 있다.** 이 앱의 버전 체계와 무관한 태그(템플릿 통합 잔재로 추정)가 최신으로 잡혀 "version.yml 이 태그보다 앞서지 않는다"고 오판했다. 경고조차 뜨지 않은 이유다.
+
+### 복구 방법
+
+`workflow_dispatch` 는 게이트를 우회한다 (`EVENT = workflow_dispatch` → `PROCEED=true`).
+
+```
+Actions → PROJECT-RELEASE-PUBLISH → Run workflow (ref: main)
+```
+
+API 로도 된다.
+
+```bash
+curl -X POST -H "Authorization: Bearer $PAT" \
+  https://api.github.com/repos/Cassiiopeia/EarLocAlert/actions/workflows/PROJECT-COMMON-RELEASE-PUBLISH.yaml/dispatches \
+  -d '{"ref":"main"}'
+```
+
+### 근본 해결은 템플릿 쪽이다
+
+워크플로우는 projectops 템플릿이 관리하므로 이 저장소에서 고치면 다음 템플릿 갱신에 덮인다. 상류에서 고쳐야 한다 — 게이트를 커밋 메시지가 아니라 **`version.yml` 과 최신 태그의 비교**로 판정하면 순서와 무관해진다.
+
+**당장 할 수 있는 것**: 배포 후 릴리스가 생겼는지 확인하고, 없으면 위 방법으로 재발행한다. `v2.1.3` 태그도 정리 대상이다.
+
+### 곁들여 발견 — automerge 가 실패해도 PR 은 깨끗하다
+
+같은 날 PR #99 에서 `RELEASE-CHANGELOG` 의 **Enable automerge** 단계가 실패했다.
+
+```
+##[error]PR merge failed (allow_merge_commit=true) — check branch protection rules, required checks, and token permissions
+```
+
+그런데 PR 자체는 `mergeable: true`·`mergeable_state: clean` 이었고 버전 커밋(`chore(version): confirm v1.7.0`)도 이미 develop 에 올라가 있었다. **머지 API 호출만 실패한 것**이라 수동 머지로 그대로 진행됐다.
+
+수동 머지할 때 **제목을 반드시 `chore(release): vX.Y.Z (PR #N)` 형식으로** 준다. 릴리스 게이트가 merge commit subject 를 보기 때문에, 제목이 다르면 위와 같은 릴리스 누락이 또 일어난다.
+
+```bash
+# /pro-github 의 merge-pr 사용
+merge-pr {owner} {repo} {PR} --method merge --title "chore(release): v1.7.0 (PR #99)"
+```
+
+**배포는 PR 을 올린 것으로 끝나지 않는다.** 머지·태그·릴리스·APK 첨부까지 확인해야 "배포됐다"고 말할 수 있다.
+
 ## 남은 정리 대상
 
 ### ~~시크릿 이름이 워크플로우마다 다르다~~ — 통일 완료 (2026-08-04)
