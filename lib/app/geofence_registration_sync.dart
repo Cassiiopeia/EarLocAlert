@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import '../core/diagnostics/diagnostics.dart';
 import '../features/geofence/domain/geofence_monitor.dart';
 import '../features/geofence/domain/geofence_state_repository.dart';
 import '../features/geofence/domain/geofence_target.dart';
@@ -57,8 +58,11 @@ class GeofenceRegistrationSync {
   Future<void> _applySafely(List<AlertPlace> places) async {
     try {
       await _apply(places);
-    } on Object {
+    } on Object catch (error) {
       // 동기화 실패가 화면을 죽이면 안 된다. 다음 목록 변경 때 재시도된다.
+      // 다만 **기록은 남긴다** — 등록이 조용히 실패하면 도착을 영영
+      // 감지하지 못하는데, 예전에는 그 사실조차 알 수 없었다 (이슈 #95)
+      Diagnostics.log('sync', '지오펜스 동기화 실패 $error');
     }
   }
 
@@ -95,6 +99,14 @@ class GeofenceRegistrationSync {
     }
 
     await _monitor.sync(targets);
+
+    // 등록 개수가 0 이면 어떤 도착도 감지되지 않는다 — 알림이 안 오는
+    // 상황에서 가장 먼저 확인해야 할 값이다 (이슈 #95)
+    Diagnostics.log(
+      'sync',
+      '지오펜스 동기화 완료 등록=${targets.length}건 '
+          'ids=${targets.map((t) => t.placeId).join(",")}',
+    );
 
     // 상시 감시 서비스는 **지켜볼 것이 있을 때만** 띄운다 (이슈 #74).
     // 등록이 끝난 뒤에 켜는 이유는, 서비스가 뜨자마자 대기 중인 알림을

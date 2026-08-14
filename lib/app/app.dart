@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../core/diagnostics/diagnostics.dart';
 import '../core/theme/app_theme.dart';
 import '../features/ads/presentation/ads_providers.dart';
 import '../features/alert/presentation/alert_controller_provider.dart';
@@ -59,6 +60,12 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
   /// 실패해도 앱은 뜬다 — 권한 미허용 상태의 첫 실행에서도 온보딩으로
   /// 진행할 수 있어야 한다. 동기화는 장소 목록이 바뀔 때마다 재시도된다.
   Future<void> _bootstrap() async {
+    // 로깅을 가장 먼저 켠다 (이슈 #95) — 아래 단계들이 실패하는 것 자체가
+    // 추적 대상이다. 백그라운드 엔진과 같은 파일에 쌓이므로 한 화면에서
+    // 시간순으로 읽힌다.
+    await Diagnostics.init();
+    Diagnostics.log('app', '앱 시작');
+
     try {
       // 알림 탭으로 앱이 열리는 경로에 필요하다. 권한 요청은 온보딩이
       // 담당하므로 여기서는 요청하지 않는다.

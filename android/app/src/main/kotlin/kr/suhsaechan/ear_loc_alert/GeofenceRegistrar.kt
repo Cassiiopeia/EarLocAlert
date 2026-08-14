@@ -89,10 +89,25 @@ class GeofenceRegistrar(private val context: Context) {
 
         try {
             client.addGeofences(request, pendingIntent())
+                .addOnFailureListener { error ->
+                    // **등록은 비동기다.** 여기서 실패하면 지오펜스가 하나도
+                    // 걸리지 않은 채로 조용히 넘어간다 — 도착을 영영 감지하지
+                    // 못하는데 예전에는 그 사실조차 알 수 없었다 (이슈 #95)
+                    registered = emptySet()
+                    DiagnosticLog.write(context, "registrar", "지오펜스 등록 실패 $error")
+                }
+                .addOnSuccessListener {
+                    DiagnosticLog.write(
+                        context,
+                        "registrar",
+                        "지오펜스 등록 성공 ${geofences.size}개 (장소 ${ids.size}곳)",
+                    )
+                }
             registered = ids
         } catch (error: SecurityException) {
-            // 배경 위치 권한이 없다 — 온보딩이 받아야 한다. 조용히 물러난다.
+            // 배경 위치 권한이 없다 — 온보딩이 받아야 한다.
             // 권한을 받은 뒤 다음 장소 목록 변경에서 재시도된다.
+            DiagnosticLog.write(context, "registrar", "위치 권한 없음 — 등록 불가 $error")
         }
     }
 

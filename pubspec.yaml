@@ -44,6 +44,9 @@ dependencies:
   # 지도 — Google 로 통일한다 (docs/10-DECISIONS.md 008).
   # API 키는 .env 단일 소스에서 네이티브 빌드로 주입된다 (docs/08-OPERATIONS.md)
   google_maps_flutter: ^2.9.0
+  # 진단 로그 내보내기 (이슈 #95) — 로그는 기기 안에만 있고,
+  # 밖으로 꺼내는 것은 사용자가 공유 시트로 직접 하는 행위다
+  share_plus: ^10.1.2
 # 전이 의존성 고정 (이슈 #76)
 #
 # device_info_plus 12.4.0 이 `NSProcessInfo.isiOSAppOnVision` 을 쓰기 시작했는데
