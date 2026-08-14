@@ -24,8 +24,8 @@
 # - basic: version.yml only
 # ===
 
-version: "1.7.0"
-version_code: 82  # app build number
+version: "1.7.1"
+version_code: 83  # app build number
 # 마법사 재통합 때 1 로 초기화되지 않도록 주의한다. version_manager.py 가
 # pubspec 을 "version+version_code" 로 덮어쓰므로, 이 값이 뒤로 가면 다음
 # 배포에서 versionCode 가 역행해 Play Store 가 업로드를 거부한다.
