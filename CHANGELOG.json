@@ -1,14 +1,39 @@
 {
   "metadata": {
-    "lastUpdated": "2026-08-14T01:53:45Z",
-    "currentVersion": "1.5.0",
+    "lastUpdated": "2026-08-14T02:11:04Z",
+    "currentVersion": "1.6.0",
     "projectType": "flutter",
-    "totalReleases": 38,
+    "totalReleases": 39,
     "projectTypes": [
       "flutter"
     ]
   },
   "releases": [
+    {
+      "version": "1.6.0",
+      "project_types": [
+        "flutter"
+      ],
+      "date": "2026-08-14",
+      "pr_number": 96,
+      "raw_summary": "## [1.6.0]\n\n### ✨ 기능\n- 앱 내부 상시 로그 누적과 내보내기 — 백그라운드에서 무슨 일이 있었는지 추적할 수단을 만든다. 이 앱은 예외를 전부 조용히 삼키고 print 도 금지해 문제가 생겨도 볼 수 있는 것이 없었다. Dart 와 Kotlin 이 같은 파일에 시간순으로 쌓아 네이티브가 이벤트를 받았는지 Dart 판정이 돌았는지를 가를 수 있게 하고, 5MB 상한에서 오래된 쪽부터 버려 저장공간을 먹지 않게 한다. 좌표를 남기는 쪽으로 규칙을 바꾼 이유는 로그가 기기 안에만 있고 전송되지 않으며 내보내기가 사용자 행위라 원래 규칙의 목적이 유지되기 때문이다\n\n### 🔧 변경사항\n- chore : main v1.5.0 릴리스 커밋 병합 — 다음 배포의 버전 파일 충돌 방지\n- 앱 내부 상시 로그 누적과 내보내기 : merge : 진단 로그 인프라 https://github.com/Cassiiopeia/EarLocAlert/issues/95",
+      "parsed_changes": {
+        "기능": {
+          "title": "✨ 기능",
+          "items": [
+            "앱 내부 상시 로그 누적과 내보내기 — 백그라운드에서 무슨 일이 있었는지 추적할 수단을 만든다. 이 앱은 예외를 전부 조용히 삼키고 print 도 금지해 문제가 생겨도 볼 수 있는 것이 없었다. Dart 와 Kotlin 이 같은 파일에 시간순으로 쌓아 네이티브가 이벤트를 받았는지 Dart 판정이 돌았는지를 가를 수 있게 하고, 5MB 상한에서 오래된 쪽부터 버려 저장공간을 먹지 않게 한다. 좌표를 남기는 쪽으로 규칙을 바꾼 이유는 로그가 기기 안에만 있고 전송되지 않으며 내보내기가 사용자 행위라 원래 규칙의 목적이 유지되기 때문이다"
+          ]
+        },
+        "변경사항": {
+          "title": "🔧 변경사항",
+          "items": [
+            "chore : main v1.5.0 릴리스 커밋 병합 — 다음 배포의 버전 파일 충돌 방지",
+            "앱 내부 상시 로그 누적과 내보내기 : merge : 진단 로그 인프라 https://github.com/Cassiiopeia/EarLocAlert/issues/95"
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "1.5.0",
       "project_types": [

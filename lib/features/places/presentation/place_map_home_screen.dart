@@ -33,6 +33,7 @@ class PlaceMapHomeScreen extends ConsumerStatefulWidget {
     this.onFixReliability,
     this.onPreviewAlert,
     this.onOpenVolumeSettings,
+    this.onOpenDiagnostics,
     this.onRefreshStatus,
     super.key,
   });
@@ -67,6 +68,13 @@ class PlaceMapHomeScreen extends ConsumerStatefulWidget {
   /// 알림음 크기 설정을 연다 (이슈 #86).
   /// 알림 설정은 alert feature 소관이라 app 계층이 콜백으로 잇는다 (규칙 1).
   final VoidCallback? onOpenVolumeSettings;
+
+  /// 진단 기록을 연다 (이슈 #95).
+  ///
+  /// **"도착했는데 안 울렸다"를 확인할 수 있는 유일한 창구다.**
+  /// 이 앱은 백그라운드 동작이 핵심이라 재현이 어렵고, 로그가 없으면
+  /// 사용자도 개발자도 아무것도 볼 수 없다.
+  final VoidCallback? onOpenDiagnostics;
 
   /// 앱이 다시 앞으로 왔을 때 상태를 다시 읽는다.
   ///
@@ -180,6 +188,7 @@ class _PlaceMapHomeScreenState extends ConsumerState<PlaceMapHomeScreen>
             onFixReliability: widget.onFixReliability,
             onPreviewAlert: widget.onPreviewAlert,
             onOpenVolumeSettings: widget.onOpenVolumeSettings,
+            onOpenDiagnostics: widget.onOpenDiagnostics,
           ),
 
           _AddPlaceButton(
@@ -365,6 +374,7 @@ class _StatusBar extends StatelessWidget {
     this.onFixReliability,
     this.onPreviewAlert,
     this.onOpenVolumeSettings,
+    this.onOpenDiagnostics,
   });
 
   final bool isMonitoring;
@@ -387,6 +397,9 @@ class _StatusBar extends StatelessWidget {
 
   /// 알림음 크기 설정 (이슈 #86)
   final VoidCallback? onOpenVolumeSettings;
+
+  /// 진단 기록 (이슈 #95) — "안 울렸다"를 확인하는 창구
+  final VoidCallback? onOpenDiagnostics;
 
   /// 고장 상태 — 켜진 장소가 있는데 감시가 안 돈다. 해결 경로가 필요하다
   bool get _isBroken => hasEnabledPlaces && !isMonitoring;
@@ -503,6 +516,17 @@ class _StatusBar extends StatelessWidget {
                   iconSize: 18,
                   visualDensity: VisualDensity.compact,
                   tooltip: '알림 미리보기',
+                ),
+              // "안 울렸다"를 확인하는 창구 (이슈 #95).
+              // 감시 상태 바로 옆이 제자리다 — 알림이 안 왔을 때 사용자가
+              // 가장 먼저 보는 곳이고, 그 다음 질문이 "왜?"이기 때문이다.
+              if (onOpenDiagnostics != null)
+                IconButton(
+                  onPressed: onOpenDiagnostics,
+                  icon: const Icon(Icons.receipt_long_outlined),
+                  iconSize: 18,
+                  visualDensity: VisualDensity.compact,
+                  tooltip: '진단 기록',
                 ),
             ],
           ),

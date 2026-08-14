@@ -1,3 +1,4 @@
+import '../../core/diagnostics/diagnostics.dart';
 import '../../features/geofence/domain/geofence_event.dart';
 import '../../features/geofence/domain/position_sample.dart';
 import 'alert_decision.dart';
@@ -37,6 +38,13 @@ class WatchEngineHost {
     required double accuracyMeters,
     required DateTime timestampUtc,
   }) {
+    // 좌표를 남긴다 (이슈 #95) — "왜 이 장소가 판정되지 않았는가"는
+    // 좌표 없이 추적할 수 없고, 그것이 가장 자주 묻게 되는 질문이다.
+    // 로그는 앱 전용 디렉토리에만 있고 어디로도 전송하지 않는다.
+    Diagnostics.log(
+      'precise',
+      '위치 측정 lat=$latitude lng=$longitude acc=${accuracyMeters}m',
+    );
     return _decide(
       () => _processor.handlePosition(
         sample: PositionSample(
@@ -60,6 +68,11 @@ class WatchEngineHost {
     double? latitude,
     double? longitude,
   }) {
+    Diagnostics.log(
+      'geofence',
+      'OS 전이 수신 place=$placeId ${entered ? "ENTER" : "EXIT"} '
+          'lat=$latitude lng=$longitude',
+    );
     return _decide(
       () => _processor.handleTransition(
         placeId: placeId,
@@ -77,11 +90,20 @@ class WatchEngineHost {
   ) async {
     try {
       final alert = await evaluate();
-      if (alert == null) return AlertDecision.none;
+      if (alert == null) {
+        Diagnostics.log('engine', '판정 결과 알림 없음');
+        return AlertDecision.none;
+      }
 
       // 저장이 먼저다 — 화면이 뜬 뒤 AlertController 가 이 값으로 반복
       // 진동·이어폰 판정·소리까지 이어받는다 (이슈 #63)
       await _store.save(alert);
+
+      Diagnostics.log(
+        'engine',
+        '알림 발생 place=${alert.placeId} name=${alert.placeName} '
+            'direction=${alert.direction.name} sound=${alert.soundEnabled}',
+      );
 
       return AlertDecision(
         shouldAlert: true,
@@ -90,8 +112,11 @@ class WatchEngineHost {
         direction: alert.direction.name,
         soundEnabled: alert.soundEnabled,
       );
-    } on Object {
-      // 좌표가 담길 수 있으므로 로그도 남기지 않는다 (docs/04-CONVENTIONS.md)
+    } on Object catch (error) {
+      // 예외를 삼키되 **기록은 남긴다** (이슈 #95).
+      // 예전에는 좌표 노출을 우려해 아무것도 안 남겼고, 그래서 백그라운드
+      // 실패를 추적할 방법이 통째로 없었다.
+      Diagnostics.log('engine', '판정 실패 $error');
       return AlertDecision.none;
     }
   }

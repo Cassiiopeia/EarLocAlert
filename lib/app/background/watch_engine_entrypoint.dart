@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 import '../../core/database/app_database.dart';
+import '../../core/diagnostics/diagnostics.dart';
 import '../../core/domain/id_generator.dart';
 import '../../features/geofence/data/drift_geofence_event_repository.dart';
 import '../../features/geofence/data/drift_geofence_state_repository.dart';
@@ -27,6 +30,14 @@ import 'watch_engine_host.dart';
 @pragma('vm:entry-point')
 void watchEngineMain() {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // 로깅을 먼저 켠다 (이슈 #95) — 이 엔진이 뜨는지 자체가 추적 대상이다.
+  // 앱 isolate 와 같은 파일에 쌓이므로 한 화면에서 시간순으로 읽힌다.
+  unawaited(
+    Diagnostics.init().then((_) {
+      Diagnostics.log('engine', '감시 엔진 시작');
+    }),
+  );
 
   // 엔진 수명 동안 하나만 연다. 짧은 콜백과 달리 여기서는 연결을 유지해도
   // 되지만, 판정은 장소 목록을 그때그때 읽어 최신 상태를 본다.

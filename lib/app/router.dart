@@ -17,6 +17,7 @@ import '../features/places/domain/alert_place.dart';
 import '../features/places/presentation/place_form_screen.dart';
 import '../features/places/presentation/place_map_home_screen.dart';
 import '../features/places/presentation/place_map_picker_screen.dart';
+import '../features/diagnostics/presentation/diagnostics_screen.dart';
 import '../features/places/presentation/place_search_provider.dart';
 import 'home_status_provider.dart';
 
@@ -32,6 +33,9 @@ abstract final class AppRoutes {
   static const placeNew = '/places/new';
   static const placeEdit = '/places/edit';
   static const placeMap = '/places/map';
+
+  /// 진단 기록 (이슈 #95) — 백그라운드 문제를 확인하는 유일한 창구
+  static const diagnostics = '/diagnostics';
 }
 
 GoRouter createRouter() {
@@ -66,6 +70,10 @@ GoRouter createRouter() {
         path: AppRoutes.placeMap,
         builder: (context, state) =>
             _MapPickerRoute(args: state.extra! as MapPickArgs),
+      ),
+      GoRoute(
+        path: AppRoutes.diagnostics,
+        builder: (context, state) => const DiagnosticsScreen(),
       ),
       GoRoute(
         path: AppRoutes.alert,
@@ -189,6 +197,7 @@ class _HomeRoute extends ConsumerWidget {
       // 온보딩이 그 단계를 다시 보여준다 — 사용자가 스스로 찾아온 것이므로
       // 기록이 길을 막으면 안 된다.
       onFixReliability: () => _reofferReliability(context, ref),
+      onOpenDiagnostics: () => context.go(AppRoutes.diagnostics),
       onRefreshStatus: () => ref.invalidate(homeStatusProvider),
       // 백그라운드 감시 연결 전까지 알림 흐름을 확인하는 수단 (S-4·S-5).
       // 지오펜스 연동이 끝나면 제거한다.

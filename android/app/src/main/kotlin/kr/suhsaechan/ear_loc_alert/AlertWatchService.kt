@@ -125,6 +125,9 @@ class AlertWatchService : Service() {
 
     override fun onCreate() {
         super.onCreate()
+        // 서비스가 살아있는지가 알림 발화의 전제다 — 죽은 구간을
+        // 시간순으로 확인할 수 있어야 한다 (이슈 #95)
+        DiagnosticLog.write(this, "watch", "감시 서비스 생성")
         // 엔진을 먼저 띄운다 — 이벤트가 오기 전에 준비되어야 한다.
         // 부팅 중 도착한 요청은 WatchEngine 이 큐에 담았다가 흘려보낸다.
         engine.start()
@@ -243,6 +246,13 @@ class AlertWatchService : Service() {
         registrar.sync(fences)
         lastRegisteredIds = registrar.registeredIds()
 
+        // 등록 개수가 0 이면 어떤 도착도 감지되지 않는다 (이슈 #95)
+        DiagnosticLog.write(
+            this,
+            "watch",
+            "네이티브 지오펜스 등록 ${lastRegisteredIds.size}건 (요청 ${fences.size}건)",
+        )
+
         // 등록 대상이 사라지면 정밀 감시도 의미가 없다
         if (fences.isEmpty()) stopPreciseTracking()
     }
@@ -288,6 +298,8 @@ class AlertWatchService : Service() {
         handler.postDelayed(preciseTimeoutTask, PRECISE_TIMEOUT_MS)
         if (tracker.isRunning) return
 
+        DiagnosticLog.write(this, "precise", "정밀 감시 시작 대상=${proximityPlaces.size}건")
+
         tracker.start { location ->
             engine.evaluatePosition(
                 latitude = location.latitude,
@@ -306,6 +318,9 @@ class AlertWatchService : Service() {
     }
 
     private fun stopPreciseTracking() {
+        if (tracker.isRunning) {
+            DiagnosticLog.write(this, "precise", "정밀 감시 종료")
+        }
         handler.removeCallbacks(preciseTimeoutTask)
         proximityPlaces.clear()
         tracker.stop()
@@ -321,8 +336,17 @@ class AlertWatchService : Service() {
      * 처음으로 되돌아가 끊긴 것처럼 느껴진다.
      */
     private fun beginAlert() {
-        if (alerting) return
+        if (alerting) {
+            DiagnosticLog.write(this, "alert", "이미 울리는 중 — 중복 발화 무시")
+            return
+        }
         alerting = true
+
+        DiagnosticLog.write(
+            this,
+            "alert",
+            "알림 시작 — 진동 + 화면 승격 (오버레이권한=${Settings.canDrawOverlays(this)})",
+        )
 
         startVibration()
         launchAlertScreen()
