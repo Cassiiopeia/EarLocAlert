@@ -19,6 +19,7 @@ import '../features/places/presentation/place_map_home_screen.dart';
 import '../features/places/presentation/place_map_picker_screen.dart';
 import '../features/diagnostics/presentation/diagnostics_screen.dart';
 import '../features/places/presentation/place_search_provider.dart';
+import '../features/settings/presentation/settings_screen.dart';
 import 'home_status_provider.dart';
 
 /// 앱 라우팅 (docs/02-ARCHITECTURE.md)
@@ -36,6 +37,9 @@ abstract final class AppRoutes {
 
   /// 진단 기록 (이슈 #95) — 백그라운드 문제를 확인하는 유일한 창구
   static const diagnostics = '/diagnostics';
+
+  /// 설정 (이슈 #98) — 알림음 크기·진단 기록이 여기 모인다
+  static const settings = '/settings';
 }
 
 GoRouter createRouter() {
@@ -74,6 +78,10 @@ GoRouter createRouter() {
       GoRoute(
         path: AppRoutes.diagnostics,
         builder: (context, state) => const DiagnosticsScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.settings,
+        builder: (context, state) => const _SettingsRoute(),
       ),
       GoRoute(
         path: AppRoutes.alert,
@@ -217,10 +225,27 @@ class _HomeRoute extends ConsumerWidget {
       // 온보딩이 그 단계를 다시 보여준다 — 사용자가 스스로 찾아온 것이므로
       // 기록이 길을 막으면 안 된다.
       onFixReliability: () => _reofferReliability(context, ref),
-      onOpenDiagnostics: () => context.push(AppRoutes.diagnostics),
+      onOpenSettings: () => context.push(AppRoutes.settings),
       onRefreshStatus: () => ref.invalidate(homeStatusProvider),
+    );
+  }
+}
+
+/// 설정 라우트 (이슈 #98).
+///
+/// 알림음 크기·진단 기록·알림 미리보기가 여기 모인다. 홈 상태 바에
+/// 아이콘이 셋 늘어서면서 정작 중요한 감시 상태가 묻혔기 때문이다.
+class _SettingsRoute extends ConsumerWidget {
+  const _SettingsRoute();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return SettingsScreen(
+      // 알림음 크기 (이슈 #86) — alert feature 의 시트를 app 이 잇는다
+      onOpenVolumeSettings: () => showAlertVolumeSheet(context),
+      onOpenDiagnostics: () => context.push(AppRoutes.diagnostics),
       // 백그라운드 감시 연결 전까지 알림 흐름을 확인하는 수단 (S-4·S-5).
-      // 지오펜스 연동이 끝나면 제거한다.
+      // 지오펜스 실기기 검증이 끝나면 제거한다.
       onPreviewAlert: () async {
         await ref
             .read(activeAlertProvider.notifier)
@@ -237,8 +262,6 @@ class _HomeRoute extends ConsumerWidget {
         unawaited(_preloadAd(ref));
         if (context.mounted) context.go(AppRoutes.alert);
       },
-      // 알림음 크기 설정 (이슈 #86) — alert feature 의 시트를 app 이 잇는다
-      onOpenVolumeSettings: () => showAlertVolumeSheet(context),
     );
   }
 }
