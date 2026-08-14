@@ -23,8 +23,23 @@ class WatchEngine(private val context: Context) {
 
     companion object {
         private const val CHANNEL = "kr.suhsaechan.ear_loc_alert/watch_engine"
-        private const val ENTRYPOINT_LIBRARY =
-            "package:ear_loc_alert/app/background/watch_engine_entrypoint.dart"
+
+        /**
+         * **`main.dart` 를 가리킨다** (이슈 #93).
+         *
+         * 구현 파일(`watch_engine_entrypoint.dart`)을 직접 가리켰더니 엔진이
+         * 뜨지 않았다 — Dart 컴파일러가 **도달 불가능한 라이브러리를 번들에서
+         * 제외**하기 때문이다. `@pragma('vm:entry-point')` 는 함수의 트리셰이킹만
+         * 막고 라이브러리 누락은 막지 못한다.
+         *
+         * ```
+         * Dart_LookupLibrary: library '...watch_engine_entrypoint.dart' not found
+         * Could not create root isolate
+         * ```
+         *
+         * `main.dart` 는 항상 번들에 있으므로 거기 얇은 위임 함수를 두었다.
+         */
+        private const val ENTRYPOINT_LIBRARY = "package:ear_loc_alert/main.dart"
         private const val ENTRYPOINT = "watchEngineMain"
     }
 
