@@ -4,6 +4,7 @@ import '../../../core/domain/alert_direction.dart';
 import 'alert_effects.dart';
 import 'alert_session.dart';
 import 'audio_route.dart';
+import 'vibration_intensity.dart';
 
 /// 알림 발화 요청 — feature 간 값 전달 (docs/02-ARCHITECTURE.md 규칙 1)
 ///
@@ -39,12 +40,14 @@ class AlertController {
     required AudioRouteDecider routeDecider,
     required AlertVolumeStore volumeStore,
     required SystemVolumeService systemVolume,
+    VibrationIntensityStore? vibrationStore,
   }) : _vibration = vibration,
        _sound = sound,
        _notifier = notifier,
        _routeDecider = routeDecider,
        _volumeStore = volumeStore,
-       _systemVolume = systemVolume;
+       _systemVolume = systemVolume,
+       _vibrationStore = vibrationStore;
 
   final VibrationService _vibration;
   final AlertSoundService _sound;
@@ -52,6 +55,12 @@ class AlertController {
   final AudioRouteDecider _routeDecider;
   final AlertVolumeStore _volumeStore;
   final SystemVolumeService _systemVolume;
+
+  /// 진동 세기 설정 (이슈 #103).
+  ///
+  /// 없으면 기본 세기로 돈다 — 설정 하나를 못 읽었다고 알림이 멎으면 안
+  /// 된다. 기존 테스트가 이 인자 없이 컨트롤러를 만들 수 있게도 한다.
+  final VibrationIntensityStore? _vibrationStore;
 
   AlertSession? _current;
   final List<AlertRequest> _queue = [];
@@ -97,12 +106,29 @@ class AlertController {
     return _start(request, vibrationInterval: vibrationInterval);
   }
 
+  /// 설정된 진동 세기를 읽는다 (이슈 #103).
+  ///
+  /// **실패해도 진동은 돈다.** 설정을 못 읽는 것은 세기가 기본값이 되는
+  /// 일이지 알림이 멎을 일이 아니다.
+  Future<VibrationIntensity> _readIntensity() async {
+    final store = _vibrationStore;
+    if (store == null) return VibrationIntensity.normal;
+    try {
+      return await store.intensity();
+    } on Object {
+      return VibrationIntensity.normal;
+    }
+  }
+
   Future<AlertSession> _start(
     AlertRequest request, {
     required Duration vibrationInterval,
   }) async {
     // 진동이 먼저다 — 소리 판정이 오래 걸려도 알림은 이미 전달된다
-    await _vibration.startRepeating(interval: vibrationInterval);
+    await _vibration.startRepeating(
+      interval: vibrationInterval,
+      intensity: await _readIntensity(),
+    );
     await _notifier.show(
       placeName: request.placeName,
       body: request.direction == AlertDirection.exit ? '떠났습니다' : '도착했습니다',

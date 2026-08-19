@@ -6,12 +6,14 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../data/alert_notifier_impl.dart';
 import '../data/alert_sound_service_impl.dart';
 import '../data/prefs_alert_volume_store.dart';
+import '../data/prefs_vibration_intensity_store.dart';
 import '../data/system_volume_channel.dart';
 import '../data/vibration_service_impl.dart';
 import '../domain/alert_controller.dart';
 import '../domain/alert_effects.dart';
 import '../domain/alert_session.dart';
 import '../domain/audio_route.dart';
+import '../domain/vibration_intensity.dart';
 
 part 'alert_controller_provider.g.dart';
 
@@ -35,6 +37,11 @@ AlertVolumeStore alertVolumeStore(Ref ref) => PrefsAlertVolumeStore();
 @Riverpod(keepAlive: true)
 SystemVolumeService systemVolumeService(Ref ref) => const SystemVolumeChannel();
 
+/// 진동 세기 설정 (이슈 #103)
+@Riverpod(keepAlive: true)
+VibrationIntensityStore vibrationIntensityStore(Ref ref) =>
+    PrefsVibrationIntensityStore();
+
 @Riverpod(keepAlive: true)
 AlertController alertController(Ref ref) {
   final controller = AlertController(
@@ -44,6 +51,7 @@ AlertController alertController(Ref ref) {
     routeDecider: const AudioRouteDecider(),
     volumeStore: ref.watch(alertVolumeStoreProvider),
     systemVolume: ref.watch(systemVolumeServiceProvider),
+    vibrationStore: ref.watch(vibrationIntensityStoreProvider),
   );
   ref.onDispose(controller.dispose);
   return controller;

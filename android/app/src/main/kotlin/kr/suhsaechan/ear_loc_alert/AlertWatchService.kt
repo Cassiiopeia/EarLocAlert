@@ -61,6 +61,27 @@ class AlertWatchService : Service() {
         private const val WATCH_NOTIFICATION_ID = 3001
 
         /**
+         * 도착·출발 알림 채널 (이슈 #102)
+         *
+         * **왜 새 채널인가** — Dart `BackgroundAlertNotifier` 의
+         * `ear_loc_alert_geofence` 는 채널 진동이 켜져 있다. 앱 프로세스가
+         * 없는 iOS·구 경로에서는 그것 말고 진동 수단이 없기 때문이다.
+         * 여기서는 서비스가 직접 반복 진동을 걸므로 채널 진동이 겹치면
+         * 패턴이 어긋난다. 채널 설정은 최초 생성 시 고정되어 나중에 못
+         * 바꾸므로, 공유하지 않고 나눈다.
+         */
+        private const val ARRIVAL_CHANNEL_ID = "ear_loc_alert_arrival"
+
+        /**
+         * **Dart `BackgroundAlertNotifier.notificationId` 와 같은 값이다.**
+         *
+         * 앱이 승격하거나 정리할 때 이 id 로 취소한다 (`app.dart`
+         * `_cancelBackgroundNotification`). 한쪽만 바꾸면 지워지지 않는
+         * 알림이 남는다.
+         */
+        private const val ARRIVAL_NOTIFICATION_ID = 2001
+
+        /**
          * 진동을 무한정 돌리지 않는 안전판.
          *
          * 앱이 끝내 열리지 않는 경우(오버레이 권한 없음·사용자 부재)에도
@@ -98,6 +119,14 @@ class AlertWatchService : Service() {
     private val handler = Handler(Looper.getMainLooper())
     private var alerting = false
 
+    /**
+     * 지금 울리고 있는 알림의 내용 (이슈 #102).
+     *
+     * 시간 초과로 알림을 다시 달 때 장소 이름을 그대로 유지하기 위해
+     * 들고 있는다. 없으면 "위치 알림"으로 떨어진다.
+     */
+    private var lastDecision: AlertDecision? = null
+
     /** 판정을 수행하는 Dart 엔진 (이슈 #93) */
     private val engine by lazy { WatchEngine(this) }
 
@@ -118,7 +147,7 @@ class AlertWatchService : Service() {
         }
     }
 
-    private val timeoutTask = Runnable { endAlert() }
+    private val timeoutTask = Runnable { endAlert(timedOut = true) }
     private val preciseTimeoutTask = Runnable { stopPreciseTracking() }
 
     override fun onBind(intent: Intent?): IBinder? = null
@@ -300,7 +329,7 @@ class AlertWatchService : Service() {
 
         for (placeId in placeIds) {
             engine.evaluateOsTransition(placeId, entered, latitude, longitude) { decision ->
-                if (decision.shouldAlert) beginAlert()
+                if (decision.shouldAlert) beginAlert(decision)
             }
         }
     }
@@ -322,7 +351,7 @@ class AlertWatchService : Service() {
                 accuracyMeters = location.accuracy.toDouble(),
                 timestampMs = location.time,
             ) { decision ->
-                if (decision.shouldAlert) beginAlert()
+                if (decision.shouldAlert) beginAlert(decision)
             }
         }
     }
@@ -344,13 +373,18 @@ class AlertWatchService : Service() {
     // ---------------------------------------------------------------- 알림 발화
 
     /**
-     * 알림을 시작한다 — 반복 진동 + 앱 전면 승격.
+     * 알림을 시작한다 — **OS 알림 + 반복 진동 + 앱 전면 승격.**
      *
      * 이미 울리고 있으면 아무것도 하지 않는다. 여러 지오펜스가 한 이벤트로
      * 묶여 오면 판정이 연달아 돌아오는데, 그때마다 진동을 다시 걸면 패턴이
      * 처음으로 되돌아가 끊긴 것처럼 느껴진다.
+     *
+     * **알림이 먼저다** (이슈 #102). 화면 승격은 오버레이 권한과 백그라운드
+     * 액티비티 시작 제한에 걸려 실패할 수 있고, 실제로 그랬다 — 그러면
+     * 진동만 울리고 화면에는 아무 흔적도 남지 않았다. 알림은 어떤 권한
+     * 상태에서도 뜨고, 그것이 해제 화면에 닿는 마지막 길이다.
      */
-    private fun beginAlert() {
+    private fun beginAlert(decision: AlertDecision) {
         if (alerting) {
             DiagnosticLog.write(this, "alert", "이미 울리는 중 — 중복 발화 무시")
             return
@@ -360,31 +394,164 @@ class AlertWatchService : Service() {
         DiagnosticLog.write(
             this,
             "alert",
-            "알림 시작 — 진동 + 화면 승격 (오버레이권한=${Settings.canDrawOverlays(this)})",
+            "알림 시작 place=${decision.placeName} " +
+                "direction=${decision.direction} " +
+                "(오버레이권한=${Settings.canDrawOverlays(this)})",
         )
 
-        startVibration()
+        lastDecision = decision
+
+        // 순서가 의미를 가진다 — 승격이 막혀도 알림과 진동은 남는다
+        showArrivalNotification(decision)
+        startVibration(decision)
         launchAlertScreen()
 
         handler.removeCallbacks(timeoutTask)
         handler.postDelayed(timeoutTask, ALERT_TIMEOUT_MS)
     }
 
-    private fun endAlert() {
+    /**
+     * 끝나는 경로가 둘이라 [timedOut] 으로 갈린다.
+     *
+     * **Dart 가 넘겨받은 경우**(`ACTION_STOP_ALERT`)는 앱이 알림을 직접
+     * 지운다 — 여기서 손대면 앱의 정리와 겹친다.
+     *
+     * **시간 초과**는 사용자가 끝내 열지 않은 경우다. 진동은 멎지만 알림은
+     * 남겨야 "그때 도착했었다"가 사라지지 않는다. 다만 계속 `ongoing` 이면
+     * 스와이프로도 못 지우는 알림이 영영 남으므로 지울 수 있게 바꿔 단다.
+     */
+    private fun endAlert(timedOut: Boolean = false) {
         if (!alerting) return
         alerting = false
         handler.removeCallbacks(timeoutTask)
         stopVibration()
+        if (timedOut) {
+            DiagnosticLog.write(this, "alert", "알림 시간 초과 — 진동 중단, 알림은 남긴다")
+            releaseArrivalNotification()
+        }
     }
 
-    private fun startVibration() {
+    // ------------------------------------------------------- 도착·출발 알림
+
+    /**
+     * 도착·출발 알림을 띄운다 (이슈 #102).
+     *
+     * **소리는 내지 않는다.** 채널을 무음으로 만든다 — 이어폰 연결 판정은
+     * Dart 에만 있고, 여기서 소리가 나가면 그 판정을 우회해 스피커로 샌다
+     * (docs/03-DOMAIN.md 규칙 5, docs/10-DECISIONS.md 019).
+     *
+     * 전체화면 인텐트를 건다. 화면이 꺼졌거나 잠겨 있으면 알림 화면이
+     * 바로 올라오고, 켜져 있으면 OS 가 헤드업으로 강등한다 — 그 경우는
+     * [launchAlertScreen] 이 담당한다. Android 14+ 에서 권한이 없으면
+     * 조용히 헤드업으로 떨어질 뿐 알림 자체는 뜬다.
+     */
+    private fun showArrivalNotification(decision: AlertDecision) {
         try {
+            createArrivalChannel()
+            val manager = getSystemService(NotificationManager::class.java) ?: return
+            manager.notify(
+                ARRIVAL_NOTIFICATION_ID,
+                buildArrivalNotification(decision, ongoing = true),
+            )
+        } catch (error: Exception) {
+            // 알림 권한이 없으면 여기서 막힌다 — 진동과 화면 승격은 계속된다.
+            // 무엇이 막혔는지는 남긴다. 아무것도 안 뜨는 이유가 이것일 수 있다
+            DiagnosticLog.write(this, "alert", "알림 발행 실패 $error")
+        }
+    }
+
+    /** 시간 초과 후 스와이프로 지울 수 있게 다시 단다 */
+    private fun releaseArrivalNotification() {
+        try {
+            val manager = getSystemService(NotificationManager::class.java) ?: return
+            manager.notify(
+                ARRIVAL_NOTIFICATION_ID,
+                buildArrivalNotification(lastDecision, ongoing = false),
+            )
+        } catch (error: Exception) {
+            // 실패하면 지울 수 없는 알림이 남는다 — 앱을 열면 정리된다
+        }
+    }
+
+    private fun createArrivalChannel() {
+        val manager = getSystemService(NotificationManager::class.java) ?: return
+        if (manager.getNotificationChannel(ARRIVAL_CHANNEL_ID) != null) return
+        val channel = NotificationChannel(
+            ARRIVAL_CHANNEL_ID,
+            "도착·출발 알림",
+            // 헤드업으로 뜨려면 HIGH 이상이어야 한다
+            NotificationManager.IMPORTANCE_HIGH,
+        ).apply {
+            description = "등록한 장소에 도착하거나 떠날 때 알립니다"
+            // 진동은 서비스가 직접 건다 — 채널 진동과 겹치면 패턴이 어긋난다
+            enableVibration(false)
+            // **소리 없음.** 이어폰 판정을 우회할 수 없어야 한다
+            setSound(null, null)
+            lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+        }
+        manager.createNotificationChannel(channel)
+    }
+
+    private fun buildArrivalNotification(
+        decision: AlertDecision?,
+        ongoing: Boolean,
+    ): Notification {
+        val title = decision?.placeName?.takeIf { it.isNotBlank() } ?: "위치 알림"
+        val body = if (decision?.direction == "exit") "떠났습니다" else "도착했습니다"
+        val pending = launchPendingIntent()
+
+        return Notification.Builder(this, ARRIVAL_CHANNEL_ID)
+            .setContentTitle(title)
+            .setContentText(body)
+            .setSmallIcon(applicationInfo.icon)
+            .setCategory(Notification.CATEGORY_ALARM)
+            .setVisibility(Notification.VISIBILITY_PUBLIC)
+            .setContentIntent(pending)
+            // **스와이프로 지워지지 않는다** (이슈 #84 와 같은 이유).
+            // 울리는 중에 알림을 잃으면 끌 방법이 사라진다.
+            .setOngoing(ongoing)
+            .setAutoCancel(!ongoing)
+            .apply {
+                // 화면이 꺼졌거나 잠겼을 때 알림 화면을 직접 띄운다.
+                // 시간 초과 후에는 화면을 깨울 이유가 없다
+                if (ongoing && pending != null) setFullScreenIntent(pending, true)
+            }
+            .build()
+    }
+
+    /**
+     * 반복 진동을 시작한다.
+     *
+     * 세기는 Dart 가 판정 결과에 실어 보낸 값을 쓴다 (이슈 #103).
+     * 값이 없거나 기기가 진폭 제어를 지원하지 않으면 **길이만** 반영한다 —
+     * 진폭 제어가 없는 기기가 아직 많고, 그런 기기에서 세기 설정이 아무
+     * 효과도 없으면 사용자는 설정이 고장 났다고 판단한다.
+     */
+    private fun startVibration(decision: AlertDecision) {
+        try {
+            val pulse = decision.vibrationPulseMs.takeIf { it > 0 }?.toLong()
+                ?: VIBRATION_PATTERN[1]
+            val pattern = longArrayOf(VIBRATION_PATTERN[0], pulse)
+
+            val canControlAmplitude =
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
+                    vibrator.hasAmplitudeControl() &&
+                    decision.vibrationAmplitude > 0
+
             // repeat = 0 — 취소할 때까지 패턴을 처음부터 반복한다.
             // 한 번만 울리고 마는 것이 이슈 #74 의 증상이었다.
-            val effect = VibrationEffect.createWaveform(VIBRATION_PATTERN, 0)
+            val effect = if (canControlAmplitude) {
+                // 대기 구간은 진폭 0 이어야 한다 — 패턴과 길이가 같아야 하고,
+                // 첫 칸에 세기를 주면 쉬는 동안에도 떨린다
+                val amplitudes = intArrayOf(0, decision.vibrationAmplitude)
+                VibrationEffect.createWaveform(pattern, amplitudes, 0)
+            } else {
+                VibrationEffect.createWaveform(pattern, 0)
+            }
             vibrator.vibrate(effect)
         } catch (error: Exception) {
-            // 진동을 못 걸어도 화면 승격은 계속된다
+            // 진동을 못 걸어도 알림과 화면 승격은 계속된다
+            DiagnosticLog.write(this, "alert", "진동 시작 실패 $error")
         }
     }
 
@@ -400,17 +567,30 @@ class AlertWatchService : Service() {
      * 알림 화면을 띄운다.
      *
      * "다른 앱 위에 표시" 권한이 있어야 백그라운드에서 액티비티를 시작할 수
-     * 있다 — 이것이 영상 시청 중에도 화면을 덮을 수 있는 유일한 경로다.
-     * 권한이 없으면 조용히 물러난다: 진동은 이미 돌고 있고, 앱을 열면
-     * 저장된 대기 알림이 화면으로 이어진다.
+     * 있다 — 이것이 **화면이 켜져 있는 동안** 영상 위로 화면을 덮을 수 있는
+     * 유일한 경로다. 화면이 꺼졌거나 잠긴 경우는 전체화면 인텐트가 담당한다.
+     *
+     * 실패해도 알림과 진동은 이미 돌고 있으므로 조용히 물러난다. 다만
+     * **왜 실패했는지는 남긴다** (이슈 #102) — 예전에는 아무것도 남기지
+     * 않아 "화면이 왜 안 뜨는가"를 진단 기록으로 추적할 수 없었다.
      */
     private fun launchAlertScreen() {
-        if (!Settings.canDrawOverlays(this)) return
+        if (!Settings.canDrawOverlays(this)) {
+            DiagnosticLog.write(
+                this,
+                "alert",
+                "화면 승격 생략 — 다른 앱 위에 표시 권한 없음 (알림은 발행됨)",
+            )
+            return
+        }
         val intent = launchIntent() ?: return
         try {
             startActivity(intent)
+            DiagnosticLog.write(this, "alert", "화면 승격 요청 완료")
         } catch (error: Exception) {
-            // 백그라운드 액티비티 시작이 막혔다 — 진동은 그대로 돈다
+            // Android 10+ 는 권한이 있어도 백그라운드 액티비티 시작을 막을 수
+            // 있다. 그 경우 전체화면 인텐트와 알림이 남는다
+            DiagnosticLog.write(this, "alert", "화면 승격 차단됨 $error")
         }
     }
 

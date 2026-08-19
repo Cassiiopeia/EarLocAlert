@@ -63,6 +63,19 @@ Play 권한 선언에 첨부한다.
 
 **하면 안 되는 것** — 이 권한들을 필수처럼 요구하거나, 거부 시 앱 진입을 막는 것. 심사 반려 사유이자 [10-DECISIONS](10-DECISIONS.md) 006 위반이다.
 
+### `REQUEST_INSTALL_PACKAGES` 는 스토어 배포 전에 걷어낸다 (#104)
+
+인앱 업데이트([10-DECISIONS](10-DECISIONS.md) 027)를 위해 선언했다. **스토어 배포에는 필요 없고, Play 는 이 권한을 특히 까다롭게 본다.**
+
+스토어 배포 준비 시 함께 제거할 것:
+
+- `AndroidManifest.xml` 의 `REQUEST_INSTALL_PACKAGES` 권한과 `FileProvider` 선언
+- `ApkInstaller.kt` · `app_installer` 채널
+- `lib/features/update/` 전체와 설정 화면의 업데이트 항목
+- `res/xml/file_paths.xml`
+
+**남겨두고 심사에 올리지 않는다.** 사유서로 통과시킬 수 있는 항목이 아니고, 스토어에서 받는 앱에 자체 업데이트 경로가 있을 이유도 없다.
+
 ---
 
 ## 개인정보 처리방침

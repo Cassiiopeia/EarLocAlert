@@ -53,8 +53,14 @@
          (docs/09-RELEASE.md) -->
     <uses-permission android:name="com.google.android.gms.permission.AD_ID" />
 
-    <!-- 네트워크 — 광고에만 쓴다. 위치는 전송하지 않는다 -->
+    <!-- 네트워크 — 광고와 앱 업데이트 확인에 쓴다. 위치는 전송하지 않는다 -->
     <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- 앱 업데이트 설치 (이슈 #104) — 스토어 배포 전까지 사이드로드가
+         유일한 배포 경로라, 앱이 최신 APK 를 받아 설치 화면을 띄운다.
+         **설치 자체는 사용자가 그 화면에서 확인한다.**
+         스토어 배포가 시작되면 이 권한과 경로를 함께 걷어낸다. -->
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
 
     <application
         android:label="이어폰위치알림"
@@ -110,6 +116,21 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+
+        <!-- 업데이트 APK 를 설치 프로그램에 넘기는 통로 (이슈 #104).
+             file:// URI 는 Android 7+ 에서 FileUriExposedException 이라
+             content:// 로 넘겨야 한다.
+             공유 범위는 res/xml/file_paths.xml 이 캐시의 update/ 하나로
+             제한한다 — 다른 앱 데이터는 이 provider 로 읽히지 않는다. -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
 
         <!-- native_geofence (docs/10-DECISIONS.md 014) —
              OS 지오펜스 이벤트 수신, 재부팅 후 자동 재등록(A-10),

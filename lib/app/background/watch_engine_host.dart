@@ -1,4 +1,5 @@
 import '../../core/diagnostics/diagnostics.dart';
+import '../../features/alert/domain/vibration_intensity.dart';
 import '../../features/geofence/domain/geofence_event.dart';
 import '../../features/geofence/domain/position_sample.dart';
 import 'alert_decision.dart';
@@ -23,11 +24,19 @@ class WatchEngineHost {
   WatchEngineHost({
     required GeofenceBackgroundProcessor processor,
     required PendingAlertStore store,
+    VibrationIntensityStore? vibrationStore,
   }) : _processor = processor,
-       _store = store;
+       _store = store,
+       _vibrationStore = vibrationStore;
 
   final GeofenceBackgroundProcessor _processor;
   final PendingAlertStore _store;
+
+  /// 진동 세기 설정 (이슈 #103).
+  ///
+  /// 네이티브가 설정을 직접 읽지 않고 판정 결과에 실어 보낸다 — 설정을
+  /// 읽는 자리가 둘이 되면 반드시 어긋난다.
+  final VibrationIntensityStore? _vibrationStore;
 
   /// 정밀 모드 위치 측정 하나를 판정한다.
   ///
@@ -99,10 +108,13 @@ class WatchEngineHost {
       // 진동·이어폰 판정·소리까지 이어받는다 (이슈 #63)
       await _store.save(alert);
 
+      final intensity = await _readIntensity();
+
       Diagnostics.log(
         'engine',
         '알림 발생 place=${alert.placeId} name=${alert.placeName} '
-            'direction=${alert.direction.name} sound=${alert.soundEnabled}',
+            'direction=${alert.direction.name} sound=${alert.soundEnabled} '
+            'vibration=${intensity.name}',
       );
 
       return AlertDecision(
@@ -111,6 +123,8 @@ class WatchEngineHost {
         placeName: alert.placeName,
         direction: alert.direction.name,
         soundEnabled: alert.soundEnabled,
+        vibrationAmplitude: intensity.amplitude,
+        vibrationPulseMs: intensity.pulseMs,
       );
     } on Object catch (error) {
       // 예외를 삼키되 **기록은 남긴다** (이슈 #95).
@@ -118,6 +132,21 @@ class WatchEngineHost {
       // 실패를 추적할 방법이 통째로 없었다.
       Diagnostics.log('engine', '판정 실패 $error');
       return AlertDecision.none;
+    }
+  }
+
+  /// 설정된 진동 세기를 읽는다 (이슈 #103).
+  ///
+  /// **실패해도 알림은 나간다.** 설정 하나 못 읽은 것이 도착 알림을
+  /// 삼키면 안 된다 — 기본 세기로 떨어진다.
+  Future<VibrationIntensity> _readIntensity() async {
+    final store = _vibrationStore;
+    if (store == null) return VibrationIntensity.normal;
+    try {
+      return await store.intensity();
+    } on Object catch (error) {
+      Diagnostics.log('engine', '진동 세기 조회 실패 $error');
+      return VibrationIntensity.normal;
     }
   }
 }

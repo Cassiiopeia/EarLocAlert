@@ -216,9 +216,17 @@ data class AlertDecision(
     val placeName: String?,
     val direction: String?,
     val soundEnabled: Boolean,
+    /**
+     * 사용자가 설정한 진동 세기 (이슈 #103).
+     *
+     * **0 은 "설정 없음"이다** — 기존 기본 진동으로 떨어진다. 설정을 읽는
+     * 자리는 Dart 한 곳뿐이고, 여기는 받은 값을 쓰기만 한다.
+     */
+    val vibrationAmplitude: Int,
+    val vibrationPulseMs: Int,
 ) {
     companion object {
-        fun none() = AlertDecision(false, null, null, null, true)
+        fun none() = AlertDecision(false, null, null, null, true, 0, 0)
 
         fun fromMap(map: Map<*, *>?): AlertDecision {
             if (map == null) return none()
@@ -228,6 +236,8 @@ data class AlertDecision(
                 placeName = map["placeName"] as? String,
                 direction = map["direction"] as? String,
                 soundEnabled = map["soundEnabled"] as? Boolean ?: true,
+                vibrationAmplitude = (map["vibrationAmplitude"] as? Number)?.toInt() ?: 0,
+                vibrationPulseMs = (map["vibrationPulseMs"] as? Number)?.toInt() ?: 0,
             )
         }
     }
