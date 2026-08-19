@@ -4,6 +4,7 @@ import 'package:ear_loc_alert/core/domain/alert_direction.dart';
 import 'package:ear_loc_alert/features/alert/domain/alert_controller.dart';
 import 'package:ear_loc_alert/features/alert/domain/alert_effects.dart';
 import 'package:ear_loc_alert/features/alert/domain/audio_route.dart';
+import 'package:ear_loc_alert/features/alert/domain/vibration_intensity.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// 호출 기록을 남기는 가짜 진동 서비스
@@ -12,9 +13,16 @@ class FakeVibration implements VibrationService {
   int stopCount = 0;
   bool failOnStop = false;
 
+  /// 마지막 진동에 쓰인 세기 — 설정값이 실제로 전달되는지 본다 (이슈 #103)
+  VibrationIntensity? lastIntensity;
+
   @override
-  Future<void> startRepeating({required Duration interval}) async {
+  Future<void> startRepeating({
+    required Duration interval,
+    VibrationIntensity intensity = VibrationIntensity.normal,
+  }) async {
     startCount++;
+    lastIntensity = intensity;
   }
 
   @override
@@ -132,6 +140,23 @@ class SlowSound implements AlertSoundService {
   Future<void> stop() async {}
 }
 
+/// 진동 세기 설정 저장소 (이슈 #103)
+class FakeVibrationIntensityStore implements VibrationIntensityStore {
+  FakeVibrationIntensityStore([this.stored = VibrationIntensity.normal]);
+
+  VibrationIntensity stored;
+  bool failOnRead = false;
+
+  @override
+  Future<VibrationIntensity> intensity() async {
+    if (failOnRead) throw Exception('설정 조회 실패');
+    return stored;
+  }
+
+  @override
+  Future<void> save(VibrationIntensity intensity) async => stored = intensity;
+}
+
 AlertRequest makeRequest({
   String placeId = 'p1',
   String placeName = '도착지',
@@ -153,6 +178,7 @@ void main() {
   late FakeNotifier notifier;
   late FakeVolumeStore volumeStore;
   late FakeSystemVolume systemVolume;
+  late FakeVibrationIntensityStore vibrationStore;
   late AlertController controller;
 
   const interval = Duration(seconds: 3);
@@ -173,6 +199,7 @@ void main() {
       routeDecider: const AudioRouteDecider(),
       volumeStore: volumeStore,
       systemVolume: systemVolume,
+      vibrationStore: vibrationStore,
     );
   }
 
@@ -182,6 +209,7 @@ void main() {
     notifier = FakeNotifier();
     volumeStore = FakeVolumeStore();
     systemVolume = FakeSystemVolume();
+    vibrationStore = FakeVibrationIntensityStore();
     controller = build();
   });
 
@@ -192,6 +220,26 @@ void main() {
       expect(vibration.startCount, 1);
       expect(notifier.showCount, 1);
       expect(controller.current, isNotNull);
+    });
+
+    test('설정한 진동 세기로 울린다 (이슈 #103)', () async {
+      vibrationStore.stored = VibrationIntensity.strong;
+      controller = build();
+
+      await controller.fire(makeRequest(), vibrationInterval: interval);
+
+      expect(vibration.lastIntensity, VibrationIntensity.strong);
+    });
+
+    test('진동 세기 설정을 못 읽어도 알림은 울린다 (이슈 #103)', () async {
+      // 설정 하나를 못 읽은 것이 도착 알림을 삼키면 안 된다
+      vibrationStore.failOnRead = true;
+      controller = build();
+
+      await controller.fire(makeRequest(), vibrationInterval: interval);
+
+      expect(vibration.startCount, 1);
+      expect(vibration.lastIntensity, VibrationIntensity.normal);
     });
 
     test('세션에 장소 정보가 담긴다', () async {

@@ -1,4 +1,5 @@
 import 'audio_route.dart';
+import 'vibration_intensity.dart';
 
 /// 진동 제어 (docs/02-ARCHITECTURE.md 규칙 3)
 ///
@@ -6,7 +7,13 @@ import 'audio_route.dart';
 /// 테스트하기 위해서다.
 abstract interface class VibrationService {
   /// [interval] 간격으로 반복 진동을 시작한다 (F3.1)
-  Future<void> startRepeating({required Duration interval});
+  ///
+  /// [intensity] 는 사용자가 설정한 세기다 (이슈 #103). 진폭 제어를
+  /// 지원하지 않는 기기에서는 길이만 반영된다.
+  Future<void> startRepeating({
+    required Duration interval,
+    VibrationIntensity intensity = VibrationIntensity.normal,
+  });
 
   /// 즉시 중단한다. **어떤 상황에서도 실패하지 않아야 한다.**
   Future<void> stop();

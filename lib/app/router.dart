@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -11,7 +12,11 @@ import '../features/alert/presentation/alert_controller_provider.dart';
 import '../features/alert/presentation/alert_dismissed_screen.dart';
 import '../features/alert/presentation/alert_screen.dart';
 import '../features/alert/presentation/alert_volume_sheet.dart';
+import '../features/alert/presentation/vibration_intensity_sheet.dart';
+import '../features/permission/domain/permission_kind.dart';
+import '../features/permission/domain/permission_snapshot.dart';
 import '../features/permission/presentation/onboarding_screen.dart';
+import '../features/permission/presentation/permission_controller.dart';
 import '../features/permission/presentation/reliability_prompt_provider.dart';
 import '../features/places/domain/alert_place.dart';
 import '../features/places/presentation/place_form_screen.dart';
@@ -20,6 +25,8 @@ import '../features/places/presentation/place_map_picker_screen.dart';
 import '../features/diagnostics/presentation/diagnostics_screen.dart';
 import '../features/places/presentation/place_search_provider.dart';
 import '../features/settings/presentation/settings_screen.dart';
+import '../features/update/presentation/update_provider.dart';
+import '../features/update/presentation/update_sheet.dart';
 import 'home_status_provider.dart';
 
 /// 앱 라우팅 (docs/02-ARCHITECTURE.md)
@@ -231,19 +238,60 @@ class _HomeRoute extends ConsumerWidget {
   }
 }
 
-/// 설정 라우트 (이슈 #98).
+/// 설정 라우트 (이슈 #98, #102).
 ///
 /// 알림음 크기·진단 기록·알림 미리보기가 여기 모인다. 홈 상태 바에
 /// 아이콘이 셋 늘어서면서 정작 중요한 감시 상태가 묻혔기 때문이다.
-class _SettingsRoute extends ConsumerWidget {
+///
+/// 알림 도달 권한도 여기서 켠다 (이슈 #102) — permission feature 의
+/// 상태를 읽어 **값으로** 내려준다. 화면은 그 feature 를 모른다
+/// (docs/02-ARCHITECTURE.md 규칙 1).
+class _SettingsRoute extends ConsumerStatefulWidget {
   const _SettingsRoute();
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_SettingsRoute> createState() => _SettingsRouteState();
+}
+
+class _SettingsRouteState extends ConsumerState<_SettingsRoute>
+    with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // 신뢰성 권한은 전부 시스템 설정 화면으로 나갔다 온다 (이슈 #102).
+    // 돌아온 시점에 다시 읽지 않으면 방금 켠 권한이 계속 꺼진 것으로
+    // 보이고, 사용자는 자기가 켠 것이 반영되지 않았다고 판단한다.
+    if (state == AppLifecycleState.resumed) {
+      unawaited(ref.read(permissionControllerProvider.notifier).refresh());
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final snapshot = ref.watch(permissionControllerProvider).valueOrNull;
+
     return SettingsScreen(
       // 알림음 크기 (이슈 #86) — alert feature 의 시트를 app 이 잇는다
       onOpenVolumeSettings: () => showAlertVolumeSheet(context),
+      // 진동 세기 (이슈 #103) — 이어폰이 없을 때 유일한 알림 수단이다
+      onOpenVibrationSettings: () => showVibrationIntensitySheet(context),
       onOpenDiagnostics: () => context.push(AppRoutes.diagnostics),
+      permissions: _permissionRows(ref, snapshot),
+      // 업데이트 확인 (이슈 #104) — 스토어 배포 전까지 사이드로드가
+      // 유일한 배포 경로라 앱이 최신 버전을 알려준다. iOS 에는 없다
+      onCheckUpdate: Platform.isAndroid ? () => showUpdateSheet(context) : null,
+      installedVersion: ref.watch(installedVersionProvider).valueOrNull,
       // 백그라운드 감시 연결 전까지 알림 흐름을 확인하는 수단 (S-4·S-5).
       // 지오펜스 실기기 검증이 끝나면 제거한다.
       onPreviewAlert: () async {
@@ -264,6 +312,56 @@ class _SettingsRoute extends ConsumerWidget {
       },
     );
   }
+}
+
+/// 설정 화면에 내려줄 권한 목록 (이슈 #102).
+///
+/// **알림이 도달하는 데 관여하는 것만 넣는다.** 위치 권한은 감시 자체의
+/// 전제라 홈 상태 알약이 담당하고, 여기 섞으면 "알림이 왜 약한가"라는
+/// 질문의 답이 흐려진다.
+///
+/// 설명은 권한 이름이 아니라 **없으면 무엇이 안 되는지**를 쓴다. "다른 앱
+/// 위에 표시"라고만 적힌 항목을 사용자가 켤 이유가 없다.
+List<SettingsPermissionRow> _permissionRows(
+  WidgetRef ref,
+  PermissionSnapshot? snapshot,
+) {
+  if (snapshot == null) return const [];
+
+  // iOS 에는 배터리 최적화도 오버레이도 없다 — 항상 허용으로 보고되므로
+  // 목록에 넣으면 켤 수 없는 항목만 늘어선다
+  if (!Platform.isAndroid) return const [];
+
+  void request(PermissionKind kind) {
+    unawaited(ref.read(permissionControllerProvider.notifier).requestOne(kind));
+  }
+
+  return [
+    SettingsPermissionRow(
+      title: '알림 표시',
+      description: '없으면 도착해도 알림이 뜨지 않습니다',
+      granted: snapshot.canNotify,
+      onTap: () => request(PermissionKind.notification),
+    ),
+    SettingsPermissionRow(
+      title: '배터리 최적화 제외',
+      description: '없으면 절전 중 알림이 늦거나 오지 않습니다',
+      granted: snapshot.survivesDoze,
+      onTap: () => request(PermissionKind.batteryOptimization),
+    ),
+    SettingsPermissionRow(
+      title: '다른 앱 위에 표시',
+      description: '없으면 앱 사용 중에 알림 화면이 뜨지 않습니다',
+      granted: snapshot.canCoverScreen,
+      onTap: () => request(PermissionKind.overlay),
+    ),
+    SettingsPermissionRow(
+      title: '전체 화면 알림',
+      description: '없으면 화면이 꺼져 있을 때 알림 화면이 뜨지 않습니다',
+      granted: snapshot.canWakeScreen,
+      onTap: () => request(PermissionKind.fullScreenIntent),
+    ),
+  ];
 }
 
 /// 신뢰성 권한(#74)을 다시 권하고 온보딩으로 보낸다.

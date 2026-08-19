@@ -5,6 +5,7 @@ import 'package:ear_loc_alert/app/background/pending_alert.dart';
 import 'package:ear_loc_alert/app/background/pending_alert_store.dart';
 import 'package:ear_loc_alert/app/background/watch_engine_host.dart';
 import 'package:ear_loc_alert/core/domain/alert_direction.dart';
+import 'package:ear_loc_alert/features/alert/domain/vibration_intensity.dart';
 import 'package:ear_loc_alert/features/geofence/domain/geofence_evaluator.dart';
 import 'package:ear_loc_alert/features/geofence/domain/geofence_event.dart';
 import 'package:ear_loc_alert/features/geofence/domain/geofence_event_repository.dart';
@@ -188,6 +189,65 @@ void main() {
     expect(decision.shouldAlert, isFalse);
   });
 
+  group('진동 세기 전달 (이슈 #103)', () {
+    test('설정한 세기가 판정 결과에 실린다', () async {
+      final f = _fixture(
+        places: [place],
+        states: {'place-1': GeofenceState.outside},
+        vibrationStore: _FakeVibrationStore(VibrationIntensity.strong),
+      );
+
+      final decision = await f.host.onPosition(
+        latitude: 37.56639,
+        longitude: 126.9779,
+        accuracyMeters: 10,
+        timestampUtc: DateTime.utc(2026, 8, 14, 12),
+      );
+
+      expect(decision.shouldAlert, isTrue);
+      expect(decision.vibrationAmplitude, VibrationIntensity.strong.amplitude);
+      expect(decision.vibrationPulseMs, VibrationIntensity.strong.pulseMs);
+    });
+
+    test('설정을 못 읽어도 알림은 나간다 — 기본 세기로 떨어진다', () async {
+      // 설정 하나를 못 읽은 것이 도착 알림을 삼키면 안 된다
+      final f = _fixture(
+        places: [place],
+        states: {'place-1': GeofenceState.outside},
+        vibrationStore: _FakeVibrationStore(
+          VibrationIntensity.strong,
+          throwOnRead: true,
+        ),
+      );
+
+      final decision = await f.host.onPosition(
+        latitude: 37.56639,
+        longitude: 126.9779,
+        accuracyMeters: 10,
+        timestampUtc: DateTime.utc(2026, 8, 14, 12),
+      );
+
+      expect(decision.shouldAlert, isTrue);
+      expect(decision.vibrationAmplitude, VibrationIntensity.normal.amplitude);
+    });
+
+    test('설정 저장소가 없으면 기본 세기다', () async {
+      final f = _fixture(
+        places: [place],
+        states: {'place-1': GeofenceState.outside},
+      );
+
+      final decision = await f.host.onPosition(
+        latitude: 37.56639,
+        longitude: 126.9779,
+        accuracyMeters: 10,
+        timestampUtc: DateTime.utc(2026, 8, 14, 12),
+      );
+
+      expect(decision.vibrationAmplitude, VibrationIntensity.normal.amplitude);
+    });
+  });
+
   test('toMap 은 네이티브가 읽는 키를 담는다', () {
     const decision = AlertDecision(
       shouldAlert: true,
@@ -195,6 +255,8 @@ void main() {
       placeName: '집',
       direction: 'exit',
       soundEnabled: false,
+      vibrationAmplitude: 255,
+      vibrationPulseMs: 1200,
     );
 
     expect(decision.toMap(), {
@@ -203,6 +265,8 @@ void main() {
       'placeName': '집',
       'direction': 'exit',
       'soundEnabled': false,
+      'vibrationAmplitude': 255,
+      'vibrationPulseMs': 1200,
     });
   });
 
@@ -213,6 +277,9 @@ void main() {
       'placeName': null,
       'direction': null,
       'soundEnabled': true,
+      // 0 은 "설정 없음" — 네이티브가 기본 진동으로 떨어진다 (이슈 #103)
+      'vibrationAmplitude': 0,
+      'vibrationPulseMs': 0,
     });
   });
 }
@@ -222,6 +289,7 @@ void main() {
   Map<String, GeofenceState> states = const {},
   bool throwOnRead = false,
   bool throwOnSave = false,
+  VibrationIntensityStore? vibrationStore,
 }) {
   final store = _FakePendingAlertStore(throwOnSave: throwOnSave);
   return (
@@ -236,9 +304,27 @@ void main() {
         clock: () => DateTime.utc(2026, 8, 14, 12),
       ),
       store: store,
+      vibrationStore: vibrationStore,
     ),
     store: store,
   );
+}
+
+/// 진동 세기 설정 저장소 (이슈 #103)
+class _FakeVibrationStore implements VibrationIntensityStore {
+  _FakeVibrationStore(this.stored, {this.throwOnRead = false});
+
+  VibrationIntensity stored;
+  final bool throwOnRead;
+
+  @override
+  Future<VibrationIntensity> intensity() async {
+    if (throwOnRead) throw StateError('설정 조회 실패');
+    return stored;
+  }
+
+  @override
+  Future<void> save(VibrationIntensity intensity) async => stored = intensity;
 }
 
 /// `save` 만 가로챈다 — 나머지는 실제 구현이 필요 없다

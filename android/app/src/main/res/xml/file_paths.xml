@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  FileProvider 공유 경로 (이슈 #104)
+
+  업데이트 APK 만 공유한다. 캐시 안의 update/ 하위이며, 그 밖의 앱
+  데이터는 어떤 앱도 이 provider 로 읽을 수 없다.
+
+  path 값은 ApkInstaller.DIR_NAME 과 계약이다.
+-->
+<paths>
+    <cache-path name="update" path="update/" />
+</paths>

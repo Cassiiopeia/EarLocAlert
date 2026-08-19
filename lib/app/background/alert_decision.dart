@@ -11,6 +11,8 @@ class AlertDecision {
     this.placeName,
     this.direction,
     this.soundEnabled = true,
+    this.vibrationAmplitude = 0,
+    this.vibrationPulseMs = 0,
   });
 
   /// 알림 없음 — 가장 흔한 결과다.
@@ -27,11 +29,25 @@ class AlertDecision {
   final String? direction;
   final bool soundEnabled;
 
+  /// 사용자가 설정한 진동 세기 (이슈 #103).
+  ///
+  /// **왜 네이티브가 설정을 직접 읽지 않나** — 설정을 읽는 자리가 둘이 되면
+  /// 반드시 어긋난다. 판정은 Dart 에 있고, 그 결과에 실어 보내면 값의
+  /// 출처가 하나로 유지된다.
+  ///
+  /// 0 은 "설정 없음"이다 — 네이티브가 기존 기본 진동으로 떨어진다.
+  final int vibrationAmplitude;
+
+  /// 한 번의 진동 길이(ms). 0 이면 네이티브 기본 패턴을 쓴다.
+  final int vibrationPulseMs;
+
   Map<String, Object?> toMap() => {
     'shouldAlert': shouldAlert,
     'placeId': placeId,
     'placeName': placeName,
     'direction': direction,
     'soundEnabled': soundEnabled,
+    'vibrationAmplitude': vibrationAmplitude,
+    'vibrationPulseMs': vibrationPulseMs,
   };
 }

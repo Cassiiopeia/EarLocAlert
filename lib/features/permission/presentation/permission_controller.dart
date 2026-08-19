@@ -98,6 +98,17 @@ class PermissionController extends _$PermissionController {
     await ref.read(reliabilityPromptProvider.notifier).markSeen();
   }
 
+  /// 권한 하나만 요청한다 (이슈 #102).
+  ///
+  /// [proceed] 와 달리 **순서를 따르지 않는다.** 설정 화면에서 사용자가
+  /// 특정 항목을 직접 눌렀을 때 쓴다 — 온보딩처럼 다음 단계를 계산하면
+  /// 누른 것과 다른 권한 화면이 열려 사용자가 무엇을 한 건지 알 수 없다.
+  Future<void> requestOne(PermissionKind kind) async {
+    final service = ref.read(permissionServiceProvider);
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() => service.request(kind));
+  }
+
   Future<void> openSettings() async {
     await ref.read(permissionServiceProvider).openAppSettings();
   }

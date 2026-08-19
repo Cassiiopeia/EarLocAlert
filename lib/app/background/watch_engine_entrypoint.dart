@@ -7,6 +7,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import '../../core/database/app_database.dart';
 import '../../core/diagnostics/diagnostics.dart';
 import '../../core/domain/id_generator.dart';
+import '../../features/alert/data/prefs_vibration_intensity_store.dart';
 import '../../features/geofence/data/drift_geofence_event_repository.dart';
 import '../../features/geofence/data/drift_geofence_state_repository.dart';
 import '../../features/geofence/domain/geofence_evaluator.dart';
@@ -60,6 +61,9 @@ void watchEngineMain() {
       clock: DateTime.now,
     ),
     store: PendingAlertStore(),
+    // 진동 세기를 판정 결과에 실어 네이티브로 보낸다 (이슈 #103).
+    // 네이티브가 직접 읽게 하면 설정을 읽는 자리가 둘이 된다.
+    vibrationStore: PrefsVibrationIntensityStore(),
   );
 
   final places = DriftPlaceRepository(db);
