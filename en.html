@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacy Policy · EarLocAlert</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>Privacy Policy</h1>
+  <p class="sub">EarLocAlert · Android</p>
+</header>
+
+<p class="lang"><a href="index.html">한국어</a></p>
+
+<p>EarLocAlert ("the app") alerts you by vibration or earphone sound when you arrive at or leave a place you registered. This document explains what the app handles, what it sends outside your device, and what it does not.</p>
+
+<div class="callout">
+  <strong>Your location never leaves your device.</strong><br>
+  All location matching happens on the device. The app does not transmit your coordinates or movement history to any server. The developer cannot see where you have been.
+</div>
+
+<h2>1. Information collected and stored</h2>
+
+<p>The following is stored <strong>only on your device</strong> and is never transmitted.</p>
+
+<table>
+<tr><th>Item</th><th>Purpose</th><th>Retention</th></tr>
+<tr><td>Current location (latitude/longitude)</td><td>Determine arrival at or departure from registered places</td><td>Only while needed for matching; not stored separately</td></tr>
+<tr><td>Registered places (name, coordinates, radius, alert settings)</td><td>Manage alert targets</td><td>Until you delete them</td></tr>
+<tr><td>Arrival/departure history</td><td>Prevent duplicate alerts, review past alerts</td><td>Deleted automatically after 90 days</td></tr>
+<tr><td>Activity log (diagnostics)</td><td>Investigate why an alert did not arrive</td><td>Up to 2 MB; oldest entries removed beyond that</td></tr>
+<tr><td>App settings (alert volume, vibration strength)</td><td>Preserve your preferences</td><td>Until you uninstall the app</td></tr>
+</table>
+
+<p class="muted">The activity log includes the coordinates used for matching. It is stored in the app's private storage where other apps cannot read it, and leaves the device <strong>only when you tap "Export" yourself</strong> — in which case you choose the destination.</p>
+
+<h2>2. Information transmitted outside the device</h2>
+
+<p>The app communicates externally only in the following cases.</p>
+
+<h3>Advertising identifier — Google AdMob</h3>
+<p>The app shows an ad after you dismiss an alert, using the Google AdMob SDK. AdMob <strong>collects and transmits your advertising ID (AAID) and device information</strong> to serve and measure ads.</p>
+<p class="muted">This processing follows Google's policies: <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google Privacy Policy</a> · <a href="https://support.google.com/admob/answer/6128543" target="_blank" rel="noopener">AdMob policies</a><br>
+You can reset or delete your advertising ID in Android Settings → Privacy → Ads.</p>
+
+<h3>Place search queries — Google Places API</h3>
+<p>If you search for a place by name when registering it, <strong>the search text you type</strong> is sent to the Google Places API to retrieve candidates. Nothing is sent if you do not use search.</p>
+<p class="muted">Only the search text is sent; your current location is not included.</p>
+
+<h3>Map display — Google Maps SDK</h3>
+<p>The Google Maps SDK requests map data to render the map screen, subject to Google's Maps service terms.</p>
+
+<h2>3. Information not collected</h2>
+<ul>
+<li>Personally identifying information such as name, email, or phone number — <strong>there is no sign-up</strong></li>
+<li>Contacts, photos, files, or call logs</li>
+<li>Any server-side accumulation of your routes or location history</li>
+</ul>
+
+<h2>4. Why each permission is used</h2>
+
+<table>
+<tr><th>Permission</th><th>Reason</th><th>If denied</th></tr>
+<tr><td>Location (precise)</td><td>Determine arrival at and departure from registered places</td><td>The app's core function does not work</td></tr>
+<tr><td>Background location</td><td>Required to alert you <strong>without opening the app</strong></td><td>Alerts work only while the app is on screen</td></tr>
+<tr><td>Notifications</td><td>Display arrival and departure alerts</td><td>No alerts are shown</td></tr>
+<tr><td>Ignore battery optimization</td><td>Deliver alerts on time even in power-saving states</td><td>Alerts may be delayed or missed</td></tr>
+<tr><td>Display over other apps</td><td>Show the alert screen while you use another app</td><td>Only a notification appears</td></tr>
+<tr><td>Full-screen notification</td><td>Show the alert screen when the display is off</td><td>Only a notification appears</td></tr>
+</table>
+
+<p class="muted">Battery optimization exemption, display over other apps, and full-screen notification are <strong>optional</strong>. The app works with notifications and vibration if you decline them.</p>
+
+<h2>5. Deleting your information</h2>
+<ul>
+<li><strong>Registered places</strong> — delete individually in the app</li>
+<li><strong>Activity log</strong> — Settings → Activity log → Clear</li>
+<li><strong>Everything</strong> — uninstalling the app removes all stored information</li>
+</ul>
+<p class="muted">Because the app keeps nothing on a server, there is no data held by the developer to request deletion of.</p>
+
+<h2>6. Children</h2>
+<p>This app is not directed to children under 13 and does not knowingly collect information from them.</p>
+
+<h2>7. Changes to this policy</h2>
+<p>Changes will be posted on this page with an updated date. Changes that add collected items or transmission destinations will be announced together with an app update.</p>
+
+<h2>8. Contact</h2>
+<p>For questions about privacy, please contact:</p>
+<p><code>chan4760@gmail.com</code></p>
+
+<footer>
+  Last updated: August 20, 2026<br>
+  EarLocAlert
+</footer>
+</div>
+</body>
+</html>
