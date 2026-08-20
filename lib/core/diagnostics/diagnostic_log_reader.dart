@@ -1,4 +1,7 @@
 import 'dart:convert';
+import 'dart:io';
+
+import 'package:path_provider/path_provider.dart';
 
 import 'diagnostic_log_file.dart';
 
@@ -56,6 +59,54 @@ abstract final class DiagnosticLogReader {
     } on Object {
       // 지우기 실패는 삼킨다 — 다시 읽으면 실제 상태가 보인다
     }
+  }
+
+  /// 지금 기록 파일이 차지하는 바이트. 없으면 0.
+  ///
+  /// 화면에 보여준다 — **저장공간을 얼마나 쓰는지 사용자가 알아야**
+  /// 지울지 말지 판단할 수 있다.
+  static Future<int> sizeInBytes() async {
+    try {
+      final file = await DiagnosticLogFile.resolve();
+      return await file.exists() ? await file.length() : 0;
+    } on Object {
+      return 0;
+    }
+  }
+
+  /// 내보내기용 스냅샷을 캐시에 만든다 (이슈 #110).
+  ///
+  /// **원본을 그대로 공유할 수 없다.** 이유가 둘이다.
+  ///
+  /// 1. `share_plus` 의 FileProvider 는 `{캐시}/share_plus/` 하나만
+  ///    공유하도록 선언되어 있다. 기록 파일이 있는 `files/` 는 그 범위 밖이라
+  ///    받는 앱이 URI 를 열지 못한다 — 첨부는 되는데 다운로드가 실패했다
+  /// 2. **공유하는 동안에도 기록은 계속 쌓인다.** 메일 앱이 나중에 읽으려
+  ///    할 때 파일이 이미 달라져 있다
+  ///
+  /// 확장자를 `.txt` 로 두는 것도 의도적이다. `.log` 는 알려진 MIME 이 없어
+  /// 받는 앱이 열기를 꺼린다.
+  ///
+  /// 내용은 관대하게 디코딩한 뒤 다시 쓴다 — 깨진 바이트가 정리되어
+  /// 어디서나 열리는 파일이 된다.
+  static Future<File> createExportSnapshot({DateTime? now}) async {
+    final content = (await read()).content;
+    final stamp = _stamp(now ?? DateTime.now());
+
+    final dir = await getTemporaryDirectory();
+    final file = File('${dir.path}/earlocalert-log-$stamp.txt');
+    await file.writeAsString(content, flush: true);
+    return file;
+  }
+
+  /// `20260820-0955` — 파일명에 쓸 지역 시각.
+  ///
+  /// 여러 번 내보낸 파일이 섞이지 않게 한다. UTC 가 아닌 이유는 이 값이
+  /// 저장용이 아니라 **사람이 보고 고르는 이름**이기 때문이다.
+  static String _stamp(DateTime now) {
+    String two(int v) => v.toString().padLeft(2, '0');
+    return '${now.year}${two(now.month)}${two(now.day)}'
+        '-${two(now.hour)}${two(now.minute)}';
   }
 
   /// 표시할 줄 목록. **최근 것이 위로 온다.**

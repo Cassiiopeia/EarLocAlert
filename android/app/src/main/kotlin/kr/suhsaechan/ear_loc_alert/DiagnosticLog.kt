@@ -31,7 +31,16 @@ object DiagnosticLog {
     private const val FILE_NAME = "diagnostic.log"
 
     /** Dart `FileDiagnosticLogger.defaultMaxBytes` 와 같은 값 */
-    private const val MAX_BYTES = 5L * 1024 * 1024
+    private const val MAX_BYTES = 2L * 1024 * 1024
+
+    /**
+     * 회전 후 남길 비율 — Dart `_keepRatioAfterRotate` 와 같은 값 (이슈 #110).
+     *
+     * **상한까지만 자르면 다음 한 줄에 또 넘는다.** 그러면 기록할 때마다
+     * 파일 전체를 읽고 쓰게 되어, 로그 한 줄이 수 메가바이트 I/O 가 된다.
+     * 감시 서비스에서 이건 그냥 고장이다.
+     */
+    private const val KEEP_AFTER_ROTATE = 0.7
 
     private val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US)
         .apply { timeZone = TimeZone.getTimeZone("UTC") }
@@ -72,11 +81,12 @@ object DiagnosticLog {
             // Kotlin 의 `String(bytes, UTF_8)` 은 깨진 바이트를 대체
             // 문자로 바꾼다 — 그 줄만 이상해 보이고 나머지는 살아남는다.
             val lines = String(file.readBytes(), Charsets.UTF_8).lines()
+            val target = (MAX_BYTES * KEEP_AFTER_ROTATE).toLong()
             var bytes = 0L
             val kept = ArrayDeque<String>()
             for (line in lines.asReversed()) {
                 val size = line.toByteArray().size + 1
-                if (bytes + size > MAX_BYTES) break
+                if (bytes + size > target) break
                 kept.addFirst(line)
                 bytes += size
             }

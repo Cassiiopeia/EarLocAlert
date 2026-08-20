@@ -22,8 +22,20 @@ class FileDiagnosticLogger implements DiagnosticLogger {
     DateTime Function()? clock,
   }) : _clock = clock ?? DateTime.now;
 
-  /// 5MB — 대략 2~4주치다. 문제가 생기고 며칠 뒤에 확인해도 추적된다.
-  static const int defaultMaxBytes = 5 * 1024 * 1024;
+  /// 2MB — 대략 만 줄이다. 문제가 생기고 며칠 뒤에 확인해도 추적된다.
+  ///
+  /// 5MB 에서 낮췄다 (이슈 #110). 기록을 알림 경로 전반으로 늘리면서
+  /// 쌓이는 속도가 빨라졌고, 회전 한 번에 읽고 쓰는 양이 그만큼 커진다.
+  static const int defaultMaxBytes = 2 * 1024 * 1024;
+
+  /// 회전 후 남길 비율 (이슈 #110).
+  ///
+  /// **상한까지만 자르면 다음 한 줄에 또 넘는다.** 그러면 기록할 때마다
+  /// 파일 전체를 읽고 자르고 다시 쓰게 되어, 로그 한 줄이 수 메가바이트
+  /// I/O 가 된다 — 백그라운드 판정 경로에서 이건 그냥 고장이다.
+  ///
+  /// 70% 로 자르면 30% 만큼의 여유가 생겨 그동안은 회전이 일어나지 않는다.
+  static const double _keepRatioAfterRotate = 0.7;
 
   final File file;
   final int maxBytes;
@@ -95,7 +107,8 @@ class FileDiagnosticLogger implements DiagnosticLogger {
   /// 상한을 넘으면 오래된 쪽을 버린다.
   ///
   /// 매 기록마다 길이를 재는 것은 싸다(메타데이터 조회). 실제 재작성은
-  /// 상한을 넘은 순간에만 일어난다.
+  /// 상한을 넘은 순간에만 일어나고, **그때 상한보다 넉넉히 잘라** 다음
+  /// 회전까지 여유를 둔다 (이슈 #110).
   Future<void> _rotateIfNeeded() async {
     final length = await file.length();
     if (length <= maxBytes) return;
@@ -105,7 +118,10 @@ class FileDiagnosticLogger implements DiagnosticLogger {
     final content = DiagnosticLogReader.decodeTolerant(
       await file.readAsBytes(),
     );
-    final trimmed = trimToLimit(content, maxBytes);
+    final trimmed = trimToLimit(
+      content,
+      (maxBytes * _keepRatioAfterRotate).round(),
+    );
     await file.writeAsString(trimmed, flush: true);
   }
 

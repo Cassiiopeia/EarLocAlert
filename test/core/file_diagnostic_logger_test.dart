@@ -26,6 +26,26 @@ void main() {
     clock: () => DateTime.utc(2026, 8, 14, 12, 30),
   );
 
+  test('회전은 상한보다 넉넉히 자른다 — 매 기록마다 재작성되면 안 된다 (이슈 #110)', () async {
+    const limit = 2048;
+    final logger = FileDiagnosticLogger(
+      file: logFile,
+      maxBytes: limit,
+      clock: () => DateTime.utc(2026, 8, 20, 12),
+    );
+
+    // 상한을 확실히 넘길 만큼 쌓는다
+    for (var i = 0; i < 80; i++) {
+      await logger.log('t', '가나다라마바사아자차 $i');
+    }
+
+    final size = await logFile.length();
+    // 상한 이하이면서, **상한에 딱 붙지 않아야** 한다.
+    // 딱 붙으면 다음 한 줄에 또 회전이 돌아 파일 전체를 다시 쓴다
+    expect(size, lessThanOrEqualTo(limit));
+    expect(size, lessThan((limit * 0.95).round()));
+  });
+
   test('첫 기록이 파일을 만든다', () async {
     final logger = build();
 
