@@ -86,11 +86,15 @@ flutter:
     # 알림음. 이어폰이 연결된 경우에만 재생된다 (F3.7)
     - assets/sounds/alert.wav
 # 앱 아이콘 생성: dart run flutter_launcher_icons (이슈 #65)
+#
+# adaptive_icon_background 는 아이콘 원본의 배경색과 같아야 한다 —
+# Android 12+ 는 전경에 마스크를 씌우므로 배경색이 어긋나면 테두리가
+# 다른 색으로 비친다. 전경은 배경을 지우고 핀만 남긴 이미지다.
 flutter_launcher_icons:
   android: true
   ios: true
   image_path: "assets/icon/app_icon.png"
-  adaptive_icon_background: "#0D0D0D"
+  adaptive_icon_background: "#021224"
   adaptive_icon_foreground: "assets/icon/app_icon_foreground.png"
   remove_alpha_ios: true
 # 스플래시 생성: dart run flutter_native_splash:create (이슈 #65)
