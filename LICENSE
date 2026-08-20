@@ -1,0 +1,45 @@
+저작권 (c) 2026 서새찬 (Saechan Suh)
+Copyright (c) 2026 Saechan Suh. All rights reserved.
+
+이어폰위치알림 (EarLocAlert)
+
+
+== 한국어 ==
+
+이 저장소의 소스 코드와 문서에 대한 모든 권리는 저작권자에게 있습니다.
+
+허용되는 것
+  - 열람 및 학습 목적의 읽기
+  - GitHub 기능을 통한 포크(fork)와 이슈·토론 참여
+
+사전 서면 허가 없이 금지되는 것
+  - 복제, 수정, 배포, 2차적 저작물 작성
+  - 상업적 이용 (앱 마켓 배포, 유료 서비스 제공, 광고 수익화 등)
+  - 전체 또는 일부를 다른 소프트웨어에 포함시키는 행위
+
+이 저장소가 공개된 이유는 이 앱이 **사용자의 위치 정보를 외부로 전송하지
+않는다**는 점을 누구나 검증할 수 있게 하기 위해서입니다. 공개는 이용 허락을
+의미하지 않습니다.
+
+문의: chan4760@gmail.com
+
+
+== English ==
+
+All rights to the source code and documentation in this repository are
+reserved by the copyright holder.
+
+Permitted
+  - Viewing and reading for study purposes
+  - Forking via GitHub features, and participating in issues/discussions
+
+Prohibited without prior written permission
+  - Copying, modifying, distributing, or creating derivative works
+  - Commercial use (app store distribution, paid services, ad monetization)
+  - Incorporating any part into other software
+
+This repository is public so that anyone can verify the claim that this app
+**does not transmit user location data off the device**. Publication does not
+grant a license to use.
+
+Contact: chan4760@gmail.com

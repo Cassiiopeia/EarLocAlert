@@ -1,14 +1,44 @@
 {
   "metadata": {
-    "lastUpdated": "2026-08-20T01:44:37Z",
-    "currentVersion": "1.8.0",
+    "lastUpdated": "2026-08-20T06:40:01Z",
+    "currentVersion": "1.9.0",
     "projectType": "flutter",
-    "totalReleases": 45,
+    "totalReleases": 46,
     "projectTypes": [
       "flutter"
     ]
   },
   "releases": [
+    {
+      "version": "1.9.0",
+      "project_types": [
+        "flutter"
+      ],
+      "date": "2026-08-20",
+      "pr_number": 113,
+      "raw_summary": "## [1.9.0]\n\n### ✨ 기능\n- 심사 준비: 인앱 업데이트를 DEV_FLAG 로 분리하고 제출 항목을 채운다 — AdMob 실제 앱 ID 와 전면 단위 ID 를 넣고, 배포 빌드임이 확인됐을 때만 실제 광고가 나가게 한다\n\n### 🐛 수정\n- 편집 중 뒤로가면 변경사항이 경고 없이 사라진다 — 저장하지 않은 변경이 있으면 이탈 전에 확인받는다. 입력 변경이 리빌드되지 않아 판정이 갱신되지 않던 것도 고친다\n\n### 📝 문서\n- 심사 준비: 인앱 업데이트를 DEV_FLAG 로 분리하고 제출 항목을 채운다 — 저작권 명시 라이선스를 추가한다",
+      "parsed_changes": {
+        "기능": {
+          "title": "✨ 기능",
+          "items": [
+            "심사 준비: 인앱 업데이트를 DEV_FLAG 로 분리하고 제출 항목을 채운다 — AdMob 실제 앱 ID 와 전면 단위 ID 를 넣고, 배포 빌드임이 확인됐을 때만 실제 광고가 나가게 한다"
+          ]
+        },
+        "수정": {
+          "title": "🐛 수정",
+          "items": [
+            "편집 중 뒤로가면 변경사항이 경고 없이 사라진다 — 저장하지 않은 변경이 있으면 이탈 전에 확인받는다. 입력 변경이 리빌드되지 않아 판정이 갱신되지 않던 것도 고친다"
+          ]
+        },
+        "문서": {
+          "title": "📝 문서",
+          "items": [
+            "심사 준비: 인앱 업데이트를 DEV_FLAG 로 분리하고 제출 항목을 채운다 — 저작권 명시 라이선스를 추가한다"
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "1.8.0",
       "project_types": [

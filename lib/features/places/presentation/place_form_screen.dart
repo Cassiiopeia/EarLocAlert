@@ -59,18 +59,129 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
 
   bool _saving = false;
 
+  /// 저장 버튼으로 나가는 중인가 (이슈 #112).
+  ///
+  /// 저장이 끝나면 폼과 저장된 값이 같아지지만, 그 판정을 기다리지 않고
+  /// 곧바로 화면이 닫히므로 이 깃발로 확인 창을 건너뛴다.
+  bool _leavingAfterSave = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // **입력이 바뀌면 다시 그린다** (이슈 #112).
+    //
+    // `PopScope.canPop` 은 빌드 시점에 평가되므로, 텍스트를 고쳐도
+    // 리빌드되지 않으면 "바꾼 것 없음"으로 남아 확인 없이 나가버린다.
+    // 필드마다 `onChanged` 를 다는 대신 컨트롤러를 한 곳에서 듣는다 —
+    // 필드를 추가할 때 빠뜨릴 여지를 없앤다.
+    for (final controller in [_name, _latitude, _longitude]) {
+      controller.addListener(_onFieldChanged);
+    }
+  }
+
+  void _onFieldChanged() {
+    if (mounted) setState(() {});
+  }
+
   @override
   void dispose() {
+    for (final controller in [_name, _latitude, _longitude]) {
+      controller.removeListener(_onFieldChanged);
+    }
     _name.dispose();
     _latitude.dispose();
     _longitude.dispose();
     super.dispose();
   }
 
+  /// 저장하지 않은 변경이 있는가 (이슈 #112).
+  ///
+  /// **편집과 신규 등록의 기준이 다르다.** 편집은 원본과 달라졌는지를 보고,
+  /// 신규는 무언가 입력했는지를 본다 — 빈 폼을 열었다 닫는 것은 버릴 것이
+  /// 없으므로 묻지 않는다.
+  bool get _hasUnsavedChanges {
+    final existing = widget.existing;
+    if (existing == null) {
+      return _name.text.trim().isNotEmpty ||
+          _latitude.text.trim().isNotEmpty ||
+          _longitude.text.trim().isNotEmpty ||
+          _schedules.isNotEmpty ||
+          // 신규 기본값과 달라졌으면 사용자가 건드린 것이다
+          _radius.round() != 100 ||
+          _direction != AlertDirection.enter ||
+          !_soundEnabled;
+    }
+
+    // 좌표는 문자열로 비교하면 `37.4` 와 `37.40` 이 다르게 잡힌다.
+    // 숫자로 바꿔서 본다
+    final latitude = double.tryParse(_latitude.text.trim());
+    final longitude = double.tryParse(_longitude.text.trim());
+
+    return _name.text.trim() != existing.name ||
+        latitude != existing.latitude ||
+        longitude != existing.longitude ||
+        _radius.round() != existing.radiusMeters ||
+        _direction != existing.direction ||
+        _soundEnabled != existing.soundEnabled ||
+        !_sameSchedules(_schedules, existing.schedules);
+  }
+
+  /// 시간대 목록이 같은가. 순서까지 같아야 같은 것으로 본다 —
+  /// 사용자가 순서를 바꿨다면 그것도 변경이다.
+  bool _sameSchedules(List<AlertSchedule> a, List<AlertSchedule> b) {
+    if (a.length != b.length) return false;
+    for (var i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+    return true;
+  }
+
+  /// 나가도 되는지 묻는다 (이슈 #112).
+  ///
+  /// **기본 선택은 "계속 편집"이다.** 실수로 나가려던 사용자가 다시
+  /// 실수로 버리는 것을 막는다.
+  Future<bool> _confirmDiscard() async {
+    final discard = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('저장하지 않고 나갈까요?'),
+        content: const Text('지금까지 바꾼 내용은 사라집니다.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('계속 편집'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('나가기'),
+          ),
+        ],
+      ),
+    );
+    return discard ?? false;
+  }
+
   @override
   Widget build(BuildContext context) {
     final isNew = widget.existing == null;
 
+    return PopScope(
+      // 바꾼 것이 없으면 그냥 나간다 — 안 바꿨는데 묻는 것은 방해다
+      canPop: !_hasUnsavedChanges || _leavingAfterSave,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+        // 다이얼로그를 열기 전에 Navigator 를 잡아둔다 — 확인을 기다리는
+        // 사이 이 위젯이 사라질 수 있고, 그때 context 를 쓰면 안 된다
+        final navigator = Navigator.of(context);
+        if (!await _confirmDiscard()) return;
+        if (!mounted) return;
+        navigator.pop();
+      },
+      child: _buildForm(isNew),
+    );
+  }
+
+  Widget _buildForm(bool isNew) {
     return Scaffold(
       appBar: AppBar(title: Text(isNew ? '장소 등록' : '장소 편집')),
       body: SafeArea(
@@ -265,6 +376,8 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
     setState(() => _saving = false);
 
     if (errors.isEmpty) {
+      // 저장 직후의 이탈은 묻지 않는다 (이슈 #112)
+      _leavingAfterSave = true;
       widget.onSaved?.call();
       return;
     }
