@@ -2,6 +2,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../../core/diagnostics/diagnostics.dart';
 import '../../../core/di/providers.dart';
 import '../../../core/domain/alert_direction.dart';
 import '../../../core/domain/alert_schedule.dart';
@@ -48,7 +49,13 @@ class PlaceActions extends _$PlaceActions {
       isNew: isNew,
       schedules: schedules,
     );
-    if (errors.isNotEmpty) return errors;
+    if (errors.isNotEmpty) {
+      Diagnostics.log(
+        'place',
+        '장소 저장 거부 name=$name 사유=${errors.map((e) => e.name).join(",")}',
+      );
+      return errors;
+    }
 
     final existing = isNew ? null : await repo.findById(id);
     await repo.save(
@@ -66,11 +73,22 @@ class PlaceActions extends _$PlaceActions {
         createdAt: existing?.createdAt ?? DateTime.now().toUtc(),
       ),
     );
+    // 등록한 장소와 반경이 판정의 입력이다 — 어긋난 좌표를 나중에
+    // 확인할 수 있어야 한다 (이슈 #106)
+    Diagnostics.log(
+      'place',
+      '장소 ${isNew ? "추가" : "수정"} name=${name.trim()} '
+          'lat=$latitude lng=$longitude radius=${radiusMeters}m '
+          'direction=${direction.name} sound=$soundEnabled '
+          'schedules=${schedules.length}건',
+    );
     return const [];
   }
 
   /// 활성/비활성 토글 (F1.7) — 삭제하지 않고 잠시 끄는 수단
   Future<void> setEnabled(String id, {required bool enabled}) {
+    // 꺼둔 장소는 감시되지 않는다 — "왜 안 울렸나"의 가장 단순한 답이다
+    Diagnostics.log('place', '장소 ${enabled ? "켜짐" : "꺼짐"} id=$id');
     return ref.read(placeRepositoryProvider).setEnabled(id, enabled: enabled);
   }
 
@@ -83,6 +101,7 @@ class PlaceActions extends _$PlaceActions {
     await repo.delete(id);
     // 장소가 사라지면 지오펜스 상태도 함께 지운다 (docs/03-DOMAIN.md)
     await ref.read(geofenceStateRepositoryProvider).remove(id);
+    Diagnostics.log('place', '장소 삭제 name=${place.name}');
     return place;
   }
 

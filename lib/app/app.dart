@@ -81,13 +81,17 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
               ),
             ),
           );
-    } on Object {
+      Diagnostics.log('app', '알림 플러그인 초기화 완료');
+    } on Object catch (error) {
       // 초기화 실패는 알림 탭 라우팅만 잃는다 — 감시는 계속 시도한다
+      Diagnostics.log('app', '알림 플러그인 초기화 실패 $error');
     }
     try {
       await ref.read(geofenceRegistrationSyncProvider).start();
-    } on Object {
+      Diagnostics.log('app', '지오펜스 동기화 시동 완료');
+    } on Object catch (error) {
       // 권한 미허용 등 — 다음 장소 변경 때 재시도된다
+      Diagnostics.log('app', '지오펜스 동기화 시동 실패 $error');
     }
     // 지난 세션이 남긴 알림을 먼저 치운다 (이슈 #84).
     //
@@ -103,6 +107,10 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
+    // 앱이 언제 앞으로 나오고 언제 내려갔는지가 "그때 왜 안 울렸나"의
+    // 기준선이다 (이슈 #106)
+    Diagnostics.log('app', '생명주기 ${state.name}');
+
     // 백그라운드 알림 뒤 앱을 열면(탭이든 직접이든) 풀 세션으로 잇는다
     if (state == AppLifecycleState.resumed) {
       unawaited(_resumePendingAlert());
@@ -142,6 +150,11 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
       // 예전에는 여기서 그냥 return 해버려, 진동은 10분 내내 이어지는데
       // 앱을 열어도 끌 화면이 없었다 — 강제종료 말고는 방법이 없었다.
       if (hadPending) {
+        Diagnostics.log(
+          'app',
+          '대기 알림 발견 승격=${request != null} '
+              'place=${request?.placeName ?? "만료·손상"}',
+        );
         await ref.read(alertWatchServiceProvider).stopNativeAlert();
         // 백그라운드 알림은 스와이프로 지워지지 않게 걸어두었다 (이슈 #84).
         // 지우는 책임이 여기 있다 — 안 지우면 영영 남는 알림이 된다.
@@ -149,12 +162,14 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
       }
       if (request == null) return;
 
+      Diagnostics.log('app', '알림 세션 승격 place=${request.placeName}');
       await ref.read(activeAlertProvider.notifier).fire(request);
       // 해제 시점에 광고가 준비되어 있게 미리 불러둔다
       unawaited(_preloadAd());
       _router.go(AppRoutes.alert);
-    } on Object {
+    } on Object catch (error) {
       // 알림 승격 실패가 앱 시작을 막으면 안 된다
+      Diagnostics.log('app', '알림 승격 실패 $error');
     }
   }
 

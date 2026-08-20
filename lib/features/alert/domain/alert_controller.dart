@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import '../../../core/diagnostics/diagnostics.dart';
 import '../../../core/domain/alert_direction.dart';
 import 'alert_effects.dart';
 import 'alert_session.dart';
@@ -100,7 +101,18 @@ class AlertController {
   }) async {
     final active = _current;
     if (active != null) {
-      if (active.placeId != request.placeId) _queue.add(request);
+      // 같은 장소면 버리고 다른 장소면 줄 세운다 — 왜 안 울렸는지의
+      // 흔한 답이 "이미 울리는 중이었다"다 (이슈 #106)
+      if (active.placeId != request.placeId) {
+        _queue.add(request);
+        Diagnostics.log(
+          'alert',
+          '이미 울리는 중 — 대기열 추가 place=${request.placeName} '
+              '(현재=${active.placeName}, 대기 ${_queue.length}건)',
+        );
+      } else {
+        Diagnostics.log('alert', '같은 장소 재발화 무시 place=${request.placeName}');
+      }
       return null;
     }
     return _start(request, vibrationInterval: vibrationInterval);
@@ -124,10 +136,18 @@ class AlertController {
     AlertRequest request, {
     required Duration vibrationInterval,
   }) async {
+    final intensity = await _readIntensity();
+    Diagnostics.log(
+      'alert',
+      '세션 시작 place=${request.placeName} '
+          'direction=${request.direction.name} '
+          'sound=${request.soundEnabled} vibration=${intensity.name}',
+    );
+
     // 진동이 먼저다 — 소리 판정이 오래 걸려도 알림은 이미 전달된다
     await _vibration.startRepeating(
       interval: vibrationInterval,
-      intensity: await _readIntensity(),
+      intensity: intensity,
     );
     await _notifier.show(
       placeName: request.placeName,
@@ -179,6 +199,16 @@ class AlertController {
       isHeadphoneConnected: connected,
       soundEnabled: request.soundEnabled,
     );
+
+    // **소리가 났는지 안 났는지가 이 앱에서 가장 자주 묻는 질문이다**
+    // (이슈 #106). 이어폰 연결과 장소 설정 중 무엇 때문에 조용했는지
+    // 로그 없이는 가릴 수 없다
+    Diagnostics.log(
+      'alert',
+      '오디오 판정 이어폰=$connected 장소설정=${request.soundEnabled} '
+          '결과=${route.name}',
+    );
+
     if (route == AudioRoute.silent) return; // 세션은 이미 silent 다
 
     try {
@@ -204,10 +234,11 @@ class AlertController {
       await _sound.play(volume: volume);
       if (_sessionToken != token) return;
       _updateRoute(AudioRoute.headphones, soundFailed: false);
-    } on Object {
+    } on Object catch (error) {
       // 재시도하지 않는다 — 재시도 중 라우팅이 바뀌어 스피커로 새는 것이
       // 최악이다 (docs/10-DECISIONS.md 007)
       if (_sessionToken != token) return;
+      Diagnostics.log('alert', '알림음 재생 실패 — 진동으로 떨어짐 $error');
       _updateRoute(_routeDecider.onPlaybackFailure(), soundFailed: true);
     }
   }
@@ -233,6 +264,11 @@ class AlertController {
     final session = _current;
     if (session == null) return null;
 
+    Diagnostics.log(
+      'alert',
+      '세션 해제 place=${session.placeName} 대기 ${_queue.length}건',
+    );
+
     // 토큰을 먼저 무효화한다 — 진행 중인 오디오 판정 결과가
     // 뒤늦게 도착해도 해제된 세션을 되살리지 못한다
     _sessionToken++;
@@ -245,6 +281,7 @@ class AlertController {
     // 대기 중이던 다른 장소의 알림을 이어서 처리한다
     if (_queue.isNotEmpty) {
       final next = _queue.removeAt(0);
+      Diagnostics.log('alert', '대기 알림 이어서 발화 place=${next.placeName}');
       await _start(next, vibrationInterval: vibrationInterval);
     }
 
