@@ -2,7 +2,7 @@
 
 <!-- 수정하지마세요 자동으로 동기화 됩니다 -->
 <!-- AUTO-VERSION-SECTION: DO NOT EDIT MANUALLY -->
-## 최신 버전 : v1.8.0 (2026-08-20)
+## 최신 버전 : v1.9.0 (2026-08-20)
 
 [![Flutter](https://img.shields.io/badge/Flutter-3.35.5-02569B?logo=flutter)](https://flutter.dev)
 [![Platform](https://img.shields.io/badge/platform-Android%20%7C%20iOS-lightgrey)](https://flutter.dev/multi-platform)
