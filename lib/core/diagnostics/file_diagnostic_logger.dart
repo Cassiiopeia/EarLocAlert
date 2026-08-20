@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'diagnostic_entry.dart';
+import 'diagnostic_log_reader.dart';
 import 'diagnostic_logger.dart';
 import 'log_rotation.dart';
 
@@ -50,7 +51,11 @@ class FileDiagnosticLogger implements DiagnosticLogger {
     return _serialize(() async {
       try {
         if (!await file.exists()) return '';
-        return await file.readAsString();
+        // **깨진 바이트가 있어도 읽어낸다** (이슈 #106).
+        // 두 프로세스가 같은 파일에 쓰다 보면 한글 한 글자가 중간에서
+        // 잘릴 수 있는데, `readAsString()` 은 그 순간 통째로 예외를 던진다.
+        // 그것을 "로그 없음"으로 삼키면 수천 줄이 한 글자 때문에 사라진다
+        return DiagnosticLogReader.decodeTolerant(await file.readAsBytes());
       } on Object {
         // 읽기 실패는 "로그 없음"으로 본다
         return '';
@@ -95,7 +100,11 @@ class FileDiagnosticLogger implements DiagnosticLogger {
     final length = await file.length();
     if (length <= maxBytes) return;
 
-    final content = await file.readAsString();
+    // 회전도 관대한 디코딩을 쓴다 — 여기서 예외가 나면 파일이 상한을
+    // 넘은 채 영영 자라고, 결국 읽기가 더 무거워진다 (이슈 #106)
+    final content = DiagnosticLogReader.decodeTolerant(
+      await file.readAsBytes(),
+    );
     final trimmed = trimToLimit(content, maxBytes);
     await file.writeAsString(trimmed, flush: true);
   }

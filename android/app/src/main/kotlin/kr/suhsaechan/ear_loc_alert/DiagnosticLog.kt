@@ -62,7 +62,16 @@ object DiagnosticLog {
     private fun rotateIfNeeded(file: File) {
         if (file.length() <= MAX_BYTES) return
         try {
-            val lines = file.readLines()
+            // **깨진 바이트에 견뎌야 한다** (이슈 #106).
+            //
+            // 이 파일은 Dart(앱 isolate·감시 엔진)와 여기가 함께 append
+            // 한다. 쓰기가 겹치면 한글 한 글자(UTF-8 3바이트)가 중간에서
+            // 잘릴 수 있는데, 기본 디코딩은 그 순간 예외를 던진다.
+            // 그러면 회전이 영영 실패해 파일이 상한을 넘은 채 자란다.
+            //
+            // Kotlin 의 `String(bytes, UTF_8)` 은 깨진 바이트를 대체
+            // 문자로 바꾼다 — 그 줄만 이상해 보이고 나머지는 살아남는다.
+            val lines = String(file.readBytes(), Charsets.UTF_8).lines()
             var bytes = 0L
             val kept = ArrayDeque<String>()
             for (line in lines.asReversed()) {

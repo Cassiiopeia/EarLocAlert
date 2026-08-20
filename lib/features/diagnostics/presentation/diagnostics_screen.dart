@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../../core/diagnostics/diagnostic_log_file.dart';
+import '../../../core/diagnostics/diagnostic_log_reader.dart';
 import '../../../core/diagnostics/diagnostics.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
@@ -26,6 +27,9 @@ class DiagnosticsScreen extends ConsumerStatefulWidget {
 
 class _DiagnosticsScreenState extends ConsumerState<DiagnosticsScreen> {
   String _content = '';
+
+  /// 기록 파일을 읽지 못한 사유. 비어 있으면 정상적으로 읽은 것이다
+  String _readError = '';
   bool _loading = true;
 
   @override
@@ -34,23 +38,40 @@ class _DiagnosticsScreenState extends ConsumerState<DiagnosticsScreen> {
     _load();
   }
 
+  /// 기록을 읽는다 (이슈 #106).
+  ///
+  /// **파일을 직접 연다 — `Diagnostics.logger` 를 거치지 않는다.**
+  /// 그 로거는 앱 시작 시 `init()` 이 성공해야 파일 로거가 되고, 실패하면
+  /// 아무것도 하지 않는 로거로 남는다. 그 상태에서 `readAll()` 은 무조건
+  /// 빈 문자열이라, **파일에 Kotlin 이 남긴 기록이 잔뜩 있어도 화면은
+  /// 0건으로 보인다.** 진단 화면이 진단 대상의 초기화 성공 여부에
+  /// 의존하면 안 된다 — 정확히 그것이 실패했을 때 열리는 화면이다.
+  ///
+  /// 초기화도 여기서 한 번 더 시도한다. 성공하면 이후 화면에서 발생하는
+  /// 기록도 남고, 실패해도 읽기는 파일에서 직접 하므로 영향이 없다.
   Future<void> _load() async {
-    final content = await Diagnostics.logger.readAll();
+    setState(() => _loading = true);
+
+    // 실패해도 아래 파일 읽기는 그대로 진행된다
+    await Diagnostics.init();
+
+    // **이 줄이 다음에 보이면 로깅이 살아있다는 뜻이다** (이슈 #106).
+    // 기록이 비어 보일 때 "안 쌓이는 것"인지 "못 읽는 것"인지를
+    // 사용자가 스스로 가릴 수 있는 가장 단순한 신호다
+    Diagnostics.log('diag', '진단 기록 화면 열림');
+
+    final result = await DiagnosticLogReader.read();
+
     if (!mounted) return;
     setState(() {
-      _content = content;
+      _content = result.content;
+      _readError = result.error;
       _loading = false;
     });
   }
 
   /// 최근 것이 위로 오게 뒤집는다
-  List<String> get _lines {
-    final lines = _content
-        .split('\n')
-        .where((line) => line.trim().isNotEmpty)
-        .toList();
-    return lines.reversed.toList();
-  }
+  List<String> get _lines => DiagnosticLogReader.linesOf(_content);
 
   Future<void> _export() async {
     try {
@@ -91,7 +112,9 @@ class _DiagnosticsScreenState extends ConsumerState<DiagnosticsScreen> {
     );
     if (confirmed != true) return;
 
+    // 로거가 초기화되지 않았을 수 있으므로 파일도 직접 비운다 (이슈 #106)
     await Diagnostics.logger.clear();
+    await DiagnosticLogReader.clear();
     await _load();
   }
 
@@ -129,7 +152,7 @@ class _DiagnosticsScreenState extends ConsumerState<DiagnosticsScreen> {
                 _Header(lineCount: lines.length),
                 Expanded(
                   child: lines.isEmpty
-                      ? const _EmptyState()
+                      ? _EmptyState(readError: _readError)
                       : ListView.separated(
                           padding: const EdgeInsets.symmetric(
                             horizontal: AppSpacing.md,
@@ -176,17 +199,42 @@ class _Header extends StatelessWidget {
   }
 }
 
+/// 보여줄 줄이 없을 때 (이슈 #106)
+///
+/// **"기록 없음"과 "읽지 못함"을 구분한다.** 둘은 완전히 다른 상황인데
+/// 예전에는 둘 다 "아직 기록이 없습니다"로 보였다. 파일을 못 읽는 중에
+/// 그 문구를 보면 사용자는 감시가 안 도는 줄 알고 없는 문제를 찾게 된다.
 class _EmptyState extends StatelessWidget {
-  const _EmptyState();
+  const _EmptyState({this.readError = ''});
+
+  final String readError;
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
+    final failed = readError.isNotEmpty;
+
+    return Center(
       child: Padding(
-        padding: EdgeInsets.all(AppSpacing.lg),
-        child: Text(
-          '아직 기록이 없습니다.\n장소를 등록하고 감시가 시작되면 쌓입니다.',
-          textAlign: TextAlign.center,
+        padding: const EdgeInsets.all(AppSpacing.lg),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              failed
+                  ? '기록을 읽지 못했습니다.'
+                  : '아직 기록이 없습니다.\n앱을 다시 켜거나 감시가 시작되면 쌓입니다.',
+              textAlign: TextAlign.center,
+              style: AppTypography.body,
+            ),
+            if (failed) ...[
+              const SizedBox(height: AppSpacing.sm),
+              Text(
+                readError,
+                textAlign: TextAlign.center,
+                style: AppTypography.caption,
+              ),
+            ],
+          ],
         ),
       ),
     );
