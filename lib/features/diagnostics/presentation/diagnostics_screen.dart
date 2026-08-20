@@ -3,8 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
 
-import '../../../core/diagnostics/diagnostic_log_file.dart';
 import '../../../core/diagnostics/diagnostic_log_reader.dart';
+import '../../../core/diagnostics/file_diagnostic_logger.dart';
 import '../../../core/diagnostics/diagnostics.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
@@ -30,6 +30,9 @@ class _DiagnosticsScreenState extends ConsumerState<DiagnosticsScreen> {
 
   /// 기록 파일을 읽지 못한 사유. 비어 있으면 정상적으로 읽은 것이다
   String _readError = '';
+
+  /// 기록이 차지하는 용량 (이슈 #110)
+  int _sizeBytes = 0;
   bool _loading = true;
 
   @override
@@ -61,11 +64,13 @@ class _DiagnosticsScreenState extends ConsumerState<DiagnosticsScreen> {
     Diagnostics.log('diag', '진단 기록 화면 열림');
 
     final result = await DiagnosticLogReader.read();
+    final size = await DiagnosticLogReader.sizeInBytes();
 
     if (!mounted) return;
     setState(() {
       _content = result.content;
       _readError = result.error;
+      _sizeBytes = size;
       _loading = false;
     });
   }
@@ -73,14 +78,24 @@ class _DiagnosticsScreenState extends ConsumerState<DiagnosticsScreen> {
   /// 최근 것이 위로 오게 뒤집는다
   List<String> get _lines => DiagnosticLogReader.linesOf(_content);
 
+  /// 기록을 파일로 내보낸다 (이슈 #110).
+  ///
+  /// **원본이 아니라 스냅샷을 보낸다.** 원본은 `share_plus` 가 공유할 수
+  /// 있는 경로 밖에 있고, 공유하는 동안에도 계속 쌓여서 받는 앱이 나중에
+  /// 읽을 때 이미 달라져 있다 — 그래서 첨부는 되는데 다운로드가 실패했다.
   Future<void> _export() async {
+    if (_content.isEmpty) {
+      _toast('내보낼 기록이 없습니다');
+      return;
+    }
     try {
-      final file = await DiagnosticLogFile.resolve();
-      if (!file.existsSync()) {
-        _toast('내보낼 기록이 없습니다');
-        return;
-      }
-      await Share.shareXFiles([XFile(file.path)], subject: 'EarLocAlert 진단 로그');
+      final snapshot = await DiagnosticLogReader.createExportSnapshot();
+      await Share.shareXFiles(
+        // **MIME 을 명시한다.** 없으면 확장자로 추론되는데, 받는 앱이
+        // 알 수 없는 형식으로 보고 열기를 거부할 수 있다
+        [XFile(snapshot.path, mimeType: 'text/plain')],
+        subject: '이어폰위치알림 기록',
+      );
     } on Object {
       // 공유 시트를 못 띄우면 복사로 물러난다 — 꺼낼 길이 하나는 남아야 한다
       await _copy();
@@ -131,7 +146,7 @@ class _DiagnosticsScreenState extends ConsumerState<DiagnosticsScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('진단 기록'),
+        title: const Text('동작 기록'),
         actions: [
           IconButton(
             onPressed: _load,
@@ -149,7 +164,7 @@ class _DiagnosticsScreenState extends ConsumerState<DiagnosticsScreen> {
           ? const Center(child: CircularProgressIndicator())
           : Column(
               children: [
-                _Header(lineCount: lines.length),
+                _Header(lineCount: lines.length, sizeBytes: _sizeBytes),
                 Expanded(
                   child: lines.isEmpty
                       ? _EmptyState(readError: _readError)
@@ -175,9 +190,15 @@ class _DiagnosticsScreenState extends ConsumerState<DiagnosticsScreen> {
 }
 
 class _Header extends StatelessWidget {
-  const _Header({required this.lineCount});
+  const _Header({required this.lineCount, this.sizeBytes = 0});
 
   final int lineCount;
+
+  /// 기록이 차지하는 용량 (이슈 #110).
+  ///
+  /// **얼마나 쓰는지 보여야 지울지 판단할 수 있다.** 상한이 있다는 사실도
+  /// 함께 알린다 — 무한히 커진다고 오해하면 불안해서 계속 지우게 된다.
+  final int sizeBytes;
 
   @override
   Widget build(BuildContext context) {
@@ -189,7 +210,9 @@ class _Header extends StatelessWidget {
           const SizedBox(width: AppSpacing.xs),
           Expanded(
             child: Text(
-              '$lineCount건 · 이 기록은 기기 안에만 저장되며 전송되지 않습니다',
+              '$lineCount건 · ${_formatSize(sizeBytes)} / 최대 '
+              '${_formatSize(FileDiagnosticLogger.defaultMaxBytes)}\n'
+              '기기 안에만 저장되며 전송되지 않습니다. 가득 차면 오래된 것부터 지워집니다',
               style: AppTypography.caption,
             ),
           ),
@@ -239,6 +262,13 @@ class _EmptyState extends StatelessWidget {
       ),
     );
   }
+}
+
+/// `1.2MB` · `340KB` 처럼 읽기 쉬운 크기로 (이슈 #110)
+String _formatSize(int bytes) {
+  if (bytes < 1024) return '${bytes}B';
+  if (bytes < 1024 * 1024) return '${(bytes / 1024).round()}KB';
+  return '${(bytes / (1024 * 1024)).toStringAsFixed(1)}MB';
 }
 
 /// 로그 한 줄 — 시각·태그·내용을 갈라 보여준다

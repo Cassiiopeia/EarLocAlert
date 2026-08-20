@@ -127,6 +127,10 @@ class MainActivity : FlutterActivity() {
             val installer = ApkInstaller(this)
             when (call.method) {
                 "getVersionName" -> result.success(versionName())
+                // 인앱 업데이트가 이 빌드에 들어 있는가 (이슈 #109).
+                // 꺼져 있으면 설치 권한 선언 자체가 매니페스트에서 빠져
+                // 있으므로, 화면에 항목을 띄우면 눌러도 실패만 한다
+                "isUpdateFeatureEnabled" -> result.success(BuildConfig.DEV_FLAG)
                 "canInstall" -> result.success(installer.canInstall())
                 "openInstallPermissionSettings" -> {
                     installer.openInstallPermissionSettings()

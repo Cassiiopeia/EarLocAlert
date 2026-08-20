@@ -121,6 +121,37 @@ void main() {
     expect(await logger.readAll(), contains('살아있는 줄'));
   });
 
+  test('내보내기 스냅샷은 캐시에 .txt 로 만들어진다 (이슈 #110)', () async {
+    // 원본은 share_plus 가 공유할 수 있는 경로 밖에 있고, 공유하는 동안에도
+    // 계속 쌓인다 — 그래서 첨부는 되는데 다운로드가 실패했다
+    await logFile.writeAsString('2026-08-20T10:00:00.000Z [app] 내보낼 줄\n');
+
+    final snapshot = await DiagnosticLogReader.createExportSnapshot(
+      now: DateTime(2026, 8, 20, 9, 55),
+    );
+
+    expect(snapshot.path, endsWith('.txt'));
+    expect(snapshot.path, contains('20260820-0955'));
+    expect(await snapshot.readAsString(), contains('내보낼 줄'));
+  });
+
+  test('스냅샷은 깨진 바이트가 정리된 상태로 나간다 (이슈 #110)', () async {
+    final good = utf8.encode('2026-08-20T10:00:00.000Z [app] 정상 줄\n');
+    await logFile.writeAsBytes([...good, 0xED, 0x95]);
+
+    final snapshot = await DiagnosticLogReader.createExportSnapshot();
+
+    // 다시 읽어도 예외가 나지 않아야 한다 — 받는 쪽에서 열리는 파일이다
+    expect(await snapshot.readAsString(), contains('정상 줄'));
+  });
+
+  test('기록 용량을 잰다 — 없으면 0', () async {
+    expect(await DiagnosticLogReader.sizeInBytes(), 0);
+
+    await logFile.writeAsString('12345');
+    expect(await DiagnosticLogReader.sizeInBytes(), 5);
+  });
+
   test('경로를 못 잡으면 사유를 남긴다 — 조용히 "기록 없음"이 되지 않는다', () async {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(

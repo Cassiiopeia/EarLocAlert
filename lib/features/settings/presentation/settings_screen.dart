@@ -106,8 +106,8 @@ class SettingsScreen extends StatelessWidget {
             const _SectionLabel('문제 해결'),
             _SettingTile(
               icon: Icons.receipt_long_outlined,
-              title: '진단 기록',
-              subtitle: '알림이 오지 않았을 때 무슨 일이 있었는지 봅니다',
+              title: '동작 기록',
+              subtitle: '알림이 언제 왜 울렸는지 기록을 보고 내보냅니다',
               onTap: onOpenDiagnostics,
             ),
 

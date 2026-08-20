@@ -12,6 +12,15 @@ part 'update_provider.g.dart';
 @Riverpod(keepAlive: true)
 AppUpdateService appUpdateService(Ref ref) => GithubReleaseService();
 
+/// 이 빌드에 인앱 업데이트가 들어 있는가 (이슈 #109).
+///
+/// `.env` 의 `DEV_FLAG` 로 결정된다. 꺼져 있으면 설정 화면에서 항목이
+/// 사라진다 — 스토어 심사 빌드가 이 상태다.
+@riverpod
+Future<bool> updateFeatureEnabled(Ref ref) {
+  return AppInstallerChannel.isFeatureEnabled();
+}
+
 /// 현재 설치된 버전 문자열.
 ///
 /// **네트워크를 타지 않는다** — 설정 화면을 열 때마다 릴리스를 조회하면

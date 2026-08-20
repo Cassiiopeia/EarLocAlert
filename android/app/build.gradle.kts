@@ -20,10 +20,11 @@ if (keystorePropertiesFile.exists()) {
 // 파일이 없거나 값이 비어 있어도 빌드는 성공한다. 지도만 회색으로 뜨고
 // 나머지 기능은 정상 동작한다 — 키가 없는 사람도 빌드할 수 있어야 한다.
 val dotenvFile = rootProject.file("../.env")
-val mapsApiKey: String = if (dotenvFile.exists()) {
+
+fun readEnv(key: String): String = if (dotenvFile.exists()) {
     dotenvFile.readLines()
         .map { it.trim() }
-        .firstOrNull { it.startsWith("MAPS_API_KEY=") }
+        .firstOrNull { it.startsWith("$key=") }
         ?.substringAfter("=")
         ?.trim()
         ?.trim('"', '\'')
@@ -32,7 +33,30 @@ val mapsApiKey: String = if (dotenvFile.exists()) {
     ""
 }
 
+val mapsApiKey: String = readEnv("MAPS_API_KEY")
+
+// 개발용 기능 플래그 (이슈 #109).
+//
+// **인앱 업데이트(#104)를 통째로 넣고 뺀다.** 스토어 배포 전까지는
+// 사이드로드가 유일한 배포 경로라 그 기능이 필요하지만, Play 는
+// `REQUEST_INSTALL_PACKAGES` 를 앱스토어·파일 관리자가 아닌 앱에서
+// 거의 반려한다.
+//
+// **Dart 쪽 화면만 숨기는 것으로는 부족하다.** 권한 선언이 매니페스트에
+// 남아 있으면 심사에 그대로 걸린다. 그래서 이 값이 매니페스트 병합
+// (`tools:node`)과 BuildConfig 양쪽을 함께 제어한다.
+//
+// **기본값은 꺼짐이다.** `.env` 가 없는 사람이 빌드하면 심사 가능한
+// 형태로 나오는 것이 안전하다 — 실수로 켜진 채 제출되는 것이 그 반대보다
+// 훨씬 비싸다.
+val devFlag: Boolean = readEnv("DEV_FLAG").equals("true", ignoreCase = true)
+
 android {
+
+    // BuildConfig.DEV_FLAG 를 쓰기 위해 필요하다 (이슈 #109)
+    buildFeatures {
+        buildConfig = true
+    }
 
     // Signing Configurations
     signingConfigs {
@@ -74,6 +98,22 @@ android {
         // AndroidManifest 의 ${MAPS_API_KEY} 를 치환한다.
         // 키를 매니페스트에 직접 적지 않는 이유는 커밋을 막기 위해서다.
         manifestPlaceholders["MAPS_API_KEY"] = mapsApiKey
+
+        // 설치 권한을 넣고 뺀다 (이슈 #109).
+        //
+        // 꺼진 경우 **이미 선언된 INTERNET 으로 치환한다.** 병합기가 중복
+        // 선언을 하나로 합치므로 결과 매니페스트에 설치 권한이 남지 않는다.
+        //
+        // `tools:node` 에 placeholder 를 쓰는 방법은 불가능하다 — 병합기가
+        // 치환보다 먼저 그 값을 파싱해 `No enum constant` 로 죽는다.
+        manifestPlaceholders["installPermission"] = if (devFlag) {
+            "android.permission.REQUEST_INSTALL_PACKAGES"
+        } else {
+            "android.permission.INTERNET"
+        }
+
+        // Dart 가 채널로 읽어 설정 화면 항목을 감춘다
+        buildConfigField("boolean", "DEV_FLAG", devFlag.toString())
     }
 
     buildTypes {

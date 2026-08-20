@@ -32,6 +32,24 @@ class AppInstallerChannel {
     }
   }
 
+  /// 이 빌드에 인앱 업데이트가 들어 있는가 (이슈 #109).
+  ///
+  /// `.env` 의 `DEV_FLAG` 가 켜져 있을 때만 true 다. 꺼진 빌드에서는
+  /// `REQUEST_INSTALL_PACKAGES` 권한과 FileProvider 선언이 매니페스트에서
+  /// 통째로 빠지므로, 화면에 항목을 띄워봐야 눌러도 실패만 한다.
+  ///
+  /// **기본값은 false 다** — 값을 못 읽으면 없는 것으로 본다. 심사 빌드에
+  /// 실수로 남는 쪽이 훨씬 비싸다.
+  static Future<bool> isFeatureEnabled() async {
+    if (!Platform.isAndroid) return false;
+    try {
+      return await _channel.invokeMethod<bool>('isUpdateFeatureEnabled') ??
+          false;
+    } on Object {
+      return false;
+    }
+  }
+
   /// APK 를 저장하고 설치 화면을 띄운다.
   ///
   /// 저장 위치는 앱 캐시다 — 외부 저장소 권한이 필요 없고, 설치가 끝나면
