@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../core/config/dev_flag.dart';
 import '../core/diagnostics/diagnostics.dart';
+import '../features/ads/domain/ad_unit_ids.dart';
 import '../core/theme/app_theme.dart';
 import '../features/ads/presentation/ads_providers.dart';
 import '../features/alert/presentation/alert_controller_provider.dart';
@@ -64,7 +66,15 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
     // 추적 대상이다. 백그라운드 엔진과 같은 파일에 쌓이므로 한 화면에서
     // 시간순으로 읽힌다.
     await Diagnostics.init();
-    Diagnostics.log('app', '앱 시작');
+
+    // 빌드 성격을 먼저 확정한다 (이슈 #109) — 광고 종류와 인앱 업데이트
+    // 표시 여부가 여기에 달려 있다
+    await DevFlag.init();
+    Diagnostics.log(
+      'app',
+      '앱 시작 devBuild=${DevFlag.isDevBuild} '
+          '광고=${AdUnitIds.usingTestIds ? "테스트" : "실제"}',
+    );
 
     try {
       // 알림 탭으로 앱이 열리는 경로에 필요하다. 권한 요청은 온보딩이

@@ -115,6 +115,21 @@ class MainActivity : FlutterActivity() {
             }
         }
 
+        // 빌드 성격 (이슈 #109).
+        //
+        // `.env` 의 DEV_FLAG 가 인앱 업데이트 포함 여부와 광고 종류를
+        // 함께 가른다. Dart 가 앱 시작 시 한 번 읽어 캐시한다.
+        MethodChannel(
+            flutterEngine.dartExecutor.binaryMessenger,
+            "kr.suhsaechan.ear_loc_alert/app_config",
+        ).setMethodCallHandler { call, result ->
+            if (call.method == "isDevBuild") {
+                result.success(BuildConfig.DEV_FLAG)
+            } else {
+                result.notImplemented()
+            }
+        }
+
         // 앱 업데이트 (이슈 #104).
         //
         // 스토어 배포 전까지 사이드로드가 유일한 배포 경로다. 릴리스 조회와

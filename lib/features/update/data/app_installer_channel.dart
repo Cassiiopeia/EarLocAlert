@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:flutter/services.dart';
 
+import '../../../core/config/dev_flag.dart';
+
 import '../domain/app_update.dart';
 
 /// APK 설치 채널 (이슈 #104)
@@ -34,20 +36,16 @@ class AppInstallerChannel {
 
   /// 이 빌드에 인앱 업데이트가 들어 있는가 (이슈 #109).
   ///
-  /// `.env` 의 `DEV_FLAG` 가 켜져 있을 때만 true 다. 꺼진 빌드에서는
-  /// `REQUEST_INSTALL_PACKAGES` 권한과 FileProvider 선언이 매니페스트에서
-  /// 통째로 빠지므로, 화면에 항목을 띄워봐야 눌러도 실패만 한다.
+  /// **판정은 [DevFlag] 하나로 모은다** — 광고 종류도 같은 값이 가르므로,
+  /// 읽는 자리가 둘이 되면 한쪽만 바뀌어 어긋난다.
   ///
-  /// **기본값은 false 다** — 값을 못 읽으면 없는 것으로 본다. 심사 빌드에
-  /// 실수로 남는 쪽이 훨씬 비싸다.
+  /// 꺼진 빌드에서는 `REQUEST_INSTALL_PACKAGES` 권한과 FileProvider 선언이
+  /// 매니페스트에서 통째로 빠지므로, 화면에 항목을 띄워봐야 눌러도
+  /// 실패만 한다.
   static Future<bool> isFeatureEnabled() async {
     if (!Platform.isAndroid) return false;
-    try {
-      return await _channel.invokeMethod<bool>('isUpdateFeatureEnabled') ??
-          false;
-    } on Object {
-      return false;
-    }
+    await DevFlag.init();
+    return DevFlag.isDevBuild;
   }
 
   /// APK 를 저장하고 설치 화면을 띄운다.
