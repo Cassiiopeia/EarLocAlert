@@ -1,14 +1,32 @@
 {
   "metadata": {
-    "lastUpdated": "2026-08-20T23:52:45Z",
-    "currentVersion": "1.10.0",
+    "lastUpdated": "2026-08-21T02:14:12Z",
+    "currentVersion": "1.10.1",
     "projectType": "flutter",
-    "totalReleases": 47,
+    "totalReleases": 48,
     "projectTypes": [
       "flutter"
     ]
   },
   "releases": [
+    {
+      "version": "1.10.1",
+      "project_types": [
+        "flutter"
+      ],
+      "date": "2026-08-21",
+      "pr_number": 116,
+      "raw_summary": "## [1.10.1]\n\n### 🐛 수정\n- 권한 경고 배너가 뜨지 않고 권한 조회가 무한 반복된다 — 자동 폐기 고리를 끊어 권한 상태가 확정되게 하고, 배너를 지도 위에서 읽히게 바꾼다. 무엇이 꺼졌는지 이름으로 알린다",
+      "parsed_changes": {
+        "수정": {
+          "title": "🐛 수정",
+          "items": [
+            "권한 경고 배너가 뜨지 않고 권한 조회가 무한 반복된다 — 자동 폐기 고리를 끊어 권한 상태가 확정되게 하고, 배너를 지도 위에서 읽히게 바꾼다. 무엇이 꺼졌는지 이름으로 알린다"
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "1.10.0",
       "project_types": [
