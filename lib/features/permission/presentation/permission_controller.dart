@@ -13,7 +13,23 @@ part 'permission_controller.g.dart';
 /// 권한 상태 컨트롤러 (docs/04-CONVENTIONS.md)
 ///
 /// 화면 데이터는 Provider 에 둔다 — `setState` 로 관리하지 않는다.
-@riverpod
+///
+/// **`keepAlive` 여야 한다** (이슈 #115). 자동 폐기로 두면 이 값을 읽는
+/// 비동기 Provider(`homeStatus`)와 무한 루프가 생긴다:
+///
+/// ```
+/// homeStatus 빌드 → 이 Provider 를 watch (생성·로딩)
+///      ↑                        ↓
+///      └──── 무효화 ←──── 로딩 완료로 상태 변경
+/// ```
+///
+/// `homeStatus` 가 다시 계산되는 순간 구독이 잠깐 끊기고, 자동 폐기 대상이라
+/// 즉시 버려진 뒤 처음부터 다시 로딩된다. 그 결과 **영원히 로딩 상태로
+/// 남아** 권한 경고 배너가 뜨지 않고, 권한 조회 채널이 초당 수십 번 불린다.
+///
+/// 권한은 앱 전역 상태라 살려두는 것이 의미상으로도 맞다. 갱신은
+/// [refresh] 로 명시적으로 한다 — 시스템 설정에서 돌아왔을 때 부른다.
+@Riverpod(keepAlive: true)
 class PermissionController extends _$PermissionController {
   /// 마지막으로 기록한 권한 상태 (이슈 #106).
   ///

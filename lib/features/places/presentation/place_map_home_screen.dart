@@ -29,6 +29,7 @@ class PlaceMapHomeScreen extends ConsumerStatefulWidget {
     required this.isHeadphoneConnected,
     required this.onAddPlace,
     this.canAlertReliably = true,
+    this.missingReliability = const [],
     this.onEditPlace,
     this.onFixMonitoring,
     this.onFixReliability,
@@ -52,6 +53,9 @@ class PlaceMapHomeScreen extends ConsumerStatefulWidget {
   /// 기본값이 true 인 이유는, 모르는 상태에서 경고를 띄우면 정상인
   /// 사용자에게 없는 문제를 보여주기 때문이다.
   final bool canAlertReliably;
+
+  /// 아직 켜지지 않은 신뢰성 권한 이름 (이슈 #115)
+  final List<String> missingReliability;
 
   /// 감시가 꺼져 있을 때 해결 경로로 보낸다 — 권한 화면
   final VoidCallback? onFixMonitoring;
@@ -186,6 +190,7 @@ class _PlaceMapHomeScreenState extends ConsumerState<PlaceMapHomeScreen>
             hasEnabledPlaces: places.any((place) => place.enabled),
             isHeadphoneConnected: widget.isHeadphoneConnected,
             canAlertReliably: widget.canAlertReliably,
+            missingReliability: widget.missingReliability,
             onFixMonitoring: widget.onFixMonitoring,
             onFixReliability: widget.onFixReliability,
             onOpenSettings: widget.onOpenSettings,
@@ -398,6 +403,7 @@ class _StatusBar extends StatelessWidget {
     required this.hasEnabledPlaces,
     required this.isHeadphoneConnected,
     required this.canAlertReliably,
+    this.missingReliability = const [],
     this.onFixMonitoring,
     this.onFixReliability,
     this.onOpenSettings,
@@ -416,6 +422,9 @@ class _StatusBar extends StatelessWidget {
 
   /// 백그라운드 알림이 놓치기 어려운 형태로 오는가 (이슈 #74)
   final bool canAlertReliably;
+
+  /// 아직 켜지지 않은 신뢰성 권한 이름 (이슈 #115)
+  final List<String> missingReliability;
 
   final VoidCallback? onFixMonitoring;
   final VoidCallback? onFixReliability;
@@ -451,7 +460,10 @@ class _StatusBar extends StatelessWidget {
             _statusPill(semantic, statusColor),
             if (_isWeak) ...[
               const SizedBox(height: AppSpacing.xs),
-              _WeakAlertBanner(onTap: onFixReliability!),
+              _WeakAlertBanner(
+                onTap: onFixReliability!,
+                missing: missingReliability,
+              ),
             ],
           ],
         ),
@@ -540,45 +552,84 @@ class _StatusBar extends StatelessWidget {
   }
 }
 
-/// 알림이 약할 때만 뜨는 안내 (이슈 #74)
+/// 알림이 약할 때 뜨는 경고 (이슈 #74, #115)
 ///
-/// **경고가 아니라 안내다.** 알림은 오고 있고, 이걸 켜면 더 확실해진다는
-/// 뜻이다. 온보딩에서 건너뛴 사용자에게 유일한 재진입 경로이기도 하다.
+/// **눈에 띄어야 한다.** 예전에는 회색 알약에 한 줄이라 지도 위에서 그냥
+/// 묻혔고, 문구도 잘려서 무엇이 문제인지 읽히지 않았다. 이 배너를 놓치면
+/// 사용자는 절전 중에 알림을 못 받고도 이유를 모른다.
+///
+/// 다만 **고장은 아니다.** 알림은 오고 있고 이걸 켜면 확실해진다는 뜻이라,
+/// 감시가 아예 안 도는 상태(빨강)와는 색을 구분한다.
 class _WeakAlertBanner extends StatelessWidget {
-  const _WeakAlertBanner({required this.onTap});
+  const _WeakAlertBanner({required this.onTap, this.missing = const []});
 
   final VoidCallback onTap;
 
+  /// 아직 켜지지 않은 항목 이름. 비어 있으면 일반 문구로 떨어진다.
+  ///
+  /// **무엇이 빠졌는지 말해주는 것이 핵심이다** — "알림이 약합니다"만으로는
+  /// 무엇을 해야 할지 알 수 없다.
+  final List<String> missing;
+
   @override
   Widget build(BuildContext context) {
+    const accent = AppColors.primary;
+
+    // **불투명해야 한다.** 지도 위에 뜨는 배너라 반투명이면 도로와 지명이
+    // 글자 뒤로 비쳐 읽히지 않는다. 표면색에 강조색을 섞어 경고 기운은
+    // 남기되 바탕은 가린다
     return Material(
-      color: AppColors.bgSurface,
-      borderRadius: BorderRadius.circular(AppRadius.pill),
+      color: Color.alphaBlend(
+        accent.withValues(alpha: 0.22),
+        AppColors.bgSurface,
+      ),
+      borderRadius: BorderRadius.circular(AppRadius.card),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(AppRadius.pill),
-        child: Padding(
+        borderRadius: BorderRadius.circular(AppRadius.card),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(AppRadius.card),
+            border: Border.all(color: accent.withValues(alpha: 0.55)),
+          ),
           padding: const EdgeInsets.symmetric(
             horizontal: AppSpacing.sm,
-            vertical: AppSpacing.xs,
+            vertical: AppSpacing.sm,
           ),
           child: Row(
-            mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(
-                Icons.notifications_paused_outlined,
-                size: 18,
-                color: AppColors.textSecondary,
-              ),
-              const SizedBox(width: AppSpacing.xs),
-              Flexible(
-                child: Text(
-                  '절전·다른 앱 사용 중에는 알림이 약합니다 · 눌러서 강화',
-                  style: AppTypography.caption,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+              const Icon(Icons.warning_amber_rounded, size: 22, color: accent),
+              const SizedBox(width: AppSpacing.sm),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      '알림을 놓칠 수 있습니다',
+                      style: AppTypography.body.copyWith(
+                        fontWeight: FontWeight.w700,
+                        color: accent,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      // 조사를 붙이지 않는다 — 항목 이름이 바뀔 때마다
+                      // 은/는·이/가가 어긋난다
+                      missing.isEmpty
+                          ? '절전 중이거나 다른 앱을 쓰는 동안 알림이 약해집니다'
+                          : '${missing.join(" · ")} 꺼짐 — 눌러서 켜기',
+                      style: AppTypography.caption,
+                      // **두 줄까지 보여준다** — 한 줄로 자르면 정작 무엇이
+                      // 꺼졌는지가 잘려 나간다
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
                 ),
               ),
+              const SizedBox(width: AppSpacing.xs),
+              const Icon(Icons.chevron_right, size: 20, color: accent),
             ],
           ),
         ),
