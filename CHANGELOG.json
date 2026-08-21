@@ -1,14 +1,32 @@
 {
   "metadata": {
-    "lastUpdated": "2026-08-20T06:40:01Z",
-    "currentVersion": "1.9.0",
+    "lastUpdated": "2026-08-20T23:52:45Z",
+    "currentVersion": "1.10.0",
     "projectType": "flutter",
-    "totalReleases": 46,
+    "totalReleases": 47,
     "projectTypes": [
       "flutter"
     ]
   },
   "releases": [
+    {
+      "version": "1.10.0",
+      "project_types": [
+        "flutter"
+      ],
+      "date": "2026-08-20",
+      "pr_number": 114,
+      "raw_summary": "## [1.10.0]\n\n### ✨ 기능\n- 심사 준비: 인앱 업데이트를 DEV_FLAG 로 분리하고 제출 항목을 채운다 — 앱 아이콘을 교체하고 스토어 자산을 레포에 정리한다. 적응형 아이콘 전경은 핀 실제 크기를 기준으로 맞춘다",
+      "parsed_changes": {
+        "기능": {
+          "title": "✨ 기능",
+          "items": [
+            "심사 준비: 인앱 업데이트를 DEV_FLAG 로 분리하고 제출 항목을 채운다 — 앱 아이콘을 교체하고 스토어 자산을 레포에 정리한다. 적응형 아이콘 전경은 핀 실제 크기를 기준으로 맞춘다"
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "1.9.0",
       "project_types": [
