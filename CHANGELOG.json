@@ -1,14 +1,33 @@
 {
   "metadata": {
-    "lastUpdated": "2026-08-21T02:14:12Z",
-    "currentVersion": "1.10.1",
+    "lastUpdated": "2026-08-21T04:39:03Z",
+    "currentVersion": "1.10.2",
     "projectType": "flutter",
-    "totalReleases": 48,
+    "totalReleases": 49,
     "projectTypes": [
       "flutter"
     ]
   },
   "releases": [
+    {
+      "version": "1.10.2",
+      "project_types": [
+        "flutter"
+      ],
+      "date": "2026-08-21",
+      "pr_number": 117,
+      "raw_summary": "## [1.10.2]\n\n### 📝 문서\n- 심사 준비: 인앱 업데이트를 DEV_FLAG 로 분리하고 제출 항목을 채운다 — 심사 빌드에서 설치 권한을 빼는 절차와 실제로 놓친 사례를 남긴다\n- 권한 경고 배너가 뜨지 않고 권한 조회가 무한 반복된다 — 배너 수정과 편집 이탈 경고 보고서를 남긴다",
+      "parsed_changes": {
+        "문서": {
+          "title": "📝 문서",
+          "items": [
+            "심사 준비: 인앱 업데이트를 DEV_FLAG 로 분리하고 제출 항목을 채운다 — 심사 빌드에서 설치 권한을 빼는 절차와 실제로 놓친 사례를 남긴다",
+            "권한 경고 배너가 뜨지 않고 권한 조회가 무한 반복된다 — 배너 수정과 편집 이탈 경고 보고서를 남긴다"
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "1.10.1",
       "project_types": [
