@@ -63,7 +63,25 @@ Play 권한 선언에 첨부한다.
 
 **하면 안 되는 것** — 이 권한들을 필수처럼 요구하거나, 거부 시 앱 진입을 막는 것. 심사 반려 사유이자 [10-DECISIONS](10-DECISIONS.md) 006 위반이다.
 
-### `REQUEST_INSTALL_PACKAGES` 는 스토어 배포 전에 걷어낸다 (#104)
+### `REQUEST_INSTALL_PACKAGES` 는 스토어 배포 전에 걷어낸다 (#104, #109)
+
+**빼는 방법은 CI Secret `ENV_FILE` 에서 `DEV_FLAG` 줄을 지우는 것 하나다.** 코드를 건드리지 않는다 — gradle 이 그 값으로 매니페스트 병합을 바꾼다.
+
+```
+ENV_FILE 에 DEV_FLAG=true 있음  →  설치 권한 선언됨 · 인앱 업데이트 있음 · 테스트 광고
+ENV_FILE 에 DEV_FLAG 없음       →  설치 권한 빠짐 · 인앱 업데이트 없음 · 실제 광고
+```
+
+**실제로 한 번 놓쳤다** (2026-08-21). 실기기 검증 편의를 위해 `DEV_FLAG=true` 를 CI Secret 에 넣어두었는데, **같은 빌드가 Play 에 올라가면서** 심사용 AAB 에도 설치 권한이 들어갔다. Play Console 이 `REQUEST_INSTALL_PACKAGES` 선언을 요구하는 것으로 드러났다.
+
+검증 빌드와 심사 빌드가 같은 Secret 을 쓰므로 **둘을 동시에 만족시킬 수 없다.** Play 트랙에 올리기 시작하면 테스터가 Play 에서 자동 업데이트를 받으므로 사이드로드용 자체 업데이트가 필요 없어진다 — 그 시점에 빼는 것이 맞다.
+
+**빼고 나면 반드시 확인한다:**
+
+```
+aapt2 dump badging <apk> | grep -c REQUEST_INSTALL_PACKAGES   # 0 이어야 한다
+```
+
 
 인앱 업데이트([10-DECISIONS](10-DECISIONS.md) 027)를 위해 선언했다. **스토어 배포에는 필요 없고, Play 는 이 권한을 특히 까다롭게 본다.**
 
