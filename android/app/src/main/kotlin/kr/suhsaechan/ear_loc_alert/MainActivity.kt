@@ -130,53 +130,6 @@ class MainActivity : FlutterActivity() {
             }
         }
 
-        // 앱 업데이트 (이슈 #104).
-        //
-        // 스토어 배포 전까지 사이드로드가 유일한 배포 경로다. 릴리스 조회와
-        // 버전 비교는 Dart 가 하고, 여기서는 **설치 화면을 띄우기만** 한다 —
-        // 설치 여부는 사용자가 그 화면에서 정한다.
-        MethodChannel(
-            flutterEngine.dartExecutor.binaryMessenger,
-            "kr.suhsaechan.ear_loc_alert/app_installer",
-        ).setMethodCallHandler { call, result ->
-            val installer = ApkInstaller(this)
-            when (call.method) {
-                "getVersionName" -> result.success(versionName())
-                // 인앱 업데이트가 이 빌드에 들어 있는가 (이슈 #109).
-                // 꺼져 있으면 설치 권한 선언 자체가 매니페스트에서 빠져
-                // 있으므로, 화면에 항목을 띄우면 눌러도 실패만 한다
-                "isUpdateFeatureEnabled" -> result.success(BuildConfig.DEV_FLAG)
-                "canInstall" -> result.success(installer.canInstall())
-                "openInstallPermissionSettings" -> {
-                    installer.openInstallPermissionSettings()
-                    result.success(null)
-                }
-                "installApk" -> {
-                    val bytes = call.argument<ByteArray>("bytes")
-                    val fileName = call.argument<String>("fileName")
-                    if (bytes == null || fileName.isNullOrBlank()) {
-                        result.error("invalid_args", "설치 파일이 비어 있습니다", null)
-                    } else if (!installer.canInstall()) {
-                        // 권한 없이 설치 인텐트를 던지면 아무 일도 일어나지
-                        // 않은 것처럼 보인다 — 설정으로 안내한다
-                        installer.openInstallPermissionSettings()
-                        result.error(
-                            "install_not_allowed",
-                            "이 앱의 설치 권한을 허용한 뒤 다시 시도해주세요",
-                            null,
-                        )
-                    } else {
-                        try {
-                            installer.install(bytes, fileName)
-                            result.success(null)
-                        } catch (error: Exception) {
-                            result.error("install_failed", error.message, null)
-                        }
-                    }
-                }
-                else -> result.notImplemented()
-            }
-        }
 
         // 감시 서비스 제어 (이슈 #74)
         MethodChannel(
@@ -223,19 +176,6 @@ class MainActivity : FlutterActivity() {
         }
     }
 
-    /**
-     * 설치된 APK 의 버전 이름 (이슈 #104).
-     *
-     * pubspec 이 아니라 실제 설치본을 읽는다 — 사용자가 돌리고 있는 것이
-     * 그것이고, 업데이트 비교의 기준도 그것이어야 한다.
-     */
-    private fun versionName(): String {
-        return try {
-            packageManager.getPackageInfo(packageName, 0).versionName ?: ""
-        } catch (error: Exception) {
-            ""
-        }
-    }
 
     /**
      * Android 14+ 는 알람·통화 계열이 아닌 앱에 전체화면 알림 권한을 자동으로

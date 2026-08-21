@@ -1,14 +1,32 @@
 {
   "metadata": {
-    "lastUpdated": "2026-08-21T04:39:03Z",
-    "currentVersion": "1.10.2",
+    "lastUpdated": "2026-08-21T04:49:30Z",
+    "currentVersion": "1.11.0",
     "projectType": "flutter",
-    "totalReleases": 49,
+    "totalReleases": 50,
     "projectTypes": [
       "flutter"
     ]
   },
   "releases": [
+    {
+      "version": "1.11.0",
+      "project_types": [
+        "flutter"
+      ],
+      "date": "2026-08-21",
+      "pr_number": 120,
+      "raw_summary": "## [1.11.0]\n\n### ✨ 기능\n- 인앱 업데이트를 제거하고 Play 자동 업데이트로 간다 — 설치 권한과 FileProvider 를 코드에서 걷어낸다. 플래그를 켜도 되살아나지 않는다",
+      "parsed_changes": {
+        "기능": {
+          "title": "✨ 기능",
+          "items": [
+            "인앱 업데이트를 제거하고 Play 자동 업데이트로 간다 — 설치 권한과 FileProvider 를 코드에서 걷어낸다. 플래그를 켜도 되살아나지 않는다"
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "1.10.2",
       "project_types": [
