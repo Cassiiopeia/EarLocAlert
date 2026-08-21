@@ -221,6 +221,7 @@ class _HomeRoute extends ConsumerWidget {
       isMonitoring: status.isMonitoring,
       isHeadphoneConnected: status.isHeadphoneConnected,
       canAlertReliably: status.canAlertReliably,
+      missingReliability: status.missingReliability,
       // **push 다 — go 를 쓰면 스택이 교체되어 돌아갈 곳이 사라진다** (이슈 #97).
       // 그러면 AppBar 가 뒤로가기 버튼을 만들지 않고 시스템 뒤로가기도
       // 먹지 않아, 등록을 마치거나 앱을 강제 종료하는 것 외에 나올 길이 없다.
