@@ -25,8 +25,6 @@ import '../features/places/presentation/place_map_picker_screen.dart';
 import '../features/diagnostics/presentation/diagnostics_screen.dart';
 import '../features/places/presentation/place_search_provider.dart';
 import '../features/settings/presentation/settings_screen.dart';
-import '../features/update/presentation/update_provider.dart';
-import '../features/update/presentation/update_sheet.dart';
 import 'home_status_provider.dart';
 
 /// 앱 라우팅 (docs/02-ARCHITECTURE.md)
@@ -289,10 +287,6 @@ class _SettingsRouteState extends ConsumerState<_SettingsRoute>
       onOpenVibrationSettings: () => showVibrationIntensitySheet(context),
       onOpenDiagnostics: () => context.push(AppRoutes.diagnostics),
       permissions: _permissionRows(ref, snapshot),
-      // 업데이트 확인 (이슈 #104) — 스토어 배포 전까지 사이드로드가
-      // 유일한 배포 경로라 앱이 최신 버전을 알려준다. iOS 에는 없다
-      onCheckUpdate: Platform.isAndroid ? () => showUpdateSheet(context) : null,
-      installedVersion: ref.watch(installedVersionProvider).valueOrNull,
       // 백그라운드 감시 연결 전까지 알림 흐름을 확인하는 수단 (S-4·S-5).
       // 지오펜스 실기기 검증이 끝나면 제거한다.
       onPreviewAlert: () async {

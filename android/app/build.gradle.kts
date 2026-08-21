@@ -35,20 +35,15 @@ fun readEnv(key: String): String = if (dotenvFile.exists()) {
 
 val mapsApiKey: String = readEnv("MAPS_API_KEY")
 
-// 개발용 기능 플래그 (이슈 #109).
+// 개발용 기능 플래그 (이슈 #109, #118).
 //
-// **인앱 업데이트(#104)를 통째로 넣고 뺀다.** 스토어 배포 전까지는
-// 사이드로드가 유일한 배포 경로라 그 기능이 필요하지만, Play 는
-// `REQUEST_INSTALL_PACKAGES` 를 앱스토어·파일 관리자가 아닌 앱에서
-// 거의 반려한다.
+// **지금은 광고 종류만 가른다.** 인앱 업데이트가 제거되면서(#118) 매니페스트
+// 제어 용도는 사라졌고, "이 빌드가 배포본인가"를 Dart 에 알려주는 역할만
+// 남았다 — 배포 빌드임이 확인됐을 때만 실제 광고가 나간다.
 //
-// **Dart 쪽 화면만 숨기는 것으로는 부족하다.** 권한 선언이 매니페스트에
-// 남아 있으면 심사에 그대로 걸린다. 그래서 이 값이 매니페스트 병합
-// (`tools:node`)과 BuildConfig 양쪽을 함께 제어한다.
-//
-// **기본값은 꺼짐이다.** `.env` 가 없는 사람이 빌드하면 심사 가능한
-// 형태로 나오는 것이 안전하다 — 실수로 켜진 채 제출되는 것이 그 반대보다
-// 훨씬 비싸다.
+// **기본값은 꺼짐이다.** `.env` 가 없는 사람이 빌드하면 테스트 광고로
+// 떨어진다. 실기기 검증 중 실제 광고가 나가 무효 트래픽으로 집계되는
+// 것이 그 반대보다 훨씬 비싸다.
 val devFlag: Boolean = readEnv("DEV_FLAG").equals("true", ignoreCase = true)
 
 android {
@@ -98,19 +93,6 @@ android {
         // AndroidManifest 의 ${MAPS_API_KEY} 를 치환한다.
         // 키를 매니페스트에 직접 적지 않는 이유는 커밋을 막기 위해서다.
         manifestPlaceholders["MAPS_API_KEY"] = mapsApiKey
-
-        // 설치 권한을 넣고 뺀다 (이슈 #109).
-        //
-        // 꺼진 경우 **이미 선언된 INTERNET 으로 치환한다.** 병합기가 중복
-        // 선언을 하나로 합치므로 결과 매니페스트에 설치 권한이 남지 않는다.
-        //
-        // `tools:node` 에 placeholder 를 쓰는 방법은 불가능하다 — 병합기가
-        // 치환보다 먼저 그 값을 파싱해 `No enum constant` 로 죽는다.
-        manifestPlaceholders["installPermission"] = if (devFlag) {
-            "android.permission.REQUEST_INSTALL_PACKAGES"
-        } else {
-            "android.permission.INTERNET"
-        }
 
         // Dart 가 채널로 읽어 설정 화면 항목을 감춘다
         buildConfigField("boolean", "DEV_FLAG", devFlag.toString())

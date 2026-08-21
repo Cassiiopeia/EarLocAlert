@@ -63,36 +63,19 @@ Play 권한 선언에 첨부한다.
 
 **하면 안 되는 것** — 이 권한들을 필수처럼 요구하거나, 거부 시 앱 진입을 막는 것. 심사 반려 사유이자 [10-DECISIONS](10-DECISIONS.md) 006 위반이다.
 
-### `REQUEST_INSTALL_PACKAGES` 는 스토어 배포 전에 걷어낸다 (#104, #109)
+### `REQUEST_INSTALL_PACKAGES` 는 제거했다 (#104 → #118)
 
-**빼는 방법은 CI Secret `ENV_FILE` 에서 `DEV_FLAG` 줄을 지우는 것 하나다.** 코드를 건드리지 않는다 — gradle 이 그 값으로 매니페스트 병합을 바꾼다.
+인앱 업데이트 기능과 함께 **코드에서 통째로 걷어냈다.** Play 스토어가 업데이트를 처리하므로 앱이 스스로 APK 를 설치할 이유가 없다.
 
-```
-ENV_FILE 에 DEV_FLAG=true 있음  →  설치 권한 선언됨 · 인앱 업데이트 있음 · 테스트 광고
-ENV_FILE 에 DEV_FLAG 없음       →  설치 권한 빠짐 · 인앱 업데이트 없음 · 실제 광고
-```
+**플래그로 감추지 않고 제거한 이유** — 감춰두면 언젠가 실수로 켜진 채 제출된다. 실제로 그랬다: 실기기 검증 편의를 위해 CI Secret 에 `DEV_FLAG=true` 를 넣어두었는데, 같은 빌드가 Play 에 올라가면서 심사용 AAB 에 설치 권한이 들어갔고 Play Console 이 선언을 요구했다.
 
-**실제로 한 번 놓쳤다** (2026-08-21). 실기기 검증 편의를 위해 `DEV_FLAG=true` 를 CI Secret 에 넣어두었는데, **같은 빌드가 Play 에 올라가면서** 심사용 AAB 에도 설치 권한이 들어갔다. Play Console 이 `REQUEST_INSTALL_PACKAGES` 선언을 요구하는 것으로 드러났다.
+**이 권한은 선언으로 통과시킬 항목이 아니다.** 선언 화면의 핵심 목적 선택지(웹 탐색·검색·커뮤니케이션·파일 공유·기기 관리) 중 위치 알림 앱에 해당하는 것이 없다.
 
-검증 빌드와 심사 빌드가 같은 Secret 을 쓰므로 **둘을 동시에 만족시킬 수 없다.** Play 트랙에 올리기 시작하면 테스터가 Play 에서 자동 업데이트를 받으므로 사이드로드용 자체 업데이트가 필요 없어진다 — 그 시점에 빼는 것이 맞다.
-
-**빼고 나면 반드시 확인한다:**
+빌드마다 확인한다:
 
 ```
-aapt2 dump badging <apk> | grep -c REQUEST_INSTALL_PACKAGES   # 0 이어야 한다
+aapt2 dump badging <apk> | grep -c REQUEST_INSTALL_PACKAGES   # 0
 ```
-
-
-인앱 업데이트([10-DECISIONS](10-DECISIONS.md) 027)를 위해 선언했다. **스토어 배포에는 필요 없고, Play 는 이 권한을 특히 까다롭게 본다.**
-
-스토어 배포 준비 시 함께 제거할 것:
-
-- `AndroidManifest.xml` 의 `REQUEST_INSTALL_PACKAGES` 권한과 `FileProvider` 선언
-- `ApkInstaller.kt` · `app_installer` 채널
-- `lib/features/update/` 전체와 설정 화면의 업데이트 항목
-- `res/xml/file_paths.xml`
-
-**남겨두고 심사에 올리지 않는다.** 사유서로 통과시킬 수 있는 항목이 아니고, 스토어에서 받는 앱에 자체 업데이트 경로가 있을 이유도 없다.
 
 ---
 

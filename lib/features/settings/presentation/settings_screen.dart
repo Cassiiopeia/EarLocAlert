@@ -46,8 +46,6 @@ class SettingsScreen extends StatelessWidget {
     required this.onOpenDiagnostics,
     this.permissions = const [],
     this.onPreviewAlert,
-    this.onCheckUpdate,
-    this.installedVersion,
     super.key,
   });
 
@@ -63,12 +61,6 @@ class SettingsScreen extends StatelessWidget {
   /// 알림 흐름 수동 확인 (실기기 스파이크용).
   /// 지오펜스 실기기 검증이 끝나면 제거한다 (docs/11-ROADMAP.md).
   final VoidCallback? onPreviewAlert;
-
-  /// 업데이트 확인 (이슈 #104). iOS 에는 없다 — 사이드로드 경로가 없다
-  final VoidCallback? onCheckUpdate;
-
-  /// 지금 설치된 버전. 문제를 알릴 때 첫 질문이 "몇 버전인가"다
-  final String? installedVersion;
 
   @override
   Widget build(BuildContext context) {
@@ -111,17 +103,6 @@ class SettingsScreen extends StatelessWidget {
               onTap: onOpenDiagnostics,
             ),
 
-            if (onCheckUpdate != null) ...[
-              const _SectionLabel('앱 정보'),
-              _SettingTile(
-                icon: Icons.system_update_outlined,
-                title: '업데이트 확인',
-                subtitle: installedVersion == null || installedVersion!.isEmpty
-                    ? '최신 버전이 있는지 확인합니다'
-                    : '현재 버전 $installedVersion',
-                onTap: onCheckUpdate!,
-              ),
-            ],
           ],
         ),
       ),
