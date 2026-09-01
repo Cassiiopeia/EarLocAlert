@@ -8,6 +8,7 @@ import '../core/di/providers.dart';
 import '../features/geofence/data/android_geofence_monitor.dart';
 import '../features/geofence/data/native_geofence_monitor.dart';
 import '../features/geofence/domain/geofence_monitor.dart';
+import 'alert_sound_resolver.dart';
 import 'background/alert_watch_channel.dart';
 import 'background/alert_watch_service.dart';
 import 'background/geofence_callback.dart';
@@ -52,4 +53,6 @@ GeofenceRegistrationSync geofenceRegistrationSync(Ref ref) {
 PendingAlertLauncher pendingAlertLauncher(Ref ref) => PendingAlertLauncher(
   store: PendingAlertStore(),
   clock: () => DateTime.now().toUtc(),
+  // 장소마다 다른 알림음을 재생 가능한 소스로 바꾼다 (이슈 #121)
+  soundResolver: AlertSoundResolver(ref.watch(customSoundRepositoryProvider)),
 );

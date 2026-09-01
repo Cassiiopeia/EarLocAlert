@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
+import '../domain/alert_effects.dart';
 import '../domain/vibration_intensity.dart';
 import 'alert_controller_provider.dart';
 
@@ -31,9 +32,19 @@ class _VibrationIntensitySheetState
     extends ConsumerState<_VibrationIntensitySheet> {
   VibrationIntensity? _selected;
 
+  /// **dispose 에서 `ref` 를 쓸 수 없다** (이슈 #122).
+  ///
+  /// riverpod 은 위젯이 unmount 될 때 ref 를 먼저 무효화하고 그다음
+  /// `State.dispose()` 를 부른다. 거기서 `ref.read` 를 하면
+  /// "Cannot use ref after the widget was disposed" 로 터지고,
+  /// **그 줄에서 멈추므로 정지 호출이 아예 실행되지 않는다.**
+  /// 화면 없이 소리·진동이 남는 것이 정확히 막으려던 상태다.
+  late final VibrationService _vibration;
+
   @override
   void initState() {
     super.initState();
+    _vibration = ref.read(vibrationServiceProvider);
     ref.read(vibrationIntensityStoreProvider).intensity().then((value) {
       if (mounted) setState(() => _selected = value);
     });
@@ -41,8 +52,9 @@ class _VibrationIntensitySheetState
 
   @override
   void dispose() {
-    // 시트를 닫으면 미리보기 진동도 멎는다 — 화면 없이 계속 떨리면 안 된다
-    ref.read(vibrationServiceProvider).stop();
+    // 시트를 닫으면 미리보기 진동도 멎는다 — 화면 없이 계속 떨리면 안 된다.
+    // initState 에서 잡아둔 참조를 쓴다 (위 주석 참조)
+    _vibration.stop();
     super.dispose();
   }
 
@@ -57,7 +69,7 @@ class _VibrationIntensitySheetState
       // 저장 실패는 다음 선택에서 다시 시도된다
     }
     try {
-      final vibration = ref.read(vibrationServiceProvider);
+      final vibration = _vibration;
       // 한 번만 느끼면 된다 — 반복 주기를 길게 주고 곧바로 멈춘다
       await vibration.startRepeating(
         interval: const Duration(days: 1),

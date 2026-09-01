@@ -2,6 +2,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../../core/domain/alert_direction.dart';
 import '../../../core/domain/alert_schedule.dart';
+import '../../../core/domain/alert_sound.dart';
 
 part 'alert_place.freezed.dart';
 
@@ -29,6 +30,13 @@ abstract class AlertPlace with _$AlertPlace {
 
     /// 이어폰(줄·블루투스) 연결 시 소리를 낼지
     @Default(true) bool soundEnabled,
+
+    /// 이 장소에 쓸 알림음 (이슈 #121)
+    ///
+    /// `AlertSound.fallback` 이 아니라 생성자를 직접 쓴다 — freezed 의
+    /// `@Default` 는 컴파일 타임 상수를 요구하는데, static const 필드
+    /// 참조가 그 자리에서 평가되지 않는 경우가 있다.
+    @Default(PresetSound(SoundPreset.defaultTone)) AlertSound sound,
 
     /// 알림이 활성인 시간 창 (이슈 #81).
     ///

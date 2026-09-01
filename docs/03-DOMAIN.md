@@ -184,7 +184,9 @@ flowchart TD
 | `AlertPlace` | Drift | 조회·수정이 잦고 관계가 생길 여지가 있다 |
 | `GeofenceEvent` | Drift | 시간순 조회·기간 삭제가 필요하다 |
 | 지오펜스 현재 상태 | Drift | **재부팅 후에도 살아 있어야 한다** |
-| 앱 설정 (진동 강도, 간격) | SharedPreferences | 단일 값들이다 |
+| 앱 설정 (진동 강도, 간격, 알림음 크기) | SharedPreferences | 단일 값들이다 |
+| 사용자 알림음 메타데이터 | Drift | 목록·삭제가 필요하다 (이슈 #121) |
+| 사용자 알림음 **파일** | 앱 전용 디렉토리 | 경로는 저장하지 않고 id 로 조립한다 |
 | `AlertSession` | 메모리 | 앱이 죽으면 사라지는 게 맞다 |
 | 광고 노출 시각·횟수 | SharedPreferences | 빈도 제어용 → [07-MONETIZATION](07-MONETIZATION.md) |
 

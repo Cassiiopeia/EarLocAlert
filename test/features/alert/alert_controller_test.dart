@@ -44,6 +44,9 @@ class FakeSound implements AlertSoundService {
   /// 마지막 재생에 쓰인 볼륨 — 설정값이 실제로 전달되는지 본다 (이슈 #86)
   double? lastVolume;
 
+  /// 마지막 재생에 쓰인 음원 — 장소별 알림음이 실제로 전달되는지 본다 (이슈 #121)
+  AlertSoundSource? lastSource;
+
   @override
   Future<bool> isHeadphoneConnected() async {
     if (failOnCheck) throw Exception('연결 확인 실패');
@@ -51,9 +54,10 @@ class FakeSound implements AlertSoundService {
   }
 
   @override
-  Future<void> play({required double volume}) async {
+  Future<void> play({required double volume, AlertSoundSource? source}) async {
     playCount++;
     lastVolume = volume;
+    lastSource = source;
     if (failOnPlay) throw const AlertSoundException('재생 실패');
   }
 
@@ -118,7 +122,8 @@ class HangingSound implements AlertSoundService {
   Future<bool> isHeadphoneConnected() async => true;
 
   @override
-  Future<void> play({required double volume}) => _never.future;
+  Future<void> play({required double volume, AlertSoundSource? source}) =>
+      _never.future;
 
   @override
   Future<void> stop() async {}
@@ -134,7 +139,8 @@ class SlowSound implements AlertSoundService {
   Future<bool> isHeadphoneConnected() async => true;
 
   @override
-  Future<void> play({required double volume}) => _gate.future;
+  Future<void> play({required double volume, AlertSoundSource? source}) =>
+      _gate.future;
 
   @override
   Future<void> stop() async {}
@@ -162,6 +168,7 @@ AlertRequest makeRequest({
   String placeName = '도착지',
   AlertDirection direction = AlertDirection.enter,
   bool soundEnabled = true,
+  AlertSoundSource? soundSource,
 }) {
   return AlertRequest(
     placeId: placeId,
@@ -169,6 +176,7 @@ AlertRequest makeRequest({
     direction: direction,
     soundEnabled: soundEnabled,
     occurredAt: DateTime.utc(2026, 8, 3, 12),
+    soundSource: soundSource,
   );
 }
 

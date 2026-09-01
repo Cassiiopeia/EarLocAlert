@@ -31,9 +31,19 @@ class _AlertVolumeSheetState extends ConsumerState<_AlertVolumeSheet> {
   bool _previewing = false;
   String? _previewNotice;
 
+  /// **dispose 에서 `ref` 를 쓸 수 없다** (이슈 #122).
+  ///
+  /// riverpod 은 위젯이 unmount 될 때 ref 를 먼저 무효화하고 그다음
+  /// `State.dispose()` 를 부른다. 거기서 `ref.read` 를 하면
+  /// "Cannot use ref after the widget was disposed" 로 터지고,
+  /// **그 줄에서 멈추므로 정지 호출이 아예 실행되지 않는다.**
+  /// 화면 없이 소리·진동이 남는 것이 정확히 막으려던 상태다.
+  late final AlertSoundService _sound;
+
   @override
   void initState() {
     super.initState();
+    _sound = ref.read(alertSoundServiceProvider);
     // 저장된 값을 읽어 슬라이더 초기 위치를 맞춘다
     ref.read(alertVolumeStoreProvider).volume().then((value) {
       if (mounted) setState(() => _volume = value);
@@ -42,8 +52,9 @@ class _AlertVolumeSheetState extends ConsumerState<_AlertVolumeSheet> {
 
   @override
   void dispose() {
-    // 시트를 닫으면 미리듣기도 끝난다 — 소리가 화면 없이 남으면 안 된다
-    ref.read(alertSoundServiceProvider).stop();
+    // 시트를 닫으면 미리듣기도 끝난다 — 소리가 화면 없이 남으면 안 된다.
+    // initState 에서 잡아둔 참조를 쓴다 (위 주석 참조)
+    _sound.stop();
     super.dispose();
   }
 

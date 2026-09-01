@@ -6,6 +6,7 @@ import '../../../core/diagnostics/diagnostics.dart';
 import '../../../core/di/providers.dart';
 import '../../../core/domain/alert_direction.dart';
 import '../../../core/domain/alert_schedule.dart';
+import '../../../core/domain/alert_sound.dart';
 import '../../../core/domain/id_generator.dart';
 import '../domain/alert_place.dart';
 import '../domain/place_validator.dart';
@@ -36,6 +37,9 @@ class PlaceActions extends _$PlaceActions {
 
     /// 빈 목록이면 항상 알림 (이슈 #81)
     List<AlertSchedule> schedules = const [],
+
+    /// 이 장소에 쓸 알림음 (이슈 #121)
+    AlertSound sound = AlertSound.fallback,
   }) async {
     final repo = ref.read(placeRepositoryProvider);
     final isNew = id == null;
@@ -68,6 +72,7 @@ class PlaceActions extends _$PlaceActions {
         radiusMeters: radiusMeters,
         direction: direction,
         soundEnabled: soundEnabled,
+        sound: sound,
         schedules: schedules,
         enabled: existing?.enabled ?? true,
         createdAt: existing?.createdAt ?? DateTime.now().toUtc(),
@@ -80,6 +85,7 @@ class PlaceActions extends _$PlaceActions {
       '장소 ${isNew ? "추가" : "수정"} name=${name.trim()} '
           'lat=$latitude lng=$longitude radius=${radiusMeters}m '
           'direction=${direction.name} sound=$soundEnabled '
+          'tone=${sound.storageValue} '
           'schedules=${schedules.length}건',
     );
     return const [];

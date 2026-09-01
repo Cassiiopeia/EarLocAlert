@@ -1,4 +1,5 @@
 import '../features/alert/domain/alert_controller.dart';
+import 'alert_sound_resolver.dart';
 import 'background/pending_alert_store.dart';
 
 /// 백그라운드 알림을 포그라운드 풀 세션으로 잇는 진입로 (이슈 #63)
@@ -10,12 +11,20 @@ class PendingAlertLauncher {
   PendingAlertLauncher({
     required PendingAlertStore store,
     required DateTime Function() clock,
+    AlertSoundResolver? soundResolver,
     this.timeToLive = const Duration(minutes: 10),
   }) : _store = store,
-       _clock = clock;
+       _clock = clock,
+       _soundResolver = soundResolver;
 
   final PendingAlertStore _store;
   final DateTime Function() _clock;
+
+  /// 장소가 지정한 음원을 재생 가능한 소스로 바꾼다 (이슈 #121).
+  ///
+  /// 없으면 기본음으로 울린다 — 해석기 하나 때문에 알림이 멎으면 안 되고,
+  /// 기존 테스트가 이 인자 없이 런처를 만들 수 있어야 한다.
+  final AlertSoundResolver? _soundResolver;
 
   /// 이 시간이 지난 알림은 버린다 — 한밤중 도착 알림을 아침에 열었을 때
   /// 진동이 터지는 것은 알림이 아니라 오작동이다. OS 알림은 이미
@@ -46,6 +55,7 @@ class PendingAlertLauncher {
         direction: alert.direction,
         soundEnabled: alert.soundEnabled,
         occurredAt: alert.occurredAt,
+        soundSource: await _soundResolver?.resolve(alert.sound),
       ),
       hadPending: true,
     );

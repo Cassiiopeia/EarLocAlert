@@ -5,7 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../core/di/providers.dart';
 import '../core/domain/alert_direction.dart';
+import '../core/domain/alert_sound.dart';
 import '../features/ads/presentation/ads_providers.dart';
 import '../features/alert/domain/alert_controller.dart';
 import '../features/alert/presentation/alert_controller_provider.dart';
@@ -25,6 +27,7 @@ import '../features/places/presentation/place_map_picker_screen.dart';
 import '../features/diagnostics/presentation/diagnostics_screen.dart';
 import '../features/places/presentation/place_search_provider.dart';
 import '../features/settings/presentation/settings_screen.dart';
+import '../features/sounds/presentation/sound_picker_sheet.dart';
 import 'home_status_provider.dart';
 
 /// 앱 라우팅 (docs/02-ARCHITECTURE.md)
@@ -62,18 +65,12 @@ GoRouter createRouter() {
       ),
       GoRoute(
         path: AppRoutes.placeNew,
-        builder: (context, state) => PlaceFormScreen(
-          onSaved: () => _leaveForm(context),
-          onPickOnMap: (args) => _pickOnMap(context, args),
-        ),
+        builder: (context, state) => const _PlaceFormRoute(),
       ),
       GoRoute(
         path: AppRoutes.placeEdit,
-        builder: (context, state) => PlaceFormScreen(
-          existing: state.extra as AlertPlace?,
-          onSaved: () => _leaveForm(context),
-          onPickOnMap: (args) => _pickOnMap(context, args),
-        ),
+        builder: (context, state) =>
+            _PlaceFormRoute(existing: state.extra as AlertPlace?),
       ),
       GoRoute(
         path: AppRoutes.placeMap,
@@ -124,6 +121,45 @@ class _MapPickerRoute extends ConsumerWidget {
 ///
 /// 폼은 `Navigator`·`GoRouter` 를 직접 만지지 않는다 — 화면 전환은 전부
 /// 여기서 조율한다 (docs/02-ARCHITECTURE.md).
+/// 장소 등록·편집 화면의 배선 (이슈 #121)
+///
+/// **폼이 `sounds` 를 직접 import 하지 않게 하는 자리다** (규칙 1).
+/// 알림음 시트를 열고 이름을 조회하는 일을 여기서 이어붙인다 —
+/// 설정 화면(`_SettingsRoute`)이 시트와 provider 를 잇는 것과 같은 방식이다.
+class _PlaceFormRoute extends ConsumerWidget {
+  const _PlaceFormRoute({this.existing});
+
+  /// null 이면 신규 등록
+  final AlertPlace? existing;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return PlaceFormScreen(
+      existing: existing,
+      onSaved: () => _leaveForm(context),
+      onPickOnMap: (args) => _pickOnMap(context, args),
+      onPickSound: (current) => showSoundPickerSheet(context, current: current),
+      onDescribeSound: (sound) => _describeSound(ref, sound),
+    );
+  }
+}
+
+/// 알림음의 표시 이름.
+///
+/// 사용자 음원은 저장소에서 파일명을 읽는다. **행이 없으면 지워진
+/// 음원이다** — 그 사실을 숨기지 않는다. 실제 알림은 기본음으로 울리므로
+/// 소리가 안 나지는 않지만, 사용자는 자기가 고른 것이 사라졌음을
+/// 알아야 다시 고를 수 있다.
+Future<String> _describeSound(WidgetRef ref, AlertSound sound) async {
+  switch (sound) {
+    case PresetSound(:final preset):
+      return preset.label;
+    case CustomSoundRef(:final id):
+      final found = await ref.read(customSoundRepositoryProvider).findById(id);
+      return found?.displayName ?? '삭제된 음원 (기본음으로 알림)';
+  }
+}
+
 Future<MapPickResult?> _pickOnMap(BuildContext context, MapPickArgs args) {
   return context.push<MapPickResult>(AppRoutes.placeMap, extra: args);
 }

@@ -1,5 +1,11 @@
+import '../../../core/audio/alert_sound_source.dart';
+
 import 'audio_route.dart';
 import 'vibration_intensity.dart';
+
+/// 음원 타입은 `core/audio` 로 옮겼다 (미리듣기와 공유하기 위해).
+/// 이 파일을 통해 쓰던 코드가 그대로 동작하도록 재노출한다.
+export '../../../core/audio/alert_sound_source.dart';
 
 /// 진동 제어 (docs/02-ARCHITECTURE.md 규칙 3)
 ///
@@ -37,7 +43,11 @@ abstract interface class AlertSoundService {
   /// 호출 전에 이어폰 연결이 확인된 상태여야 한다.
   /// 실패하면 [AlertSoundException] 을 던지고, 호출자는 재시도하지 않고
   /// 진동으로 떨어진다 — 재시도 중 라우팅이 바뀌어 스피커로 새는 것이 최악이다.
-  Future<void> play({required double volume});
+  ///
+  /// [source] 는 장소마다 다를 수 있는 음원이다 (이슈 #121).
+  /// **`null` 이면 기본 음원**을 쓴다 — 해석에 실패했거나 값을 싣지 않은
+  /// 경로에서도 소리는 나야 한다.
+  Future<void> play({required double volume, AlertSoundSource? source});
 
   Future<void> stop();
 }

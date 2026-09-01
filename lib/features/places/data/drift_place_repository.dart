@@ -80,6 +80,7 @@ class DriftPlaceRepository implements PlaceRepository {
       direction: AlertDirection.values[row.direction],
       enabled: row.enabled,
       soundEnabled: row.soundEnabled,
+      sound: row.sound,
       schedules: row.schedules,
       // Drift 는 DateTime 을 로컬로 되돌려주므로 UTC 로 되돌린다
       // (docs/04-CONVENTIONS.md — 저장은 UTC, 표시 직전에만 로컬)
@@ -97,6 +98,7 @@ class DriftPlaceRepository implements PlaceRepository {
       direction: Value(place.direction.index),
       enabled: Value(place.enabled),
       soundEnabled: Value(place.soundEnabled),
+      sound: Value(place.sound),
       schedules: Value(place.schedules),
       createdAt: Value(place.createdAt.toUtc()),
     );

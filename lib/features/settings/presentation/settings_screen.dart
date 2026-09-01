@@ -102,7 +102,6 @@ class SettingsScreen extends StatelessWidget {
               subtitle: '알림이 언제 왜 울렸는지 기록을 보고 내보냅니다',
               onTap: onOpenDiagnostics,
             ),
-
           ],
         ),
       ),

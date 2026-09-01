@@ -2,7 +2,7 @@ name: ear_loc_alert
 description: "특정 위치에 도착·출발할 때 진동 또는 블루투스 이어폰으로만 알리는 위치 기반 알림 앱"
 publish_to: 'none'
 # 버전은 version.yml 이 단일 출처다. 직접 수정하지 않는다 (docs/08-OPERATIONS.md)
-version: 1.11.0+92
+version: 1.12.0+93
 # Dart 3.9+ (docs/02-ARCHITECTURE.md) — 와일드카드 파라미터 등 3.7+ 문법을 쓴다
 environment:
   sdk: '>=3.9.0 <4.0.0'
@@ -47,6 +47,13 @@ dependencies:
   # 진단 로그 내보내기 (이슈 #95) — 로그는 기기 안에만 있고,
   # 밖으로 꺼내는 것은 사용자가 공유 시트로 직접 하는 행위다
   share_plus: ^10.1.2
+  # 사용자 알림음 가져오기 (이슈 #121)
+  #
+  # **SAF(Android) / DocumentPicker(iOS) 를 쓴다 — 권한 선언이 늘지 않는다.**
+  # READ_MEDIA_AUDIO 로 기기의 모든 오디오를 읽는 방식이면 Play 심사에
+  # 민감 권한 선언이 하나 더 붙는다. 사용자가 고른 그 파일 하나만
+  # 받으면 되는 일에 그 대가를 치를 이유가 없다.
+  file_picker: ^11.0.3
 # 전이 의존성 고정 (이슈 #76)
 #
 # device_info_plus 12.4.0 이 `NSProcessInfo.isiOSAppOnVision` 을 쓰기 시작했는데

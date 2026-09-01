@@ -17,6 +17,7 @@ class AlertRequest {
     required this.direction,
     required this.soundEnabled,
     required this.occurredAt,
+    this.soundSource,
   });
 
   final String placeId;
@@ -27,6 +28,13 @@ class AlertRequest {
 
   final bool soundEnabled;
   final DateTime occurredAt;
+
+  /// 이 장소에 지정된 음원 (이슈 #121).
+  ///
+  /// **`app` 이 해석해서 넣는다** — 프리셋인지 사용자 파일인지, 파일이
+  /// 실제로 있는지를 여기서 판단하지 않는다 (규칙 1).
+  /// `null` 이면 기본 음원이다.
+  final AlertSoundSource? soundSource;
 }
 
 /// 알림 발화·해제 조율 (docs/03-DOMAIN.md 규칙 4·5)
@@ -206,7 +214,7 @@ class AlertController {
     Diagnostics.log(
       'alert',
       '오디오 판정 이어폰=$connected 장소설정=${request.soundEnabled} '
-          '결과=${route.name}',
+          '결과=${route.name} 음원=${_describeSource(request.soundSource)}',
     );
 
     if (route == AudioRoute.silent) return; // 세션은 이미 silent 다
@@ -231,7 +239,7 @@ class AlertController {
         return;
       }
 
-      await _sound.play(volume: volume);
+      await _sound.play(volume: volume, source: request.soundSource);
       if (_sessionToken != token) return;
       _updateRoute(AudioRoute.headphones, soundFailed: false);
     } on Object catch (error) {
@@ -242,6 +250,15 @@ class AlertController {
       _updateRoute(_routeDecider.onPlaybackFailure(), soundFailed: true);
     }
   }
+
+  /// 어떤 음원으로 울렸는지를 로그에 남긴다 (이슈 #121).
+  ///
+  /// "왜 다른 소리가 났는가"는 기록 없이는 추적할 수 없다.
+  static String _describeSource(AlertSoundSource? source) => switch (source) {
+    AssetSound(:final assetPath) => assetPath,
+    FileSound(:final filePath) => 'file:$filePath',
+    null => '기본',
+  };
 
   void _updateRoute(AudioRoute route, {required bool soundFailed}) {
     final session = _current;
