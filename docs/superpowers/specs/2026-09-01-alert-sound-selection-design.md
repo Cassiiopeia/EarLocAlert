@@ -102,7 +102,7 @@ final class CustomSoundRef extends AlertSound {
 ### 1.2 `AlertPlace` 필드 추가
 
 ```dart
-/// 이 장소에 쓸 알림음 (이슈 #NN)
+/// 이 장소에 쓸 알림음 (이슈 #121)
 ///
 /// `AlertSound.fallback` 이 아니라 생성자를 직접 쓴다 — freezed 의
 /// `@Default` 는 컴파일 타임 상수를 요구하는데, static const 필드 참조가
@@ -120,7 +120,7 @@ final class CustomSoundRef extends AlertSound {
 
 ```dart
 // lib/core/database/tables.dart
-/// 이 장소의 알림음 (이슈 #NN)
+/// 이 장소의 알림음 (이슈 #121)
 ///
 /// 기본값 `'preset:default'` 가 기존 `assets/sounds/alert.wav` 다.
 /// 마이그레이션된 장소는 소리가 그대로다.
@@ -629,3 +629,58 @@ flutter analyze && flutter test
 ```
 
 **전역/장소별 판단이 바뀐다.** `alert_effects.dart:45-49` 와 `vibration_intensity.dart:41-44` 에 "전역 설정이다 — 장소별로 두지 않는다"고 적혀 있다. 볼륨과 진동 세기는 계속 전역이고 음원만 장소별이 되므로, 그 주석의 범위를 명확히 하고 `docs/10-DECISIONS.md` 에 항목을 추가한다.
+
+
+---
+
+## 14. 구현하며 달라진 것
+
+설계를 그대로 옮기지 못한 지점들이다. **이유를 남긴다** — 문서와 코드가 어긋나 보이는 자리에서 다음 사람이 헤매지 않도록.
+
+### `extension` → `fileExtension`
+
+`extension` 은 Dart 내장 식별자(extension methods)다. 필드명으로 쓸 수는 있지만 Drift·freezed 생성 코드에서 혼란을 줄 수 있어 이름을 바꿨다.
+
+### `AlertSoundSource` 를 `core/audio/` 로 옮겼다
+
+설계에서는 `alert/domain/alert_effects.dart` 에 두려 했으나, **미리듣기(`sounds`)가 같은 타입을 써야 했다.** feature 끼리는 직접 import 할 수 없으므로 `HeadphoneDetector` 와 같은 이유로 `core` 로 올렸다.
+
+`alert_effects.dart` 가 `export` 로 재노출하므로 그 파일을 통해 쓰던 코드는 그대로 동작한다.
+
+### `play()` 의 nullable 인자로도 fake 는 고쳐야 했다
+
+설계에 "`required` 로 하지 않으면 기존 fake 를 안 고쳐도 된다"고 적었는데 **틀렸다.** Dart 는 optional named parameter 를 추가해도 override 하는 쪽이 시그니처를 맞춰야 한다. 테스트 fake 4곳을 결국 수정했다.
+
+nullable 로 둔 이점은 남아 있다 — **호출자**가 인자를 생략할 수 있어 기존 호출부가 안 깨진다.
+
+### `sound_import_result.dart` 를 따로 두지 않았다
+
+실패 사유(`SoundImportError`)를 `sound_validator.dart` 안에 뒀다. `place_validator.dart` 가 `PlaceValidationError` 를 같은 파일에 두는 것과 맞춘다 — 검증 규칙과 그 결과를 갈라두면 한쪽만 고쳐진다.
+
+### `SoundImporter` 를 domain 에 추가했다
+
+설계에 없던 것이다. 선택 → 검증 → 프로브 → 등록 순서를 화면에 두면 (1) 비싼 디코딩을 먼저 돌리는 실수가 나기 쉽고 (2) 그 로직을 테스트하려면 위젯을 띄워야 한다. 순수 조율이라 인터페이스만 알면 되므로 domain 에 뒀다.
+
+### 음원을 삭제해도 장소 데이터를 건드리지 않는다
+
+설계에서는 "그 음원을 쓰던 장소를 기본음으로 갱신"하려 했다. **하지 않기로 했다.**
+
+- `sounds` 가 `places` 를 알아야 해서 규칙 1 을 넘는다
+- 해석기의 파일 부재 폴백이 이미 그 상황을 처리한다
+- `GeofenceEvents` 가 장소 삭제 후에도 남는 것과 같은 판단이다 — 값 참조, 외래키 없음
+
+편집 화면에는 **"삭제된 음원 (기본음으로 알림)"** 으로 표시된다. 사실을 숨기지 않되 데이터를 조용히 고치지도 않는다.
+
+### 폼에 콜백이 두 개 필요했다
+
+`onPickSound` 만으로는 부족했다. **폼이 사용자 음원의 파일명을 알 수 없기 때문**이다 — 그 이름은 `sounds` 의 저장소에 있다. `onDescribeSound` 를 더해 이름 조회를 라우터에 위임했다.
+
+### 시트의 `dispose` 에서 `ref` 를 쓸 수 없다
+
+위젯 테스트가 잡아낸 실제 버그다. riverpod 은 unmount 시 ref 를 먼저 무효화하고 그다음 `State.dispose()` 를 부른다. 거기서 `ref.read` 를 하면 터지고 **미리듣기가 멎지 않은 채 시트만 사라진다.**
+
+`initState` 에서 플레이어 참조를 잡아두는 것으로 고쳤다.
+
+> **같은 패턴이 기존 시트 두 곳에 남아 있다** — `alert_volume_sheet.dart:46`,
+> `vibration_intensity_sheet.dart:45`. 이 작업의 범위가 아니라 손대지 않았다.
+> 별도 이슈로 다룬다.

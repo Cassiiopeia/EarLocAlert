@@ -1,5 +1,11 @@
+import '../../../core/audio/alert_sound_source.dart';
+
 import 'audio_route.dart';
 import 'vibration_intensity.dart';
+
+/// 음원 타입은 `core/audio` 로 옮겼다 (미리듣기와 공유하기 위해).
+/// 이 파일을 통해 쓰던 코드가 그대로 동작하도록 재노출한다.
+export '../../../core/audio/alert_sound_source.dart';
 
 /// 진동 제어 (docs/02-ARCHITECTURE.md 규칙 3)
 ///
@@ -17,29 +23,6 @@ abstract interface class VibrationService {
 
   /// 즉시 중단한다. **어떤 상황에서도 실패하지 않아야 한다.**
   Future<void> stop();
-}
-
-/// 재생할 음원 (이슈 #121)
-///
-/// **`alert` 는 이 값이 어디서 왔는지 모른다.** 프리셋인지 사용자 파일인지,
-/// 파일이 실제로 있는지는 `app` 이 해석해서 넘긴다 — 그래야 `alert` 가
-/// 저장소도 파일 시스템도 모르는 채로 남는다 (규칙 1).
-sealed class AlertSoundSource {
-  const AlertSoundSource();
-}
-
-/// 앱에 내장된 음원
-final class AssetSound extends AlertSoundSource {
-  const AssetSound(this.assetPath);
-
-  final String assetPath;
-}
-
-/// 사용자가 올린 음원. **경로가 유효함이 이미 확인된 상태다.**
-final class FileSound extends AlertSoundSource {
-  const FileSound(this.filePath);
-
-  final String filePath;
 }
 
 /// 알림음 재생 (docs/03-DOMAIN.md 규칙 5)

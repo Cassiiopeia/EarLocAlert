@@ -1,4 +1,5 @@
 import 'package:ear_loc_alert/core/domain/alert_direction.dart';
+import 'package:ear_loc_alert/core/domain/alert_sound.dart';
 import 'package:ear_loc_alert/core/theme/app_theme.dart';
 import 'package:ear_loc_alert/features/places/domain/alert_place.dart';
 import 'package:ear_loc_alert/features/places/presentation/place_form_screen.dart';
@@ -102,6 +103,64 @@ void main() {
 
     // 버릴 것이 없다
     expect(find.text('저장하지 않고 나갈까요?'), findsNothing);
+  });
+
+  group('알림음 변경 (이슈 #121)', () {
+    /// 시트 대신 값을 바로 돌려주는 가짜 선택기.
+    /// 폼은 `sounds` 를 모르므로 이 콜백이 유일한 연결점이다.
+    Future<AlertSound?> pickCustom(AlertSound current) async =>
+        const CustomSoundRef('u-1');
+
+    testWidgets('알림음을 바꾸고 나가려 하면 확인을 받는다', (tester) async {
+      await pumpPushed(
+        tester,
+        PlaceFormScreen(existing: existing, onPickSound: pickCustom),
+      );
+
+      // 폼이 길어 알림음 항목이 화면 밖에 있다 — ListView 는 lazy 라
+      // 스크롤해서 만들어야 찾을 수 있다
+      await tester.dragUntilVisible(
+        find.text('알림음'),
+        find.byType(ListView),
+        const Offset(0, -120),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('알림음'));
+      await tester.pumpAndSettle();
+
+      await pressBack(tester);
+
+      expect(
+        find.text('저장하지 않고 나갈까요?'),
+        findsOneWidget,
+        reason: '알림음만 바꾸고 나가면 그것도 조용히 사라진다',
+      );
+    });
+
+    testWidgets('알림음 항목은 콜백이 없으면 나오지 않는다', (tester) async {
+      await pumpPushed(tester, PlaceFormScreen(existing: existing));
+
+      expect(
+        find.text('알림음'),
+        findsNothing,
+        reason:
+            '배선되지 않은 화면에서 눌러도 아무 일이 없는 항목을 '
+            '보여주면 고장으로 보인다',
+      );
+    });
+
+    testWidgets('기본음 그대로면 신규 폼은 확인 없이 나간다', (tester) async {
+      await pumpPushed(tester, PlaceFormScreen(onPickSound: pickCustom));
+
+      await pressBack(tester);
+
+      expect(
+        find.text('저장하지 않고 나갈까요?'),
+        findsNothing,
+        reason: '빈 폼을 열었다 닫는 것은 버릴 것이 없다',
+      );
+    });
   });
 
   testWidgets('신규 등록에서 입력했으면 확인을 받는다', (tester) async {

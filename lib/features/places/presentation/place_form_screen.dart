@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/domain/alert_direction.dart';
 import '../../../core/domain/alert_schedule.dart';
+import '../../../core/domain/alert_sound.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../domain/alert_place.dart';
@@ -22,6 +23,8 @@ class PlaceFormScreen extends ConsumerStatefulWidget {
     this.existing,
     this.onSaved,
     this.onPickOnMap,
+    this.onPickSound,
+    this.onDescribeSound,
     super.key,
   });
 
@@ -34,6 +37,19 @@ class PlaceFormScreen extends ConsumerStatefulWidget {
   /// 화면 전환은 라우터가 한다 — 폼이 `Navigator` 를 직접 부르지 않는다
   /// (docs/02-ARCHITECTURE.md).
   final Future<MapPickResult?> Function(MapPickArgs args)? onPickOnMap;
+
+  /// 알림음 선택 시트를 열고 고른 값을 돌려준다 (이슈 #121).
+  ///
+  /// 콜백인 이유는 `places` 가 `sounds` 를 import 할 수 없기 때문이다
+  /// (규칙 1). 배선은 라우터가 한다 — `onPickOnMap` 과 같은 방식이다.
+  final Future<AlertSound?> Function(AlertSound current)? onPickSound;
+
+  /// 알림음의 표시 이름을 얻는다 (이슈 #121).
+  ///
+  /// **프리셋은 폼이 직접 알지만 사용자 음원의 파일명은 모른다** —
+  /// 그 이름은 `sounds` 의 저장소에 있고, `places` 는 그것을 볼 수 없다.
+  /// 없으면 "내 음원" 으로 표시한다.
+  final Future<String> Function(AlertSound sound)? onDescribeSound;
 
   @override
   ConsumerState<PlaceFormScreen> createState() => _PlaceFormScreenState();
@@ -52,6 +68,10 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
   late AlertDirection _direction =
       widget.existing?.direction ?? AlertDirection.enter;
   late bool _soundEnabled = widget.existing?.soundEnabled ?? true;
+  late AlertSound _sound = widget.existing?.sound ?? AlertSound.fallback;
+
+  /// 화면에 보여줄 알림음 이름. 조회 전에는 잠정값을 쓴다
+  late String _soundLabel = _fallbackLabel(_sound);
 
   /// 빈 목록이면 항상 알림 (이슈 #81)
   late List<AlertSchedule> _schedules =
@@ -77,6 +97,38 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
     for (final controller in [_name, _latitude, _longitude]) {
       controller.addListener(_onFieldChanged);
     }
+    _refreshSoundLabel();
+  }
+
+  /// 프리셋은 여기서 바로 알 수 있다. 사용자 음원은 이름을 모르므로
+  /// 조회 콜백이 채워줄 때까지 이 값이 쓰인다.
+  static String _fallbackLabel(AlertSound sound) => switch (sound) {
+    PresetSound(:final preset) => preset.label,
+    CustomSoundRef() => '내 음원',
+  };
+
+  Future<void> _refreshSoundLabel() async {
+    final describe = widget.onDescribeSound;
+    if (describe == null) return;
+    try {
+      final label = await describe(_sound);
+      if (mounted) setState(() => _soundLabel = label);
+    } on Object {
+      // 이름을 못 읽어도 잠정값이 남는다 — 화면이 비지 않는다
+    }
+  }
+
+  Future<void> _pickSound() async {
+    final pick = widget.onPickSound;
+    if (pick == null) return;
+    final picked = await pick(_sound);
+    if (picked == null || !mounted) return;
+    setState(() {
+      _sound = picked;
+      // 조회가 끝나기 전에도 무언가 보여야 한다
+      _soundLabel = _fallbackLabel(picked);
+    });
+    await _refreshSoundLabel();
   }
 
   void _onFieldChanged() {
@@ -109,7 +161,8 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
           // 신규 기본값과 달라졌으면 사용자가 건드린 것이다
           _radius.round() != 100 ||
           _direction != AlertDirection.enter ||
-          !_soundEnabled;
+          !_soundEnabled ||
+          _sound != AlertSound.fallback;
     }
 
     // 좌표는 문자열로 비교하면 `37.4` 와 `37.40` 이 다르게 잡힌다.
@@ -123,6 +176,7 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
         _radius.round() != existing.radiusMeters ||
         _direction != existing.direction ||
         _soundEnabled != existing.soundEnabled ||
+        _sound != existing.sound ||
         !_sameSchedules(_schedules, existing.schedules);
   }
 
@@ -308,6 +362,23 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
               onChanged: (value) => setState(() => _soundEnabled = value),
               contentPadding: EdgeInsets.zero,
             ),
+
+            // 소리를 켠 다음에 무슨 소리인지 고르는 순서다 (이슈 #121).
+            // 꺼져 있어도 숨기지 않는다 — 숨기면 스위치를 켤 때 화면이 튄다
+            if (widget.onPickSound != null) ...[
+              const SizedBox(height: AppSpacing.xs),
+              Opacity(
+                opacity: _soundEnabled ? 1 : 0.5,
+                child: ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: const Icon(Icons.music_note_outlined),
+                  title: Text('알림음', style: AppTypography.body),
+                  subtitle: Text(_soundLabel, style: AppTypography.caption),
+                  trailing: const Icon(Icons.chevron_right_outlined),
+                  onTap: _soundEnabled ? _pickSound : null,
+                ),
+              ),
+            ],
             const SizedBox(height: AppSpacing.lg),
 
             FilledButton(
@@ -369,6 +440,7 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
                 radiusMeters: _radius.round(),
                 direction: _direction,
                 soundEnabled: _soundEnabled,
+                sound: _sound,
                 schedules: _schedules,
               );
 
