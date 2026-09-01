@@ -47,6 +47,13 @@ dependencies:
   # 진단 로그 내보내기 (이슈 #95) — 로그는 기기 안에만 있고,
   # 밖으로 꺼내는 것은 사용자가 공유 시트로 직접 하는 행위다
   share_plus: ^10.1.2
+  # 사용자 알림음 가져오기 (이슈 #121)
+  #
+  # **SAF(Android) / DocumentPicker(iOS) 를 쓴다 — 권한 선언이 늘지 않는다.**
+  # READ_MEDIA_AUDIO 로 기기의 모든 오디오를 읽는 방식이면 Play 심사에
+  # 민감 권한 선언이 하나 더 붙는다. 사용자가 고른 그 파일 하나만
+  # 받으면 되는 일에 그 대가를 치를 이유가 없다.
+  file_picker: ^11.0.3
 # 전이 의존성 고정 (이슈 #76)
 #
 # device_info_plus 12.4.0 이 `NSProcessInfo.isiOSAppOnVision` 을 쓰기 시작했는데
