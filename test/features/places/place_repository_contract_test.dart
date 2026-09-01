@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:ear_loc_alert/core/domain/alert_direction.dart';
 import 'package:ear_loc_alert/core/domain/alert_schedule.dart';
+import 'package:ear_loc_alert/core/domain/alert_sound.dart';
 import 'package:ear_loc_alert/features/places/domain/alert_place.dart';
 import 'package:ear_loc_alert/features/places/domain/place_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -66,6 +67,7 @@ AlertPlace makePlace({
   bool enabled = true,
   int createdAtOffsetMinutes = 0,
   List<AlertSchedule> schedules = const <AlertSchedule>[],
+  AlertSound sound = AlertSound.fallback,
 }) {
   return AlertPlace(
     id: id,
@@ -76,6 +78,7 @@ AlertPlace makePlace({
     direction: AlertDirection.both,
     enabled: enabled,
     schedules: schedules,
+    sound: sound,
     createdAt: DateTime.utc(
       2026,
       8,
@@ -207,6 +210,41 @@ void main() {
 
       expect(emitted, [1, 2, 1]);
       await sub.cancel();
+    });
+  });
+
+  group('알림음 (이슈 #121)', () {
+    test('기본값은 기본 프리셋이다', () async {
+      await repo.save(makePlace(id: 'p1'));
+
+      final saved = await repo.findById('p1');
+      expect(
+        saved!.sound,
+        const PresetSound(SoundPreset.defaultTone),
+        reason:
+            '마이그레이션된 기존 장소가 이 값으로 올라온다 — '
+            '기본값이 바뀌면 사용자의 알림음이 조용히 달라진다',
+      );
+    });
+
+    test('커스텀 음원이 왕복한다', () async {
+      await repo.save(makePlace(id: 'p1', sound: const CustomSoundRef('u-1')));
+
+      final saved = await repo.findById('p1');
+      expect(saved!.sound, const CustomSoundRef('u-1'));
+    });
+
+    test('장소마다 다른 음원을 가진다', () async {
+      await repo.save(makePlace(id: 'p1', sound: const CustomSoundRef('u-1')));
+      await repo.save(makePlace(id: 'p2', createdAtOffsetMinutes: 1));
+
+      final all = await repo.findAll();
+      expect(all[0].sound, const CustomSoundRef('u-1'));
+      expect(
+        all[1].sound,
+        const PresetSound(SoundPreset.defaultTone),
+        reason: '이 기능의 목적 자체가 장소별로 다른 소리다',
+      );
     });
   });
 }

@@ -209,6 +209,7 @@ class GeofenceBackgroundProcessor {
           : AlertDirection.exit,
       soundEnabled: place.soundEnabled,
       occurredAt: occurredAt,
+      sound: place.sound,
     );
   }
 

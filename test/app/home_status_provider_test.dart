@@ -44,7 +44,7 @@ class FakeSound implements AlertSoundService {
   }
 
   @override
-  Future<void> play({required double volume}) async {}
+  Future<void> play({required double volume, AlertSoundSource? source}) async {}
 
   @override
   Future<void> stop() async {}

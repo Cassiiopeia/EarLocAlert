@@ -1,6 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../core/domain/alert_direction.dart';
+import '../../core/domain/alert_sound.dart';
 
 part 'pending_alert.freezed.dart';
 
@@ -19,5 +20,11 @@ abstract class PendingAlert with _$PendingAlert {
 
     /// UTC
     required DateTime occurredAt,
+
+    /// 이 장소에 지정된 알림음 (이슈 #121).
+    ///
+    /// **필수가 아니다** — 이 값이 없던 버전에서 저장된 값을 읽을 수 있고,
+    /// 그때는 기본음으로 울려야 한다.
+    @Default(PresetSound(SoundPreset.defaultTone)) AlertSound sound,
   }) = _PendingAlert;
 }

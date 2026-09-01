@@ -1,6 +1,7 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../core/domain/alert_direction.dart';
+import '../../core/domain/alert_sound.dart';
 import 'pending_alert.dart';
 
 /// PendingAlert 의 isolate 간 전달 저장소 (이슈 #63)
@@ -18,6 +19,7 @@ class PendingAlertStore {
   static const _keyDirection = 'pending_alert.direction';
   static const _keySoundEnabled = 'pending_alert.sound_enabled';
   static const _keyOccurredAt = 'pending_alert.occurred_at';
+  static const _keySound = 'pending_alert.sound';
 
   Future<void> save(PendingAlert alert) async {
     final prefs = await SharedPreferences.getInstance();
@@ -29,6 +31,7 @@ class PendingAlertStore {
       _keyOccurredAt,
       alert.occurredAt.toUtc().toIso8601String(),
     );
+    await prefs.setString(_keySound, alert.sound.storageValue);
   }
 
   /// 저장된 알림을 꺼내고 지운다.
@@ -76,6 +79,9 @@ class PendingAlertStore {
         direction: direction,
         soundEnabled: soundEnabled,
         occurredAt: occurredAt.toUtc(),
+        // 값이 없거나 깨졌으면 기본음이다 — 알림음 하나 때문에
+        // 알림 전체를 버리지 않는다 (이슈 #121)
+        sound: AlertSound.parse(prefs.getString(_keySound) ?? ''),
       ),
       hadStored: true,
     );
@@ -87,5 +93,6 @@ class PendingAlertStore {
     await prefs.remove(_keyDirection);
     await prefs.remove(_keySoundEnabled);
     await prefs.remove(_keyOccurredAt);
+    await prefs.remove(_keySound);
   }
 }

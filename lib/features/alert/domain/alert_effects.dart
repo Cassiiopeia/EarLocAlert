@@ -19,6 +19,29 @@ abstract interface class VibrationService {
   Future<void> stop();
 }
 
+/// 재생할 음원 (이슈 #121)
+///
+/// **`alert` 는 이 값이 어디서 왔는지 모른다.** 프리셋인지 사용자 파일인지,
+/// 파일이 실제로 있는지는 `app` 이 해석해서 넘긴다 — 그래야 `alert` 가
+/// 저장소도 파일 시스템도 모르는 채로 남는다 (규칙 1).
+sealed class AlertSoundSource {
+  const AlertSoundSource();
+}
+
+/// 앱에 내장된 음원
+final class AssetSound extends AlertSoundSource {
+  const AssetSound(this.assetPath);
+
+  final String assetPath;
+}
+
+/// 사용자가 올린 음원. **경로가 유효함이 이미 확인된 상태다.**
+final class FileSound extends AlertSoundSource {
+  const FileSound(this.filePath);
+
+  final String filePath;
+}
+
 /// 알림음 재생 (docs/03-DOMAIN.md 규칙 5)
 abstract interface class AlertSoundService {
   /// **본인만 듣는** 오디오 출력이 연결되어 있는가.
@@ -37,7 +60,11 @@ abstract interface class AlertSoundService {
   /// 호출 전에 이어폰 연결이 확인된 상태여야 한다.
   /// 실패하면 [AlertSoundException] 을 던지고, 호출자는 재시도하지 않고
   /// 진동으로 떨어진다 — 재시도 중 라우팅이 바뀌어 스피커로 새는 것이 최악이다.
-  Future<void> play({required double volume});
+  ///
+  /// [source] 는 장소마다 다를 수 있는 음원이다 (이슈 #121).
+  /// **`null` 이면 기본 음원**을 쓴다 — 해석에 실패했거나 값을 싣지 않은
+  /// 경로에서도 소리는 나야 한다.
+  Future<void> play({required double volume, AlertSoundSource? source});
 
   Future<void> stop();
 }

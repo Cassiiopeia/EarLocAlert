@@ -16,6 +16,8 @@ import '../../features/permission/domain/permission_service.dart';
 import '../../features/permission/domain/reliability_prompt_store.dart';
 import '../../features/places/data/drift_place_repository.dart';
 import '../../features/places/domain/place_repository.dart';
+import '../../features/sounds/data/drift_custom_sound_repository.dart';
+import '../../features/sounds/domain/custom_sound_repository.dart';
 import '../database/app_database.dart';
 
 part 'providers.g.dart';
@@ -39,6 +41,12 @@ AppDatabase appDatabase(Ref ref) {
 @Riverpod(keepAlive: true)
 PlaceRepository placeRepository(Ref ref) {
   return DriftPlaceRepository(ref.watch(appDatabaseProvider));
+}
+
+/// 사용자가 올린 알림음 (이슈 #121)
+@Riverpod(keepAlive: true)
+CustomSoundRepository customSoundRepository(Ref ref) {
+  return DriftCustomSoundRepository(ref.watch(appDatabaseProvider));
 }
 
 @Riverpod(keepAlive: true)
