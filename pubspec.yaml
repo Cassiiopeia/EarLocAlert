@@ -91,7 +91,14 @@ flutter:
   uses-material-design: true
   assets:
     # 알림음. 이어폰이 연결된 경우에만 재생된다 (F3.7)
+    #
+    # 전부 `tool/` 의 스크립트로 합성한 파형이다 — 받아온 음원이 아니라
+    # 저작권 분쟁 여지가 없다 (이슈 #121)
     - assets/sounds/alert.wav
+    - assets/sounds/bell.wav
+    - assets/sounds/electronic.wav
+    - assets/sounds/siren.wav
+    - assets/sounds/chime.wav
 # 앱 아이콘 생성: dart run flutter_launcher_icons (이슈 #65)
 #
 # adaptive_icon_background 는 아이콘 원본의 배경색과 같아야 한다 —
