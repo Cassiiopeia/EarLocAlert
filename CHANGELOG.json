@@ -1,14 +1,38 @@
 {
   "metadata": {
-    "lastUpdated": "2026-09-01T07:47:48Z",
-    "currentVersion": "1.12.0",
+    "lastUpdated": "2026-09-01T08:00:43Z",
+    "currentVersion": "1.13.0",
     "projectType": "flutter",
-    "totalReleases": 51,
+    "totalReleases": 52,
     "projectTypes": [
       "flutter"
     ]
   },
   "releases": [
+    {
+      "version": "1.13.0",
+      "project_types": [
+        "flutter"
+      ],
+      "date": "2026-09-01",
+      "pr_number": 124,
+      "raw_summary": "## [1.13.0]\n\n### ✨ 기능\n- 장소별 알림음 선택과 사용자 음원 등록 — 프리셋 음원 네 개를 합성으로 추가한다. 종소리·전자음·사이렌·차임, 받아온 음원이 아니라 저작권 여지가 없다\n\n### 📝 문서\n- 장소별 알림음 선택과 사용자 음원 등록 — 현황 표와 테스트 수를 갱신한다",
+      "parsed_changes": {
+        "기능": {
+          "title": "✨ 기능",
+          "items": [
+            "장소별 알림음 선택과 사용자 음원 등록 — 프리셋 음원 네 개를 합성으로 추가한다. 종소리·전자음·사이렌·차임, 받아온 음원이 아니라 저작권 여지가 없다"
+          ]
+        },
+        "문서": {
+          "title": "📝 문서",
+          "items": [
+            "장소별 알림음 선택과 사용자 음원 등록 — 현황 표와 테스트 수를 갱신한다"
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "1.12.0",
       "project_types": [
