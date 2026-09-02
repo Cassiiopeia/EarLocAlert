@@ -30,7 +30,11 @@ abstract final class Diagnostics {
     if (_initialized) return;
     _initialized = true;
     try {
-      _logger = FileDiagnosticLogger(file: await DiagnosticLogFile.resolve());
+      _logger = FileDiagnosticLogger(
+        file: await DiagnosticLogFile.resolve(),
+        // 회전할 때 버리지 않고 압축해 보관한다 (이슈 #127)
+        archive: await DiagnosticLogFile.resolveArchive(),
+      );
     } on Object {
       // 파일을 못 잡으면 Noop 인 채로 둔다
     }

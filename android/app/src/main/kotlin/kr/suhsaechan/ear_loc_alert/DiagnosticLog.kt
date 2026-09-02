@@ -6,6 +6,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
+import java.util.zip.GZIPOutputStream
 
 /**
  * 네이티브 진단 로그 (이슈 #95)
@@ -29,6 +30,14 @@ import java.util.TimeZone
 object DiagnosticLog {
 
     private const val FILE_NAME = "diagnostic.log"
+
+    /**
+     * 압축 보관본 — Dart `DiagnosticLogFile.archiveFileName` 과 계약이다.
+     *
+     * **앱이 떠 있지 않을 때도 회전이 일어난다.** 감시 서비스는 앱과
+     * 무관하게 돌므로, 여기서 버리면 Dart 가 보관할 기회가 없다.
+     */
+    private const val ARCHIVE_NAME = "diagnostic.1.log.gz"
 
     /** Dart `FileDiagnosticLogger.defaultMaxBytes` 와 같은 값 */
     private const val MAX_BYTES = 2L * 1024 * 1024
@@ -63,13 +72,20 @@ object DiagnosticLog {
     }
 
     /**
-     * 상한을 넘으면 오래된 쪽을 버린다.
+     * 상한을 넘으면 **압축해 보관하고** 현재 파일을 비운다 (이슈 #127).
      *
-     * Dart `trimToLimit` 과 같은 규칙이다 — 최근 것을 남긴다.
-     * 문제는 언제나 방금 일어나기 때문이다.
+     * 예전에는 오래된 쪽을 그냥 버렸다. 실기기에서 정밀 감시가 도는 날은
+     * 하루 만에 상한이 차서 전날 기록을 볼 수 없었다. 텍스트라 gzip 이
+     * 대략 10:1 로 줄인다 — 회전은 드물게 일어나므로 압축 비용도 드물다.
+     *
+     * Dart `LogArchive.rotate` 와 같은 규칙이다. 어느 쪽이 회전하든
+     * 결과가 같아야 한다.
      */
     private fun rotateIfNeeded(file: File) {
         if (file.length() <= MAX_BYTES) return
+        if (archiveInto(file)) return
+        // 압축이 실패하면 예전 방식(잘라내기)으로 떨어진다 —
+        // 여기서 포기하면 파일이 상한을 넘은 채 영영 자란다
         try {
             // **깨진 바이트에 견뎌야 한다** (이슈 #106).
             //
@@ -93,6 +109,28 @@ object DiagnosticLog {
             file.writeText(kept.joinToString("\n", postfix = "\n"))
         } catch (error: Exception) {
             // 회전 실패는 파일이 조금 커지는 문제일 뿐이다
+        }
+    }
+
+    /**
+     * 현재 로그를 gzip 으로 보관하고 원본을 비운다.
+     *
+     * 직전 세대를 덮어쓴다 — 이 로그의 목적은 며칠 안의 추적이라
+     * 두 세대면 충분하다.
+     *
+     * @return 보관에 성공했으면 true
+     */
+    private fun archiveInto(file: File): Boolean {
+        return try {
+            val bytes = file.readBytes()
+            if (bytes.isEmpty()) return true
+
+            val archive = File(file.parentFile, ARCHIVE_NAME)
+            GZIPOutputStream(archive.outputStream()).use { it.write(bytes) }
+            file.writeText("")
+            true
+        } catch (error: Exception) {
+            false
         }
     }
 }
