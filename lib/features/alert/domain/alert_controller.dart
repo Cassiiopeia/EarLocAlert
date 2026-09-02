@@ -149,7 +149,10 @@ class AlertController {
       'alert',
       '세션 시작 place=${request.placeName} '
           'direction=${request.direction.name} '
-          'sound=${request.soundEnabled} vibration=${intensity.name}',
+          'sound=${request.soundEnabled} vibration=${intensity.name} '
+          // 발화 시점의 음원을 남긴다 (이슈 #127) — 오디오 판정 로그만
+          // 있으면 이어폰이 없을 때 무엇으로 울리려 했는지 알 수 없다
+          '음원=${_describeSource(request.soundSource)}',
     );
 
     // 진동이 먼저다 — 소리 판정이 오래 걸려도 알림은 이미 전달된다

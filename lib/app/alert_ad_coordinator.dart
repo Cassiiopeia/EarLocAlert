@@ -1,3 +1,4 @@
+import '../core/diagnostics/diagnostics.dart';
 import '../features/ads/domain/ad_frequency_policy.dart';
 import '../features/ads/domain/ad_frequency_store.dart';
 import '../features/ads/domain/interstitial_ad_service.dart';
@@ -38,8 +39,11 @@ class AlertAdCoordinator {
   Future<void> onAlertFired() async {
     try {
       await _ads.preload();
-    } on Object {
-      // 미리 로딩 실패는 무시한다 — 광고가 없으면 그냥 안 보여주면 된다
+    } on Object catch (error) {
+      // 미리 로딩 실패는 무시한다 — 광고가 없으면 그냥 안 보여주면 된다.
+      // 다만 기록은 남긴다 (이슈 #127): 광고가 계속 안 뜨는 이유를
+      // 나중에 물어보면 이 줄이 유일한 단서다
+      Diagnostics.log('ads', '미리 로딩 실패 $error');
     }
   }
 
@@ -58,17 +62,32 @@ class AlertAdCoordinator {
         shownToday: state.shownToday,
         isFirstLaunch: state.isFirstLaunch,
       );
-      if (!allowed) return false;
+      if (!allowed) {
+        // **빈도 제한에 걸린 것과 광고가 없어서 못 띄운 것은 다르다**
+        // (이슈 #127). 로그가 없으면 "왜 광고가 안 나오나"에 답할 수 없다
+        Diagnostics.log(
+          'ads',
+          '전면광고 생략 (사유=빈도제한 오늘${state.shownToday}회 '
+              '마지막=${state.lastShownAt?.toIso8601String() ?? "없음"})',
+        );
+        return false;
+      }
 
       final shown = await _ads.showIfReady().timeout(
         _showTimeout,
         onTimeout: () => false,
       );
-      if (shown) await _store.recordShown(now);
+      if (shown) {
+        await _store.recordShown(now);
+        Diagnostics.log('ads', '전면광고 표시');
+      } else {
+        Diagnostics.log('ads', '전면광고 생략 (사유=준비안됨·시간초과)');
+      }
       return shown;
-    } on Object {
+    } on Object catch (error) {
       // 저장소·광고 어느 쪽이 실패해도 조용히 넘어간다.
       // 사용자는 이미 알림을 껐고, 그것이 이 흐름의 목적이었다.
+      Diagnostics.log('ads', '전면광고 실패 $error');
       return false;
     }
   }

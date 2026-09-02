@@ -50,10 +50,8 @@ class WatchEngineHost {
     // 좌표를 남긴다 (이슈 #95) — "왜 이 장소가 판정되지 않았는가"는
     // 좌표 없이 추적할 수 없고, 그것이 가장 자주 묻게 되는 질문이다.
     // 로그는 앱 전용 디렉토리에만 있고 어디로도 전송하지 않는다.
-    Diagnostics.log(
-      'precise',
-      '위치 측정 lat=$latitude lng=$longitude acc=${accuracyMeters}m',
-    );
+    // 좌표와 판정 결과를 한 줄로 합쳤다 (이슈 #127) —
+    // `GeofenceBackgroundProcessor.handlePosition` 이 남긴다.
     return _decide(
       () => _processor.handlePosition(
         sample: PositionSample(
@@ -100,7 +98,8 @@ class WatchEngineHost {
     try {
       final alert = await evaluate();
       if (alert == null) {
-        Diagnostics.log('engine', '판정 결과 알림 없음');
+        // 사유는 판정 지점이 남긴다 (이슈 #127) — 여기서 한 번 더
+        // "알림 없음"만 찍으면 정보 없는 줄이 두 배가 된다
         return AlertDecision.none;
       }
 

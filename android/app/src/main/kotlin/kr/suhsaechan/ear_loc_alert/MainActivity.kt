@@ -123,10 +123,14 @@ class MainActivity : FlutterActivity() {
             flutterEngine.dartExecutor.binaryMessenger,
             "kr.suhsaechan.ear_loc_alert/app_config",
         ).setMethodCallHandler { call, result ->
-            if (call.method == "isDevBuild") {
-                result.success(BuildConfig.DEV_FLAG)
-            } else {
-                result.notImplemented()
+            when (call.method) {
+                "isDevBuild" -> result.success(BuildConfig.DEV_FLAG)
+                // 로그에 어느 버전인지 남기기 위해서다 (이슈 #127).
+                // package_info_plus 를 더하지 않고 이미 있는 채널에 얹는다.
+                "versionLabel" -> result.success(
+                    "${BuildConfig.VERSION_NAME}(${BuildConfig.VERSION_CODE})",
+                )
+                else -> result.notImplemented()
             }
         }
 
