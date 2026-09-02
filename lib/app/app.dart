@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../core/config/build_info.dart';
 import '../core/config/dev_flag.dart';
 import '../core/diagnostics/diagnostics.dart';
 import '../features/ads/domain/ad_unit_ids.dart';
@@ -70,9 +71,11 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
     // 빌드 성격을 먼저 확정한다 (이슈 #109) — 광고 종류와 인앱 업데이트
     // 표시 여부가 여기에 달려 있다
     await DevFlag.init();
+    // 어느 빌드에서 난 문제인지 로그만으로 알 수 있어야 한다 (이슈 #127)
+    await BuildInfo.init();
     Diagnostics.log(
       'app',
-      '앱 시작 devBuild=${DevFlag.isDevBuild} '
+      '앱 시작 ${BuildInfo.label} devBuild=${DevFlag.isDevBuild} '
           '광고=${AdUnitIds.usingTestIds ? "테스트" : "실제"}',
     );
 

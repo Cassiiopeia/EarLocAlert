@@ -1,8 +1,12 @@
+import '../../core/diagnostics/diagnostics.dart';
 import '../../core/domain/alert_direction.dart';
+import '../../core/domain/alert_schedule.dart';
+import '../../features/geofence/domain/alert_suppression.dart';
 import '../../features/geofence/domain/geofence_evaluation.dart';
 import '../../features/geofence/domain/geofence_evaluator.dart';
 import '../../features/geofence/domain/geofence_event.dart';
 import '../../features/geofence/domain/geofence_event_repository.dart';
+import '../../features/geofence/domain/geofence_state.dart';
 import '../../features/geofence/domain/geofence_state_repository.dart';
 import '../../features/geofence/domain/geofence_target.dart';
 import '../../features/geofence/domain/position_sample.dart';
@@ -89,6 +93,11 @@ class GeofenceBackgroundProcessor {
       // 삭제된 장소의 이벤트가 뒤늦게 도착했다 — 상태만 정리하고 끝낸다.
       // OS 등록 해제는 다음 포그라운드 동기화가 처리한다.
       await _states.remove(placeId);
+      Diagnostics.log(
+        'engine',
+        '판정 place=$placeId → 알림없음 '
+            '(사유=${AlertSuppression.placeNotFound.label})',
+      );
       return null;
     }
 
@@ -101,6 +110,13 @@ class GeofenceBackgroundProcessor {
     // 상태 저장이 먼저다 — 이후 단계가 실패해도 다음 판정의 기준은 맞아야
     // 하고, 재부팅 후에도 살아 있어야 한다 (docs/03-DOMAIN.md)
     await _states.updateState(placeId, evaluation.state);
+    _logTransitionIfChanged(
+      place: place,
+      from: current,
+      to: evaluation.state,
+      latitude: latitude,
+      longitude: longitude,
+    );
 
     return _recordAndDecide(
       place: place,
@@ -108,6 +124,8 @@ class GeofenceBackgroundProcessor {
       transition: evaluation.transition,
       latitude: latitude,
       longitude: longitude,
+      // OS 이벤트는 드물게 온다 — 변화가 없어도 남길 값어치가 있다
+      logQuietDecision: true,
     );
   }
 
@@ -123,11 +141,13 @@ class GeofenceBackgroundProcessor {
   Future<PendingAlert?> handlePosition({required PositionSample sample}) async {
     final places = await _places.findAll();
     PendingAlert? firstAlert;
+    var inspected = 0;
 
     for (final place in places) {
       // 비활성 장소는 상태도 건드리지 않는다 — 다시 켤 때 묵은 상태와
       // initialTrigger 가 만나 가짜 알림이 터지는 것을 막는다
       if (!place.enabled) continue;
+      inspected++;
 
       final target = _targetOf(place);
       final current = await _states.stateOf(place.id);
@@ -138,6 +158,14 @@ class GeofenceBackgroundProcessor {
       );
 
       await _states.updateState(place.id, evaluation.state);
+      _logTransitionIfChanged(
+        place: place,
+        from: current,
+        to: evaluation.state,
+        latitude: sample.latitude,
+        longitude: sample.longitude,
+        accuracyMeters: sample.accuracyMeters,
+      );
 
       final alert = await _recordAndDecide(
         place: place,
@@ -146,8 +174,24 @@ class GeofenceBackgroundProcessor {
         latitude: sample.latitude,
         longitude: sample.longitude,
         accuracyMeters: sample.accuracyMeters,
+        // **정밀 측정은 몇 초마다 온다.** 장소마다 "전이없음"을 남기면
+        // 그것만으로 로그가 가득 차 정작 필요한 기록을 밀어낸다.
+        // 변화가 없는 판정은 호출부가 한 줄로 요약한다 (이슈 #127).
+        logQuietDecision: false,
       );
       firstAlert ??= alert;
+    }
+
+    // **두 줄을 한 줄로 합친다** (이슈 #127). 예전에는 좌표(`위치 측정`)와
+    // 결과(`판정 결과 알림 없음`)가 따로 나와, 정보는 적은데 자리는 두 배로
+    // 먹었다. 알림이 났으면 그쪽 로그가 상세하므로 여기서는 생략한다.
+    if (firstAlert == null) {
+      Diagnostics.log(
+        'engine',
+        '정밀 판정 lat=${sample.latitude} lng=${sample.longitude} '
+            'acc=${sample.accuracyMeters.toStringAsFixed(0)}m '
+            '→ 알림없음 (검토 $inspected곳)',
+      );
     }
 
     return firstAlert;
@@ -167,22 +211,47 @@ class GeofenceBackgroundProcessor {
     double? latitude,
     double? longitude,
     double? accuracyMeters,
+
+    /// 변화 없는 판정도 남길 것인가 (이슈 #127).
+    ///
+    /// OS 이벤트는 드물어서 남길 값어치가 있지만, 정밀 측정은 몇 초마다
+    /// 오므로 "전이없음"까지 남기면 로그가 그것만으로 가득 찬다.
+    required bool logQuietDecision,
   }) async {
+    // 같은 시계에서 갈린다 — **이력은 UTC, 스케줄 판정은 로컬.**
+    // 스케줄은 "그곳의 아침 8시"라는 벽시계 규칙이라 UTC 로 판정하면
+    // 시간대·서머타임에서 어긋난다 (이슈 #81).
+    final now = _clock();
+
+    // **왜 안 울렸는지가 이 앱에서 가장 자주 묻는 질문이다** (이슈 #127).
+    // 여섯 가지 사유를 갈라 남긴다 — 특히 정확도 부족(deferred)은
+    // "움직이지 않아서"와 구분되어야 한다.
+    final suppression = suppressionOf(
+      target: target,
+      transition: transition,
+      scheduleActive: isScheduleActive(target.schedules, now.toLocal()),
+    );
+
+    if (logQuietDecision || suppression != AlertSuppression.noTransition) {
+      Diagnostics.log(
+        'engine',
+        formatDecision(
+          placeId: place.id,
+          placeName: place.name,
+          transition: transition,
+          suppression: suppression,
+          direction: place.direction,
+          accuracyMeters: accuracyMeters,
+        ),
+      );
+    }
+
     if (transition != GeofenceTransition.entered &&
         transition != GeofenceTransition.exited) {
       return null;
     }
 
-    // 같은 시계에서 갈린다 — **이력은 UTC, 스케줄 판정은 로컬.**
-    // 스케줄은 "그곳의 아침 8시"라는 벽시계 규칙이라 UTC 로 판정하면
-    // 시간대·서머타임에서 어긋난다 (이슈 #81).
-    final now = _clock();
-    final notify = _evaluator.shouldNotify(
-      target: target,
-      transition: transition,
-      localNow: now.toLocal(),
-    );
-
+    final notify = suppression == null;
     final occurredAt = now.toUtc();
     await _events.record(
       GeofenceEvent(
@@ -210,6 +279,34 @@ class GeofenceBackgroundProcessor {
       soundEnabled: place.soundEnabled,
       occurredAt: occurredAt,
       sound: place.sound,
+    );
+  }
+
+  /// 상태가 실제로 바뀐 경우에만 남긴다 (이슈 #127).
+  ///
+  /// **전이는 사실이고 알림은 설정이다** (docs/03-DOMAIN.md). 알림이
+  /// 안 나가도 전이는 일어났을 수 있으므로 판정과 따로 기록한다 —
+  /// "반경에 들어온 것은 맞는데 왜 조용했나"를 가르는 단서다.
+  void _logTransitionIfChanged({
+    required AlertPlace place,
+    required GeofenceState from,
+    required GeofenceState to,
+    double? latitude,
+    double? longitude,
+    double? accuracyMeters,
+  }) {
+    if (from == to) return;
+    Diagnostics.log(
+      'geofence',
+      formatTransition(
+        placeId: place.id,
+        placeName: place.name,
+        from: from,
+        to: to,
+        latitude: latitude,
+        longitude: longitude,
+        accuracyMeters: accuracyMeters,
+      ),
     );
   }
 

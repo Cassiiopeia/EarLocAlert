@@ -4,6 +4,7 @@ import 'dart:io';
 import 'diagnostic_entry.dart';
 import 'diagnostic_log_reader.dart';
 import 'diagnostic_logger.dart';
+import 'log_archive.dart';
 import 'log_rotation.dart';
 
 /// 파일 기반 진단 로거 (이슈 #95)
@@ -18,6 +19,7 @@ import 'log_rotation.dart';
 class FileDiagnosticLogger implements DiagnosticLogger {
   FileDiagnosticLogger({
     required this.file,
+    this.archive,
     this.maxBytes = defaultMaxBytes,
     DateTime Function()? clock,
   }) : _clock = clock ?? DateTime.now;
@@ -38,6 +40,11 @@ class FileDiagnosticLogger implements DiagnosticLogger {
   static const double _keepRatioAfterRotate = 0.7;
 
   final File file;
+
+  /// 압축 보관본 (이슈 #127). null 이면 예전처럼 잘라내기만 한다 —
+  /// 기존 테스트가 이 인자 없이 로거를 만들 수 있어야 한다.
+  final File? archive;
+
   final int maxBytes;
   final DateTime Function() _clock;
 
@@ -62,12 +69,19 @@ class FileDiagnosticLogger implements DiagnosticLogger {
   Future<String> readAll() {
     return _serialize(() async {
       try {
-        if (!await file.exists()) return '';
+        // **보관본이 먼저다** (이슈 #127) — 시간순으로 읽혀야 한다
+        final older = archive == null
+            ? ''
+            : await LogArchive.readArchive(archive!);
+        if (!await file.exists()) return older;
         // **깨진 바이트가 있어도 읽어낸다** (이슈 #106).
         // 두 프로세스가 같은 파일에 쓰다 보면 한글 한 글자가 중간에서
         // 잘릴 수 있는데, `readAsString()` 은 그 순간 통째로 예외를 던진다.
         // 그것을 "로그 없음"으로 삼키면 수천 줄이 한 글자 때문에 사라진다
-        return DiagnosticLogReader.decodeTolerant(await file.readAsBytes());
+        final current = DiagnosticLogReader.decodeTolerant(
+          await file.readAsBytes(),
+        );
+        return '$older$current';
       } on Object {
         // 읽기 실패는 "로그 없음"으로 본다
         return '';
@@ -80,6 +94,10 @@ class FileDiagnosticLogger implements DiagnosticLogger {
     return _serialize(() async {
       try {
         if (await file.exists()) await file.writeAsString('');
+        // 보관본도 함께 지운다 — 지웠는데 예전 기록이 남아 있으면
+        // 사용자는 지우기가 고장 났다고 본다
+        final older = archive;
+        if (older != null && await older.exists()) await older.delete();
       } on Object {
         // 지우기 실패는 삼킨다
       }
@@ -112,6 +130,17 @@ class FileDiagnosticLogger implements DiagnosticLogger {
   Future<void> _rotateIfNeeded() async {
     final length = await file.length();
     if (length <= maxBytes) return;
+
+    // **버리지 않고 압축해 보관한다** (이슈 #127). 실기기에서 정밀 감시가
+    // 도는 날은 하루 만에 상한이 차서, 예전 방식으로는 전날 기록을 볼 수
+    // 없었다. 텍스트라 gzip 이 대략 10:1 로 줄인다.
+    final target = archive;
+    if (target != null) {
+      final archived = await LogArchive.rotate(source: file, archive: target);
+      if (archived) return;
+      // 압축 실패는 아래 잘라내기로 떨어진다 — 여기서 포기하면 파일이
+      // 상한을 넘은 채 영영 자란다
+    }
 
     // 회전도 관대한 디코딩을 쓴다 — 여기서 예외가 나면 파일이 상한을
     // 넘은 채 영영 자라고, 결국 읽기가 더 무거워진다 (이슈 #106)

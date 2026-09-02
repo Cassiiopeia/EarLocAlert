@@ -18,8 +18,26 @@ abstract final class DiagnosticLogFile {
   /// 양쪽이 계약이다.
   static const fileName = 'diagnostic.log';
 
+  /// 직전 세대의 압축 보관본 (이슈 #127).
+  ///
+  /// **회전할 때 버리지 않고 여기로 옮긴다.** 텍스트라 gzip 이 대략
+  /// 10:1 로 줄여서, 같은 디스크로 훨씬 오래 보관된다 — 하루 만에
+  /// 상한이 차던 것이 2주 이상으로 늘어난다.
+  ///
+  /// 세대를 하나만 두는 이유는 이 로그의 목적이 **"지금 왜 안 울렸나"**
+  /// 를 며칠 안에 추적하는 것이기 때문이다. 서버 로그처럼 장기 보관·감사가
+  /// 목적이면 세대를 늘리겠지만, 여기서는 그만큼의 복잡도를 살 이유가 없다.
+  ///
+  /// Kotlin `DiagnosticLog` 와 공유하는 이름이다 — 양쪽이 계약이다.
+  static const archiveFileName = 'diagnostic.1.log.gz';
+
   static Future<File> resolve() async {
     final dir = await getApplicationSupportDirectory();
     return File('${dir.path}/$fileName');
+  }
+
+  static Future<File> resolveArchive() async {
+    final dir = await getApplicationSupportDirectory();
+    return File('${dir.path}/$archiveFileName');
   }
 }

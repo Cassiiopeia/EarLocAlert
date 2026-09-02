@@ -1,14 +1,39 @@
 {
   "metadata": {
-    "lastUpdated": "2026-09-02T01:06:53Z",
-    "currentVersion": "1.13.1",
+    "lastUpdated": "2026-09-02T01:43:02Z",
+    "currentVersion": "1.14.0",
     "projectType": "flutter",
-    "totalReleases": 54,
+    "totalReleases": 55,
     "projectTypes": [
       "flutter"
     ]
   },
   "releases": [
+    {
+      "version": "1.14.0",
+      "project_types": [
+        "flutter"
+      ],
+      "date": "2026-09-02",
+      "pr_number": 128,
+      "raw_summary": "## [1.14.0]\n\n### ✨ 기능\n- 로그만 보고 상황을 파악할 수 있게 만든다 — 회전할 때 버리지 않고 gzip 으로 보관한다. Dart·Kotlin 양쪽 같은 규칙\n- 로그만 보고 상황을 파악할 수 있게 만든다 — 판정 사유·상태 전이·isolate 경계·버전을 남기고 정보 없는 두 줄을 한 줄로 합친다\n\n### 📝 문서\n- 로그만 보고 상황을 파악할 수 있게 만든다 — 로깅 정책 변경을 기록한다",
+      "parsed_changes": {
+        "기능": {
+          "title": "✨ 기능",
+          "items": [
+            "로그만 보고 상황을 파악할 수 있게 만든다 — 회전할 때 버리지 않고 gzip 으로 보관한다. Dart·Kotlin 양쪽 같은 규칙",
+            "로그만 보고 상황을 파악할 수 있게 만든다 — 판정 사유·상태 전이·isolate 경계·버전을 남기고 정보 없는 두 줄을 한 줄로 합친다"
+          ]
+        },
+        "문서": {
+          "title": "📝 문서",
+          "items": [
+            "로그만 보고 상황을 파악할 수 있게 만든다 — 로깅 정책 변경을 기록한다"
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "1.13.1",
       "project_types": [

@@ -1,6 +1,7 @@
 import '../../../core/domain/alert_schedule.dart';
 import 'geofence_event.dart';
 import 'geofence_target.dart';
+import 'alert_suppression.dart';
 import 'geofence_evaluation.dart';
 import 'geofence_state.dart';
 import 'position_sample.dart';
@@ -119,12 +120,13 @@ class GeofenceEvaluator {
     required GeofenceTransition transition,
     required DateTime localNow,
   }) {
-    if (!target.enabled) return false;
-    if (!isScheduleActive(target.schedules, localNow)) return false;
-    return switch (transition) {
-      GeofenceTransition.entered => target.direction.notifiesOnEnter,
-      GeofenceTransition.exited => target.direction.notifiesOnExit,
-      GeofenceTransition.none || GeofenceTransition.deferred => false,
-    };
+    // 규칙은 `suppressionOf` 하나에만 둔다 (이슈 #127).
+    // 여기에 복제하면 로그가 말하는 사유와 실제 동작이 어긋난다.
+    return suppressionOf(
+          target: target,
+          transition: transition,
+          scheduleActive: isScheduleActive(target.schedules, localNow),
+        ) ==
+        null;
   }
 }

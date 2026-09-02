@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 
 import 'diagnostic_log_file.dart';
+import 'log_archive.dart';
 
 /// 진단 기록 읽기 결과 (이슈 #106)
 ///
@@ -24,9 +25,15 @@ typedef DiagnosticReadResult = ({String content, String error});
 abstract final class DiagnosticLogReader {
   static Future<DiagnosticReadResult> read() async {
     try {
+      // **보관본을 먼저 이어 붙인다** (이슈 #127) — 회전으로 넘어간
+      // 기록도 화면에서 보여야 한다. 시간순이라 오래된 쪽이 앞이다
+      final older = await LogArchive.readArchive(
+        await DiagnosticLogFile.resolveArchive(),
+      );
       final file = await DiagnosticLogFile.resolve();
-      if (!await file.exists()) return (content: '', error: '');
-      return (content: decodeTolerant(await file.readAsBytes()), error: '');
+      if (!await file.exists()) return (content: older, error: '');
+      final current = decodeTolerant(await file.readAsBytes());
+      return (content: '$older$current', error: '');
     } on Object catch (failure) {
       return (content: '', error: '$failure');
     }
@@ -56,6 +63,8 @@ abstract final class DiagnosticLogReader {
     try {
       final file = await DiagnosticLogFile.resolve();
       if (await file.exists()) await file.writeAsString('');
+      final archive = await DiagnosticLogFile.resolveArchive();
+      if (await archive.exists()) await archive.delete();
     } on Object {
       // 지우기 실패는 삼킨다 — 다시 읽으면 실제 상태가 보인다
     }

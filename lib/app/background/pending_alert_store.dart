@@ -1,5 +1,8 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../core/diagnostics/diagnostics.dart';
+import '../../core/diagnostics/log_format.dart';
+
 import '../../core/domain/alert_direction.dart';
 import '../../core/domain/alert_sound.dart';
 import 'pending_alert.dart';
@@ -32,6 +35,16 @@ class PendingAlertStore {
       alert.occurredAt.toUtc().toIso8601String(),
     );
     await prefs.setString(_keySound, alert.sound.storageValue);
+
+    // **isolate 경계를 남긴다** (이슈 #127). 이슈 #125 에서 값이
+    // 저장과 재생 사이에서 사라졌는데, 이 기록이 없어 코드를 읽어야만
+    // 어디서 빠졌는지 알 수 있었다.
+    Diagnostics.log(
+      'pending',
+      '저장 place=${shortId(alert.placeId)} name=${alert.placeName} '
+          'direction=${alert.direction.name} sound=${alert.soundEnabled} '
+          'tone=${alert.sound.storageValue}',
+    );
   }
 
   /// 저장된 알림을 꺼내고 지운다.
@@ -76,19 +89,31 @@ class PendingAlertStore {
       return (alert: null, hadStored: true);
     }
 
-    return (
-      alert: PendingAlert(
-        placeId: placeId,
-        placeName: placeName,
-        direction: direction,
-        soundEnabled: soundEnabled,
-        occurredAt: occurredAt.toUtc(),
-        // 값이 없거나 깨졌으면 기본음이다 — 알림음 하나 때문에
-        // 알림 전체를 버리지 않는다 (이슈 #121).
-        // 이 필드가 없던 버전에서 저장된 값을 읽는 경우도 여기로 온다.
-        sound: AlertSound.parse(soundRaw ?? ''),
-      ),
-      hadStored: true,
+    final restored = PendingAlert(
+      placeId: placeId,
+      placeName: placeName,
+      direction: direction,
+      soundEnabled: soundEnabled,
+      occurredAt: occurredAt.toUtc(),
+      // 값이 없거나 깨졌으면 기본음이다 — 알림음 하나 때문에
+      // 알림 전체를 버리지 않는다 (이슈 #121).
+      // 이 필드가 없던 버전에서 저장된 값을 읽는 경우도 여기로 온다.
+      sound: AlertSound.parse(soundRaw ?? ''),
+    );
+    _logRestored(restored, DateTime.now().toUtc());
+    return (alert: restored, hadStored: true);
+  }
+
+  /// 복원 결과를 남긴다 (이슈 #127).
+  ///
+  /// 저장과 짝을 이룬다 — 두 줄을 나란히 놓으면 **무엇이 살아 돌아왔고
+  /// 무엇이 사라졌는지**가 한눈에 보인다.
+  void _logRestored(PendingAlert alert, DateTime now) {
+    final age = now.difference(alert.occurredAt);
+    Diagnostics.log(
+      'pending',
+      '복원 place=${shortId(alert.placeId)} name=${alert.placeName} '
+          'tone=${alert.sound.storageValue} 경과=${age.inSeconds}초',
     );
   }
 
