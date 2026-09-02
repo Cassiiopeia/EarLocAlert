@@ -49,6 +49,10 @@ class PendingAlertStore {
     final directionName = prefs.getString(_keyDirection);
     final soundEnabled = prefs.getBool(_keySoundEnabled);
     final occurredAtRaw = prefs.getString(_keyOccurredAt);
+    // **_clear 앞에서 읽는다** (이슈 #125). 뒤에서 읽으면 이미 지워진
+    // 값을 보게 되고, 파서가 규약대로 기본음으로 흡수해 **예외도 로그도
+    // 없이** 장소별 알림음이 통째로 사라진다.
+    final soundRaw = prefs.getString(_keySound);
 
     // 아무것도 없으면 지울 것도 없다. 앱이 떠 있는 동안 주기적으로
     // 확인하므로(#74), 빈 상태에서 매번 쓰기를 일으키면 안 된다.
@@ -80,8 +84,9 @@ class PendingAlertStore {
         soundEnabled: soundEnabled,
         occurredAt: occurredAt.toUtc(),
         // 값이 없거나 깨졌으면 기본음이다 — 알림음 하나 때문에
-        // 알림 전체를 버리지 않는다 (이슈 #121)
-        sound: AlertSound.parse(prefs.getString(_keySound) ?? ''),
+        // 알림 전체를 버리지 않는다 (이슈 #121).
+        // 이 필드가 없던 버전에서 저장된 값을 읽는 경우도 여기로 온다.
+        sound: AlertSound.parse(soundRaw ?? ''),
       ),
       hadStored: true,
     );

@@ -1,14 +1,38 @@
 {
   "metadata": {
-    "lastUpdated": "2026-09-01T08:21:50Z",
-    "currentVersion": "1.13.0",
+    "lastUpdated": "2026-09-02T01:06:53Z",
+    "currentVersion": "1.13.1",
     "projectType": "flutter",
-    "totalReleases": 53,
+    "totalReleases": 54,
     "projectTypes": [
       "flutter"
     ]
   },
   "releases": [
+    {
+      "version": "1.13.1",
+      "project_types": [
+        "flutter"
+      ],
+      "date": "2026-09-02",
+      "pr_number": 126,
+      "raw_summary": "## [1.13.1]\n\n### 🐛 수정\n- 장소에 지정한 알림음이 백그라운드 알림에서 항상 기본음으로 재생된다 — 지운 뒤에 읽던 알림음 값을 _clear 앞에서 읽는다\n\n### 📝 문서\n- 장소에 지정한 알림음이 백그라운드 알림에서 항상 기본음으로 재생된다 — 구현 보고서를 남긴다",
+      "parsed_changes": {
+        "수정": {
+          "title": "🐛 수정",
+          "items": [
+            "장소에 지정한 알림음이 백그라운드 알림에서 항상 기본음으로 재생된다 — 지운 뒤에 읽던 알림음 값을 _clear 앞에서 읽는다"
+          ]
+        },
+        "문서": {
+          "title": "📝 문서",
+          "items": [
+            "장소에 지정한 알림음이 백그라운드 알림에서 항상 기본음으로 재생된다 — 구현 보고서를 남긴다"
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "1.13.0",
       "project_types": [
