@@ -4,6 +4,7 @@ import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
+import android.graphics.drawable.Icon
 import android.app.Service
 import android.content.Context
 import android.content.Intent
@@ -43,6 +44,36 @@ class AlertWatchService : Service() {
 
         /** Dart 가 알림 세션을 넘겨받았다 — 네이티브 진동을 멈춘다 */
         const val ACTION_STOP_ALERT = "kr.suhsaechan.ear_loc_alert.STOP_ALERT"
+
+        /**
+         * 사용자가 알림의 "끄기" 버튼을 눌렀다 (이슈 #130).
+         *
+         * [ACTION_STOP_ALERT] 와 의미가 다르다. 그쪽은 **Dart 세션이
+         * 이어받는다**는 뜻이라 알림을 남겨두지만, 이쪽은 사용자가 끝냈다는
+         * 뜻이라 알림도 함께 지워야 한다 — 진동만 멈추고 알림이 남으면
+         * 사용자는 여전히 "이걸 어떻게 없애지"에 머문다.
+         */
+        const val ACTION_DISMISS_ALERT = "kr.suhsaechan.ear_loc_alert.DISMISS_ALERT"
+
+        /**
+         * 알림의 "끄기" 버튼용 요청 코드 (이슈 #130).
+         *
+         * 앱 실행용(0)과 달라야 한다 — 같으면 PendingIntent 가 서로 덮어써
+         * 버튼을 눌러도 앱만 열린다.
+         */
+        private const val REQ_STOP_ALERT = 1
+
+        /**
+         * 지금 알림이 울리고 있는가 (이슈 #130).
+         *
+         * **앱 프로세스가 죽었다 살아나도 이 서비스는 살아 있다.** 그때
+         * Dart 세션은 사라졌는데 진동은 계속되므로, 앱이 뜰 때 이 값을 보고
+         * 정리해야 한다. 그러지 않으면 사용자에게 강제 중지 말고는 방법이
+         * 없어진다 — 실제로 그런 일이 있었다.
+         */
+        @Volatile
+        var alertingNow: Boolean = false
+            private set
 
         /** 지오펜스 이벤트 전달 (이슈 #93) */
         const val ACTION_GEOFENCE_EVENT = "kr.suhsaechan.ear_loc_alert.GEOFENCE_EVENT"
@@ -183,6 +214,13 @@ class AlertWatchService : Service() {
             // (app.dart `_resumePendingAlert`). 순서가 보장되므로 겹치지도,
             // 끊기지도 않는다.
             ACTION_STOP_ALERT -> endAlert()
+            // 사용자가 알림에서 직접 껐다 (이슈 #130) — Dart 를 거치지
+            // 않으므로 앱이 죽어 있어도 여기서 끝난다
+            ACTION_DISMISS_ALERT -> {
+                DiagnosticLog.write(this, "alert", "알림 끄기 — 사용자가 알림에서 직접 껐다")
+                endAlert()
+                releaseArrivalNotification()
+            }
         }
 
         // 감시 알림은 어떤 경로로 들어와도 유지한다
@@ -207,6 +245,7 @@ class AlertWatchService : Service() {
         engine.stop()
         if (alerting) stopVibration()
         alerting = false
+        alertingNow = false
         super.onDestroy()
     }
 
@@ -258,6 +297,23 @@ class AlertWatchService : Service() {
             .setOngoing(true)
             .setContentIntent(launchPendingIntent())
             .build()
+    }
+
+    /**
+     * 알림의 "끄기" 버튼이 보낼 신호 (이슈 #130).
+     *
+     * `getService` 라 **앱 프로세스와 무관하게** 이 서비스가 직접 받는다.
+     * 진동을 멈추고 알림까지 지운다.
+     */
+    private fun stopAlertPendingIntent(): PendingIntent {
+        val intent = Intent(this, AlertWatchService::class.java)
+            .setAction(ACTION_DISMISS_ALERT)
+        return PendingIntent.getService(
+            this,
+            REQ_STOP_ALERT,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+        )
     }
 
     private fun launchPendingIntent(): PendingIntent? {
@@ -390,6 +446,7 @@ class AlertWatchService : Service() {
             return
         }
         alerting = true
+        alertingNow = true
 
         DiagnosticLog.write(
             this,
@@ -423,6 +480,7 @@ class AlertWatchService : Service() {
     private fun endAlert(timedOut: Boolean = false) {
         if (!alerting) return
         alerting = false
+        alertingNow = false
         handler.removeCallbacks(timeoutTask)
         stopVibration()
         if (timedOut) {
@@ -515,6 +573,28 @@ class AlertWatchService : Service() {
                 // 화면이 꺼졌거나 잠겼을 때 알림 화면을 직접 띄운다.
                 // 시간 초과 후에는 화면을 깨울 이유가 없다
                 if (ongoing && pending != null) setFullScreenIntent(pending, true)
+
+                // **끄기 버튼** (이슈 #130).
+                //
+                // 앱이 죽으면 Dart 가 해제 신호를 보낼 수 없고, 알림을 탭해
+                // 앱을 열어도 세션이 없어 알림 화면이 뜨지 않는다. 그러면
+                // 사용자에게 남는 선택지가 강제 중지뿐이다 — 실제로 그런
+                // 일이 있었다.
+                //
+                // 이 버튼은 **서비스로 직접 간다.** Dart 를 거치지 않으므로
+                // 앱이 죽어 있어도 멈춘다.
+                if (ongoing) {
+                    addAction(
+                        Notification.Action.Builder(
+                            Icon.createWithResource(
+                                this@AlertWatchService,
+                                android.R.drawable.ic_menu_close_clear_cancel,
+                            ),
+                            "알림 끄기",
+                            stopAlertPendingIntent(),
+                        ).build(),
+                    )
+                }
             }
             .build()
     }

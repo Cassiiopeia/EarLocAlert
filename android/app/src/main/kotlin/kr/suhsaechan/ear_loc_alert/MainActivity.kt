@@ -153,6 +153,8 @@ class MainActivity : FlutterActivity() {
                     sendToWatchService(AlertWatchService.ACTION_STOP_ALERT)
                     result.success(null)
                 }
+                // 앱이 죽었다 살아났을 때 정리 여부를 판단한다 (이슈 #130)
+                "isAlerting" -> result.success(AlertWatchService.alertingNow)
                 // 지오펜스 등록 (이슈 #93).
                 //
                 // 등록 주체가 서비스인 이유는 **앱이 죽어도 등록이 살아있어야**
