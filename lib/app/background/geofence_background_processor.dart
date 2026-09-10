@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import '../../core/diagnostics/diagnostics.dart';
 import '../../core/domain/alert_direction.dart';
 import '../../core/domain/alert_schedule.dart';
@@ -9,6 +11,7 @@ import '../../features/geofence/domain/geofence_event_repository.dart';
 import '../../features/geofence/domain/geofence_state.dart';
 import '../../features/geofence/domain/geofence_state_repository.dart';
 import '../../features/geofence/domain/geofence_target.dart';
+import '../../features/geofence/domain/position_plausibility.dart';
 import '../../features/geofence/domain/position_sample.dart';
 import '../../features/places/domain/alert_place.dart';
 import '../../features/places/domain/place_repository.dart';
@@ -56,6 +59,23 @@ class GeofenceBackgroundProcessor {
   final GeofenceEvaluator _evaluator;
   final BackgroundAlertPort _alertPort;
   final String Function() _idGenerator;
+
+  /// 판정을 직렬화한다 (이슈 #131).
+  ///
+  /// **OS 전이와 정밀 측정이 같은 순간에 도착한다.** 실기기 로그에서
+  /// 0.5ms 차이로 둘 다 `outside → inside` 를 봤고, 각각 알림을 냈다 —
+  /// 앞엣것이 상태를 저장하기 전에 뒤엣것이 읽었기 때문이다.
+  ///
+  /// 로거가 쓰는 것과 같은 방식이다. 판정은 "직전 상태"에 의존하므로
+  /// 겹쳐 돌면 그 전제가 깨진다.
+  Future<void> _queue = Future.value();
+
+  /// 마지막 정밀 측정 (이슈 #131).
+  ///
+  /// **OS 전이가 튄 좌표인지 가릴 유일한 기준이다.** 감시 엔진이 살아
+  /// 있는 동안만 유지되며, 프로세스가 새로 뜨면 비어 있다 — 그때는
+  /// 검증을 건너뛴다. 근거 없이 막으면 진짜 도착을 놓친다.
+  PositionSample? _lastSample;
   final DateTime Function() _clock;
 
   /// OS 지오펜스 이벤트 하나를 처리하고 **알림까지 발행한다.**
@@ -87,6 +107,22 @@ class GeofenceBackgroundProcessor {
     required GeofenceEventType eventType,
     double? latitude,
     double? longitude,
+  }) {
+    return _serialize(
+      () => _handleTransitionLocked(
+        placeId: placeId,
+        eventType: eventType,
+        latitude: latitude,
+        longitude: longitude,
+      ),
+    );
+  }
+
+  Future<PendingAlert?> _handleTransitionLocked({
+    required String placeId,
+    required GeofenceEventType eventType,
+    double? latitude,
+    double? longitude,
   }) async {
     final place = await _places.findById(placeId);
     if (place == null) {
@@ -99,6 +135,31 @@ class GeofenceBackgroundProcessor {
             '(사유=${AlertSuppression.placeNotFound.label})',
       );
       return null;
+    }
+
+    // **좌표가 튀었는지 먼저 본다** (이슈 #131).
+    //
+    // 정밀 경로는 정확도가 나쁘면 판정을 미루는데 OS 전이 경로에는 그
+    // 검증이 없었다. 그래서 1km 떨어진 가짜 좌표로 도착 알림이 나갔다 —
+    // 정확도(44m)는 멀쩡했고 좌표 자체가 순간이동했다.
+    if (latitude != null && longitude != null) {
+      final speed = speedKmhFrom(
+        from: _lastSample,
+        latitude: latitude,
+        longitude: longitude,
+        at: _clock().toUtc(),
+      );
+      if (speed != null && speed > maxPlausibleSpeedKmh) {
+        Diagnostics.log(
+          'engine',
+          '판정 place=$placeId → 알림없음 '
+              '(사유=${AlertSuppression.implausibleJump.label} '
+              '${speed.toStringAsFixed(0)}km/h)',
+        );
+        // **상태도 바꾸지 않는다.** 가짜 좌표로 inside 가 되면 다음 진짜
+        // 진입이 "이미 안에 있음"으로 걸러진다
+        return null;
+      }
     }
 
     final current = await _states.stateOf(placeId);
@@ -138,10 +199,37 @@ class GeofenceBackgroundProcessor {
   /// 진동과 화면은 하나뿐이다. 나머지 장소의 상태·이력은 정상 기록된다.
   /// 먼저 발견된 것을 쓰는 이유는 목록 순서가 생성 시각 오름차순이라
   /// 결정적이기 때문이다.
-  Future<PendingAlert?> handlePosition({required PositionSample sample}) async {
+  Future<PendingAlert?> handlePosition({required PositionSample sample}) {
+    return _serialize(() => _handlePositionLocked(sample: sample));
+  }
+
+  Future<PendingAlert?> _handlePositionLocked({
+    required PositionSample sample,
+  }) async {
     final places = await _places.findAll();
     PendingAlert? firstAlert;
     var inspected = 0;
+
+    // **정밀 측정도 튈 수 있다** (이슈 #131). 실기기 로그에서 네이티브가
+    // 같은 튄 좌표를 정밀 감시에도 넣었고, 두 경로가 함께 가짜 알림을 냈다.
+    if (!isPlausibleMove(
+      from: _lastSample,
+      latitude: sample.latitude,
+      longitude: sample.longitude,
+      at: sample.timestamp,
+      accuracyMeters: sample.accuracyMeters,
+    )) {
+      Diagnostics.log(
+        'engine',
+        '정밀 판정 lat=${sample.latitude} lng=${sample.longitude} '
+            'acc=${sample.accuracyMeters.toStringAsFixed(0)}m → 무시 '
+            '(사유=${AlertSuppression.implausibleJump.label})',
+      );
+      // **기준을 갱신하지 않는다.** 튄 좌표를 기준으로 삼으면 다음
+      // 진짜 좌표가 도리어 튐으로 걸린다
+      return null;
+    }
+    _lastSample = sample;
 
     for (final place in places) {
       // 비활성 장소는 상태도 건드리지 않는다 — 다시 켤 때 묵은 상태와
@@ -308,6 +396,22 @@ class GeofenceBackgroundProcessor {
         accuracyMeters: accuracyMeters,
       ),
     );
+  }
+
+  /// 앞선 판정이 끝난 뒤에 실행한다 (이슈 #131).
+  ///
+  /// 실패해도 큐가 끊기지 않는다 — 한 번의 판정 실패가 이후 모든 알림을
+  /// 막으면 안 된다.
+  Future<T> _serialize<T>(Future<T> Function() action) {
+    final completer = Completer<T>();
+    _queue = _queue.then((_) async {
+      try {
+        completer.complete(await action());
+      } on Object catch (error, stack) {
+        completer.completeError(error, stack);
+      }
+    });
+    return completer.future;
   }
 
   /// AlertPlace → GeofenceTarget 매핑 (docs/02-ARCHITECTURE.md 규칙 1)
