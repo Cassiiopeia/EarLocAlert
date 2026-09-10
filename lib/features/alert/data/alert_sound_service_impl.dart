@@ -4,6 +4,7 @@ import 'package:audio_session/audio_session.dart';
 import 'package:just_audio/just_audio.dart';
 
 import '../../../core/audio/audio_session_headphone_detector.dart';
+import '../../../core/diagnostics/diagnostics.dart';
 import '../../../core/audio/headphone_detector.dart';
 import '../domain/alert_effects.dart';
 
@@ -26,10 +27,47 @@ class AlertSoundServiceImpl implements AlertSoundService {
   /// 이 별칭은 기존 테스트가 보던 이름이다.
   static const headphoneTypes = AudioSessionHeadphoneDetector.headphoneTypes;
 
+  /// 알림 전용 오디오 세션 (이슈 #129)
+  ///
+  /// **`AudioSessionConfiguration.speech()` 를 쓰면 안 된다.** 그 프리셋은
+  /// `androidWillPauseWhenDucked: true` 라서, 다른 앱이 우리를 duck 시키면
+  /// **우리 재생이 멈춘다.** 넷플릭스를 보던 중 알림이 0.5초만 들리고
+  /// 사라진 것이 정확히 그 동작이었다.
+  ///
+  /// 알림은 ducked 되어도 계속 울려야 한다 — 작아질지언정 멈추면
+  /// 사용자가 내릴 정거장을 놓친다.
+  /// 테스트에서 값을 검증한다 — 오디오 포커스는 실기기로만 확인되지만
+  /// **설정이 되돌아가는 것은 막을 수 있다** (이슈 #129).
+  static const alertSessionConfiguration = AudioSessionConfiguration(
+    // iOS — 옵션을 주지 않으면 다른 앱이 중단된다
+    avAudioSessionCategory: AVAudioSessionCategory.playback,
+    avAudioSessionMode: AVAudioSessionMode.defaultMode,
+    androidAudioAttributes: AndroidAudioAttributes(
+      // 알림음이지 음성이 아니다
+      contentType: AndroidAudioContentType.sonification,
+      // **`alarm` 을 쓰지 않는다 — 스피커로 샐 수 있다.**
+      //
+      // Android 는 알람·벨소리 계열을 "놓치면 안 되는 소리"로 취급해,
+      // **이어폰이 연결돼 있어도 스피커로 함께 내보내는 기기가 있다**
+      // (제조사 커스터마이징에서 흔하다). 이 앱에서 그것은 존재 이유를
+      // 잃는 사고다 (CLAUDE.md 금지 2).
+      //
+      // 미디어 스트림은 그런 동작이 없다 — 이어폰이 있으면 이어폰으로만 간다.
+      // **다른 앱을 멈추는 것은 usage 가 아니라 포커스 타입이 한다** —
+      // 아래 `gainTransient` 가 그 역할이다.
+      usage: AndroidAudioUsage.media,
+    ),
+    // 해제하면 원래 앱이 재개되어야 한다 — gain 은 영구 점유라 재개되지 않는다
+    androidAudioFocusGainType: AndroidAudioFocusGainType.gainTransient,
+    // **ducked 되어도 멈추지 않는다.** 이 한 줄이 이슈 #129 의 핵심이다
+    androidWillPauseWhenDucked: false,
+  );
+
   /// 장소가 음원을 지정하지 않았을 때 쓰는 소리
   final String _defaultAssetPath;
   final HeadphoneDetector _detector;
   AudioPlayer? _player;
+  StreamSubscription<AudioInterruptionEvent>? _interruptions;
 
   @override
   Future<bool> isHeadphoneConnected() => _detector.isConnected();
@@ -38,8 +76,18 @@ class AlertSoundServiceImpl implements AlertSoundService {
   Future<void> play({required double volume, AlertSoundSource? source}) async {
     try {
       final session = await AudioSession.instance;
-      await session.configure(const AudioSessionConfiguration.speech());
-      await session.setActive(true);
+      await session.configure(alertSessionConfiguration);
+
+      // **포커스 획득 결과를 확인한다** (이슈 #129). 예전에는 반환값을
+      // 버려서, 다른 앱이 배타적으로 점유해 요청이 거부돼도 그냥 재생을
+      // 시작했다. 거부되어도 재생은 시도한다 — 작게라도 나는 편이
+      // 아예 없는 것보다 낫고, 진동은 이미 울리고 있다.
+      final granted = await session.setActive(true);
+      Diagnostics.log(
+        'alert',
+        '오디오 포커스 ${granted ? "획득" : "거부"} (거부여도 재생은 시도한다)',
+      );
+      _listenInterruptions(session);
 
       final player = _player ??= AudioPlayer();
       // 사용자가 설정한 알림음 크기 (이슈 #86). 재생 시작 전에 걸어야
@@ -75,6 +123,22 @@ class AlertSoundServiceImpl implements AlertSoundService {
       // 호출자는 이 예외를 받아 재시도 없이 진동으로 떨어진다
       throw AlertSoundException('$error');
     }
+  }
+
+  /// 재생 중 방해받은 사실을 남긴다 (이슈 #129).
+  ///
+  /// **이 기록이 없어서 원인을 코드에서 찾아야 했다.** 로그에는 재생을
+  /// 시작한 줄까지만 있고, 포커스를 뺏겨 멈춘 사실은 어디에도 없었다.
+  ///
+  /// 구독은 한 번만 건다 — 알림마다 새로 걸면 리스너가 쌓인다.
+  void _listenInterruptions(AudioSession session) {
+    if (_interruptions != null) return;
+    _interruptions = session.interruptionEventStream.listen((event) {
+      Diagnostics.log(
+        'alert',
+        '오디오 중단 ${event.begin ? "시작" : "종료"} 유형=${event.type.name}',
+      );
+    });
   }
 
   @override

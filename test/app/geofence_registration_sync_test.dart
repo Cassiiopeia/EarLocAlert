@@ -187,6 +187,9 @@ class _FakeWatchService implements AlertWatchService {
   Future<void> stopNativeAlert() async => stopAlertCount++;
 
   @override
+  Future<bool> isAlerting() async => false;
+
+  @override
   Future<void> syncGeofences(List<Map<String, Object?>> geofences) async =>
       syncedGeofences = geofences;
 }

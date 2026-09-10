@@ -31,7 +31,13 @@ enum AlertSuppression {
   directionMismatch,
 
   /// 알림 시간 창 밖이다 (이슈 #81)
-  outsideSchedule;
+  outsideSchedule,
+
+  /// **좌표가 튀었다** (이슈 #131).
+  ///
+  /// 직전 측정 대비 이동 속도가 비현실적이다. OS 측위가 흔들리면
+  /// 1km 떨어진 곳에서 진입 이벤트가 오고 몇 초 뒤 되돌아간다.
+  implausibleJump;
 
   /// 로그에 남길 짧은 한국어. **여기가 단일 출처다** —
   /// 호출부에서 문자열을 조립하면 표현이 갈린다.
@@ -42,6 +48,7 @@ enum AlertSuppression {
     deferred => '정확도부족',
     directionMismatch => '방향불일치',
     outsideSchedule => '시간대밖',
+    implausibleJump => '위치튐',
   };
 }
 

@@ -20,6 +20,16 @@ abstract interface class AlertWatchService {
   /// 네이티브 취소가 Dart 진동을 같이 끄거나, 둘이 겹쳐 패턴이 어긋난다.
   Future<void> stopNativeAlert();
 
+  /// 네이티브가 지금 알림을 울리고 있는가 (이슈 #130).
+  ///
+  /// **앱 프로세스가 죽었다 살아나면 Dart 세션은 사라지지만 이 서비스는
+  /// 살아 있다.** 그 상태를 모르면 진동이 계속되는데 띄울 화면이 없어,
+  /// 사용자에게 강제 중지 말고는 방법이 없어진다.
+  ///
+  /// 확인에 실패하면 `false` 로 본다 — 울리지 않는데 정리를 시도하는 것은
+  /// 무해하지만, 반대로 틀리면 멀쩡한 알림을 꺼버린다.
+  Future<bool> isAlerting();
+
   /// 지오펜스 등록을 서비스에 위임한다 (이슈 #93).
   ///
   /// 등록 주체가 서비스인 이유는 **앱이 죽어도 등록이 살아있어야 하기**
@@ -42,6 +52,9 @@ class NoopAlertWatchService implements AlertWatchService {
 
   @override
   Future<void> stopNativeAlert() async {}
+
+  @override
+  Future<bool> isAlerting() async => false;
 
   @override
   Future<void> syncGeofences(List<Map<String, Object?>> geofences) async {}

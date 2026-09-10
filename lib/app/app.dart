@@ -173,7 +173,16 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
         // 지우는 책임이 여기 있다 — 안 지우면 영영 남는 알림이 된다.
         await _cancelBackgroundNotification();
       }
-      if (request == null) return;
+      if (request == null) {
+        // **앱이 죽었다 살아난 경우** (이슈 #130).
+        //
+        // 첫 승격 때 PendingAlert 를 이미 소비했으므로 hadPending 이
+        // false 다. 그런데 감시 서비스는 앱과 무관하게 살아 있어 진동을
+        // 계속하고 있을 수 있다 — 그 상태에서는 알림을 탭해 앱을 열어도
+        // 띄울 세션이 없어, 사용자에게 강제 중지 말고는 방법이 없다.
+        if (!hadPending) await _stopOrphanedAlert();
+        return;
+      }
 
       Diagnostics.log('app', '알림 세션 승격 place=${request.placeName}');
       await ref.read(activeAlertProvider.notifier).fire(request);
@@ -184,6 +193,19 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
       // 알림 승격 실패가 앱 시작을 막으면 안 된다
       Diagnostics.log('app', '알림 승격 실패 $error');
     }
+  }
+
+  /// 세션 없이 혼자 울고 있는 알림을 정리한다 (이슈 #130).
+  ///
+  /// **확인에 실패하면 아무것도 하지 않는다** — 울리지 않는데 정리하는
+  /// 것은 무해하지만, 반대로 틀리면 멀쩡한 알림을 꺼버린다.
+  Future<void> _stopOrphanedAlert() async {
+    final watch = ref.read(alertWatchServiceProvider);
+    if (!await watch.isAlerting()) return;
+
+    Diagnostics.log('app', '세션 없이 울리는 알림 발견 — 정리한다 (앱이 재시작된 것으로 보인다)');
+    await watch.stopNativeAlert();
+    await _cancelBackgroundNotification();
   }
 
   /// 백그라운드가 띄운 알림을 지운다 (이슈 #84).

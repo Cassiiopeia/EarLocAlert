@@ -153,6 +153,8 @@ class MainActivity : FlutterActivity() {
                     sendToWatchService(AlertWatchService.ACTION_STOP_ALERT)
                     result.success(null)
                 }
+                // 앱이 죽었다 살아났을 때 정리 여부를 판단한다 (이슈 #130)
+                "isAlerting" -> result.success(AlertWatchService.alertingNow)
                 // 지오펜스 등록 (이슈 #93).
                 //
                 // 등록 주체가 서비스인 이유는 **앱이 죽어도 등록이 살아있어야**
@@ -225,8 +227,15 @@ class MainActivity : FlutterActivity() {
     private var volumeBeforeRaise: Int? = null
 
     /**
-     * 미디어 볼륨을 fraction(0.0~1.0) 수준까지 **올린다**. 이미 그보다
+     * 알람 볼륨을 fraction(0.0~1.0) 수준까지 **올린다**. 이미 그보다
      * 크면 건드리지 않는다 — 크게 듣고 있는 사용자를 낮추면 안 된다.
+     *
+     * **`STREAM_MUSIC` 을 유지한다** (이슈 #129).
+     *
+     * 알람 스트림으로 올리면 우선순위는 높아지지만 **이어폰이 연결돼
+     * 있어도 스피커로 함께 나가는 기기가 있다.** 이 앱에서 그것은
+     * 존재 이유를 잃는 사고라 우선순위와 바꿀 수 없다.
+     * 재생 쪽도 같은 이유로 `usage: media` 를 쓴다.
      */
     private fun raiseSystemVolume(fraction: Double) {
         val audio = getSystemService(AudioManager::class.java) ?: return
