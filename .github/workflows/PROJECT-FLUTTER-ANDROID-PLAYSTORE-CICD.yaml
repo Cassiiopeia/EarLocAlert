@@ -1,10 +1,10 @@
 # project-auto-wizard:managed-workflow
 # ===================================================================
-# Flutter Android Play Store 내부 테스트 배포 워크플로우
+# Flutter Android Play Store 비공개 테스트 배포 워크플로우
 # ===================================================================
 #
 # main 브랜치 푸시 시 Android AAB를 빌드하고
-# Play Store 내부 테스트에 자동 배포합니다.
+# Play Store 비공개 테스트(alpha)에 자동 배포합니다 — 게시까지 자동입니다 (이슈 #139).
 #
 # ===================================================================
 # 🔑 필수 GitHub Secrets
@@ -526,7 +526,7 @@ jobs:
           if-no-files-found: error
 
   deploy-playstore:
-    name: Play Store 내부 테스트 배포
+    name: Play Store 비공개 테스트 배포
     runs-on: ubuntu-latest
     needs: [prepare-build, build-android]
     defaults:
@@ -587,7 +587,7 @@ jobs:
           cat android/fastlane/Fastfile
 
       # Play Store에 업로드
-      - name: Upload to Play Store Internal Testing
+      - name: Upload to Play Store Closed Testing
         env:
           DEPLOY_MODE: ${{ env.DEPLOY_MODE }}
         run: |
@@ -704,14 +704,15 @@ jobs:
       - name: Notify Play Store Upload Success
         if: success()
         run: |
-          echo "✅ Play Store 내부 테스트 배포 성공!"
+          echo "✅ Play Store 비공개 테스트 배포 성공!"
           echo "버전: ${{ needs.prepare-build.outputs.version }} (${{ needs.prepare-build.outputs.version_code }})"
           echo "커밋: ${{ github.sha }}"
           echo ""
-          echo "📱 테스터 확인 방법:"
-          echo "1. Play Console → 테스트 및 출시 → 내부 테스트"
-          echo "2. 테스터에게 테스트 링크 공유"
-          # Play Console URL은 프로젝트별로 다르므로 별도 설정 필요
+          echo "📱 테스터에게 자동 배포됩니다 (이슈 #139)"
+          echo "   Console 에서 게시를 누를 필요가 없습니다 — release_status=completed"
+          echo "   Google 검토를 거친 뒤 테스터의 Play 스토어에 업데이트가 뜹니다."
+          echo ""
+          echo "   확인: Play Console → 테스트 및 출시 → 비공개 테스트 → Alpha"
 
       - name: Notify on Failure
         if: failure()

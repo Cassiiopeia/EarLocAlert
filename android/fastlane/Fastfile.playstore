@@ -9,14 +9,14 @@
 default_platform(:android)
 
 platform :android do
-  desc "Deploy to Play Store Internal Testing"
+  desc "Deploy to Play Store Closed Testing (Alpha)"
   lane :deploy_internal do
     # Environment variables
     aab_path = ENV["AAB_PATH"] || "../build/app/outputs/bundle/release/app-release.aab"
     json_key = ENV["GOOGLE_PLAY_JSON_KEY"] || "~/.config/gcloud/service-account.json"
 
     puts "========================================="
-    puts "Deploying to Play Store Internal Testing"
+    puts "Deploying to Play Store Closed Testing (alpha)"
     puts "========================================="
     puts "AAB Path: #{aab_path}"
     puts "Service Account: #{json_key}"
@@ -32,28 +32,42 @@ platform :android do
       UI.user_error!("Service Account JSON not found: #{json_key}")
     end
 
-    # Upload to Play Store
-    # ⚠️ release_status 설정 가이드:
-    #   - "draft": 앱이 Play Console에서 아직 한 번도 출시되지 않은 경우 (신규 앱)
-    #   - "completed": 앱이 이미 Play Console에서 검토 완료되어 활성화된 경우
+    # ⚠️ track — Play Console 의 트랙은 서로 별개다 (이슈 #139)
     #
-    # 신규 앱은 반드시 "draft"로 시작해야 합니다.
-    # Play Console에서 첫 번째 릴리즈를 수동으로 검토 제출 후 승인되면
-    # "completed"로 변경하여 자동 배포가 가능합니다.
+    #   internal   내부 테스트 (최대 100명, 심사 거의 없음)
+    #   alpha      비공개 테스트  ← 여기에 올린다
+    #   beta       공개 테스트
+    #   production 프로덕션
+    #
+    # **프로덕션 접근 권한 요건(테스터 12명·14일)은 비공개 테스트 기준이다.**
+    # internal 에 아무리 올려도 그 카운트에 잡히지 않아, 트랙을 옮기지 않으면
+    # 매 배포마다 Console 에서 승급(promote)을 손으로 해야 했다.
+    #
+    # ⚠️ release_status
+    #
+    #   draft      올라가지만 게시를 사람이 눌러야 한다
+    #   completed  검토 후 자동 배포  ← 지금 이것
+    #
+    # **신규 앱은 draft 로 시작해야 하지만 이 앱은 그 단계를 넘었다** —
+    # 첫 릴리스가 이미 심사를 통과해 비공개 테스트에서 활성이다.
+    #
+    # **자동 게시는 되돌릴 수 없다.** 잘못된 빌드는 새 버전으로 덮는 수밖에
+    # 없으므로, 프로덕션 트랙으로 옮길 때는 draft 로 되돌려 Console 에서
+    # 한 번 걸러보는 것을 검토한다.
     upload_to_play_store(
       package_name: "kr.suhsaechan.ear_loc_alert",
-      track: "internal",
+      track: "alpha",
       aab: aab_path,
       json_key: json_key,
       skip_upload_metadata: true,
       skip_upload_images: true,
       skip_upload_screenshots: true,
-      release_status: "draft"  # 신규 앱: "draft" → 승인 후: "completed"로 변경
+      release_status: "completed"
     )
 
     puts ""
     puts "========================================="
-    puts "Successfully deployed to Internal Testing!"
+    puts "Successfully deployed to Closed Testing (alpha)!"
     puts "========================================="
   end
 
