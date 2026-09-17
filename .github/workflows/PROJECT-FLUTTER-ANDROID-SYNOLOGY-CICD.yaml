@@ -1,19 +1,9 @@
 name: PROJECT-Android-Synology-CICD
 
-# **자동 실행을 껐다** (이슈 #140).
-#
-# 러너의 `cmdline-tools` 가 16.0 으로 올라가면서 SDK 설치 단계가 실패한다.
-# 앱 코드나 이 파일이 바뀐 것이 아니라 GitHub 러너 이미지가 갱신된 탓이고,
-# 같은 커밋으로 도는 Play Store 워크플로우는 정상이다.
-#
-# **배포는 Play Store 로 간다.** 이 워크플로우가 만드는 APK 는 사이드로드·
-# 검증용이라 배포 경로를 막지 않는다. 매 배포마다 빨간 실패가 뜨는 것이
-# 실제 문제를 가리므로 자동 실행만 끈다.
-#
-# **파일은 지우지 않는다** — SDK 문제를 고치면 `push` 트리거를 되살리면 된다.
-# 그때까지는 Actions 탭에서 수동으로 돌릴 수 있다.
 on:
-  workflow_dispatch: # 수동 실행만 — 자동 트리거는 #140 해결 후 되살린다
+  push:
+    branches: ["main"]
+  workflow_dispatch: # 수동 실행 옵션 추가
 
 # ============================================
 # 🔧 프로젝트별 설정 (아래 값들을 수정하세요)
@@ -144,6 +134,17 @@ jobs:
       # Android SDK 설정 및 확인
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
+        with:
+          # **`tools` 를 설치하지 않는다** (이슈 #140).
+          #
+          # 액션의 `packages` 기본값이 `tools platform-tools` 인데,
+          # `tools` 는 폐기돼 최신 SDK 에서 제거됐다. 러너 이미지가
+          # 갱신되며 cmdline-tools 가 올라가자 `sdkmanager tools` 가
+          # exit 1 로 죽었다.
+          #
+          # 나머지 구성요소(platforms·build-tools)는 gradle 이 빌드
+          # 시점에 알아서 받으므로 platform-tools 만 있으면 된다.
+          packages: "platform-tools"
 
       - name: Verify Android SDK setup
         run: echo "Android SDK setup completed"
