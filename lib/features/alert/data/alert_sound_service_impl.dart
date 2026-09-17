@@ -148,5 +148,21 @@ class AlertSoundServiceImpl implements AlertSoundService {
     } on Object {
       // 중단 실패를 삼킨다 — 해제는 항상 완료되어야 한다
     }
+
+    // **오디오 포커스를 반납한다** (이슈 #136).
+    //
+    // `gainTransient` 는 "잠깐 빌린다"는 뜻이라 놓아야 원래 앱이
+    // 재개된다. 빌리기만 하고 반납하지 않으면 알림을 꺼도 넷플릭스가
+    // 돌아오지 않는다 — 이슈 #129 에서 `gain` 대신 이것을 고른 이유가
+    // 무색해진다.
+    //
+    // **재생을 멈춘 뒤에 놓는다.** 순서가 뒤집히면 재생 중에 포커스를
+    // 놓는 것이 된다.
+    try {
+      final session = await AudioSession.instance;
+      await session.setActive(false);
+    } on Object {
+      // 반납 실패도 삼킨다 — 해제는 무슨 일이 있어도 완료되어야 한다
+    }
   }
 }
