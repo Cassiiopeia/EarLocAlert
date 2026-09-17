@@ -134,6 +134,17 @@ jobs:
       # Android SDK 설정 및 확인
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
+        with:
+          # **`tools` 를 설치하지 않는다** (이슈 #140).
+          #
+          # 액션의 `packages` 기본값이 `tools platform-tools` 인데,
+          # `tools` 는 폐기돼 최신 SDK 에서 제거됐다. 러너 이미지가
+          # 갱신되며 cmdline-tools 가 올라가자 `sdkmanager tools` 가
+          # exit 1 로 죽었다.
+          #
+          # 나머지 구성요소(platforms·build-tools)는 gradle 이 빌드
+          # 시점에 알아서 받으므로 platform-tools 만 있으면 된다.
+          packages: "platform-tools"
 
       - name: Verify Android SDK setup
         run: echo "Android SDK setup completed"
