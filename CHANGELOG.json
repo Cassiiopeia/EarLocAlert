@@ -1,14 +1,50 @@
 {
   "metadata": {
-    "lastUpdated": "2026-09-17T05:21:14Z",
-    "currentVersion": "1.14.2",
+    "lastUpdated": "2026-09-17T05:56:58Z",
+    "currentVersion": "1.15.0",
     "projectType": "flutter",
-    "totalReleases": 57,
+    "totalReleases": 58,
     "projectTypes": [
       "flutter"
     ]
   },
   "releases": [
+    {
+      "version": "1.15.0",
+      "project_types": [
+        "flutter"
+      ],
+      "date": "2026-09-17",
+      "pr_number": 141,
+      "raw_summary": "## [1.15.0]\n\n### ✨ 기능\n- 배포가 비공개 테스트 트랙으로 가도록 트랙을 alpha 로 바꾼다 — 게시까지 자동으로 되도록 release_status 를 completed 로 바꾼다\n\n### 🐛 수정\n- APK 빌드가 Android SDK 설치 단계에서 실패한다 — 폐기된 tools 패키지를 설치 목록에서 뺀다\n\n### 📝 문서\n- APK 빌드가 Android SDK 설치 단계에서 실패한다 — 구현 보고서를 남긴다\n\n### 🔧 변경사항\n- APK 빌드가 Android SDK 설치 단계에서 실패한다 — 자동 실행을 끄고 수동 실행만 남긴다",
+      "parsed_changes": {
+        "기능": {
+          "title": "✨ 기능",
+          "items": [
+            "배포가 비공개 테스트 트랙으로 가도록 트랙을 alpha 로 바꾼다 — 게시까지 자동으로 되도록 release_status 를 completed 로 바꾼다"
+          ]
+        },
+        "수정": {
+          "title": "🐛 수정",
+          "items": [
+            "APK 빌드가 Android SDK 설치 단계에서 실패한다 — 폐기된 tools 패키지를 설치 목록에서 뺀다"
+          ]
+        },
+        "문서": {
+          "title": "📝 문서",
+          "items": [
+            "APK 빌드가 Android SDK 설치 단계에서 실패한다 — 구현 보고서를 남긴다"
+          ]
+        },
+        "변경사항": {
+          "title": "🔧 변경사항",
+          "items": [
+            "APK 빌드가 Android SDK 설치 단계에서 실패한다 — 자동 실행을 끄고 수동 실행만 남긴다"
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "1.14.2",
       "project_types": [
