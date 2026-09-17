@@ -60,6 +60,37 @@ void main() {
       );
     });
 
+    test('기준이 3분을 넘으면 판정하지 않는다 (이슈 #137)', () {
+      // 30분 전 좌표에서 5km 튐 — 시속 10km 라 그냥 두면 통과한다
+      expect(
+        speedKmhFrom(
+          from: base,
+          latitude: 37.4574,
+          longitude: 127.0999042,
+          at: base.timestamp.add(const Duration(minutes: 30)),
+          accuracyMeters: 20,
+        ),
+        isNull,
+        reason:
+            '오래된 기준으로는 어떤 튐도 느린 이동으로 보인다 — '
+            '검증이 있으나 마나가 된다',
+      );
+    });
+
+    test('3분 직전은 아직 기준으로 쓴다', () {
+      // 3분에 약 20km — 시속 400km 라 임계를 넘는다
+      final speed = speedKmhFrom(
+        from: base,
+        latitude: 37.5924647,
+        longitude: 127.0999042,
+        at: base.timestamp.add(maxSampleAge - const Duration(seconds: 1)),
+        accuracyMeters: 20,
+      );
+
+      expect(speed, isNotNull, reason: '경계 직전은 판정을 포기하지 않는다');
+      expect(speed!, greaterThan(maxPlausibleSpeedKmh));
+    });
+
     test('시계가 거꾸로 가도 죽지 않는다', () {
       expect(
         speedKmhFrom(

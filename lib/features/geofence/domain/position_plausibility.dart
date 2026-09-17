@@ -20,6 +20,17 @@ import 'position_sample.dart';
 /// 고려하지 않는다.
 const double maxPlausibleSpeedKmh = 300;
 
+/// 기준으로 쓸 수 있는 측정의 최대 나이 (이슈 #137).
+///
+/// **오래된 좌표와 비교하면 어떤 튐도 통과한다.** 정밀 감시는 배터리
+/// 보호를 위해 30분 뒤 꺼지는데, 그 뒤 30분 전 좌표와 비교하면 5km 를
+/// 튀어도 시속 10km 라 멀쩡해 보인다 — 검증이 있으나 마나가 된다.
+///
+/// 정밀 감시가 도는 동안에는 몇 초마다 갱신되므로 이 상한에 걸리지
+/// 않는다. 감시가 꺼진 구간에서만 검증을 포기하는 셈이고, 그때는
+/// 애초에 판단 근거가 없다.
+const Duration maxSampleAge = Duration(minutes: 3);
+
 /// 판정에 필요한 최소 시간 간격.
 ///
 /// 두 측정이 거의 동시에 오면 아주 작은 오차도 무한대에 가까운 속도가
@@ -64,6 +75,8 @@ double? speedKmhFrom({
   final elapsed = at.difference(from.timestamp);
   // 시계가 거꾸로 갔거나 두 측정이 거의 동시다 — 판정하지 않는다
   if (elapsed < minPlausibilityGap) return null;
+  // 기준이 너무 오래됐다 (이슈 #137) — 어떤 튐도 느린 이동으로 보인다
+  if (elapsed > maxSampleAge) return null;
 
   final gap = from.distanceToMeters(latitude, longitude);
   final tolerance = from.accuracyMeters + (accuracyMeters ?? 0);

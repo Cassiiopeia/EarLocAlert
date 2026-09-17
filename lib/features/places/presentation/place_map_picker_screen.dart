@@ -164,6 +164,12 @@ class _PlaceMapPickerScreenState extends State<PlaceMapPickerScreen> {
     );
   }
 
+  /// 검색 오버레이의 접힌 높이 (이슈 #135).
+  ///
+  /// 상하 패딩(16×2) + 입력 필드(48). 실측 대신 고정값을 쓰는 이유는
+  /// 위 `padding` 주석 참조.
+  static const double _searchOverlayHeight = 80;
+
   @override
   Widget build(BuildContext context) {
     final semantic = Theme.of(context).extension<AppSemanticColors>()!;
@@ -199,6 +205,19 @@ class _PlaceMapPickerScreenState extends State<PlaceMapPickerScreen> {
             // 기본 확대 버튼은 다크 테마에 맞지 않고, 핀치로 충분하다
             zoomControlsEnabled: false,
             mapToolbarEnabled: false,
+            // **검색창이 "내 위치" 버튼을 덮는다** (이슈 #135).
+            //
+            // SDK 버튼은 오른쪽 위에 붙는데 검색 오버레이가 그 자리를
+            // 가려, 지금 위치로 되돌릴 유일한 수단을 누를 수 없었다.
+            // padding 을 주면 SDK 가 그만큼 안쪽으로 컨트롤을 배치한다.
+            //
+            // **실시간으로 따라가지 않는다.** 검색 결과가 펼쳐질 때마다
+            // 지도가 다시 배치되면 버벅인다 — 접힌 높이로 고정하고,
+            // 결과가 떠 있는 동안은 사용자가 검색 중이라 버튼이 가려도
+            // 문제가 되지 않는다 (홈 화면과 같은 판단, 이슈 #98).
+            padding: EdgeInsets.only(
+              top: widget.searchService != null ? _searchOverlayHeight : 0,
+            ),
           ),
 
           // 중앙 고정 핀. 지도 조작을 가로막지 않아야 한다
