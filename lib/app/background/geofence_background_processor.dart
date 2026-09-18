@@ -367,6 +367,12 @@ class GeofenceBackgroundProcessor {
       soundEnabled: place.soundEnabled,
       occurredAt: occurredAt,
       sound: place.sound,
+      // 알림 화면이 지도를 그리는 데 쓴다 (이슈 #142).
+      // **측정된 내 좌표가 아니라 장소 좌표다** — 보여줄 것은
+      // "어디에 도착했는가"이지 "내가 정확히 어디 서 있는가"가 아니다.
+      latitude: place.latitude,
+      longitude: place.longitude,
+      radiusMeters: place.radiusMeters,
     );
   }
 

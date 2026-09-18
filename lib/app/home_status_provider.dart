@@ -57,6 +57,12 @@ class HomeStatus {
 
 /// **실패를 예외로 올리지 않는다.** 상태 표시가 안 된다고 홈 화면이
 /// 깨지면 안 된다 — 모르면 보수적으로 "꺼짐"을 보여준다.
+/// 마지막으로 남긴 홈 상태 줄 (이슈 #146)
+///
+/// provider 는 다시 만들어질 수 있으므로 파일 수준에 둔다. 값이 아니라
+/// **기록 여부**를 가리는 용도라 상태로 취급하지 않는다.
+String? _lastLoggedStatus;
+
 @riverpod
 Future<HomeStatus> homeStatus(Ref ref) async {
   var monitoring = false;
@@ -93,14 +99,22 @@ Future<HomeStatus> homeStatus(Ref ref) async {
     ],
   ];
 
-  // 홈 상태 배너가 왜 떴는지/안 떴는지는 이 값 없이 추적할 수 없다
+  // 홈 상태 배너가 왜 떴는지/안 떴는지는 이 값 없이 추적할 수 없다.
+  //
+  // **바뀐 경우에만 남긴다** (이슈 #146). 이 provider 는 지켜보는 값이
+  // 하나라도 흔들리면 다시 계산되는데, 예전에는 결과가 이전과 완전히
+  // 같아도 매번 기록했다. 하루에 6972줄이 쌓인 날이 있었고, 로그 파일은
+  // 상한에서 오래된 것부터 지워지므로 **정작 필요한 판정 기록이 그만큼
+  // 빨리 밀려났다.** 같은 값이 7000번 찍힌 것에는 정보가 없다.
   final permission = ref.watch(permissionControllerProvider);
-  Diagnostics.log(
-    'home',
-    '상태 감시=$monitoring 이어폰=$headphones 알림신뢰=$reliable '
-        '미허용=[${missing.join(",")}] '
-        '(권한조회=${permission.isLoading ? "진행중" : "완료"})',
-  );
+  final line =
+      '상태 감시=$monitoring 이어폰=$headphones 알림신뢰=$reliable '
+      '미허용=[${missing.join(",")}] '
+      '(권한조회=${permission.isLoading ? "진행중" : "완료"})';
+  if (line != _lastLoggedStatus) {
+    _lastLoggedStatus = line;
+    Diagnostics.log('home', line);
+  }
 
   return HomeStatus(
     isMonitoring: monitoring,

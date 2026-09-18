@@ -25,6 +25,15 @@ abstract final class AppTheme {
       useMaterial3: true,
       brightness: Brightness.dark,
       colorScheme: colorScheme,
+
+      // Pretendard (이슈 #145). 한글 화면비에 맞게 만들어진 글꼴이라
+      // 시스템 기본보다 자간·높이가 고르게 잡힌다. 다른 프로젝트와도
+      // 같은 글꼴을 쓴다.
+      //
+      // **여기서 한 번만 지정한다** — AppTypography 의 개별 스타일에
+      // fontFamily 를 적으면 한 곳을 빠뜨렸을 때 그 화면만 다른 글꼴이
+      // 되고, 눈에 잘 띄지 않는다.
+      fontFamily: 'Pretendard',
       scaffoldBackgroundColor: AppColors.bgBase,
       extensions: const [AppSemanticColors.dark],
 

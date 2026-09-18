@@ -179,4 +179,89 @@ void main() {
       );
     });
   });
+
+  /// 좌표 왕복 (이슈 #142)
+  ///
+  /// **#125 가 났던 자리에 필드를 또 더했다.** `_clear` 앞에서 읽는지를
+  /// 여기서 지킨다 — 뒤로 옮기는 순간 이 테스트가 깨진다.
+  group('지도 좌표', () {
+    test('좌표와 반경이 왕복해도 살아 돌아온다', () async {
+      await store.save(
+        makeAlert().copyWith(
+          latitude: 37.5665,
+          longitude: 126.9780,
+          radiusMeters: 200,
+        ),
+      );
+
+      final (:alert, :hadStored) = await store.take();
+
+      expect(alert, isNotNull);
+      expect(alert!.latitude, closeTo(37.5665, 1e-9));
+      expect(alert.longitude, closeTo(126.9780, 1e-9));
+      expect(alert.radiusMeters, 200);
+    });
+
+    test('좌표 없이 저장한 알림은 좌표 없이 돌아온다', () async {
+      await store.save(makeAlert());
+
+      final (:alert, :hadStored) = await store.take();
+
+      expect(alert, isNotNull);
+      expect(alert!.latitude, isNull);
+      expect(alert.longitude, isNull);
+      expect(alert.radiusMeters, isNull);
+    });
+
+    test('좌표 키가 아예 없는 구버전 저장분도 읽힌다', () async {
+      SharedPreferences.setMockInitialValues({
+        'pending_alert.place_id': 'p1',
+        'pending_alert.place_name': '회사',
+        'pending_alert.direction': 'enter',
+        'pending_alert.sound_enabled': true,
+        'pending_alert.occurred_at': '2026-09-01T23:03:20.000Z',
+      });
+
+      final (:alert, :hadStored) = await store.take();
+
+      expect(alert, isNotNull, reason: '좌표가 없다고 알림을 버리면 안 된다');
+      expect(alert!.latitude, isNull);
+    });
+
+    test('반경만 있고 좌표가 없으면 셋 다 버린다', () async {
+      SharedPreferences.setMockInitialValues({
+        'pending_alert.place_id': 'p1',
+        'pending_alert.place_name': '회사',
+        'pending_alert.direction': 'enter',
+        'pending_alert.sound_enabled': true,
+        'pending_alert.occurred_at': '2026-09-01T23:03:20.000Z',
+        'pending_alert.radius_meters': 200,
+      });
+
+      final (:alert, :hadStored) = await store.take();
+
+      expect(alert, isNotNull);
+      expect(
+        alert!.radiusMeters,
+        isNull,
+        reason: '반쪽짜리 좌표로 지도를 그리면 엉뚱한 곳이 뜬다',
+      );
+    });
+
+    test('좌표도 함께 지워진다 — 다음 take 에 남지 않는다', () async {
+      await store.save(
+        makeAlert().copyWith(
+          latitude: 37.5665,
+          longitude: 126.9780,
+          radiusMeters: 200,
+        ),
+      );
+      await store.take();
+
+      final (:alert, :hadStored) = await store.take();
+
+      expect(alert, isNull);
+      expect(hadStored, isFalse);
+    });
+  });
 }

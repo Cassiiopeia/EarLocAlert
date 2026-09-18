@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
+import '../../../core/map/map_style_guard.dart';
+import '../../../core/map/radius_zoom.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_semantic_colors.dart';
 import '../../../core/theme/app_spacing.dart';
@@ -159,7 +161,7 @@ class _PlaceMapPickerScreenState extends State<PlaceMapPickerScreen> {
     _map?.animateCamera(
       CameraUpdate.newLatLngZoom(
         LatLng(result.latitude, result.longitude),
-        _zoomForRadius(_radius),
+        zoomForRadius(_radius),
       ),
     );
   }
@@ -180,10 +182,14 @@ class _PlaceMapPickerScreenState extends State<PlaceMapPickerScreen> {
       body: Stack(
         children: [
           GoogleMap(
-            onMapCreated: (controller) => _map = controller,
+            onMapCreated: (controller) {
+              _map = controller;
+              // 다크 스타일이 조용히 사라지는 일이 있다 (이슈 #143)
+              unawaited(ensureDarkMapStyle(controller, 'picker'));
+            },
             initialCameraPosition: CameraPosition(
               target: _initialCenter,
-              zoom: _zoomForRadius(_radius),
+              zoom: zoomForRadius(_radius),
             ),
             style: MapStyle.dark,
             // 원의 중심이 카메라 중심이라, 화면에서는 핀 자리에 고정되어
@@ -264,16 +270,6 @@ class _PlaceMapPickerScreenState extends State<PlaceMapPickerScreen> {
         ],
       ),
     );
-  }
-
-  /// 반경이 화면에 적당히 차 보이는 확대 수준.
-  ///
-  /// 반경 50m 를 세계 지도에서 찍게 하면 아무도 못 찍는다.
-  double _zoomForRadius(double meters) {
-    if (meters <= 100) return 17;
-    if (meters <= 300) return 16;
-    if (meters <= 800) return 15;
-    return 14;
   }
 }
 

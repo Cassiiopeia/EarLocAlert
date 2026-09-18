@@ -56,6 +56,9 @@ class PendingAlertLauncher {
         soundEnabled: alert.soundEnabled,
         occurredAt: alert.occurredAt,
         soundSource: await _soundResolver?.resolve(alert.sound),
+        latitude: alert.latitude,
+        longitude: alert.longitude,
+        radiusMeters: alert.radiusMeters,
       ),
       hadPending: true,
     );

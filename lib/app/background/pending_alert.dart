@@ -26,5 +26,13 @@ abstract class PendingAlert with _$PendingAlert {
     /// **필수가 아니다** — 이 값이 없던 버전에서 저장된 값을 읽을 수 있고,
     /// 그때는 기본음으로 울려야 한다.
     @Default(PresetSound(SoundPreset.defaultTone)) AlertSound sound,
+
+    /// 장소 좌표와 반경 — 알림 화면의 지도 카드용 (이슈 #142).
+    ///
+    /// **필수가 아니다** — 이 값이 없던 버전에서 저장된 알림을 읽을 수
+    /// 있고, 그때는 지도 없이 울려야 한다.
+    double? latitude,
+    double? longitude,
+    int? radiusMeters,
   }) = _PendingAlert;
 }

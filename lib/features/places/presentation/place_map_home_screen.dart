@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -5,6 +6,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../../../core/domain/alert_direction.dart';
+import '../../../core/map/map_style_guard.dart';
+import '../../../core/map/radius_zoom.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_semantic_colors.dart';
 import '../../../core/theme/app_spacing.dart';
@@ -156,6 +159,8 @@ class _PlaceMapHomeScreenState extends ConsumerState<PlaceMapHomeScreen>
             circles: _circles(places, semantic),
             onMapCreated: (controller) {
               _map = controller;
+              // 다크 스타일이 조용히 사라지는 일이 있다 (이슈 #143)
+              unawaited(ensureDarkMapStyle(controller, 'home'));
               if (places.isNotEmpty) _fitCamera(places);
             },
             // 빈 곳을 누르면 선택을 푼다 — 강조가 계속 남아 있으면
@@ -353,7 +358,8 @@ class _PlaceMapHomeScreenState extends ConsumerState<PlaceMapHomeScreen>
       await map.animateCamera(
         CameraUpdate.newLatLngZoom(
           LatLng(place.latitude, place.longitude),
-          _zoomForRadius(place.radiusMeters),
+          // 홈은 "어디쯤인지"를 보여주는 화면이라 한 단계 넓게 잡는다
+          zoomForRadiusWider(place.radiusMeters.toDouble()),
         ),
       );
       return;
@@ -383,13 +389,6 @@ class _PlaceMapHomeScreenState extends ConsumerState<PlaceMapHomeScreen>
     } on Object {
       // 지도 크기가 아직 확정되지 않으면 실패한다. 기본 위치로 둔다
     }
-  }
-
-  double _zoomForRadius(int meters) {
-    if (meters <= 100) return 16;
-    if (meters <= 300) return 15;
-    if (meters <= 800) return 14;
-    return 13;
   }
 }
 
