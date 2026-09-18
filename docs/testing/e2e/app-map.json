@@ -1,0 +1,108 @@
+{
+  "scanned": "2026-09-18",
+  "flutter_root": ".",
+  "feature_groups": [
+    "ads",
+    "alert",
+    "diagnostics",
+    "geofence",
+    "permission",
+    "places",
+    "settings",
+    "sounds"
+  ],
+  "auth": {
+    "kind": "unknown",
+    "providers": [],
+    "evidence": []
+  },
+  "routes": [
+    {
+      "const": "home",
+      "path": "/",
+      "group": "root"
+    },
+    {
+      "const": "alert",
+      "path": "/alert",
+      "group": "alert"
+    },
+    {
+      "const": "alertDismissed",
+      "path": "/alert/dismissed",
+      "group": "alert"
+    },
+    {
+      "const": "diagnostics",
+      "path": "/diagnostics",
+      "group": "diagnostics"
+    },
+    {
+      "const": "onboarding",
+      "path": "/onboarding",
+      "group": "onboarding"
+    },
+    {
+      "const": "placeEdit",
+      "path": "/places/edit",
+      "group": "places"
+    },
+    {
+      "const": "placeMap",
+      "path": "/places/map",
+      "group": "places"
+    },
+    {
+      "const": "placeNew",
+      "path": "/places/new",
+      "group": "places"
+    },
+    {
+      "const": "settings",
+      "path": "/settings",
+      "group": "settings"
+    }
+  ],
+  "screens": [
+    {
+      "file": "features/alert/presentation/alert_dismissed_screen.dart",
+      "group": "alert",
+      "name": "alert_dismissed"
+    },
+    {
+      "file": "features/alert/presentation/alert_screen.dart",
+      "group": "alert",
+      "name": "alert"
+    },
+    {
+      "file": "features/diagnostics/presentation/diagnostics_screen.dart",
+      "group": "diagnostics",
+      "name": "diagnostics"
+    },
+    {
+      "file": "features/permission/presentation/onboarding_screen.dart",
+      "group": "permission",
+      "name": "onboarding"
+    },
+    {
+      "file": "features/places/presentation/place_form_screen.dart",
+      "group": "places",
+      "name": "place_form"
+    },
+    {
+      "file": "features/places/presentation/place_map_home_screen.dart",
+      "group": "places",
+      "name": "place_map_home"
+    },
+    {
+      "file": "features/places/presentation/place_map_picker_screen.dart",
+      "group": "places",
+      "name": "place_map_picker"
+    },
+    {
+      "file": "features/settings/presentation/settings_screen.dart",
+      "group": "settings",
+      "name": "settings"
+    }
+  ]
+}
