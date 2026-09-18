@@ -318,7 +318,12 @@ class _PlaceMapCard extends StatelessWidget {
                   tiltGesturesEnabled: false,
                   zoomControlsEnabled: false,
                   mapToolbarEnabled: false,
-                  myLocationEnabled: false,
+                  // **내 위치를 그린다** (이슈 #144). 반경 원 안에 내가
+                  // 들어와 있는지가 보여야 알림을 납득한다 — 반경 밖인데
+                  // 울린 적이 있어(#131) 그 확인 수단이 필요하다.
+                  myLocationEnabled: true,
+                  // 버튼은 넣지 않는다. 해제 버튼 근처에 터치 타겟을
+                  // 만들지 않는다는 원칙은 그대로다
                   myLocationButtonEnabled: false,
                 ),
               ),
