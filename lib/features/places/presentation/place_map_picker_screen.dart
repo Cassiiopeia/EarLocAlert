@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
+import '../../../core/map/map_style_guard.dart';
 import '../../../core/map/radius_zoom.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_semantic_colors.dart';
@@ -181,7 +182,11 @@ class _PlaceMapPickerScreenState extends State<PlaceMapPickerScreen> {
       body: Stack(
         children: [
           GoogleMap(
-            onMapCreated: (controller) => _map = controller,
+            onMapCreated: (controller) {
+              _map = controller;
+              // 다크 스타일이 조용히 사라지는 일이 있다 (이슈 #143)
+              unawaited(ensureDarkMapStyle(controller, 'picker'));
+            },
             initialCameraPosition: CameraPosition(
               target: _initialCenter,
               zoom: zoomForRadius(_radius),
@@ -266,7 +271,6 @@ class _PlaceMapPickerScreenState extends State<PlaceMapPickerScreen> {
       ),
     );
   }
-
 }
 
 /// 검색창 + 결과 목록 오버레이

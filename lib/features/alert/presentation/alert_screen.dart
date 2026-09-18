@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../../../core/domain/alert_direction.dart';
+import '../../../core/map/map_style_guard.dart';
 import '../../../core/map/radius_zoom.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_semantic_colors.dart';
@@ -289,6 +292,9 @@ class _PlaceMapCard extends StatelessWidget {
             Positioned.fill(
               child: IgnorePointer(
                 child: GoogleMap(
+                  // 다크 스타일이 조용히 사라지는 일이 있다 (이슈 #143)
+                  onMapCreated: (controller) =>
+                      unawaited(ensureDarkMapStyle(controller, 'alert')),
                   initialCameraPosition: CameraPosition(
                     target: target,
                     zoom: zoomForRadius(radiusMeters.toDouble()),
