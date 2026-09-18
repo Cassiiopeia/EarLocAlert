@@ -335,6 +335,11 @@ class _SettingsRouteState extends ConsumerState<_SettingsRoute>
                 direction: AlertDirection.enter,
                 soundEnabled: true,
                 occurredAt: DateTime.now().toUtc(),
+                // 지도 카드까지 확인할 수 있어야 미리보기다 (이슈 #142).
+                // 좌표가 없으면 카드가 빠진 화면만 보게 된다
+                latitude: 37.5665,
+                longitude: 126.9780, // 서울시청
+                radiusMeters: 200,
               ),
             );
         // 사용자가 해제할 때쯤 광고가 준비되어 있게 미리 불러둔다

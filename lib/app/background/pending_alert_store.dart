@@ -23,6 +23,9 @@ class PendingAlertStore {
   static const _keySoundEnabled = 'pending_alert.sound_enabled';
   static const _keyOccurredAt = 'pending_alert.occurred_at';
   static const _keySound = 'pending_alert.sound';
+  static const _keyLatitude = 'pending_alert.latitude';
+  static const _keyLongitude = 'pending_alert.longitude';
+  static const _keyRadius = 'pending_alert.radius_meters';
 
   Future<void> save(PendingAlert alert) async {
     final prefs = await SharedPreferences.getInstance();
@@ -36,6 +39,12 @@ class PendingAlertStore {
     );
     await prefs.setString(_keySound, alert.sound.storageValue);
 
+    // 좌표는 없을 수 있다 (이슈 #142). 없는 값을 0 으로 저장하면
+    // 아프리카 앞바다 지도가 뜨므로, 아예 지워 "없음"으로 남긴다.
+    await _putOrRemoveDouble(prefs, _keyLatitude, alert.latitude);
+    await _putOrRemoveDouble(prefs, _keyLongitude, alert.longitude);
+    await _putOrRemoveInt(prefs, _keyRadius, alert.radiusMeters);
+
     // **isolate 경계를 남긴다** (이슈 #127). 이슈 #125 에서 값이
     // 저장과 재생 사이에서 사라졌는데, 이 기록이 없어 코드를 읽어야만
     // 어디서 빠졌는지 알 수 있었다.
@@ -43,8 +52,40 @@ class PendingAlertStore {
       'pending',
       '저장 place=${shortId(alert.placeId)} name=${alert.placeName} '
           'direction=${alert.direction.name} sound=${alert.soundEnabled} '
-          'tone=${alert.sound.storageValue}',
+          'tone=${alert.sound.storageValue} '
+          '좌표=${_formatLocation(alert.latitude, alert.longitude, alert.radiusMeters)}',
     );
+  }
+
+  Future<void> _putOrRemoveDouble(
+    SharedPreferences prefs,
+    String key,
+    double? value,
+  ) async {
+    if (value == null) {
+      await prefs.remove(key);
+      return;
+    }
+    await prefs.setDouble(key, value);
+  }
+
+  Future<void> _putOrRemoveInt(
+    SharedPreferences prefs,
+    String key,
+    int? value,
+  ) async {
+    if (value == null) {
+      await prefs.remove(key);
+      return;
+    }
+    await prefs.setInt(key, value);
+  }
+
+  /// 로그용 좌표 표기. 없으면 없다고 남긴다 — 빈칸이면 "안 실었나
+  /// 못 읽었나"를 나중에 구분할 수 없다 (이슈 #127).
+  static String _formatLocation(double? lat, double? lng, int? radius) {
+    if (lat == null || lng == null || radius == null) return '없음';
+    return '${lat.toStringAsFixed(5)},${lng.toStringAsFixed(5)}/${radius}m';
   }
 
   /// 저장된 알림을 꺼내고 지운다.
@@ -66,6 +107,12 @@ class PendingAlertStore {
     // 값을 보게 되고, 파서가 규약대로 기본음으로 흡수해 **예외도 로그도
     // 없이** 장소별 알림음이 통째로 사라진다.
     final soundRaw = prefs.getString(_keySound);
+    // 좌표도 **반드시 여기서** 읽는다 (이슈 #142). 아래 _clear 뒤로
+    // 옮기는 순간 #125 가 그대로 재현된다 — 지도가 예외도 로그도 없이
+    // 사라지고, 코드를 읽기 전에는 아무도 이유를 모른다.
+    final latitude = prefs.getDouble(_keyLatitude);
+    final longitude = prefs.getDouble(_keyLongitude);
+    final radiusMeters = prefs.getInt(_keyRadius);
 
     // 아무것도 없으면 지울 것도 없다. 앱이 떠 있는 동안 주기적으로
     // 확인하므로(#74), 빈 상태에서 매번 쓰기를 일으키면 안 된다.
@@ -99,6 +146,13 @@ class PendingAlertStore {
       // 알림 전체를 버리지 않는다 (이슈 #121).
       // 이 필드가 없던 버전에서 저장된 값을 읽는 경우도 여기로 온다.
       sound: AlertSound.parse(soundRaw ?? ''),
+      // 셋 중 하나라도 없으면 전부 버린다 — 반쪽짜리 좌표로는
+      // 지도를 그릴 수 없고, 억지로 그리면 엉뚱한 곳이 뜬다
+      latitude: radiusMeters == null ? null : latitude,
+      longitude: radiusMeters == null ? null : longitude,
+      radiusMeters: (latitude == null || longitude == null)
+          ? null
+          : radiusMeters,
     );
     _logRestored(restored, DateTime.now().toUtc());
     return (alert: restored, hadStored: true);
@@ -113,7 +167,9 @@ class PendingAlertStore {
     Diagnostics.log(
       'pending',
       '복원 place=${shortId(alert.placeId)} name=${alert.placeName} '
-          'tone=${alert.sound.storageValue} 경과=${age.inSeconds}초',
+          'tone=${alert.sound.storageValue} '
+          '좌표=${_formatLocation(alert.latitude, alert.longitude, alert.radiusMeters)} '
+          '경과=${age.inSeconds}초',
     );
   }
 
@@ -124,5 +180,8 @@ class PendingAlertStore {
     await prefs.remove(_keySoundEnabled);
     await prefs.remove(_keyOccurredAt);
     await prefs.remove(_keySound);
+    await prefs.remove(_keyLatitude);
+    await prefs.remove(_keyLongitude);
+    await prefs.remove(_keyRadius);
   }
 }

@@ -1,12 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../../../core/domain/alert_direction.dart';
+import '../../../core/map/radius_zoom.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_semantic_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../core/theme/map_style.dart';
 import '../domain/alert_session.dart';
 import '../domain/audio_route.dart';
+
+/// 지도 카드 높이 (이슈 #142)
+const double _mapCardHeight = 400;
+
+/// 지도가 있을 때의 해제 버튼 높이.
+///
+/// **이 값이 이 화면의 안전 하한이다.** 더 줄이면 보기는 좋아지지만
+/// 버스에서 화면을 보지 않고 누를 때 빗나간다. 테스트가 이 값을 지킨다.
+const double _dismissHeightWithMap = 84;
+
+/// 지도가 없을 때의 해제 버튼 높이 — 남는 자리를 버튼이 가져간다
+const double _dismissHeightAlone = 260;
 
 /// 알림 화면 (docs/06-UX.md)
 ///
@@ -17,8 +32,12 @@ import '../domain/audio_route.dart';
 /// - 주변에 사람이 있어 소리를 낼 수 없다
 /// - 몇 초 안에 꺼야 한다는 압박
 ///
-/// 그래서 해제 버튼이 화면 하단 절반을 차지하고, **누를 수 있는 것이
-/// 그것 하나뿐**이다. 스와이프를 쓰지 않는다 (docs/10-DECISIONS.md 016).
+/// 그래서 **누를 수 있는 것이 해제 버튼 하나뿐**이다. 스와이프를 쓰지
+/// 않는다 (docs/10-DECISIONS.md 016).
+///
+/// 가운데에 장소 지도를 둔다 (이슈 #142). 장소명만으로는 어디에 도착했는지
+/// 감이 오지 않는다는 요청이었다. 그만큼 해제 버튼을 줄였지만 **보이는
+/// 크기와 터치 영역을 분리해** 급할 때 빗나가지 않게 했다.
 class AlertScreen extends StatelessWidget {
   const AlertScreen({
     required this.session,
@@ -53,8 +72,25 @@ class AlertScreen extends StatelessWidget {
                 soundFailed: soundFailed,
               ),
             ),
-            // 하단 절반 — 보지 않고 엄지로 누를 수 있어야 한다
-            Expanded(child: _DismissButton(onPressed: onDismiss)),
+            if (session.hasMapLocation)
+              _PlaceMapCard(
+                session: session,
+                accent: accent,
+                // 기본 마커는 빨간색이라 이 화면의 색과 부딪힌다.
+                // 진입·이탈 색과 결이 맞는 것으로 고른다
+                markerHue: _isExit
+                    ? BitmapDescriptor.hueOrange
+                    : BitmapDescriptor.hueCyan,
+              ),
+            // **지도가 없으면 버튼이 원래 크기로 돌아간다.** 카드가 빠진
+            // 자리에 회색 사각형이나 오류 문구를 두지 않는다 — 알림
+            // 화면에서 사용자가 읽어야 할 것은 장소와 끄는 방법뿐이다.
+            _DismissButton(
+              onPressed: onDismiss,
+              height: session.hasMapLocation
+                  ? _dismissHeightWithMap
+                  : _dismissHeightAlone,
+            ),
           ],
         ),
       ),
@@ -104,7 +140,9 @@ class _AlertInfo extends StatelessWidget {
             style: AppTypography.screenTitle.copyWith(color: accent),
           ),
           const SizedBox(height: AppSpacing.sm),
-          Text(_formatTime(session.startedAt), style: AppTypography.caption),
+          // **언제 울렸는지는 장소 다음으로 중요하다** (이슈 #142).
+          // caption 이라 눈에 안 들어온다는 지적을 받고 키웠다.
+          Text(_formatTime(session.startedAt), style: AppTypography.alertTime),
 
           const SizedBox(height: AppSpacing.lg),
           _AudioRouteBadge(route: session.audioRoute, soundFailed: soundFailed),
@@ -173,32 +211,193 @@ class _AudioRouteBadge extends StatelessWidget {
 }
 
 class _DismissButton extends StatelessWidget {
-  const _DismissButton({required this.onPressed});
+  const _DismissButton({required this.onPressed, required this.height});
 
   final VoidCallback onPressed;
 
+  /// 보이는 높이. 실제로 눌리는 범위는 이보다 넓다 — 아래 주석 참조
+  final double height;
+
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(AppSpacing.md),
-      child: SizedBox.expand(
-        child: FilledButton(
-          onPressed: onPressed,
-          style: FilledButton.styleFrom(
-            backgroundColor: AppColors.primary,
-            foregroundColor: AppColors.textOnPrimary,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(AppRadius.card),
+    // **보이는 크기와 누를 수 있는 범위를 분리한다** (이슈 #142).
+    //
+    // 지도를 넣느라 버튼을 줄였는데, 이 버튼은 버스에서 화면을 보지 않고
+    // 엄지로 누르는 용도다. 빗나가면 진동이 계속되고 그 경험이 반복되면
+    // 앱을 지운다. 주변 여백까지 탭을 받아 눈에 보이는 것보다 넉넉하게
+    // 잡는다 — 여백에는 누를 것이 없으므로 오작동 위험이 없다.
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onPressed,
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        child: SizedBox(
+          height: height,
+          width: double.infinity,
+          child: FilledButton(
+            onPressed: onPressed,
+            style: FilledButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: AppColors.textOnPrimary,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(AppRadius.card),
+              ),
             ),
-          ),
-          child: Text(
-            '알림 끄기',
-            style: AppTypography.displayLarge.copyWith(
-              color: AppColors.textOnPrimary,
+            child: Text(
+              '알림 끄기',
+              style: AppTypography.displayLarge.copyWith(
+                color: AppColors.textOnPrimary,
+              ),
             ),
           ),
         ),
       ),
+    );
+  }
+}
+
+/// 도착한 장소의 지도 (이슈 #142)
+///
+/// **조작할 수 없다.** 확대도 이동도 안 되고 탭도 받지 않는다 — 해제
+/// 버튼 옆에 새 터치 타겟을 만들면 급할 때 엉뚱한 것을 누른다.
+///
+/// lite mode 로 그린다. 살아있는 렌더러가 아니라 정적 비트맵 한 장이라
+/// 전력을 거의 쓰지 않는다. 이 화면은 알림이 울리는 동안 켜져 있으므로
+/// 그 차이가 그대로 배터리로 간다.
+class _PlaceMapCard extends StatelessWidget {
+  const _PlaceMapCard({
+    required this.session,
+    required this.accent,
+    required this.markerHue,
+  });
+
+  final AlertSession session;
+  final Color accent;
+  final double markerHue;
+
+  @override
+  Widget build(BuildContext context) {
+    final target = LatLng(session.latitude!, session.longitude!);
+    final radiusMeters = session.radiusMeters!;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+      child: SizedBox(
+        height: _mapCardHeight,
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: IgnorePointer(
+                child: GoogleMap(
+                  initialCameraPosition: CameraPosition(
+                    target: target,
+                    zoom: zoomForRadius(radiusMeters.toDouble()),
+                  ),
+                  style: MapStyle.dark,
+                  liteModeEnabled: true,
+                  markers: {
+                    Marker(
+                      markerId: const MarkerId('alert_place'),
+                      position: target,
+                      icon: BitmapDescriptor.defaultMarkerWithHue(markerHue),
+                    ),
+                  },
+                  circles: {
+                    Circle(
+                      circleId: const CircleId('alert_radius'),
+                      center: target,
+                      radius: radiusMeters.toDouble(),
+                      strokeWidth: 2,
+                      strokeColor: accent,
+                      fillColor: accent.withValues(alpha: 0.16),
+                    ),
+                  },
+                  zoomGesturesEnabled: false,
+                  scrollGesturesEnabled: false,
+                  rotateGesturesEnabled: false,
+                  tiltGesturesEnabled: false,
+                  zoomControlsEnabled: false,
+                  mapToolbarEnabled: false,
+                  myLocationEnabled: false,
+                  myLocationButtonEnabled: false,
+                ),
+              ),
+            ),
+            // **오른쪽 아래에 둔다.** 왼쪽 아래는 Google 워터마크
+            // 자리라 겹치면 둘 다 안 읽힌다 (지울 수도 없다).
+            Positioned(
+              right: AppSpacing.xs,
+              bottom: AppSpacing.xs,
+              child: _RadiusChip(radiusMeters: radiusMeters),
+            ),
+
+            // **네이티브 지도 뷰에는 ClipRRect 가 먹지 않는다.**
+            // 지도는 Flutter 가 그리는 레이어가 아니라 그 위에 얹힌
+            // 별도 표면이라 잘리지 않고 직사각형으로 남는다. 모서리
+            // 바깥을 배경색으로 덮어 둥글어 보이게 한다.
+            Positioned.fill(
+              child: IgnorePointer(
+                child: CustomPaint(
+                  painter: _CornerMaskPainter(
+                    color: AppColors.bgBase,
+                    radius: AppRadius.card,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// 모서리 바깥을 배경색으로 덮어 카드가 둥글어 보이게 한다.
+///
+/// 네이티브 지도 뷰 위에서 `ClipRRect` 가 동작하지 않아 쓰는 우회다.
+/// 지도가 Flutter 레이어가 아니라 그 위에 합성되는 별도 표면이기
+/// 때문이고, 실기기에서 직사각형으로 남는 것을 보고 알았다.
+class _CornerMaskPainter extends CustomPainter {
+  const _CornerMaskPainter({required this.color, required this.radius});
+
+  final Color color;
+  final double radius;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final bounds = Offset.zero & size;
+    final outside = Path.combine(
+      PathOperation.difference,
+      Path()..addRect(bounds),
+      Path()
+        ..addRRect(RRect.fromRectAndRadius(bounds, Radius.circular(radius))),
+    );
+    canvas.drawPath(outside, Paint()..color = color);
+  }
+
+  @override
+  bool shouldRepaint(_CornerMaskPainter oldDelegate) =>
+      oldDelegate.color != color || oldDelegate.radius != radius;
+}
+
+/// 반경 표시 — "이만큼 안에 들어왔다"를 숫자로 확인시킨다
+class _RadiusChip extends StatelessWidget {
+  const _RadiusChip({required this.radiusMeters});
+
+  final int radiusMeters;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.xs,
+        vertical: 6,
+      ),
+      decoration: BoxDecoration(
+        color: AppColors.bgBase.withValues(alpha: 0.78),
+        borderRadius: BorderRadius.circular(AppRadius.pill),
+      ),
+      child: Text('반경 ${radiusMeters}m', style: AppTypography.caption),
     );
   }
 }

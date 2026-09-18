@@ -18,6 +18,9 @@ class AlertRequest {
     required this.soundEnabled,
     required this.occurredAt,
     this.soundSource,
+    this.latitude,
+    this.longitude,
+    this.radiusMeters,
   });
 
   final String placeId;
@@ -35,6 +38,14 @@ class AlertRequest {
   /// 실제로 있는지를 여기서 판단하지 않는다 (규칙 1).
   /// `null` 이면 기본 음원이다.
   final AlertSoundSource? soundSource;
+
+  /// 장소 좌표와 반경 — 알림 화면이 지도를 그리는 데 쓴다 (이슈 #142).
+  ///
+  /// **`app` 이 넣는다.** alert 는 places 를 모르므로 값으로 받는다
+  /// (규칙 1). 없으면 지도 없이 울린다.
+  final double? latitude;
+  final double? longitude;
+  final int? radiusMeters;
 }
 
 /// 알림 발화·해제 조율 (docs/03-DOMAIN.md 규칙 4·5)
@@ -179,6 +190,9 @@ class AlertController {
       // 판정 전이므로 보수적으로 무음에서 시작한다 —
       // 실제로 이어폰 재생이 확정되면 갱신한다
       audioRoute: AudioRoute.silent,
+      latitude: request.latitude,
+      longitude: request.longitude,
+      radiusMeters: request.radiusMeters,
     );
     _current = session;
     _lastSoundFailed = false;

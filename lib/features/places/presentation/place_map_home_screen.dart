@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../../../core/domain/alert_direction.dart';
+import '../../../core/map/radius_zoom.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_semantic_colors.dart';
 import '../../../core/theme/app_spacing.dart';
@@ -353,7 +354,8 @@ class _PlaceMapHomeScreenState extends ConsumerState<PlaceMapHomeScreen>
       await map.animateCamera(
         CameraUpdate.newLatLngZoom(
           LatLng(place.latitude, place.longitude),
-          _zoomForRadius(place.radiusMeters),
+          // 홈은 "어디쯤인지"를 보여주는 화면이라 한 단계 넓게 잡는다
+          zoomForRadiusWider(place.radiusMeters.toDouble()),
         ),
       );
       return;
@@ -385,12 +387,6 @@ class _PlaceMapHomeScreenState extends ConsumerState<PlaceMapHomeScreen>
     }
   }
 
-  double _zoomForRadius(int meters) {
-    if (meters <= 100) return 16;
-    if (meters <= 300) return 15;
-    if (meters <= 800) return 14;
-    return 13;
-  }
 }
 
 /// 상단 상태 바 — 이 화면의 존재 이유 (F4.5)

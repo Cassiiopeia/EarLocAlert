@@ -31,6 +31,17 @@ abstract final class AppTypography {
     height: 1.3,
   );
 
+  /// 알림 화면 시각 (이슈 #142)
+  ///
+  /// 본문보다 크고 제목보다 가볍다. **언제 울렸는지는 장소 다음으로
+  /// 중요한 정보다** — 예전에는 caption 이라 눈에 들어오지 않았다.
+  static const TextStyle alertTime = TextStyle(
+    fontSize: 30,
+    fontWeight: FontWeight.w500,
+    color: AppColors.textPrimary,
+    height: 1.2,
+  );
+
   /// 본문
   static const TextStyle body = TextStyle(
     fontSize: 16,
