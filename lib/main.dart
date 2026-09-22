@@ -2,9 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app/app.dart';
+import 'app/splash_overlay.dart';
 import 'app/background/watch_engine_entrypoint.dart' as watch_engine;
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // 스플래시 핀을 미리 디코드한다 (이슈 #150).
+  //
+  // **여기서 기다리는 동안 화면에는 네이티브 스플래시가 그대로 떠 있다** —
+  // 빈 화면이 보이는 대기가 아니다. 반대로 데우지 않으면 첫 프레임에
+  // 핀 없는 검은 판이 잠깐 뜬다. 상한이 걸려 있어 실패해도 앱은 뜬다.
+  await SplashOverlay.warmUp();
+
   // Riverpod 으로 통일한다 — get_it 을 병행하지 않는다
   // (docs/02-ARCHITECTURE.md)
   runApp(const ProviderScope(child: EarLocAlertApp()));

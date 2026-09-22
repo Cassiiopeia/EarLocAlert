@@ -100,6 +100,11 @@ flutter:
     - assets/sounds/siren.wav
     - assets/sounds/chime.wav
 
+    # 스플래시 핀 (이슈 #150) — 네이티브 스플래시가 걷히는 순간을
+    # 같은 그림으로 이어 받는다. 네이티브가 쓰는 파일과 같으므로
+    # `tool/gen_splash_logo.py` 로 함께 갱신된다
+    - assets/splash/splash_logo.png
+
   # Pretendard (이슈 #145) — SIL Open Font License 1.1
   #
   # **쓰는 굵기만 넣는다.** 한 종이 약 1.5MB 라 전부 넣으면 13.5MB 가
