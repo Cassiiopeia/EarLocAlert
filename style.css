@@ -51,6 +51,9 @@ a:hover { text-decoration: underline; }
 }
 .nav-brand { display: flex; align-items: center; gap: 10px; font-weight: 700; color: var(--text); }
 .nav-brand:hover { text-decoration: none; }
+/* 앱 아이콘에서 그대로 딴 핀. 인라인 SVG 로 따로 그리면 아이콘이 바뀔 때
+   또 어긋난다 (스플래시가 두 달 그랬다) */
+.brand-mark { display: block; width: 20px; height: auto; }
 .nav-links { margin-left: auto; display: flex; gap: 22px; font-size: 15px; }
 .nav-links a { color: var(--muted); }
 .nav-links a:hover { color: var(--text); text-decoration: none; }
