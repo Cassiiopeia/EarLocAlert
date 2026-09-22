@@ -181,11 +181,24 @@ void main() {
     expect(previewButtons(tester).first.onPressed, isNotNull);
   });
 
-  testWidgets('이어폰이 있으면 고른 음원을 들려준다', (tester) async {
+  testWidgets('이어폰이 있으면 ▶ 로 들어볼 수 있다', (tester) async {
     repo.sounds = [makeSound()];
     await pumpSheet(tester, headphones: true);
 
-    await tester.tap(find.text('알람소리.mp3'));
+    // **행 탭은 고르고 닫는 동작이다** (docs/06-UX.md 시트 확정 규칙).
+    // 들어보기는 ▶ 가 맡는다 — 예전에는 탭 하나가 선택과 재생을 동시에
+    // 해서 무엇이 일어난 것인지 모호했다.
+    // 프리셋 5개 뒤에 내 음원이 온다 — 마지막 ▶ 가 그것이다
+    await tester.tap(
+      find
+          .byWidgetPredicate(
+            (w) =>
+                w is IconButton &&
+                w.icon is Icon &&
+                (w.icon as Icon).icon == Icons.play_arrow_outlined,
+          )
+          .last,
+    );
     await tester.pumpAndSettle();
 
     expect(player.playCount, 1);
@@ -228,10 +241,13 @@ void main() {
 
     await tester.tap(find.text('알람소리.mp3'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('완료'));
-    await tester.pumpAndSettle();
 
-    expect(picked, const CustomSoundRef('s1'));
+    expect(
+      picked,
+      const CustomSoundRef('s1'),
+      reason: '한 값을 고르는 시트는 고르는 순간 확정된다 — 확정 버튼이 없다',
+    );
+    expect(find.text('완료'), findsNothing, reason: '확정 버튼이 되살아나면 규칙이 깨진 것이다');
   });
 
   testWidgets('목록에 길이와 크기를 보여준다', (tester) async {

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
+import '../../../core/diagnostics/diagnostics.dart';
 import '../../../core/map/map_style_guard.dart';
 import '../../../core/map/radius_zoom.dart';
 import '../../../core/theme/app_colors.dart';
@@ -10,6 +11,7 @@ import '../../../core/theme/app_semantic_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/map_style.dart';
+import '../data/current_location_channel.dart';
 import '../domain/place_search.dart';
 import '../domain/place_validator.dart';
 
@@ -53,6 +55,7 @@ class PlaceMapPickerScreen extends StatefulWidget {
     required this.args,
     this.onPicked,
     this.searchService,
+    this.locationService = const CurrentLocationChannel(),
     super.key,
   });
 
@@ -64,6 +67,11 @@ class PlaceMapPickerScreen extends StatefulWidget {
   /// 장소 검색 (F1.2, issue #72). null 이면 검색창을 그리지 않는다 —
   /// 지도·핀·저장은 검색 없이도 전부 동작해야 한다
   final PlaceSearchService? searchService;
+
+  /// 현재 위치 조회. 홈 화면과 같은 서비스·같은 기본값을 쓴다 (이슈 #152).
+  ///
+  /// 테스트는 `UnavailableCurrentLocationService` 로 바꿔 끼운다.
+  final CurrentLocationService locationService;
 
   /// 지도 초기 위치 — 좌표가 없을 때 쓴다.
   ///
@@ -166,11 +174,42 @@ class _PlaceMapPickerScreenState extends State<PlaceMapPickerScreen> {
     );
   }
 
-  /// 검색 오버레이의 접힌 높이 (이슈 #135).
+  /// 현재 위치로 카메라를 옮긴다 (이슈 #152).
   ///
-  /// 상하 패딩(16×2) + 입력 필드(48). 실측 대신 고정값을 쓰는 이유는
-  /// 위 `padding` 주석 참조.
-  static const double _searchOverlayHeight = 80;
+  /// 못 얻으면 아무것도 하지 않는다. 위치를 못 얻는 것은 정상적으로
+  /// 일어나는 상태다 — 오류 문구로 놀라게 할 일이 아니다.
+  Future<void> _moveToCurrentLocation() async {
+    final here = await widget.locationService.current();
+    if (here == null || !mounted) return;
+    Diagnostics.log('picker', '내 위치로 이동 ${here.latitude},${here.longitude}');
+    await _map?.animateCamera(
+      CameraUpdate.newLatLngZoom(
+        LatLng(here.latitude, here.longitude),
+        zoomForRadius(_radius),
+      ),
+    );
+  }
+
+  /// 좌표 없이 들어온 경우, 권한이 있으면 현재 위치로 옮긴다 (이슈 #152).
+  ///
+  /// **고정 좌표로 먼저 그린 뒤 옮긴다.** 위치를 기다리며 회색 화면을
+  /// 보여주지 않기 위해서다 — 못 얻으면 고정 좌표에 그대로 머문다.
+  Future<void> _startAtCurrentLocationIfNeeded() async {
+    if (widget.args.latitude != null && widget.args.longitude != null) return;
+    final here = await widget.locationService.current();
+    if (here == null || !mounted) {
+      Diagnostics.log('picker', '현재 위치를 얻지 못해 기본 좌표에서 시작한다');
+      return;
+    }
+    Diagnostics.log('picker', '현재 위치에서 시작 ${here.latitude},${here.longitude}');
+    setState(() => _center = LatLng(here.latitude, here.longitude));
+    await _map?.moveCamera(
+      CameraUpdate.newLatLngZoom(
+        LatLng(here.latitude, here.longitude),
+        zoomForRadius(_radius),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -186,6 +225,7 @@ class _PlaceMapPickerScreenState extends State<PlaceMapPickerScreen> {
               _map = controller;
               // 다크 스타일이 조용히 사라지는 일이 있다 (이슈 #143)
               unawaited(ensureDarkMapStyle(controller, 'picker'));
+              unawaited(_startAtCurrentLocationIfNeeded());
             },
             initialCameraPosition: CameraPosition(
               target: _initialCenter,
@@ -207,26 +247,30 @@ class _PlaceMapPickerScreenState extends State<PlaceMapPickerScreen> {
             onCameraMove: (position) =>
                 setState(() => _center = position.target),
             myLocationEnabled: true,
-            myLocationButtonEnabled: true,
+            // **SDK 기본 버튼을 끈다** (이슈 #152). 홈 화면과 같은 판단이다
+            // (#98) — 그 버튼은 우상단 고정이라 검색창과 부딪힌다.
+            //
+            // 예전에는 부딪힘을 `padding` 으로 피했는데, **`GoogleMap.padding`
+            // 은 카메라 중심을 옮긴다.** 위 80 을 주면 저장될 좌표가 화면에서
+            // 40px 아래로 내려가는데 중앙 고정 핀은 그걸 모른 채 Stack
+            // 중앙에 남아, 사용자가 찍은 곳과 저장되는 곳이 갈라졌다.
+            myLocationButtonEnabled: false,
             // 기본 확대 버튼은 다크 테마에 맞지 않고, 핀치로 충분하다
             zoomControlsEnabled: false,
             mapToolbarEnabled: false,
-            // **검색창이 "내 위치" 버튼을 덮는다** (이슈 #135).
+            // **padding 을 주지 않는다.** SDK 컨트롤을 전부 껐으므로 피할
+            // 대상이 없고, padding 은 카메라 중심을 옮겨 중앙 고정 핀과
+            // 어긋나게 만든다 (위 주석 참조, 이슈 #152).
             //
-            // SDK 버튼은 오른쪽 위에 붙는데 검색 오버레이가 그 자리를
-            // 가려, 지금 위치로 되돌릴 유일한 수단을 누를 수 없었다.
-            // padding 을 주면 SDK 가 그만큼 안쪽으로 컨트롤을 배치한다.
-            //
-            // **실시간으로 따라가지 않는다.** 검색 결과가 펼쳐질 때마다
-            // 지도가 다시 배치되면 버벅인다 — 접힌 높이로 고정하고,
-            // 결과가 떠 있는 동안은 사용자가 검색 중이라 버튼이 가려도
-            // 문제가 되지 않는다 (홈 화면과 같은 판단, 이슈 #98).
-            padding: EdgeInsets.only(
-              top: widget.searchService != null ? _searchOverlayHeight : 0,
-            ),
+            // 앞으로 padding 이 필요해지면 **핀도 같은 값만큼 함께** 옮겨야
+            // 한다. `design_system_test.dart` 가 이 조합을 막는다.
           ),
 
-          // 중앙 고정 핀. 지도 조작을 가로막지 않아야 한다
+          // 중앙 고정 핀. 지도 조작을 가로막지 않아야 한다.
+          //
+          // **이 핀이 가리키는 곳이 곧 저장되는 좌표다.** 지도에 padding 이
+          // 없으므로 Stack 중앙 = 카메라 중심이고, 둘이 같아야만 사용자가
+          // 찍은 자리가 그대로 저장된다 (이슈 #152).
           IgnorePointer(
             child: Center(
               child: Padding(
@@ -241,18 +285,43 @@ class _PlaceMapPickerScreenState extends State<PlaceMapPickerScreen> {
             ),
           ),
 
+          // 내 위치 버튼과 하단 패널을 **한 덩어리로 쌓는다.**
+          //
+          // 처음엔 `Positioned(bottom: 고정값)` 으로 띄웠다가 패널 뒤로 숨었다.
+          // 패널 높이를 숫자로 추정하는 방식은 문구가 한 줄만 늘어도 틀린다 —
+          // 쌓아 두면 애초에 가려질 수가 없다.
           Align(
             alignment: Alignment.bottomCenter,
-            child: _PickerPanel(
-              radius: _radius,
-              onRadiusChanged: (value) => setState(() => _radius = value),
-              onConfirm: () => widget.onPicked?.call(
-                MapPickResult(
-                  latitude: _center.latitude,
-                  longitude: _center.longitude,
-                  radiusMeters: _radius.round(),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // 좌측 배치 — 홈과 같은 자리 (docs/06-UX.md)
+                Padding(
+                  padding: const EdgeInsets.only(
+                    left: AppSpacing.sm,
+                    bottom: AppSpacing.sm,
+                  ),
+                  child: FloatingActionButton.small(
+                    heroTag: 'pickerMyLocation',
+                    backgroundColor: AppColors.bgElevated,
+                    foregroundColor: AppColors.textPrimary,
+                    onPressed: _moveToCurrentLocation,
+                    child: const Icon(Icons.my_location_outlined),
+                  ),
                 ),
-              ),
+                _PickerPanel(
+                  radius: _radius,
+                  onRadiusChanged: (value) => setState(() => _radius = value),
+                  onConfirm: () => widget.onPicked?.call(
+                    MapPickResult(
+                      latitude: _center.latitude,
+                      longitude: _center.longitude,
+                      radiusMeters: _radius.round(),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
 

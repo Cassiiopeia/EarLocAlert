@@ -1,0 +1,157 @@
+import 'dart:io';
+
+import 'package:flutter_test/flutter_test.dart';
+
+/// 디자인 시스템 규칙 (docs/06-UX.md · 이슈 #153)
+///
+/// **문서만으로는 이미 한 번 실패했다.** `버튼 | 하단, 전체 폭, pill 형태`
+/// 가 `06-UX.md` 에 적혀 있는데도 알림음 시트가 그것을 어긴 채 배포됐다.
+/// 규칙은 적어두는 것으로 지켜지지 않는다 — 여기서 센다.
+///
+/// **소스를 읽는 테스트인 이유** — 위젯 테스트로는 "앱 어디에도 이 패턴이
+/// 없다"를 셀 수 없다. 화면마다 테스트를 쓰면 새 화면이 생겼을 때 또 빠지는데,
+/// 규칙이 깨지는 자리는 언제나 "새로 만든 화면"이다.
+void main() {
+  final presentation = Directory('lib/features')
+      .listSync(recursive: true)
+      .whereType<File>()
+      .where((f) => f.path.endsWith('.dart'))
+      .where((f) => f.path.contains('/presentation/'))
+      .toList();
+
+  setUpAll(() {
+    expect(presentation, isNotEmpty, reason: '화면 파일을 하나도 못 찾았다면 경로 규칙이 바뀐 것이다');
+  });
+
+  group('주 액션은 하단 한 자리뿐이다', () {
+    test('한 화면에 FilledButton 이 둘 이상이면 위계가 갈린다', () {
+      final offenders = <String>[];
+      for (final file in presentation) {
+        // **파일이 아니라 위젯 클래스 단위로 센다.** 한 파일에 정상 화면과
+        // 오류 화면이 같이 있는 것은 흔하고, 그 둘은 동시에 뜨지 않는다.
+        // 파일로 세면 멀쩡한 코드를 위반으로 잡는다.
+        for (final entry in _widgetClasses(file.readAsStringSync()).entries) {
+          // `FilledButton.styleFrom(` 은 버튼이 아니라 스타일이다
+          final count = RegExp(
+            r'\bFilledButton(\.icon)?\(',
+          ).allMatches(entry.value).length;
+          if (count > 1) {
+            offenders.add('${file.path} → ${entry.key} ($count개)');
+          }
+        }
+      }
+      expect(
+        offenders,
+        isEmpty,
+        reason:
+            '하단 주 버튼은 "안 누르면 목적이 달성되지 않는 동작" 하나뿐이다.\n'
+            '둘을 두면 사용자가 무엇을 눌러야 하는지 매번 읽어야 한다.\n'
+            '해당 파일: $offenders',
+      );
+    });
+
+    test('보조 동작이 주 버튼 자리를 차지하지 않는다', () {
+      // 주 버튼에 오면 안 되는 낱말 — 안 해도 화면의 목적은 달성된다
+      const secondaryWords = ['추가', '미리듣기', '내보내기', '삭제'];
+      final offenders = <String>[];
+
+      for (final file in presentation) {
+        final source = file.readAsStringSync();
+        for (final match in RegExp(
+          r'FilledButton[^;]{0,400}?;',
+          dotAll: true,
+        ).allMatches(source)) {
+          final block = match.group(0)!;
+          for (final word in secondaryWords) {
+            if (block.contains("'$word") || block.contains("$word'")) {
+              offenders.add('${file.path}: "$word"');
+            }
+          }
+        }
+      }
+      expect(
+        offenders,
+        isEmpty,
+        reason:
+            '보조 동작은 OutlinedButton 이나 목록 안에 둔다.\n'
+            '해당: $offenders',
+      );
+    });
+  });
+
+  group('용어 사전', () {
+    test('목적어 없는 라벨을 쓰지 않는다', () {
+      // 무엇이 기본 제공인지 말하지 않으면 옆의 "내 음원" 과 짝이 안 맞는다
+      const banned = {'기본 제공': '기본 알림음'};
+      final offenders = <String>[];
+
+      for (final file in presentation) {
+        final source = file.readAsStringSync();
+        for (final entry in banned.entries) {
+          if (source.contains("'${entry.key}'")) {
+            offenders.add('${file.path}: "${entry.key}" → "${entry.value}"');
+          }
+        }
+      }
+      expect(offenders, isEmpty, reason: offenders.join('\n'));
+    });
+  });
+
+  group('같은 기능은 같은 자리', () {
+    test('지도 SDK 의 내 위치 버튼을 쓰지 않는다', () {
+      // SDK 버튼은 우상단 고정이라 검색창·상태 알약과 부딪힌다 (#98·#152)
+      final offenders = presentation
+          .where(
+            (f) =>
+                f.readAsStringSync().contains('myLocationButtonEnabled: true'),
+          )
+          .map((f) => f.path)
+          .toList();
+      expect(offenders, isEmpty, reason: '좌하단 커스텀 버튼으로 통일한다. 해당: $offenders');
+    });
+
+    test('중앙 고정 핀이 있는 지도에는 padding 을 주지 않는다', () {
+      // padding 은 카메라 중심을 옮기는데 핀은 그것을 모른다 — 이슈 #152 가
+      // 그렇게 났다. 둘이 한 파일에 같이 있으면 어긋날 수 있다.
+      final offenders = <String>[];
+      for (final file in presentation) {
+        final source = file.readAsStringSync();
+        final hasCenterPin =
+            source.contains('중앙 고정 핀') ||
+            source.contains('Icons.place_outlined');
+        final hasMapPadding = RegExp(
+          r'GoogleMap\([^;]*?\bpadding:',
+          dotAll: true,
+        ).hasMatch(source);
+        if (hasCenterPin && hasMapPadding) offenders.add(file.path);
+      }
+      expect(
+        offenders,
+        isEmpty,
+        reason:
+            'padding 이 정말 필요하면 핀도 같은 값만큼 함께 옮기고 이 테스트를\n'
+            '그 관계를 세는 것으로 바꾼다. 지금처럼 각자 두면 또 어긋난다.\n'
+            '해당: $offenders',
+      );
+    });
+  });
+}
+
+/// 소스를 위젯 클래스 단위로 쪼갠다.
+///
+/// 한 파일에 화면과 그 화면이 쓰는 작은 위젯들이 함께 사는 것이 이 레포의
+/// 관례다. 규칙은 "한 화면에" 걸리는 것이므로 클래스가 단위여야 한다.
+Map<String, String> _widgetClasses(String source) {
+  final starts = RegExp(
+    r'^class\s+(\w+)',
+    multiLine: true,
+  ).allMatches(source).toList();
+  if (starts.isEmpty) return {'(파일 전체)': source};
+
+  final result = <String, String>{};
+  for (var i = 0; i < starts.length; i++) {
+    final end = i + 1 < starts.length ? starts[i + 1].start : source.length;
+    result[starts[i].group(1)!] = source.substring(starts[i].start, end);
+  }
+  return result;
+}
