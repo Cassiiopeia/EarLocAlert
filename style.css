@@ -120,7 +120,9 @@ h2 { font-size: 34px; letter-spacing: -1px; margin: 0 0 12px; font-weight: 800; 
 }
 
 /* ── 화면 모음 ── */
-.shots { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+/* 한 줄에 3장. 요즘 폰이 9:20 이라 4장을 늘어놓으면 장당 폭이 좁아져
+   과하게 길쭉해 보인다 */
+.shots { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
 .shot figcaption { margin-top: 12px; font-size: 14px; color: var(--dim); text-align: center; }
 
 /* ── 개인정보 강조 ── */
