@@ -209,21 +209,11 @@ class _SoundPickerSheetState extends ConsumerState<_SoundPickerSheet>
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    '알림음',
-                    style: AppTypography.body.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(_selected),
-                  child: const Text('완료'),
-                ),
-              ],
+            // 확정 버튼이 없다 — 한 값을 고르는 시트라 고르는 순간 적용된다
+            // (docs/06-UX.md 시트 확정 규칙)
+            Text(
+              '알림음',
+              style: AppTypography.body.copyWith(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: AppSpacing.xs),
 
@@ -233,17 +223,19 @@ class _SoundPickerSheetState extends ConsumerState<_SoundPickerSheet>
               child: SingleChildScrollView(
                 child: RadioGroup<AlertSound>(
                   groupValue: _selected,
+                  // **고르는 순간 확정하고 닫는다.** 예전에는 탭이 선택과
+                  // 재생을 동시에 해서 무엇이 일어난 것인지 모호했다 —
+                  // 이제 역할을 가른다: 행은 고르기, ▶ 는 들어보기
                   onChanged: (value) {
                     if (value == null) return;
-                    setState(() => _selected = value);
-                    if (canPreview) _preview(value);
+                    Navigator.of(context).pop(value);
                   },
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const SizedBox(height: AppSpacing.xs),
-                      Text('기본 제공', style: AppTypography.caption),
+                      Text('기본 알림음', style: AppTypography.caption),
                       for (final preset in SoundPreset.values)
                         _SoundTile(
                           value: PresetSound(preset),

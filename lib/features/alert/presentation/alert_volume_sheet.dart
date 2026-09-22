@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/app_spacing.dart';
+import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../domain/alert_effects.dart';
 import 'alert_controller_provider.dart';
@@ -72,9 +73,30 @@ class _AlertVolumeSheetState extends ConsumerState<_AlertVolumeSheet> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            '알림음 크기',
-            style: AppTypography.body.copyWith(fontWeight: FontWeight.w600),
+          // **값을 제목 줄에 둔다.** 슬라이더 옆 고정 폭(44px)에 두었더니
+          // Pretendard 로 '100%' 가 41px 이라 여유가 3px 뿐이었고,
+          // 시스템 글자 크기를 한 단계만 키워도 '100' / '%' 로 쪼개졌다.
+          // 줄 전체를 쓰는 자리로 옮기면 넘칠 자리 자체가 없다.
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  '알림음 크기',
+                  style: AppTypography.body.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              if (volume != null)
+                Text(
+                  '${(volume * 100).round()}%',
+                  style: AppTypography.body.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.primary,
+                  ),
+                  maxLines: 1,
+                ),
+            ],
           ),
           const SizedBox(height: AppSpacing.xs),
           Text(
@@ -101,15 +123,6 @@ class _AlertVolumeSheetState extends ConsumerState<_AlertVolumeSheet> {
                   ),
                 ),
                 const Icon(Icons.volume_up_outlined, size: 20),
-                const SizedBox(width: AppSpacing.xs),
-                SizedBox(
-                  width: 44,
-                  child: Text(
-                    '${(volume * 100).round()}%',
-                    style: AppTypography.body,
-                    textAlign: TextAlign.end,
-                  ),
-                ),
               ],
             ),
           const SizedBox(height: AppSpacing.xs),
@@ -118,7 +131,10 @@ class _AlertVolumeSheetState extends ConsumerState<_AlertVolumeSheet> {
             Text(_previewNotice!, style: AppTypography.caption),
 
           const SizedBox(height: AppSpacing.sm),
-          FilledButton(
+          // **보조 동작이라 주 버튼이 아니다** (docs/06-UX.md 주 액션 규칙).
+          // 이 시트는 고치는 즉시 적용되므로 확정할 것이 없고, 하단 주
+          // 버튼 자리는 "안 누르면 목적이 달성되지 않는 동작"만 쓴다.
+          OutlinedButton(
             onPressed: volume == null ? null : _togglePreview,
             child: Text(_previewing ? '미리듣기 멈추기' : '미리듣기'),
           ),
