@@ -14,6 +14,7 @@ import '../features/alert/presentation/alert_controller_provider.dart';
 import 'background/background_alert_notifier.dart';
 import 'geofence_providers.dart';
 import 'router.dart';
+import 'splash_overlay.dart';
 
 /// 앱 루트 (docs/02-ARCHITECTURE.md)
 class EarLocAlertApp extends ConsumerStatefulWidget {
@@ -238,6 +239,11 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
       theme: AppTheme.dark(),
       debugShowCheckedModeBanner: false,
       routerConfig: _router,
+      // 네이티브 스플래시가 걷히는 순간을 잇는다 (이슈 #150).
+      // `builder` 에 두는 것은 라우터보다 위에 깔려야 화면 전환과
+      // 무관하게 한 장으로 걷히기 때문이다.
+      builder: (context, child) =>
+          SplashOverlay(child: child ?? const SizedBox.shrink()),
     );
   }
 }
