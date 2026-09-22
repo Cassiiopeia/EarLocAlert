@@ -93,7 +93,10 @@ h1 .hl { color: var(--mint); }
 .phone {
   border-radius: 34px; overflow: hidden; border: 1px solid var(--line);
   box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
-  background: var(--surface); display: block; width: 100%;
+  background: var(--surface); display: block;
+  /* height:auto 가 없으면 html 의 height="1080" 속성이 높이를 못박아,
+     폭만 줄고 높이는 그대로라 세로로 늘어난다 (실측 0.45 → 0.307) */
+  width: 100%; height: auto;
 }
 
 /* ── 핵심 가치 ── */
