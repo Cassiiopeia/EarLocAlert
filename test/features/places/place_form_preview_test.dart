@@ -1,7 +1,9 @@
+import 'package:ear_loc_alert/core/text/keep_all.dart';
 import 'package:ear_loc_alert/core/domain/alert_direction.dart';
 import 'package:ear_loc_alert/core/theme/app_theme.dart';
 import 'package:ear_loc_alert/features/places/domain/alert_place.dart';
 import 'package:ear_loc_alert/features/places/presentation/place_form_screen.dart';
+import 'package:ear_loc_alert/features/places/presentation/place_map_picker_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -37,7 +39,7 @@ void main() {
 
     // 지도 키 없이 빌드된 경우에도 폼은 동작해야 한다
     expect(find.byType(GoogleMap), findsNothing);
-    expect(find.text('아직 위치를 고르지 않았습니다'), findsOneWidget);
+    expect(find.text('아직 위치를 고르지 않았습니다'.keepAll), findsOneWidget);
   });
 
   testWidgets('미리보기를 탭하면 지도 선택이 열린다', (tester) async {
@@ -71,16 +73,32 @@ void main() {
 
   testWidgets('이름을 쓰다 지도에 다녀와도 키보드가 다시 올라오지 않는다', (tester) async {
     // 에뮬레이터 QA 에서 돌아오자마자 키보드가 올라와 방금 고른 위치의
-    // 미리보기를 덮었다 — 떠날 때 포커스를 쥐고 있으면 되돌아온다
-    await pump(
-      tester,
-      PlaceFormScreen(existing: existing, onPickOnMap: (_) async => null),
+    // 미리보기를 덮었다. **실제로 화면을 push·pop 해야 재현된다** —
+    // 돌아올 때 Navigator 가 화면이 기억한 칸에 포커스를 되돌린다.
+    // 콜백이 바로 돌아오는 가짜로는 첫 수정이 틀린 것을 못 잡았다
+    final navigator = GlobalKey<NavigatorState>();
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp(
+          navigatorKey: navigator,
+          theme: AppTheme.dark(),
+          home: PlaceFormScreen(
+            existing: existing,
+            onPickOnMap: (_) => navigator.currentState!.push<MapPickResult>(
+              MaterialPageRoute(builder: (_) => const Scaffold()),
+            ),
+          ),
+        ),
+      ),
     );
+    await tester.pumpAndSettle();
 
     await tester.enterText(find.byType(TextField).first, '집');
     expect(tester.testTextInput.isVisible, isTrue);
 
     await tester.tap(find.text('지도에서 다시 선택'));
+    await tester.pumpAndSettle();
+    navigator.currentState!.pop();
     await tester.pumpAndSettle();
 
     expect(tester.testTextInput.isVisible, isFalse);

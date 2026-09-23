@@ -434,10 +434,15 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
   }
 
   Future<void> _pickOnMap() async {
-    // **떠나기 전에 입력 포커스를 푼다.** 이름을 쓰다가 지도로 가면 돌아올
-    // 때 Flutter 가 포커스를 이름 칸에 되돌려 키보드가 다시 올라왔다 —
-    // 방금 고른 위치의 미리보기를 키보드가 덮는다 (이슈 #155 QA)
-    FocusScope.of(context).unfocus();
+    // **떠나기 전에 입력 칸의 포커스를 푼다.** 이름을 쓰다가 지도로 가면
+    // 돌아올 때 Navigator 가 이 화면이 기억한 칸에 포커스를 되돌려 키보드가
+    // 다시 올라왔다 — 방금 고른 위치의 미리보기를 키보드가 덮는다
+    // (이슈 #155 QA).
+    //
+    // `FocusScope.of(context).unfocus()` 로는 안 된다. 화면의 포커스
+    // 범위만 비우고 "마지막 칸" 기억은 남겨, 실기기에서 그대로 재현됐다.
+    // 칸 자체를 풀어야 기억이 지워진다
+    FocusManager.instance.primaryFocus?.unfocus();
     final picked = await widget.onPickOnMap!(
       MapPickArgs(
         latitude: double.tryParse(_latitude.text.trim()),
