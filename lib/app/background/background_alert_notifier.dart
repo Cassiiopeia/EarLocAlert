@@ -9,7 +9,7 @@ import 'pending_alert_store.dart';
 
 /// 백그라운드 알림 발행 구현 (이슈 #63, #74)
 ///
-/// **채널을 포그라운드 알림(ear_loc_alert_alarm)과 분리한다.**
+/// **채널을 포그라운드 알림(ear_loc_alert_session)과 분리한다.**
 /// 그 채널은 진동 off 다 — AlertController 가 직접 반복 진동을 돌리기
 /// 때문이다. 백그라운드 isolate 는 콜백 후 즉시 죽어 진동 루프를 돌릴 수
 /// 없으므로, 여기서는 채널의 진동 패턴에 위임한다. Android 채널 설정은

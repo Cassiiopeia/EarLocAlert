@@ -32,6 +32,7 @@ class PlaceMapHomeScreen extends ConsumerStatefulWidget {
     required this.isHeadphoneConnected,
     required this.onAddPlace,
     this.canAlertReliably = true,
+    this.isStatusKnown = true,
     this.missingReliability = const [],
     this.onEditPlace,
     this.onFixMonitoring,
@@ -46,6 +47,11 @@ class PlaceMapHomeScreen extends ConsumerStatefulWidget {
   final bool isMonitoring;
 
   /// 지금 이어폰이 연결되어 있는가 (줄·USB-C·블루투스)
+  /// [isMonitoring] 을 실제로 확인했는가 (이슈 #142 QA).
+  ///
+  /// 확인 전의 false 를 "꺼짐"으로 그리면 멀쩡한데 고장으로 보인다
+  final bool isStatusKnown;
+
   final bool isHeadphoneConnected;
 
   final VoidCallback onAddPlace;
@@ -190,6 +196,7 @@ class _PlaceMapHomeScreenState extends ConsumerState<PlaceMapHomeScreen>
           _StatusBar(
             isMonitoring: widget.isMonitoring,
             // 켜진 장소가 없어서 감시가 안 도는 것은 고장이 아니다 —
+            isStatusKnown: widget.isStatusKnown,
             // 경고 대신 안내로 보여야 한다
             hasEnabledPlaces: places.any((place) => place.enabled),
             isHeadphoneConnected: widget.isHeadphoneConnected,
@@ -395,6 +402,7 @@ class _StatusBar extends StatelessWidget {
   const _StatusBar({
     required this.isMonitoring,
     required this.hasEnabledPlaces,
+    required this.isStatusKnown,
     required this.isHeadphoneConnected,
     required this.canAlertReliably,
     this.missingReliability = const [],
@@ -406,6 +414,9 @@ class _StatusBar extends StatelessWidget {
   final bool isMonitoring;
 
   /// 켜진 장소가 하나라도 있는가.
+  /// 감시 상태를 실제로 확인했는가 — false 면 "확인 중"
+  final bool isStatusKnown;
+
   ///
   /// 감시가 안 도는 이유를 가른다 — 켜진 장소가 없으면 **정상 대기**이고,
   /// 있는데도 안 돌면 **고장(권한 등)**이다. 첫 사용자에게 경고를
@@ -426,8 +437,14 @@ class _StatusBar extends StatelessWidget {
   /// 설정 화면 (이슈 #98) — 알림음 크기·진단 기록이 여기 있다
   final VoidCallback? onOpenSettings;
 
-  /// 고장 상태 — 켜진 장소가 있는데 감시가 안 돈다. 해결 경로가 필요하다
-  bool get _isBroken => hasEnabledPlaces && !isMonitoring;
+  /// 고장 상태 — 켜진 장소가 있는데 감시가 안 돈다. 해결 경로가 필요하다.
+  ///
+  /// **확인하기 전에는 고장이 아니다** (이슈 #142 QA) — 모르는 것을
+  /// 고장으로 그리면 알림을 끄고 돌아올 때마다 오경보가 뜬다
+  bool get _isBroken => isStatusKnown && hasEnabledPlaces && !isMonitoring;
+
+  /// 켜진 장소는 있는데 감시 상태를 아직 읽는 중이다
+  bool get _isChecking => !isStatusKnown && hasEnabledPlaces;
 
   /// 감시는 도는데 알림이 약하다 (이슈 #74).
   ///
@@ -545,6 +562,8 @@ class _StatusBar extends StatelessWidget {
                       : _isBroken
                       ? Icons.warning_amber_outlined
                       : Icons.pause_circle_outlined,
+                      : _isChecking
+                      ? Icons.hourglass_empty_outlined
                   size: AppIconSize.inline,
                   color: statusColor,
                 ),
@@ -562,6 +581,8 @@ class _StatusBar extends StatelessWidget {
                         : _isBroken
                         ? '감시 꺼짐'
                         : '감시 대기',
+                        : _isChecking
+                        ? '확인 중'
                     style: AppTypography.caption.copyWith(color: statusColor),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,

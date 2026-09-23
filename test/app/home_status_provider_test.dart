@@ -15,7 +15,7 @@ import 'package:flutter_test/flutter_test.dart';
 class FakeMonitor implements GeofenceMonitor {
   FakeMonitor({this.registered = const [], this.failOnQuery = false});
 
-  final List<String> registered;
+  List<String> registered;
   final bool failOnQuery;
 
   @override
@@ -182,7 +182,10 @@ void main() {
       expect(status.canAlertReliably, isTrue);
     });
 
-    test('확인 전 기본값은 보수적으로 전부 꺼짐이다 — 단 알림 약함 경고는 띄우지 않는다', () {
+    test('확인 전 기본값은 "모름"이다 — 꺼짐 경고도 알림 약함 경고도 띄우지 않는다', () {
+      // 확인 전의 false 를 고장으로 그리면 알림을 끄고 돌아올 때마다
+      // "감시 꺼짐" 이 번쩍였다 (이슈 #142 QA)
+      expect(HomeStatus.unknown.isKnown, isFalse);
       expect(HomeStatus.unknown.isMonitoring, isFalse);
       expect(HomeStatus.unknown.isHeadphoneConnected, isFalse);
       expect(
@@ -191,5 +194,37 @@ void main() {
         reason: '모르는 상태에서 경고하면 정상인 사용자에게 없는 문제를 보여준다',
       );
     });
+  });
+
+  test('등록 동기화가 끝나면 다시 읽는다 — 첫 장소를 등록한 직후 (이슈 #142 QA)', () async {
+    // 에뮬레이터에서 첫 장소를 등록하자 지오펜스는 걸렸는데 홈은 옛 값
+    // (감시=false)을 들고 있어 76분 동안 "감시 꺼짐 ›" 이 떠 있었다
+    final monitor = FakeMonitor();
+    final container = makeContainer(monitor: monitor, sound: FakeSound());
+    // 권한 조회가 늦게 끝나면 그것 때문에 다시 계산돼 우연히 통과한다 —
+    // 먼저 끝내 두고, 신호 말고는 다시 읽을 이유가 없게 만든다
+    await container.read(permissionControllerProvider.future);
+    container.listen(homeStatusProvider, (_, _) {});
+
+    expect(
+      (await container.read(homeStatusProvider.future)).isMonitoring,
+      isFalse,
+    );
+
+    // 등록은 됐지만 신호가 없으면 옛 값 그대로다 — 이것이 결함의 모양이다
+    monitor.registered = ['p1'];
+    await Future<void>.delayed(Duration.zero);
+    expect(
+      (await container.read(homeStatusProvider.future)).isMonitoring,
+      isFalse,
+    );
+
+    container.read(geofenceSyncSignalProvider).notify();
+    await Future<void>.delayed(Duration.zero);
+
+    expect(
+      (await container.read(homeStatusProvider.future)).isMonitoring,
+      isTrue,
+    );
   });
 }

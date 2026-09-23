@@ -253,6 +253,7 @@ class _HomeRoute extends ConsumerWidget {
 
     return PlaceMapHomeScreen(
       isMonitoring: status.isMonitoring,
+      isStatusKnown: status.isKnown,
       isHeadphoneConnected: status.isHeadphoneConnected,
       canAlertReliably: status.canAlertReliably,
       missingReliability: status.missingReliability,

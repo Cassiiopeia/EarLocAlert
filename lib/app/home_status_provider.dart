@@ -19,18 +19,26 @@ class HomeStatus {
     required this.isHeadphoneConnected,
     required this.canAlertReliably,
     this.missingReliability = const [],
+    this.isKnown = true,
   });
 
-  /// 감시 대기 상태 — 확인 전에는 "꺼짐"으로 본다.
+  /// 아직 확인하지 못한 상태.
   ///
-  /// 다만 [canAlertReliably] 는 확인 전에 **true** 다 — 모르는 상태에서
-  /// 경고부터 띄우면 정상인 사용자에게 없는 문제를 보여주게 된다.
+  /// **"꺼짐"으로 그리지 않는다** (이슈 #142 QA). 예전에는 확인 전 값이
+  /// 감시=false 라, 알림을 끄고 홈으로 돌아올 때마다 0.5~3초 동안
+  /// "감시 꺼짐 ›" 이 떴다 — 멀쩡한 사용자에게 고장을 보여주고, 누르면
+  /// 권한 화면으로 보냈다. [canAlertReliably] 를 확인 전에 true 로 두는
+  /// 것과 같은 이유다 — 모르는 상태에서 경고부터 띄우지 않는다.
   static const unknown = HomeStatus(
     isMonitoring: false,
     isHeadphoneConnected: false,
     canAlertReliably: true,
     missingReliability: [],
+    isKnown: false,
   );
+
+  /// 값을 실제로 확인했는가. false 면 화면은 "확인 중"으로 보여준다
+  final bool isKnown;
 
   /// OS 지오펜스에 등록된 장소가 하나라도 있는가.
   ///
@@ -56,7 +64,8 @@ class HomeStatus {
 }
 
 /// **실패를 예외로 올리지 않는다.** 상태 표시가 안 된다고 홈 화면이
-/// 깨지면 안 된다 — 모르면 보수적으로 "꺼짐"을 보여준다.
+/// 깨지면 안 된다 — 조회가 실패하면 "꺼짐"을 보여준다. 조회가 **끝나기
+/// 전**과는 다르다 — 그때는 [HomeStatus.unknown] 이다.
 /// 마지막으로 남긴 홈 상태 줄 (이슈 #146)
 ///
 /// provider 는 다시 만들어질 수 있으므로 파일 수준에 둔다. 값이 아니라
@@ -65,6 +74,15 @@ String? _lastLoggedStatus;
 
 @riverpod
 Future<HomeStatus> homeStatus(Ref ref) async {
+  // **등록 동기화가 끝나면 다시 읽는다** (이슈 #142 QA). 첫 장소를
+  // 등록해도 다시 읽지 않아, 감시가 도는데 "감시 꺼짐 ›" 이 떠 있었다.
+  // 동기화는 장소 목록이 바뀔 때마다 돈다 — 등록·수정·삭제·토글 전부
+  final synced = ref
+      .watch(geofenceSyncSignalProvider)
+      .stream
+      .listen((_) => ref.invalidateSelf());
+  ref.onDispose(synced.cancel);
+
   var monitoring = false;
   try {
     final registered = await ref

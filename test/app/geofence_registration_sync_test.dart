@@ -95,6 +95,27 @@ void main() {
     expect(places.listenCount, 1);
   });
 
+  test('동기화가 끝날 때마다 알린다 — 홈 상태가 다시 읽는다 (이슈 #142 QA)', () async {
+    var synced = 0;
+    await sync.stop();
+    sync = GeofenceRegistrationSync(
+      places: places,
+      monitor: monitor,
+      states: states,
+      onSynced: () => synced++,
+    );
+    places.items = [];
+    await sync.start();
+    expect(synced, 1);
+
+    // 첫 장소 등록 — 이 신호가 없으면 홈은 감시=false 를 계속 들고 있었다
+    places.items = [place('a')];
+    places.controller.add(places.items);
+    await Future<void>.delayed(Duration.zero);
+
+    expect(synced, 2);
+  });
+
   group('상시 감시 서비스 (이슈 #74)', () {
     late _FakeWatchService watch;
 

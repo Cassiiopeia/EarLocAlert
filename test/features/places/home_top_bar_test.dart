@@ -1,6 +1,8 @@
+import 'package:ear_loc_alert/core/domain/alert_direction.dart';
 import 'package:ear_loc_alert/core/theme/app_spacing.dart';
 import 'package:ear_loc_alert/core/theme/app_theme.dart';
 import 'package:ear_loc_alert/features/places/data/current_location_channel.dart';
+import 'package:ear_loc_alert/features/places/domain/alert_place.dart';
 import 'package:ear_loc_alert/features/places/presentation/place_list_controller.dart';
 import 'package:ear_loc_alert/features/places/presentation/place_map_home_screen.dart';
 import 'package:flutter/material.dart';
@@ -15,18 +17,29 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   const screen = Size(411, 914);
 
-  Future<void> pump(WidgetTester tester, {VoidCallback? onOpenSettings}) async {
+  Future<void> pump(
+    WidgetTester tester, {
+    VoidCallback? onOpenSettings,
+    VoidCallback? onFixMonitoring,
+    bool isMonitoring = true,
+    bool isStatusKnown = true,
+    List<AlertPlace> places = const [],
+  }) async {
     await tester.binding.setSurfaceSize(screen);
     addTearDown(() => tester.binding.setSurfaceSize(null));
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [placeListProvider.overrideWith((ref) => Stream.value([]))],
+        overrides: [
+          placeListProvider.overrideWith((ref) => Stream.value(places)),
+        ],
         child: MaterialApp(
           theme: AppTheme.dark(),
           home: PlaceMapHomeScreen(
-            isMonitoring: true,
+            isMonitoring: isMonitoring,
+            isStatusKnown: isStatusKnown,
             isHeadphoneConnected: false,
             onAddPlace: () {},
+            onFixMonitoring: onFixMonitoring,
             onOpenSettings: onOpenSettings ?? () {},
             locationService: const UnavailableCurrentLocationService(),
           ),
@@ -134,5 +147,60 @@ void main() {
     // 탭 영역을 넓힌 만큼 바깥 여백을 뺐으므로 보이는 자리는 그대로다
     expect(screen.width - circle.right, closeTo(pill.left, 0.5));
     expect(circle.center.dy, closeTo(pill.center.dy, 0.5));
+  });
+
+  group('감시 상태를 아직 모를 때 (이슈 #142 QA)', () {
+    final enabledPlace = AlertPlace(
+      id: 'p1',
+      name: '회사',
+      latitude: 37.5,
+      longitude: 127.0,
+      radiusMeters: 100,
+      direction: AlertDirection.enter,
+      createdAt: DateTime.utc(2026),
+    );
+
+    testWidgets('"감시 꺼짐" 이 아니라 "확인 중" 이다', (tester) async {
+      await pump(
+        tester,
+        isMonitoring: false,
+        isStatusKnown: false,
+        places: [enabledPlace],
+      );
+
+      expect(find.text('확인 중'), findsOneWidget);
+      expect(
+        find.text('감시 꺼짐'),
+        findsNothing,
+        reason: '알림을 끄고 돌아올 때마다 0.5~3초 오경보가 떴다',
+      );
+    });
+
+    testWidgets('눌러도 권한 화면으로 보내지 않는다', (tester) async {
+      var fixed = 0;
+      await pump(
+        tester,
+        isMonitoring: false,
+        isStatusKnown: false,
+        places: [enabledPlace],
+        onFixMonitoring: () => fixed++,
+      );
+
+      await tester.tap(find.text('확인 중'));
+      await tester.pump();
+
+      expect(fixed, 0);
+    });
+
+    testWidgets('확인한 뒤 정말 꺼져 있으면 그대로 "감시 꺼짐" 이다', (tester) async {
+      await pump(
+        tester,
+        isMonitoring: false,
+        isStatusKnown: true,
+        places: [enabledPlace],
+      );
+
+      expect(find.text('감시 꺼짐'), findsOneWidget);
+    });
   });
 }
