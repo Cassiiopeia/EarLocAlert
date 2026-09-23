@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../../../core/domain/alert_direction.dart';
+import '../../../core/map/map_reveal_cover.dart';
 import '../../../core/map/map_style_guard.dart';
 import '../../../core/map/radius_zoom.dart';
 import '../../../core/theme/app_colors.dart';
@@ -154,43 +155,48 @@ class _PlaceMapHomeScreenState extends ConsumerState<PlaceMapHomeScreen>
       backgroundColor: AppColors.bgBase,
       body: Stack(
         children: [
-          GoogleMap(
-            initialCameraPosition: CameraPosition(
-              target: places.isEmpty
-                  ? _fallback
-                  : LatLng(places.first.latitude, places.first.longitude),
-              zoom: 14,
-            ),
-            style: MapStyle.dark,
-            markers: _markers(places, semantic),
-            circles: _circles(places, semantic),
-            onMapCreated: (controller) {
-              _map = controller;
-              // 다크 스타일이 조용히 사라지는 일이 있다 (이슈 #143)
-              unawaited(ensureDarkMapStyle(controller, 'home'));
-              if (places.isNotEmpty) _fitCamera(places);
-            },
-            // 빈 곳을 누르면 선택을 푼다 — 강조가 계속 남아 있으면
-            // 무엇을 보고 있는지 헷갈린다
-            onTap: (_) => _select(null),
-            myLocationEnabled: true,
-            // **SDK 기본 버튼을 끈다** (이슈 #98). 그 버튼은 우상단 고정이라
-            // 상태 알약이 위를 덮어 잘려 보였고, 사용자가 존재 자체를 몰랐다.
-            // 커스텀 버튼으로 대체한다 — 장소 추가 위, 오른쪽 스택 (#155).
-            //
-            // 예전에는 "직접 만들면 현재 위치를 알아낼 방법이 없다"는 이유로
-            // SDK 버튼을 썼는데, 이슈 #93 에서 play-services-location 을
-            // 넣으면서 그 제약이 사라졌다.
-            myLocationButtonEnabled: false,
-            zoomControlsEnabled: false,
-            mapToolbarEnabled: false,
-            // 시트가 지도 하단을 덮는다. padding 을 주면 구글 로고와
-            // 내 위치 버튼이 시트 위로 올라온다.
-            //
-            // 시트 높이를 실시간으로 따라가게 하면 드래그할 때마다 지도가
-            // 다시 배치돼 버벅인다. 접힌 높이 기준으로 고정한다.
-            padding: EdgeInsets.only(
-              bottom: MediaQuery.sizeOf(context).height * _sheetMin,
+          MapRevealCover(
+            screen: 'home',
+            builder: (attach) => GoogleMap(
+              initialCameraPosition: CameraPosition(
+                target: places.isEmpty
+                    ? _fallback
+                    : LatLng(places.first.latitude, places.first.longitude),
+                zoom: 14,
+              ),
+              style: MapStyle.dark,
+              markers: _markers(places, semantic),
+              circles: _circles(places, semantic),
+              onMapCreated: (controller) {
+                _map = controller;
+                // 다크 스타일이 조용히 사라지는 일이 있다 (이슈 #143)
+                unawaited(ensureDarkMapStyle(controller, 'home'));
+                // 다크 타일이 그려질 때까지 밝은 바탕을 가린다 (이슈 #143)
+                attach(controller);
+                if (places.isNotEmpty) _fitCamera(places);
+              },
+              // 빈 곳을 누르면 선택을 푼다 — 강조가 계속 남아 있으면
+              // 무엇을 보고 있는지 헷갈린다
+              onTap: (_) => _select(null),
+              myLocationEnabled: true,
+              // **SDK 기본 버튼을 끈다** (이슈 #98). 그 버튼은 우상단 고정이라
+              // 상태 알약이 위를 덮어 잘려 보였고, 사용자가 존재 자체를 몰랐다.
+              // 커스텀 버튼으로 대체한다 — 장소 추가 위, 오른쪽 스택 (#155).
+              //
+              // 예전에는 "직접 만들면 현재 위치를 알아낼 방법이 없다"는 이유로
+              // SDK 버튼을 썼는데, 이슈 #93 에서 play-services-location 을
+              // 넣으면서 그 제약이 사라졌다.
+              myLocationButtonEnabled: false,
+              zoomControlsEnabled: false,
+              mapToolbarEnabled: false,
+              // 시트가 지도 하단을 덮는다. padding 을 주면 구글 로고와
+              // 내 위치 버튼이 시트 위로 올라온다.
+              //
+              // 시트 높이를 실시간으로 따라가게 하면 드래그할 때마다 지도가
+              // 다시 배치돼 버벅인다. 접힌 높이 기준으로 고정한다.
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.sizeOf(context).height * _sheetMin,
+              ),
             ),
           ),
 

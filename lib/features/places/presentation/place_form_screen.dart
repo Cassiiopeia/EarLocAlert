@@ -8,6 +8,7 @@ import '../../../core/domain/alert_direction.dart';
 import '../../../core/domain/alert_schedule.dart';
 import '../../../core/domain/alert_sound.dart';
 import '../../../core/map/map_corner_mask.dart';
+import '../../../core/map/map_reveal_cover.dart';
 import '../../../core/map/map_style_guard.dart';
 import '../../../core/map/radius_zoom.dart';
 import '../../../core/theme/app_colors.dart';
@@ -577,43 +578,48 @@ class _LocationPreviewState extends State<_LocationPreview> {
           children: [
             // 지도는 조작을 받지 않는다 — 탭은 위의 GestureDetector 가 받는다
             IgnorePointer(
-              child: GoogleMap(
-                onMapCreated: (controller) {
-                  _map = controller;
-                  // 다크 스타일이 조용히 사라지는 일이 있다 (이슈 #143)
-                  unawaited(ensureDarkMapStyle(controller, 'form'));
-                },
-                initialCameraPosition: CameraPosition(
-                  target: target,
-                  zoom: zoomForRadiusWider(widget.radiusMeters),
-                ),
-                style: MapStyle.dark,
-                markers: {
-                  Marker(
-                    markerId: const MarkerId('picked'),
-                    position: target,
-                    icon: BitmapDescriptor.defaultMarkerWithHue(
-                      BitmapDescriptor.hueCyan,
+              child: MapRevealCover(
+                screen: 'form',
+                builder: (attach) => GoogleMap(
+                  onMapCreated: (controller) {
+                    _map = controller;
+                    // 다크 스타일이 조용히 사라지는 일이 있다 (이슈 #143)
+                    unawaited(ensureDarkMapStyle(controller, 'form'));
+                    // 다크 타일이 그려질 때까지 밝은 바탕을 가린다 (이슈 #143)
+                    attach(controller);
+                  },
+                  initialCameraPosition: CameraPosition(
+                    target: target,
+                    zoom: zoomForRadiusWider(widget.radiusMeters),
+                  ),
+                  style: MapStyle.dark,
+                  markers: {
+                    Marker(
+                      markerId: const MarkerId('picked'),
+                      position: target,
+                      icon: BitmapDescriptor.defaultMarkerWithHue(
+                        BitmapDescriptor.hueCyan,
+                      ),
                     ),
-                  ),
-                },
-                circles: {
-                  Circle(
-                    circleId: const CircleId('radius'),
-                    center: target,
-                    radius: widget.radiusMeters,
-                    strokeWidth: 2,
-                    strokeColor: semantic.alertEnter,
-                    fillColor: semantic.alertEnter.withValues(alpha: 0.12),
-                  ),
-                },
-                zoomControlsEnabled: false,
-                mapToolbarEnabled: false,
-                myLocationButtonEnabled: false,
-                scrollGesturesEnabled: false,
-                zoomGesturesEnabled: false,
-                rotateGesturesEnabled: false,
-                tiltGesturesEnabled: false,
+                  },
+                  circles: {
+                    Circle(
+                      circleId: const CircleId('radius'),
+                      center: target,
+                      radius: widget.radiusMeters,
+                      strokeWidth: 2,
+                      strokeColor: semantic.alertEnter,
+                      fillColor: semantic.alertEnter.withValues(alpha: 0.12),
+                    ),
+                  },
+                  zoomControlsEnabled: false,
+                  mapToolbarEnabled: false,
+                  myLocationButtonEnabled: false,
+                  scrollGesturesEnabled: false,
+                  zoomGesturesEnabled: false,
+                  rotateGesturesEnabled: false,
+                  tiltGesturesEnabled: false,
+                ),
               ),
             ),
             // `ClipRRect` 가 네이티브 지도 뷰를 자르지 못한다 (이슈 #142)
