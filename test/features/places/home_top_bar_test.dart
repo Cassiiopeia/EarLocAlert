@@ -5,6 +5,7 @@ import 'package:ear_loc_alert/features/places/data/current_location_channel.dart
 import 'package:ear_loc_alert/features/places/domain/alert_place.dart';
 import 'package:ear_loc_alert/features/places/presentation/place_list_controller.dart';
 import 'package:ear_loc_alert/features/places/presentation/place_map_home_screen.dart';
+import 'package:ear_loc_alert/core/widgets/hit_slop.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -202,5 +203,20 @@ void main() {
 
       expect(find.text('감시 꺼짐'), findsOneWidget);
     });
+  });
+
+  testWidgets('지도 위 두 버튼은 모양보다 넓게 눌린다 (이슈 #155 QA)', (tester) async {
+    // 에뮬레이터에서 장소 추가·내 위치 버튼은 테두리에서 5dp 만 벗어나도
+    // 반응하지 않았다 — 머티리얼 FAB 는 보이는 원 그대로만 눌린다.
+    // 실제 범위는 기기에서 쟀고(이슈 댓글), 여기서는 감쌌는지를 지킨다
+    await pump(tester);
+
+    for (final icon in [Icons.my_location_outlined, Icons.add_outlined]) {
+      expect(
+        find.ancestor(of: find.byIcon(icon), matching: find.byType(HitSlop)),
+        findsOneWidget,
+        reason: '$icon 버튼을 HitSlop 으로 감싸야 한다',
+      );
+    }
   });
 }

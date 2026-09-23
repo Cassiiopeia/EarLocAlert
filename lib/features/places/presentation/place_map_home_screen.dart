@@ -15,6 +15,7 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/map_style.dart';
 import '../../../core/text/keep_all.dart';
+import '../../../core/widgets/hit_slop.dart';
 import '../data/current_location_channel.dart';
 import '../domain/alert_place.dart';
 import 'place_card.dart';
@@ -754,33 +755,52 @@ class _MapControls extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // 두 버튼 모두 보이는 모양보다 [_slop] 만큼 넓게 눌린다 (이슈 #155 QA).
+    // 넓힌 만큼 바깥 여백에서 빼 보이는 자리는 예전과 같다. 두 버튼 사이
+    // 틈(xs)은 반씩 나눠 가져 서로의 범위가 겹치지 않는다
+    const gapHalf = AppSpacing.xs / 2;
     return Positioned(
-      right: AppSpacing.sm,
+      right: AppSpacing.sm - _slop,
       bottom:
-          MediaQuery.sizeOf(context).height * bottomFraction + AppSpacing.sm,
+          MediaQuery.sizeOf(context).height * bottomFraction +
+          AppSpacing.sm -
+          _slop,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           // 보조가 위, 주가 아래 — 엄지에 가장 가까운 자리를 주 동작이 쓴다
-          FloatingActionButton.small(
-            onPressed: onMyLocation,
-            heroTag: 'myLocation',
-            backgroundColor: AppColors.bgElevated,
-            foregroundColor: AppColors.textPrimary,
-            child: const Icon(Icons.my_location_outlined),
+          HitSlop(
+            onTap: onMyLocation,
+            padding: const EdgeInsets.fromLTRB(_slop, _slop, _slop, gapHalf),
+            child: FloatingActionButton.small(
+              onPressed: onMyLocation,
+              heroTag: 'myLocation',
+              backgroundColor: AppColors.bgElevated,
+              foregroundColor: AppColors.textPrimary,
+              // 머티리얼이 붙이는 48dp 여백 대신 HitSlop 이 범위를 정한다
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              child: const Icon(Icons.my_location_outlined),
+            ),
           ),
-          const SizedBox(height: AppSpacing.xs),
-          FloatingActionButton(
-            onPressed: onAddPlace,
-            heroTag: 'addPlace',
-            child: const Icon(Icons.add_outlined),
+          HitSlop(
+            onTap: onAddPlace,
+            padding: const EdgeInsets.fromLTRB(_slop, gapHalf, _slop, _slop),
+            child: FloatingActionButton(
+              onPressed: onAddPlace,
+              heroTag: 'addPlace',
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              child: const Icon(Icons.add_outlined),
+            ),
           ),
         ],
       ),
     );
   }
 }
+
+/// 떠 있는 버튼이 보이는 모양보다 넓게 받는 폭
+const double _slop = AppSpacing.xs;
 
 /// 하단 시트 — 등록한 장소 목록
 class _PlaceSheet extends ConsumerWidget {

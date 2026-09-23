@@ -13,6 +13,7 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/map_style.dart';
 import '../../../core/text/keep_all.dart';
+import '../../../core/widgets/hit_slop.dart';
 import '../data/current_location_channel.dart';
 import '../domain/place_search.dart';
 import '../domain/place_validator.dart';
@@ -337,17 +338,24 @@ class _PlaceMapPickerScreenState extends State<PlaceMapPickerScreen> {
               children: [
                 // **오른쪽 배치** — 홈과 같은 자리 (docs/06-UX.md).
                 // 떠 있는 버튼은 엄지가 닿는 오른쪽에 모은다.
+                // 보이는 원보다 넓게 눌린다 — 홈과 같다 (이슈 #155 QA).
+                // 넓힌 만큼 바깥 여백에서 뺐다
                 Padding(
                   padding: const EdgeInsets.only(
-                    right: AppSpacing.sm,
-                    bottom: AppSpacing.sm,
+                    right: AppSpacing.sm - AppSpacing.xs,
+                    bottom: AppSpacing.sm - AppSpacing.xs,
                   ),
-                  child: FloatingActionButton.small(
-                    heroTag: 'pickerMyLocation',
-                    backgroundColor: AppColors.bgElevated,
-                    foregroundColor: AppColors.textPrimary,
-                    onPressed: _moveToCurrentLocation,
-                    child: const Icon(Icons.my_location_outlined),
+                  child: HitSlop(
+                    onTap: _moveToCurrentLocation,
+                    padding: const EdgeInsets.all(AppSpacing.xs),
+                    child: FloatingActionButton.small(
+                      heroTag: 'pickerMyLocation',
+                      backgroundColor: AppColors.bgElevated,
+                      foregroundColor: AppColors.textPrimary,
+                      onPressed: _moveToCurrentLocation,
+                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      child: const Icon(Icons.my_location_outlined),
+                    ),
                   ),
                 ),
                 _PickerPanel(
