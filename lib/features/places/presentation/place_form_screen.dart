@@ -1,9 +1,18 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../../../core/domain/alert_direction.dart';
 import '../../../core/domain/alert_schedule.dart';
 import '../../../core/domain/alert_sound.dart';
+import '../../../core/map/map_corner_mask.dart';
+import '../../../core/map/map_style_guard.dart';
+import '../../../core/map/radius_zoom.dart';
+import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_semantic_colors.dart';
+import '../../../core/theme/map_style.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../domain/alert_place.dart';
@@ -260,15 +269,34 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
               label: Text(_hasCoordinates ? '지도에서 다시 선택' : '지도에서 선택'),
             ),
             const SizedBox(height: AppSpacing.xs),
-            Text(
-              _hasCoordinates ? _coordinateSummary : '아직 위치를 고르지 않았습니다',
-              style: AppTypography.caption,
-            ),
+
+            // **고른 자리를 지도로 확인시킨다** (이슈 #155).
+            //
+            // 좌표 숫자는 "여기가 맞나"에 답하지 않는다. 확인하려면 지도를
+            // 다시 열어야 했고, 반경을 바꿔도 그 범위가 어디까지인지
+            // 보이지 않았다.
+            //
+            // **좌표가 없으면 그리지 않는다** — 지도 키 없이 빌드된
+            // 경우에도 폼은 동작해야 한다 (알림 화면과 같은 규칙).
+            if (_hasCoordinates)
+              _LocationPreview(
+                latitude: double.parse(_latitude.text.trim()),
+                longitude: double.parse(_longitude.text.trim()),
+                radiusMeters: _radius,
+                onTap: widget.onPickOnMap == null ? null : _pickOnMap,
+              )
+            else
+              Text('아직 위치를 고르지 않았습니다', style: AppTypography.caption),
 
             // 좌표를 직접 아는 경우와, 지도 키 없이 빌드된 경우의 보조 경로.
             // 기본 경로가 아니므로 접어둔다
             ExpansionTile(
-              title: Text('좌표 직접 입력', style: AppTypography.caption),
+              // 지도 카드가 "어디인가"에 답하므로, 펼치기 제목에는
+              // **정확한 값**을 보여준다 — 둘의 역할이 다르다
+              title: Text(
+                _hasCoordinates ? '좌표  $_coordinateSummary' : '좌표 직접 입력',
+                style: AppTypography.caption,
+              ),
               tilePadding: EdgeInsets.zero,
               childrenPadding: const EdgeInsets.only(bottom: AppSpacing.xs),
               children: [
@@ -457,5 +485,134 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text(placeErrorMessage(errors.first))));
+  }
+}
+
+/// 고른 위치를 보여주는 지도 카드 (이슈 #155)
+///
+/// **핀은 가운데 고정이고 반경만 움직인다.** 슬라이더를 조절하면 원이
+/// 커지고 줌이 따라 나간다 — 그래야 "800m 가 실제로 어디까지인지"가 보인다.
+///
+/// **lite mode 를 쓰지 않는다.** 알림 화면 카드(결정 033)는 전력 때문에
+/// lite 를 골랐지만 그것은 정적 스냅샷이라 줌이 따라가야 하는 이 화면과
+/// 맞지 않는다. 대신 조작을 전부 끈다 — 폼 스크롤을 지도가 먹으면 안 되고,
+/// 위치를 바꾸는 길은 탭해서 지도 선택으로 가는 하나뿐이어야 한다.
+class _LocationPreview extends StatefulWidget {
+  const _LocationPreview({
+    required this.latitude,
+    required this.longitude,
+    required this.radiusMeters,
+    this.onTap,
+  });
+
+  final double latitude;
+  final double longitude;
+  final double radiusMeters;
+  final VoidCallback? onTap;
+
+  @override
+  State<_LocationPreview> createState() => _LocationPreviewState();
+}
+
+class _LocationPreviewState extends State<_LocationPreview> {
+  static const double _height = 168;
+
+  GoogleMapController? _map;
+
+  @override
+  void dispose() {
+    _map?.dispose();
+    super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(_LocationPreview oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final moved =
+        oldWidget.latitude != widget.latitude ||
+        oldWidget.longitude != widget.longitude;
+    final resized = oldWidget.radiusMeters != widget.radiusMeters;
+    if (moved || resized) _syncCamera();
+  }
+
+  /// 반경이 바뀌면 줌을 맞춘다.
+  ///
+  /// `moveCamera` 를 쓴다 — 슬라이더를 끄는 동안 매 프레임 애니메이션이
+  /// 걸리면 카메라가 밀린다.
+  void _syncCamera() {
+    _map?.moveCamera(
+      CameraUpdate.newLatLngZoom(
+        LatLng(widget.latitude, widget.longitude),
+        zoomForRadiusWider(widget.radiusMeters),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final semantic = Theme.of(context).extension<AppSemanticColors>()!;
+    final target = LatLng(widget.latitude, widget.longitude);
+
+    return GestureDetector(
+      onTap: widget.onTap,
+      child: SizedBox(
+        height: _height,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            // 지도는 조작을 받지 않는다 — 탭은 위의 GestureDetector 가 받는다
+            IgnorePointer(
+              child: GoogleMap(
+                onMapCreated: (controller) {
+                  _map = controller;
+                  // 다크 스타일이 조용히 사라지는 일이 있다 (이슈 #143)
+                  unawaited(ensureDarkMapStyle(controller, 'form'));
+                },
+                initialCameraPosition: CameraPosition(
+                  target: target,
+                  zoom: zoomForRadiusWider(widget.radiusMeters),
+                ),
+                style: MapStyle.dark,
+                markers: {
+                  Marker(
+                    markerId: const MarkerId('picked'),
+                    position: target,
+                    icon: BitmapDescriptor.defaultMarkerWithHue(
+                      BitmapDescriptor.hueCyan,
+                    ),
+                  ),
+                },
+                circles: {
+                  Circle(
+                    circleId: const CircleId('radius'),
+                    center: target,
+                    radius: widget.radiusMeters,
+                    strokeWidth: 2,
+                    strokeColor: semantic.alertEnter,
+                    fillColor: semantic.alertEnter.withValues(alpha: 0.12),
+                  ),
+                },
+                zoomControlsEnabled: false,
+                mapToolbarEnabled: false,
+                myLocationButtonEnabled: false,
+                scrollGesturesEnabled: false,
+                zoomGesturesEnabled: false,
+                rotateGesturesEnabled: false,
+                tiltGesturesEnabled: false,
+              ),
+            ),
+            // `ClipRRect` 가 네이티브 지도 뷰를 자르지 못한다 (이슈 #142)
+            IgnorePointer(
+              child: CustomPaint(
+                painter: const MapCornerMask(
+                  color: AppColors.bgBase,
+                  radius: AppRadius.small,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

@@ -5,6 +5,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../../../core/domain/alert_direction.dart';
 import '../../../core/map/map_style_guard.dart';
+import '../../../core/map/map_corner_mask.dart';
 import '../../../core/map/radius_zoom.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_semantic_colors.dart';
@@ -349,7 +350,7 @@ class _PlaceMapCard extends StatelessWidget {
             Positioned.fill(
               child: IgnorePointer(
                 child: CustomPaint(
-                  painter: _CornerMaskPainter(
+                  painter: MapCornerMask(
                     color: AppColors.bgBase,
                     radius: AppRadius.card,
                   ),
@@ -361,34 +362,6 @@ class _PlaceMapCard extends StatelessWidget {
       ),
     );
   }
-}
-
-/// 모서리 바깥을 배경색으로 덮어 카드가 둥글어 보이게 한다.
-///
-/// 네이티브 지도 뷰 위에서 `ClipRRect` 가 동작하지 않아 쓰는 우회다.
-/// 지도가 Flutter 레이어가 아니라 그 위에 합성되는 별도 표면이기
-/// 때문이고, 실기기에서 직사각형으로 남는 것을 보고 알았다.
-class _CornerMaskPainter extends CustomPainter {
-  const _CornerMaskPainter({required this.color, required this.radius});
-
-  final Color color;
-  final double radius;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final bounds = Offset.zero & size;
-    final outside = Path.combine(
-      PathOperation.difference,
-      Path()..addRect(bounds),
-      Path()
-        ..addRRect(RRect.fromRectAndRadius(bounds, Radius.circular(radius))),
-    );
-    canvas.drawPath(outside, Paint()..color = color);
-  }
-
-  @override
-  bool shouldRepaint(_CornerMaskPainter oldDelegate) =>
-      oldDelegate.color != color || oldDelegate.radius != radius;
 }
 
 /// 반경 표시 — "이만큼 안에 들어왔다"를 숫자로 확인시킨다
