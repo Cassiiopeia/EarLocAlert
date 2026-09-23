@@ -5,6 +5,7 @@ import 'package:ear_loc_alert/features/alert/domain/audio_route.dart';
 import 'package:ear_loc_alert/features/alert/presentation/alert_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 /// 알림 화면의 지도 카드와 해제 버튼 (이슈 #142)
 ///
@@ -86,6 +87,50 @@ void main() {
     });
   });
 
+  group('긴 장소명 (이슈 #145)', () {
+    // 에뮬레이터 QA 에서 두 줄 장소명 + 지도 카드 조합이 29px 넘쳤다.
+    // 넘친 자리가 하필 "진동으로만 알림 중" 칩이라, 릴리스에서는 경고 없이
+    // **소리가 새지 않았다는 표시만 조용히 사라진다**
+    AlertSession longName({bool withMap = true}) => AlertSession(
+      placeId: 'p1',
+      placeName: '강남역 11번 출구 앞 버스정류장 신한은행 건너편',
+      direction: AlertDirection.enter,
+      startedAt: DateTime.utc(2026, 9, 18, 9, 16),
+      audioRoute: AudioRoute.silent,
+      latitude: withMap ? 37.5 : null,
+      longitude: withMap ? 127.0 : null,
+      radiusMeters: withMap ? 100 : null,
+    );
+
+    testWidgets('지도 카드가 있어도 넘치지 않는다', (tester) async {
+      await pump(tester, longName());
+
+      // 넘치면 RenderFlex 가 예외를 던져 여기서 실패한다
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('소리 상태 칩이 화면 안에 보인다', (tester) async {
+      await pump(tester, longName());
+
+      final badge = tester.getRect(find.text('진동으로만 알림 중'));
+      final map = tester.getRect(find.byType(GoogleMap));
+      expect(
+        badge.bottom,
+        lessThanOrEqualTo(map.top),
+        reason: '칩이 지도 카드 아래로 밀려 가려지면 안 된다',
+      );
+    });
+
+    testWidgets('큰 글꼴(1.3배)에서도 넘치지 않는다', (tester) async {
+      tester.platformDispatcher.textScaleFactorTestValue = 1.3;
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+
+      await pump(tester, longName());
+
+      expect(tester.takeException(), isNull);
+    });
+  });
+
   group('해제 버튼', () {
     testWidgets('보이는 것보다 넓은 범위에서 눌린다', (tester) async {
       var dismissed = 0;
@@ -96,11 +141,7 @@ void main() {
       await tester.tapAt(Offset(rect.center.dx, rect.bottom + 8));
       await tester.pump();
 
-      expect(
-        dismissed,
-        1,
-        reason: '급할 때 살짝 빗나가도 꺼져야 한다 (이슈 #142)',
-      );
+      expect(dismissed, 1, reason: '급할 때 살짝 빗나가도 꺼져야 한다 (이슈 #142)');
     });
   });
 }

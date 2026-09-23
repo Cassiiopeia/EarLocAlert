@@ -340,7 +340,7 @@ class _HeadphoneNotice extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.headphones_outlined, size: 18),
+          const Icon(Icons.headphones_outlined, size: AppIconSize.inline),
           const SizedBox(width: AppSpacing.xs),
           Expanded(
             child: Text(
@@ -392,7 +392,7 @@ class _SoundTile extends StatelessWidget {
           if (onDelete != null)
             IconButton(
               onPressed: onDelete,
-              icon: const Icon(Icons.delete_outline),
+              icon: const Icon(Icons.delete_outlined),
               tooltip: '삭제',
             ),
         ],

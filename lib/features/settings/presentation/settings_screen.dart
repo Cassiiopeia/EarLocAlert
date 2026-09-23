@@ -125,7 +125,7 @@ class _PermissionTile extends StatelessWidget {
 
     return ListTile(
       leading: Icon(
-        row.granted ? Icons.check_circle_outline : Icons.error_outline,
+        row.granted ? Icons.check_circle_outlined : Icons.error_outlined,
         color: row.granted ? grantedColor : AppColors.textSecondary,
       ),
       title: Text(row.title, style: AppTypography.body),
@@ -134,7 +134,7 @@ class _PermissionTile extends StatelessWidget {
         style: AppTypography.caption,
       ),
       // 이미 허용된 권한도 열 수 있게 둔다 — 사용자가 끄고 싶을 수 있다
-      trailing: const Icon(Icons.chevron_right, size: 20),
+      trailing: const Icon(Icons.chevron_right_outlined),
       onTap: row.onTap,
     );
   }
@@ -178,7 +178,7 @@ class _SettingTile extends StatelessWidget {
       leading: Icon(icon, color: AppColors.textSecondary),
       title: Text(title, style: AppTypography.body),
       subtitle: Text(subtitle, style: AppTypography.caption),
-      trailing: const Icon(Icons.chevron_right, size: 20),
+      trailing: const Icon(Icons.chevron_right_outlined),
       onTap: onTap,
     );
   }

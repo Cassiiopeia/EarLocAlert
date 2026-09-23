@@ -107,7 +107,11 @@ void main() {
           )
           .map((f) => f.path)
           .toList();
-      expect(offenders, isEmpty, reason: '좌하단 커스텀 버튼으로 통일한다. 해당: $offenders');
+      expect(
+        offenders,
+        isEmpty,
+        reason: '오른쪽 스택의 커스텀 버튼으로 통일한다 (#155). 해당: $offenders',
+      );
     });
 
     test('중앙 고정 핀이 있는 지도에는 padding 을 주지 않는다', () {
@@ -135,6 +139,85 @@ void main() {
       );
     });
   });
+
+  group('아이콘은 한 규격으로', () {
+    // 화면 전체(lib) 를 본다 — app 계층에도 아이콘이 있다
+    final sources = Directory('lib')
+        .listSync(recursive: true)
+        .whereType<File>()
+        .where((f) => f.path.endsWith('.dart'))
+        .where((f) => !f.path.endsWith('.g.dart'))
+        .toList();
+
+    test('아이콘 크기는 AppIconSize 토큰만 쓴다', () {
+      // 14·16·18·20·22·24·56·64 여덟 가지가 섞여 같은 꺾쇠가 화면마다
+      // 14·20·24 로 달랐다 (이슈 #155 QA).
+      //
+      // 지도 위 중앙 핀(_pinSize)은 아이콘이 아니라 조준점이라 뺀다 —
+      // 크기가 저장 좌표 정렬에 묶여 있어 토큰으로 바꾸면 안 된다 (#152)
+      const exempt = {'_pinSize'};
+      final offenders = <String>[];
+      for (final file in sources) {
+        final source = file.readAsStringSync();
+        for (final call in _calls(source, 'Icon')) {
+          final size = RegExp(r'\bsize:\s*([\w.]+)').firstMatch(call.args);
+          if (size == null) continue; // 기본값(24) = standard
+          final value = size.group(1)!;
+          if (value.startsWith('AppIconSize.') || exempt.contains(value)) {
+            continue;
+          }
+          offenders.add('${file.path}:${call.line} size: $value');
+        }
+      }
+      expect(
+        offenders,
+        isEmpty,
+        reason:
+            '글자 옆은 AppIconSize.inline(18), 버튼·목록은 standard(24), '
+            '화면 중심 상징은 hero(56).\n해당: $offenders',
+      );
+    });
+
+    test('Material 아이콘은 _outlined 변형만 쓴다', () {
+      // docs/06-UX.md "아이콘 — Material outlined 로 통일" 이 적혀 있는데도
+      // chevron_right·close·warning_amber_rounded 가 섞여 있었다
+      final offenders = <String>[];
+      for (final file in sources) {
+        final source = file.readAsStringSync();
+        for (final match in RegExp(r'Icons\.(\w+)').allMatches(source)) {
+          final name = match.group(1)!;
+          if (name.endsWith('_outlined')) continue;
+          final line = source.substring(0, match.start).split('\n').length;
+          offenders.add('${file.path}:$line Icons.$name');
+        }
+      }
+      expect(
+        offenders,
+        isEmpty,
+        reason: 'filled·rounded·outline(구 이름)을 섞지 않는다.\n해당: $offenders',
+      );
+    });
+  });
+}
+
+/// `name(` 호출을 괄호 짝까지 잘라낸다 — 인자가 여러 줄에 걸쳐도 잡는다
+List<({String args, int line})> _calls(String source, String name) {
+  final result = <({String args, int line})>[];
+  for (final match in RegExp('\\b$name\\(').allMatches(source)) {
+    var depth = 1;
+    var i = match.end;
+    while (depth > 0 && i < source.length) {
+      final c = source[i];
+      if (c == '(') depth++;
+      if (c == ')') depth--;
+      i++;
+    }
+    result.add((
+      args: source.substring(match.end, i - 1),
+      line: source.substring(0, match.start).split('\n').length,
+    ));
+  }
+  return result;
 }
 
 /// 소스를 위젯 클래스 단위로 쪼갠다.

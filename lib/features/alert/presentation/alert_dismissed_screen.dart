@@ -34,7 +34,7 @@ class AlertDismissedScreen extends StatelessWidget {
               const Spacer(),
               Icon(
                 Icons.check_circle_outlined,
-                size: 56,
+                size: AppIconSize.hero,
                 color: semantic.statusActive,
               ),
               const SizedBox(height: AppSpacing.md),

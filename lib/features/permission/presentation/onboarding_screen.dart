@@ -181,7 +181,7 @@ class _StepView extends StatelessWidget {
               children: [
                 const Icon(
                   Icons.lock_outlined,
-                  size: 16,
+                  size: AppIconSize.inline,
                   color: AppColors.textSecondary,
                 ),
                 const SizedBox(width: AppSpacing.xs),

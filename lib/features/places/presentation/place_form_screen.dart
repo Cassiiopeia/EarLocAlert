@@ -433,6 +433,10 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
   }
 
   Future<void> _pickOnMap() async {
+    // **떠나기 전에 입력 포커스를 푼다.** 이름을 쓰다가 지도로 가면 돌아올
+    // 때 Flutter 가 포커스를 이름 칸에 되돌려 키보드가 다시 올라왔다 —
+    // 방금 고른 위치의 미리보기를 키보드가 덮는다 (이슈 #155 QA)
+    FocusScope.of(context).unfocus();
     final picked = await widget.onPickOnMap!(
       MapPickArgs(
         latitude: double.tryParse(_latitude.text.trim()),
@@ -554,6 +558,11 @@ class _LocationPreviewState extends State<_LocationPreview> {
     final target = LatLng(widget.latitude, widget.longitude);
 
     return GestureDetector(
+      // **opaque 가 없으면 탭이 아무 데도 닿지 않는다.** 기본값(deferToChild)
+      // 은 자식이 맞아야 반응하는데, 자식이 지도·마스크 둘 다 IgnorePointer
+      // 라 hit test 가 통째로 비었다. 실기기에서 네 번 눌러도 지도 선택이
+      // 열리지 않았다 (이슈 #155 QA)
+      behavior: HitTestBehavior.opaque,
       onTap: widget.onTap,
       child: SizedBox(
         height: _height,

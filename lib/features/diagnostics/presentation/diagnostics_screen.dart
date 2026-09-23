@@ -155,7 +155,7 @@ class _DiagnosticsScreenState extends ConsumerState<DiagnosticsScreen> {
           ),
           IconButton(
             onPressed: _clear,
-            icon: const Icon(Icons.delete_outline),
+            icon: const Icon(Icons.delete_outlined),
             tooltip: '지우기',
           ),
         ],
@@ -206,7 +206,7 @@ class _Header extends StatelessWidget {
       padding: const EdgeInsets.all(AppSpacing.md),
       child: Row(
         children: [
-          const Icon(Icons.info_outline, size: 16),
+          const Icon(Icons.info_outlined, size: AppIconSize.inline),
           const SizedBox(width: AppSpacing.xs),
           Expanded(
             child: Text(

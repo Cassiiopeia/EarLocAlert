@@ -85,6 +85,11 @@ class PlaceMapPickerScreen extends StatefulWidget {
 }
 
 class _PlaceMapPickerScreenState extends State<PlaceMapPickerScreen> {
+  static const double _pinSize = 40;
+
+  /// `Icons.place_outlined` 의 끝이 아이콘 상자 바닥에서 떨어진 비율 (2/24)
+  static const double _pinTipInset = 2 / 24;
+
   late LatLng _center = _initialCenter;
   late double _radius = widget.args.radiusMeters.toDouble();
 
@@ -274,11 +279,19 @@ class _PlaceMapPickerScreenState extends State<PlaceMapPickerScreen> {
           IgnorePointer(
             child: Center(
               child: Padding(
-                // 핀 끝이 정중앙을 가리키도록 아이콘 높이의 절반만큼 올린다
-                padding: const EdgeInsets.only(bottom: 40),
+                // 핀 끝이 정중앙을 가리키도록 올린다.
+                //
+                // 아이콘 높이(40)만큼 올리면 **상자 바닥**이 중앙에 오는데,
+                // `place_outlined` 글리프는 24 격자에서 끝이 y=22 라 상자
+                // 바닥보다 2/24 위에 있다. 그만큼 핀이 떠서 실기기에서 저장
+                // 좌표보다 10px(4dp) 위를 가리켰다 (이슈 #152 QA).
+                // Center 가 패딩까지 포함해 가운데 두므로 차이의 두 배를 뺀다
+                padding: const EdgeInsets.only(
+                  bottom: _pinSize - 2 * (_pinSize * _pinTipInset),
+                ),
                 child: Icon(
                   Icons.place_outlined,
-                  size: 40,
+                  size: _pinSize,
                   color: semantic.alertEnter,
                 ),
               ),
@@ -391,7 +404,10 @@ class _SearchOverlay extends StatelessWidget {
                     horizontal: AppSpacing.sm,
                     vertical: AppSpacing.xs,
                   ),
-                  prefixIcon: const Icon(Icons.search_outlined, size: 20),
+                  prefixIcon: const Icon(
+                    Icons.search_outlined,
+                    size: AppIconSize.standard,
+                  ),
                   suffixIcon: searching
                       ? const Padding(
                           padding: EdgeInsets.all(AppSpacing.xs),
@@ -404,7 +420,10 @@ class _SearchOverlay extends StatelessWidget {
                       : controller.text.isEmpty
                       ? null
                       : IconButton(
-                          icon: const Icon(Icons.close_outlined, size: 18),
+                          icon: const Icon(
+                            Icons.close_outlined,
+                            size: AppIconSize.standard,
+                          ),
                           onPressed: () {
                             controller.clear();
                             onChanged('');
@@ -437,7 +456,10 @@ class _SearchOverlay extends StatelessWidget {
                     final result = results[index];
                     return ListTile(
                       dense: true,
-                      leading: const Icon(Icons.place_outlined, size: 20),
+                      leading: const Icon(
+                        Icons.place_outlined,
+                        size: AppIconSize.standard,
+                      ),
                       title: Text(
                         result.name,
                         style: AppTypography.body,

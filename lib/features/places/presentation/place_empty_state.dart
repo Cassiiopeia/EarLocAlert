@@ -32,7 +32,7 @@ class PlaceEmptyState extends StatelessWidget {
           if (!compact) ...[
             const Icon(
               Icons.add_location_alt_outlined,
-              size: 64,
+              size: AppIconSize.hero,
               color: AppColors.textSecondary,
             ),
             const SizedBox(height: AppSpacing.md),

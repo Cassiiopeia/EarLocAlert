@@ -111,7 +111,10 @@ class _AlertVolumeSheetState extends ConsumerState<_AlertVolumeSheet> {
           else
             Row(
               children: [
-                const Icon(Icons.volume_down_outlined, size: 20),
+                const Icon(
+                  Icons.volume_down_outlined,
+                  size: AppIconSize.standard,
+                ),
                 Expanded(
                   child: Slider(
                     value: volume,
@@ -122,7 +125,10 @@ class _AlertVolumeSheetState extends ConsumerState<_AlertVolumeSheet> {
                         ref.read(alertVolumeStoreProvider).save(value),
                   ),
                 ),
-                const Icon(Icons.volume_up_outlined, size: 20),
+                const Icon(
+                  Icons.volume_up_outlined,
+                  size: AppIconSize.standard,
+                ),
               ],
             ),
           const SizedBox(height: AppSpacing.xs),

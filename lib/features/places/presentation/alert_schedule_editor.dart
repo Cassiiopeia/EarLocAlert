@@ -93,7 +93,7 @@ class _ScheduleTile extends StatelessWidget {
       leading: const Icon(Icons.schedule_outlined),
       title: Text(describeSchedule(schedule), style: AppTypography.body),
       trailing: IconButton(
-        icon: const Icon(Icons.close),
+        icon: const Icon(Icons.close_outlined),
         tooltip: '이 시간대 삭제',
         onPressed: onRemove,
       ),
