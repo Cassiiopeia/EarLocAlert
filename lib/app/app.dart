@@ -10,9 +10,11 @@ import '../core/diagnostics/diagnostics.dart';
 import '../features/ads/domain/ad_unit_ids.dart';
 import '../core/theme/app_theme.dart';
 import '../features/ads/presentation/ads_providers.dart';
+import '../features/alert/data/alert_notifier_impl.dart';
 import '../features/alert/presentation/alert_controller_provider.dart';
 import 'background/background_alert_notifier.dart';
 import 'geofence_providers.dart';
+import 'pending_alert_resumer.dart';
 import 'router.dart';
 import 'splash_overlay.dart';
 
@@ -96,6 +98,7 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
             ),
           );
       Diagnostics.log('app', '알림 플러그인 초기화 완료');
+      await _deleteLegacyAlertChannel();
     } on Object catch (error) {
       // 초기화 실패는 알림 탭 라우팅만 잃는다 — 감시는 계속 시도한다
       Diagnostics.log('app', '알림 플러그인 초기화 실패 $error');
@@ -114,7 +117,7 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
     // 지금 살아 있는 알림이라면 바로 아래 승격이 화면으로 이어준다.
     await _cancelBackgroundNotification();
 
-    await _resumePendingAlert();
+    await _resumePendingAlert('시작');
     // 첫 실행에는 resumed 생명주기 콜백이 오지 않는다 — 여기서 건다
     _startPendingAlertPoll();
   }
@@ -127,7 +130,7 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
 
     // 백그라운드 알림 뒤 앱을 열면(탭이든 직접이든) 풀 세션으로 잇는다
     if (state == AppLifecycleState.resumed) {
-      unawaited(_resumePendingAlert());
+      unawaited(_resumePendingAlert('resumed'));
       _startPendingAlertPoll();
     } else {
       _stopPendingAlertPoll();
@@ -140,7 +143,7 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
     if (!mounted || _pendingAlertPoll != null) return;
     _pendingAlertPoll = Timer.periodic(
       _pollInterval,
-      (_) => unawaited(_resumePendingAlert()),
+      (_) => unawaited(_resumePendingAlert('폴링')),
     );
   }
 
@@ -149,64 +152,43 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
     _pendingAlertPoll = null;
   }
 
-  Future<void> _resumePendingAlert() async {
-    try {
-      final (:request, :hadPending) = await ref
-          .read(pendingAlertLauncherProvider)
-          .takeRequest();
-
-      // 네이티브가 돌리던 반복 진동을 먼저 끊는다 (이슈 #74).
-      // **fire() 보다 반드시 먼저다** — 뒤집히면 네이티브 취소가 Dart 진동을
-      // 같이 끄거나, 둘이 겹쳐 패턴이 어긋난다.
-      //
-      // **승격하지 못하는 경우에도 끊는다** (이슈 #83). 만료·손상이라
-      // 화면을 띄우지 못해도 네이티브는 그 알림으로 계속 울리고 있다.
-      // 예전에는 여기서 그냥 return 해버려, 진동은 10분 내내 이어지는데
-      // 앱을 열어도 끌 화면이 없었다 — 강제종료 말고는 방법이 없었다.
-      if (hadPending) {
-        Diagnostics.log(
-          'app',
-          '대기 알림 발견 승격=${request != null} '
-              'place=${request?.placeName ?? "만료·손상"}',
-        );
-        await ref.read(alertWatchServiceProvider).stopNativeAlert();
-        // 백그라운드 알림은 스와이프로 지워지지 않게 걸어두었다 (이슈 #84).
-        // 지우는 책임이 여기 있다 — 안 지우면 영영 남는 알림이 된다.
-        await _cancelBackgroundNotification();
-      }
-      if (request == null) {
-        // **앱이 죽었다 살아난 경우** (이슈 #130).
-        //
-        // 첫 승격 때 PendingAlert 를 이미 소비했으므로 hadPending 이
-        // false 다. 그런데 감시 서비스는 앱과 무관하게 살아 있어 진동을
-        // 계속하고 있을 수 있다 — 그 상태에서는 알림을 탭해 앱을 열어도
-        // 띄울 세션이 없어, 사용자에게 강제 중지 말고는 방법이 없다.
-        if (!hadPending) await _stopOrphanedAlert();
-        return;
-      }
-
-      Diagnostics.log('app', '알림 세션 승격 place=${request.placeName}');
+  /// 대기 알림 승격 (이슈 #63 · #74 · #83 · #130).
+  ///
+  /// 판단은 [PendingAlertResumer] 가 한다 — 부트스트랩·`resumed`·폴링이
+  /// 겹쳐 들어오는 경합을 테스트로 지키려고 꺼냈다 (이슈 #142 QA).
+  /// 앱 수명 동안 하나만 둬야 겹침을 막을 수 있다.
+  late final _resumer = PendingAlertResumer(
+    takeRequest: () => ref.read(pendingAlertLauncherProvider).takeRequest(),
+    hasPending: () => ref.read(pendingAlertLauncherProvider).hasPending(),
+    watch: ref.read(alertWatchServiceProvider),
+    cancelNotification: _cancelBackgroundNotification,
+    promote: (request) async {
       await ref.read(activeAlertProvider.notifier).fire(request);
       // 해제 시점에 광고가 준비되어 있게 미리 불러둔다
       unawaited(_preloadAd());
       _router.go(AppRoutes.alert);
-    } on Object catch (error) {
-      // 알림 승격 실패가 앱 시작을 막으면 안 된다
-      Diagnostics.log('app', '알림 승격 실패 $error');
-    }
-  }
+    },
+  );
 
-  /// 세션 없이 혼자 울고 있는 알림을 정리한다 (이슈 #130).
+  Future<void> _resumePendingAlert(String trigger) =>
+      _resumer.resume(trigger: trigger);
+
+  /// 헤드업을 띄우던 옛 세션 채널을 지운다 (이슈 #142 QA).
   ///
-  /// **확인에 실패하면 아무것도 하지 않는다** — 울리지 않는데 정리하는
-  /// 것은 무해하지만, 반대로 틀리면 멀쩡한 알림을 꺼버린다.
-  Future<void> _stopOrphanedAlert() async {
-    final watch = ref.read(alertWatchServiceProvider);
-    if (!await watch.isAlerting()) return;
-
-    Diagnostics.log('app', '세션 없이 울리는 알림 발견 — 정리한다 (앱이 재시작된 것으로 보인다)');
-    await watch.stopNativeAlert();
-    await _cancelBackgroundNotification();
+  /// 채널 중요도는 만든 뒤 바꿀 수 없어 새 채널로 옮겼다. 지우지 않으면
+  /// 기존 설치의 알림 설정에 쓰이지 않는 항목이 남아 사용자를 헷갈리게 한다
+  Future<void> _deleteLegacyAlertChannel() async {
+    try {
+      await ref
+          .read(notificationsPluginProvider)
+          .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin
+          >()
+          ?.deleteNotificationChannel(AlertNotifierImpl.legacyChannelId);
+    } on Object catch (error) {
+      // 남아도 동작에는 지장이 없다 — 기록만 남긴다
+      Diagnostics.log('app', '옛 알림 채널 삭제 실패 $error');
+    }
   }
 
   /// 백그라운드가 띄운 알림을 지운다 (이슈 #84).

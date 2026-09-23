@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../core/theme/app_semantic_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../core/text/keep_all.dart';
 
 /// 해제 완료 화면 (docs/07-MONETIZATION.md)
 ///
@@ -34,13 +35,13 @@ class AlertDismissedScreen extends StatelessWidget {
               const Spacer(),
               Icon(
                 Icons.check_circle_outlined,
-                size: 56,
+                size: AppIconSize.hero,
                 color: semantic.statusActive,
               ),
               const SizedBox(height: AppSpacing.md),
               Text('알림을 껐습니다', style: AppTypography.screenTitle),
               const SizedBox(height: AppSpacing.xs),
-              Text(placeName, style: AppTypography.caption),
+              Text(placeName.keepAll, style: AppTypography.caption),
               const Spacer(),
               // 광고 자리 — google_mobile_ads 통합 시 이 위치에 배너/전면 삽입
               FilledButton(onPressed: onContinue, child: const Text('확인')),

@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../../../core/domain/alert_direction.dart';
+import '../../../core/map/map_reveal_cover.dart';
 import '../../../core/map/map_style_guard.dart';
 import '../../../core/map/radius_zoom.dart';
 import '../../../core/theme/app_colors.dart';
@@ -13,6 +14,8 @@ import '../../../core/theme/app_semantic_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/map_style.dart';
+import '../../../core/text/keep_all.dart';
+import '../../../core/widgets/hit_slop.dart';
 import '../data/current_location_channel.dart';
 import '../domain/alert_place.dart';
 import 'place_card.dart';
@@ -31,6 +34,7 @@ class PlaceMapHomeScreen extends ConsumerStatefulWidget {
     required this.isMonitoring,
     required this.isHeadphoneConnected,
     required this.onAddPlace,
+    this.isStatusKnown = true,
     this.canAlertReliably = true,
     this.missingReliability = const [],
     this.onEditPlace,
@@ -44,6 +48,11 @@ class PlaceMapHomeScreen extends ConsumerStatefulWidget {
 
   /// OS 지오펜스에 등록된 장소가 있는가
   final bool isMonitoring;
+
+  /// [isMonitoring] 을 실제로 확인했는가 (이슈 #142 QA).
+  ///
+  /// 확인 전의 false 를 "꺼짐"으로 그리면 멀쩡한데 고장으로 보인다
+  final bool isStatusKnown;
 
   /// 지금 이어폰이 연결되어 있는가 (줄·USB-C·블루투스)
   final bool isHeadphoneConnected;
@@ -147,49 +156,54 @@ class _PlaceMapHomeScreenState extends ConsumerState<PlaceMapHomeScreen>
       backgroundColor: AppColors.bgBase,
       body: Stack(
         children: [
-          GoogleMap(
-            initialCameraPosition: CameraPosition(
-              target: places.isEmpty
-                  ? _fallback
-                  : LatLng(places.first.latitude, places.first.longitude),
-              zoom: 14,
-            ),
-            style: MapStyle.dark,
-            markers: _markers(places, semantic),
-            circles: _circles(places, semantic),
-            onMapCreated: (controller) {
-              _map = controller;
-              // 다크 스타일이 조용히 사라지는 일이 있다 (이슈 #143)
-              unawaited(ensureDarkMapStyle(controller, 'home'));
-              if (places.isNotEmpty) _fitCamera(places);
-            },
-            // 빈 곳을 누르면 선택을 푼다 — 강조가 계속 남아 있으면
-            // 무엇을 보고 있는지 헷갈린다
-            onTap: (_) => _select(null),
-            myLocationEnabled: true,
-            // **SDK 기본 버튼을 끈다** (이슈 #98). 그 버튼은 우상단 고정이라
-            // 상태 알약이 위를 덮어 잘려 보였고, 사용자가 존재 자체를 몰랐다.
-            // 좌하단 커스텀 버튼으로 대체한다 — 오른쪽 아래는 장소 추가가
-            // 이미 쓰고 있다.
-            //
-            // 예전에는 "직접 만들면 현재 위치를 알아낼 방법이 없다"는 이유로
-            // SDK 버튼을 썼는데, 이슈 #93 에서 play-services-location 을
-            // 넣으면서 그 제약이 사라졌다.
-            myLocationButtonEnabled: false,
-            zoomControlsEnabled: false,
-            mapToolbarEnabled: false,
-            // 시트가 지도 하단을 덮는다. padding 을 주면 구글 로고와
-            // 내 위치 버튼이 시트 위로 올라온다.
-            //
-            // 시트 높이를 실시간으로 따라가게 하면 드래그할 때마다 지도가
-            // 다시 배치돼 버벅인다. 접힌 높이 기준으로 고정한다.
-            padding: EdgeInsets.only(
-              bottom: MediaQuery.sizeOf(context).height * _sheetMin,
+          MapRevealCover(
+            screen: 'home',
+            builder: (attach) => GoogleMap(
+              initialCameraPosition: CameraPosition(
+                target: places.isEmpty
+                    ? _fallback
+                    : LatLng(places.first.latitude, places.first.longitude),
+                zoom: 14,
+              ),
+              style: MapStyle.dark,
+              markers: _markers(places, semantic),
+              circles: _circles(places, semantic),
+              onMapCreated: (controller) {
+                _map = controller;
+                // 다크 스타일이 조용히 사라지는 일이 있다 (이슈 #143)
+                unawaited(ensureDarkMapStyle(controller, 'home'));
+                // 다크 타일이 그려질 때까지 밝은 바탕을 가린다 (이슈 #143)
+                attach(controller);
+                if (places.isNotEmpty) _fitCamera(places);
+              },
+              // 빈 곳을 누르면 선택을 푼다 — 강조가 계속 남아 있으면
+              // 무엇을 보고 있는지 헷갈린다
+              onTap: (_) => _select(null),
+              myLocationEnabled: true,
+              // **SDK 기본 버튼을 끈다** (이슈 #98). 그 버튼은 우상단 고정이라
+              // 상태 알약이 위를 덮어 잘려 보였고, 사용자가 존재 자체를 몰랐다.
+              // 커스텀 버튼으로 대체한다 — 장소 추가 위, 오른쪽 스택 (#155).
+              //
+              // 예전에는 "직접 만들면 현재 위치를 알아낼 방법이 없다"는 이유로
+              // SDK 버튼을 썼는데, 이슈 #93 에서 play-services-location 을
+              // 넣으면서 그 제약이 사라졌다.
+              myLocationButtonEnabled: false,
+              zoomControlsEnabled: false,
+              mapToolbarEnabled: false,
+              // 시트가 지도 하단을 덮는다. padding 을 주면 구글 로고와
+              // 내 위치 버튼이 시트 위로 올라온다.
+              //
+              // 시트 높이를 실시간으로 따라가게 하면 드래그할 때마다 지도가
+              // 다시 배치돼 버벅인다. 접힌 높이 기준으로 고정한다.
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.sizeOf(context).height * _sheetMin,
+              ),
             ),
           ),
 
           _StatusBar(
             isMonitoring: widget.isMonitoring,
+            isStatusKnown: widget.isStatusKnown,
             // 켜진 장소가 없어서 감시가 안 도는 것은 고장이 아니다 —
             // 경고 대신 안내로 보여야 한다
             hasEnabledPlaces: places.any((place) => place.enabled),
@@ -248,7 +262,7 @@ class _PlaceMapHomeScreenState extends ConsumerState<PlaceMapHomeScreen>
 
     if (location == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('현재 위치를 확인할 수 없습니다. 위치 권한을 확인해주세요')),
+        SnackBar(content: Text('현재 위치를 확인할 수 없습니다. 위치 권한을 확인해주세요'.keepAll)),
       );
       return;
     }
@@ -395,6 +409,7 @@ class _PlaceMapHomeScreenState extends ConsumerState<PlaceMapHomeScreen>
 class _StatusBar extends StatelessWidget {
   const _StatusBar({
     required this.isMonitoring,
+    required this.isStatusKnown,
     required this.hasEnabledPlaces,
     required this.isHeadphoneConnected,
     required this.canAlertReliably,
@@ -405,6 +420,9 @@ class _StatusBar extends StatelessWidget {
   });
 
   final bool isMonitoring;
+
+  /// 감시 상태를 실제로 확인했는가 — false 면 "확인 중"
+  final bool isStatusKnown;
 
   /// 켜진 장소가 하나라도 있는가.
   ///
@@ -427,8 +445,14 @@ class _StatusBar extends StatelessWidget {
   /// 설정 화면 (이슈 #98) — 알림음 크기·진단 기록이 여기 있다
   final VoidCallback? onOpenSettings;
 
-  /// 고장 상태 — 켜진 장소가 있는데 감시가 안 돈다. 해결 경로가 필요하다
-  bool get _isBroken => hasEnabledPlaces && !isMonitoring;
+  /// 고장 상태 — 켜진 장소가 있는데 감시가 안 돈다. 해결 경로가 필요하다.
+  ///
+  /// **확인하기 전에는 고장이 아니다** (이슈 #142 QA) — 모르는 것을
+  /// 고장으로 그리면 알림을 끄고 돌아올 때마다 오경보가 뜬다
+  bool get _isBroken => isStatusKnown && hasEnabledPlaces && !isMonitoring;
+
+  /// 켜진 장소는 있는데 감시 상태를 아직 읽는 중이다
+  bool get _isChecking => !isStatusKnown && hasEnabledPlaces;
 
   /// 감시는 도는데 알림이 약하다 (이슈 #74).
   ///
@@ -446,9 +470,19 @@ class _StatusBar extends StatelessWidget {
         ? semantic.statusInactive
         : AppColors.textSecondary; // 정상 대기 — 경고색을 쓰지 않는다
 
+    // 설정 버튼은 보이는 원보다 탭 영역이 크다. 그 차이만큼 바깥 여백에서
+    // 빼야 **보이는 원이 예전 자리 그대로** 오른쪽 끝·알약과 같은 높이에
+    // 선다 — 안 빼면 #155 에서 맞춘 좌우 여백이 다시 어긋난다
+    const overhang = (_SettingsButton.hitSize - _SettingsButton.visualSize) / 2;
+
     return SafeArea(
       child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.sm),
+        padding: const EdgeInsets.fromLTRB(
+          AppSpacing.sm,
+          AppSpacing.sm - overhang,
+          AppSpacing.sm - overhang,
+          AppSpacing.sm,
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -475,10 +509,14 @@ class _StatusBar extends StatelessWidget {
               ],
             ),
             if (_isWeak) ...[
-              const SizedBox(height: AppSpacing.xs),
-              _WeakAlertBanner(
-                onTap: onFixReliability!,
-                missing: missingReliability,
+              const SizedBox(height: AppSpacing.xs - overhang),
+              Padding(
+                // 위에서 뺀 오른쪽 여백을 배너에는 돌려준다
+                padding: const EdgeInsets.only(right: overhang),
+                child: _WeakAlertBanner(
+                  onTap: onFixReliability!,
+                  missing: missingReliability,
+                ),
               ),
             ],
           ],
@@ -496,80 +534,103 @@ class _StatusBar extends StatelessWidget {
         // 장소가 없어서 대기 중인 사용자를 온보딩에 다시 보내면 안 된다
         onTap: _isBroken ? onFixMonitoring : null,
         borderRadius: BorderRadius.circular(AppRadius.pill),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.sm,
-            vertical: AppSpacing.xs,
-          ),
-          child: Row(
-            // 내용만큼만 차지한다 — 늘어나면 가운데가 휑해진다
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // **로고를 알약 안에 둔다** (이슈 #155).
-              //
-              // 따로 띄우면 지도 위에 떠 있는 덩어리가 하나 늘고 그만큼
-              // 지도가 안 보인다. 구글 지도가 검색창 **안쪽** 왼쪽 끝에
-              // G 로고를 넣은 것과 같은 구조다.
-              //
-              // 앱 아이콘에서 딴 그림을 쓴다 — 따로 그리면 아이콘을 바꿨을
-              // 때 또 어긋난다 (스플래시가 두 달 그랬다, #150).
-              Image.asset(
-                'assets/splash/splash_logo.png',
-                width: 18,
-                filterQuality: FilterQuality.medium,
-              ),
-              const SizedBox(width: AppSpacing.xs),
-              Container(
-                width: 1,
-                height: 14,
-                color: AppColors.textSecondary.withValues(alpha: 0.3),
-              ),
-              const SizedBox(width: AppSpacing.xs),
-              // 색만으로 구분하지 않는다 — 아이콘과 문구를 함께 쓴다
-              Icon(
-                isMonitoring
-                    ? Icons.radar_outlined
-                    : _isBroken
-                    ? Icons.warning_amber_outlined
-                    : Icons.pause_circle_outlined,
-                size: 18,
-                color: statusColor,
-              ),
-              const SizedBox(width: AppSpacing.xs),
-              Flexible(
-                child: Text(
-                  isMonitoring
-                      ? '감시 중'
-                      : _isBroken
-                      ? '감시 꺼짐 · 눌러서 확인'
-                      : '감시 대기 · 장소를 켜면 시작됩니다',
-                  style: AppTypography.caption.copyWith(color: statusColor),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+        // 높이는 설정 버튼·내 위치 버튼과 같은 40 — 지도 위에 떠 있는
+        // 조작 요소는 한 높이로 선다 (docs/06-UX.md)
+        child: SizedBox(
+          height: AppControlSize.floating,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
+            child: Row(
+              // 내용만큼만 차지한다 — 늘어나면 가운데가 휑해진다
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // **로고를 알약 안에 둔다** (이슈 #155).
+                //
+                // 따로 띄우면 지도 위에 떠 있는 덩어리가 하나 늘고 그만큼
+                // 지도가 안 보인다. 구글 지도가 검색창 **안쪽** 왼쪽 끝에
+                // G 로고를 넣은 것과 같은 구조다.
+                //
+                // 앱 아이콘에서 딴 그림을 쓴다 — 따로 그리면 아이콘을 바꿨을
+                // 때 또 어긋난다 (스플래시가 두 달 그랬다, #150).
+                //
+                // **여백 없는 판을 쓴다.** 예전에는 스플래시 판을 폭 16 으로
+                // 넣었는데, 그 판은 768 에 핀이 468 뿐이라 핀이 7dp 로
+                // 쪼그라들어 옆 아이콘의 절반으로 보였다. 높이를 옆 아이콘과
+                // 같은 18 로 맞춘다 (이슈 #155 QA)
+                Image.asset(
+                  'assets/icon/app_logo_mark.png',
+                  height: AppIconSize.inline,
+                  filterQuality: FilterQuality.medium,
                 ),
-              ),
-              const SizedBox(width: AppSpacing.sm),
-              Container(
-                width: 1,
-                height: 14,
-                color: AppColors.textSecondary.withValues(alpha: 0.3),
-              ),
-              const SizedBox(width: AppSpacing.sm),
-              Icon(
-                isHeadphoneConnected
-                    ? Icons.headphones_outlined
-                    : Icons.vibration_outlined,
-                size: 18,
-                color: isHeadphoneConnected
-                    ? semantic.audioBluetooth
-                    : AppColors.textSecondary,
-              ),
-              const SizedBox(width: AppSpacing.xs),
-              Text(
-                isHeadphoneConnected ? '이어폰' : '진동만',
-                style: AppTypography.caption,
-              ),
-            ],
+                const SizedBox(width: AppSpacing.xs),
+                // 색만으로 구분하지 않는다 — 아이콘과 문구를 함께 쓴다
+                Icon(
+                  isMonitoring
+                      ? Icons.radar_outlined
+                      : _isBroken
+                      ? Icons.warning_amber_outlined
+                      : _isChecking
+                      ? Icons.hourglass_empty_outlined
+                      : Icons.pause_circle_outlined,
+                  size: AppIconSize.inline,
+                  color: statusColor,
+                ),
+                const SizedBox(width: AppSpacing.xs),
+                // **라벨만 쓴다.** 예전에는 '감시 대기 · 장소를 켜면 시작됩니다'
+                // 같은 문장이라 40px ~ 192px 로 4.8배까지 벌어졌고, 알약 안에서
+                // 잘려 "장소를 켜면…" 이 되어 아무것도 알려주지 못했다.
+                //
+                // 설명이 필요한 말은 **빈 화면이 이미 하고 있다**
+                // ("첫 장소를 등록해보세요"). 같은 말을 두 곳에서 하지 않는다.
+                Flexible(
+                  child: Text(
+                    isMonitoring
+                        ? '감시 중'
+                        : _isBroken
+                        ? '감시 꺼짐'
+                        : _isChecking
+                        ? '확인 중'
+                        : '감시 대기',
+                    style: AppTypography.caption.copyWith(color: statusColor),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                // 누를 수 있다는 것은 글자보다 모양이 빠르다 — '눌러서 확인'
+                // 대신 꺾쇠를 둔다
+                if (_isBroken)
+                  Icon(
+                    Icons.chevron_right_outlined,
+                    size: AppIconSize.inline,
+                    color: statusColor,
+                  ),
+
+                // 구분선 둘을 가운뎃점 하나로 — 요소가 일곱에서 여섯으로 준다
+                const SizedBox(width: AppSpacing.xs),
+                Text(
+                  '·',
+                  style: AppTypography.caption.copyWith(
+                    color: AppColors.textSecondary.withValues(alpha: 0.5),
+                  ),
+                ),
+                const SizedBox(width: AppSpacing.xs),
+
+                Icon(
+                  isHeadphoneConnected
+                      ? Icons.headphones_outlined
+                      : Icons.vibration_outlined,
+                  size: AppIconSize.inline,
+                  color: isHeadphoneConnected
+                      ? semantic.audioBluetooth
+                      : AppColors.textSecondary,
+                ),
+                const SizedBox(width: AppSpacing.xs),
+                Text(
+                  isHeadphoneConnected ? '이어폰' : '진동만',
+                  style: AppTypography.caption,
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -623,7 +684,7 @@ class _WeakAlertBanner extends StatelessWidget {
           ),
           child: Row(
             children: [
-              const Icon(Icons.warning_amber_rounded, size: 22, color: accent),
+              const Icon(Icons.warning_amber_outlined, color: accent),
               const SizedBox(width: AppSpacing.sm),
               Expanded(
                 child: Column(
@@ -641,9 +702,10 @@ class _WeakAlertBanner extends StatelessWidget {
                     Text(
                       // 조사를 붙이지 않는다 — 항목 이름이 바뀔 때마다
                       // 은/는·이/가가 어긋난다
-                      missing.isEmpty
-                          ? '절전 중이거나 다른 앱을 쓰는 동안 알림이 약해집니다'
-                          : '${missing.join(" · ")} 꺼짐 — 눌러서 켜기',
+                      (missing.isEmpty
+                              ? '절전 중이거나 다른 앱을 쓰는 동안 알림이 약해집니다'
+                              : '${missing.join(" · ")} 꺼짐 — 눌러서 켜기')
+                          .keepAll,
                       style: AppTypography.caption,
                       // **두 줄까지 보여준다** — 한 줄로 자르면 정작 무엇이
                       // 꺼졌는지가 잘려 나간다
@@ -654,7 +716,7 @@ class _WeakAlertBanner extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: AppSpacing.xs),
-              const Icon(Icons.chevron_right, size: 20, color: accent),
+              const Icon(Icons.chevron_right_outlined, color: accent),
             ],
           ),
         ),
@@ -693,33 +755,52 @@ class _MapControls extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // 두 버튼 모두 보이는 모양보다 [_slop] 만큼 넓게 눌린다 (이슈 #155 QA).
+    // 넓힌 만큼 바깥 여백에서 빼 보이는 자리는 예전과 같다. 두 버튼 사이
+    // 틈(xs)은 반씩 나눠 가져 서로의 범위가 겹치지 않는다
+    const gapHalf = AppSpacing.xs / 2;
     return Positioned(
-      right: AppSpacing.sm,
+      right: AppSpacing.sm - _slop,
       bottom:
-          MediaQuery.sizeOf(context).height * bottomFraction + AppSpacing.sm,
+          MediaQuery.sizeOf(context).height * bottomFraction +
+          AppSpacing.sm -
+          _slop,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           // 보조가 위, 주가 아래 — 엄지에 가장 가까운 자리를 주 동작이 쓴다
-          FloatingActionButton.small(
-            onPressed: onMyLocation,
-            heroTag: 'myLocation',
-            backgroundColor: AppColors.bgElevated,
-            foregroundColor: AppColors.textPrimary,
-            child: const Icon(Icons.my_location_outlined),
+          HitSlop(
+            onTap: onMyLocation,
+            padding: const EdgeInsets.fromLTRB(_slop, _slop, _slop, gapHalf),
+            child: FloatingActionButton.small(
+              onPressed: onMyLocation,
+              heroTag: 'myLocation',
+              backgroundColor: AppColors.bgElevated,
+              foregroundColor: AppColors.textPrimary,
+              // 머티리얼이 붙이는 48dp 여백 대신 HitSlop 이 범위를 정한다
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              child: const Icon(Icons.my_location_outlined),
+            ),
           ),
-          const SizedBox(height: AppSpacing.xs),
-          FloatingActionButton(
-            onPressed: onAddPlace,
-            heroTag: 'addPlace',
-            child: const Icon(Icons.add_outlined),
+          HitSlop(
+            onTap: onAddPlace,
+            padding: const EdgeInsets.fromLTRB(_slop, gapHalf, _slop, _slop),
+            child: FloatingActionButton(
+              onPressed: onAddPlace,
+              heroTag: 'addPlace',
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              child: const Icon(Icons.add_outlined),
+            ),
           ),
         ],
       ),
     );
   }
 }
+
+/// 떠 있는 버튼이 보이는 모양보다 넓게 받는 폭
+const double _slop = AppSpacing.xs;
 
 /// 하단 시트 — 등록한 장소 목록
 class _PlaceSheet extends ConsumerWidget {
@@ -838,22 +919,43 @@ class _SettingsButton extends StatelessWidget {
 
   final VoidCallback onPressed;
 
+  /// 실제로 눌리는 범위
+  static const double hitSize = AppControlSize.minTouch;
+
+  /// 보이는 원 — 알약·내 위치 버튼과 같은 높이
+  static const double visualSize = AppControlSize.floating;
+
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: AppColors.bgSurface,
-      borderRadius: BorderRadius.circular(AppRadius.pill),
-      child: InkWell(
-        onTap: onPressed,
-        borderRadius: BorderRadius.circular(AppRadius.pill),
-        child: const Padding(
-          // 알약의 세로 패딩(xs)과 맞춘다. 가로는 정사각에 가깝게 둬야
-          // 원형 탭 영역이 자연스럽다
-          padding: EdgeInsets.symmetric(
-            horizontal: AppSpacing.xs + 2,
-            vertical: AppSpacing.xs,
+    // **보이는 크기와 누를 수 있는 범위를 분리한다** (이슈 #155 QA).
+    //
+    // 예전 원은 38×34dp 라 그대로 탭 영역이면 최소 터치 타깃 48dp 에
+    // 못 미쳤다 — 지도 위에 떠 있어 빗나가면 지도가 움직인다. 모양은
+    // 알약과 같은 40 으로 두고 바깥 여백까지 탭을 받는다. 알림 화면
+    // 해제 버튼과 같은 방식이다 (#142)
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onPressed,
+      child: SizedBox.square(
+        dimension: hitSize,
+        child: Center(
+          child: SizedBox.square(
+            dimension: visualSize,
+            child: Material(
+              color: AppColors.bgSurface,
+              shape: const CircleBorder(),
+              child: InkWell(
+                onTap: onPressed,
+                customBorder: const CircleBorder(),
+                // 아이콘 버튼의 아이콘은 기본 크기(24)다 — 알약 안 아이콘(18)
+                // 과 역할이 다르다 (docs/06-UX.md 아이콘 크기)
+                child: const Icon(
+                  Icons.settings_outlined,
+                  size: AppIconSize.standard,
+                ),
+              ),
+            ),
           ),
-          child: Icon(Icons.settings_outlined, size: 18),
         ),
       ),
     );

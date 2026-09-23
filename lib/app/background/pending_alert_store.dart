@@ -88,6 +88,18 @@ class PendingAlertStore {
     return '${lat.toStringAsFixed(5)},${lng.toStringAsFixed(5)}/${radius}m';
   }
 
+  /// 꺼낼 알림이 있는지만 본다 — 지우지 않는다.
+  ///
+  /// "세션 없이 울리는 알림"(#130)을 정리하기 직전에 부른다. 네이티브는
+  /// 이 값을 **저장한 뒤에** 진동을 시작하므로, 울리는 것을 확인한 다음
+  /// 이것을 보면 방금 도착한 알림과 진짜 고아를 가를 수 있다.
+  Future<bool> hasPending() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.reload();
+    return prefs.getString(_keyPlaceId) != null ||
+        prefs.getString(_keyOccurredAt) != null;
+  }
+
   /// 저장된 알림을 꺼내고 지운다.
   ///
   /// [hadStored] 는 **꺼낼 것이 있었는지**다. 값이 깨져 있어 [alert] 가

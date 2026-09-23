@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../core/domain/alert_schedule.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../core/text/keep_all.dart';
 import 'alert_schedule_summary.dart';
 
 /// 시간 창 하나를 만들거나 고치는 바텀시트 (이슈 #81)
@@ -111,14 +112,16 @@ class _AlertScheduleSheetState extends State<_AlertScheduleSheet> {
 
           if (_start > _end)
             Text(
-              '종료가 시작보다 이르므로 자정을 넘긴 것으로 봅니다 — '
-              '${describeSchedule(_current)}',
+              ('종료가 시작보다 이르므로 자정을 넘긴 것으로 봅니다 — '
+                      '${describeSchedule(_current)}')
+                  .keepAll,
               style: AppTypography.caption,
             )
           else if (_start == _end)
             Text(
-              '시작과 종료가 같습니다. 하루 종일 알리려면 시간대를 만들지 '
-              '않으면 됩니다.',
+              ('시작과 종료가 같습니다. 하루 종일 알리려면 시간대를 만들지 '
+                      '않으면 됩니다.')
+                  .keepAll,
               style: AppTypography.caption,
             ),
 

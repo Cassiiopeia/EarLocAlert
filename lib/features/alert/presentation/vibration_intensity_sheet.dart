@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../core/text/keep_all.dart';
 import '../domain/alert_effects.dart';
 import '../domain/vibration_intensity.dart';
 import 'alert_controller_provider.dart';
@@ -104,8 +105,9 @@ class _VibrationIntensitySheetState
           ),
           const SizedBox(height: AppSpacing.xs),
           Text(
-            '이어폰이 연결되지 않았을 때는 진동만으로 알립니다. '
-            '고르면 그 세기로 한 번 울려 확인할 수 있습니다.',
+            ('이어폰이 연결되지 않았을 때는 진동만으로 알립니다. '
+                    '고르면 그 세기로 한 번 울려 확인할 수 있습니다.')
+                .keepAll,
             style: AppTypography.caption,
           ),
           const SizedBox(height: AppSpacing.md),
@@ -126,7 +128,7 @@ class _VibrationIntensitySheetState
                       value: intensity,
                       title: Text(_label(intensity), style: AppTypography.body),
                       subtitle: Text(
-                        _hint(intensity),
+                        _hint(intensity).keepAll,
                         style: AppTypography.caption,
                       ),
                       contentPadding: EdgeInsets.zero,

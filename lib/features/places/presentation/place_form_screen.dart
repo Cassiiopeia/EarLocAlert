@@ -8,6 +8,7 @@ import '../../../core/domain/alert_direction.dart';
 import '../../../core/domain/alert_schedule.dart';
 import '../../../core/domain/alert_sound.dart';
 import '../../../core/map/map_corner_mask.dart';
+import '../../../core/map/map_reveal_cover.dart';
 import '../../../core/map/map_style_guard.dart';
 import '../../../core/map/radius_zoom.dart';
 import '../../../core/theme/app_colors.dart';
@@ -15,6 +16,7 @@ import '../../../core/theme/app_semantic_colors.dart';
 import '../../../core/theme/map_style.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../core/text/keep_all.dart';
 import '../domain/alert_place.dart';
 import '../domain/place_validator.dart';
 import 'alert_schedule_editor.dart';
@@ -208,7 +210,7 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('저장하지 않고 나갈까요?'),
-        content: const Text('지금까지 바꾼 내용은 사라집니다.'),
+        content: Text('지금까지 바꾼 내용은 사라집니다.'.keepAll),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
@@ -286,7 +288,7 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
                 onTap: widget.onPickOnMap == null ? null : _pickOnMap,
               )
             else
-              Text('아직 위치를 고르지 않았습니다', style: AppTypography.caption),
+              Text('아직 위치를 고르지 않았습니다'.keepAll, style: AppTypography.caption),
 
             // 좌표를 직접 아는 경우와, 지도 키 없이 빌드된 경우의 보조 경로.
             // 기본 경로가 아니므로 접어둔다
@@ -383,7 +385,7 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
             SwitchListTile(
               title: Text('이어폰 소리 알림', style: AppTypography.body),
               subtitle: Text(
-                '이어폰(줄·블루투스)이 연결된 경우에만 소리가 납니다.\n스피커로는 절대 소리가 나지 않습니다.',
+                '이어폰(줄·블루투스)이 연결된 경우에만 소리가 납니다.\n스피커로는 절대 소리가 나지 않습니다.'.keepAll,
                 style: AppTypography.caption,
               ),
               value: _soundEnabled,
@@ -433,6 +435,15 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
   }
 
   Future<void> _pickOnMap() async {
+    // **떠나기 전에 입력 칸의 포커스를 푼다.** 이름을 쓰다가 지도로 가면
+    // 돌아올 때 Navigator 가 이 화면이 기억한 칸에 포커스를 되돌려 키보드가
+    // 다시 올라왔다 — 방금 고른 위치의 미리보기를 키보드가 덮는다
+    // (이슈 #155 QA).
+    //
+    // `FocusScope.of(context).unfocus()` 로는 안 된다. 화면의 포커스
+    // 범위만 비우고 "마지막 칸" 기억은 남겨, 실기기에서 그대로 재현됐다.
+    // 칸 자체를 풀어야 기억이 지워진다
+    FocusManager.instance.primaryFocus?.unfocus();
     final picked = await widget.onPickOnMap!(
       MapPickArgs(
         latitude: double.tryParse(_latitude.text.trim()),
@@ -482,9 +493,9 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
       return;
     }
 
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(placeErrorMessage(errors.first))));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(placeErrorMessage(errors.first).keepAll)),
+    );
   }
 }
 
@@ -554,6 +565,11 @@ class _LocationPreviewState extends State<_LocationPreview> {
     final target = LatLng(widget.latitude, widget.longitude);
 
     return GestureDetector(
+      // **opaque 가 없으면 탭이 아무 데도 닿지 않는다.** 기본값(deferToChild)
+      // 은 자식이 맞아야 반응하는데, 자식이 지도·마스크 둘 다 IgnorePointer
+      // 라 hit test 가 통째로 비었다. 실기기에서 네 번 눌러도 지도 선택이
+      // 열리지 않았다 (이슈 #155 QA)
+      behavior: HitTestBehavior.opaque,
       onTap: widget.onTap,
       child: SizedBox(
         height: _height,
@@ -562,43 +578,48 @@ class _LocationPreviewState extends State<_LocationPreview> {
           children: [
             // 지도는 조작을 받지 않는다 — 탭은 위의 GestureDetector 가 받는다
             IgnorePointer(
-              child: GoogleMap(
-                onMapCreated: (controller) {
-                  _map = controller;
-                  // 다크 스타일이 조용히 사라지는 일이 있다 (이슈 #143)
-                  unawaited(ensureDarkMapStyle(controller, 'form'));
-                },
-                initialCameraPosition: CameraPosition(
-                  target: target,
-                  zoom: zoomForRadiusWider(widget.radiusMeters),
-                ),
-                style: MapStyle.dark,
-                markers: {
-                  Marker(
-                    markerId: const MarkerId('picked'),
-                    position: target,
-                    icon: BitmapDescriptor.defaultMarkerWithHue(
-                      BitmapDescriptor.hueCyan,
+              child: MapRevealCover(
+                screen: 'form',
+                builder: (attach) => GoogleMap(
+                  onMapCreated: (controller) {
+                    _map = controller;
+                    // 다크 스타일이 조용히 사라지는 일이 있다 (이슈 #143)
+                    unawaited(ensureDarkMapStyle(controller, 'form'));
+                    // 다크 타일이 그려질 때까지 밝은 바탕을 가린다 (이슈 #143)
+                    attach(controller);
+                  },
+                  initialCameraPosition: CameraPosition(
+                    target: target,
+                    zoom: zoomForRadiusWider(widget.radiusMeters),
+                  ),
+                  style: MapStyle.dark,
+                  markers: {
+                    Marker(
+                      markerId: const MarkerId('picked'),
+                      position: target,
+                      icon: BitmapDescriptor.defaultMarkerWithHue(
+                        BitmapDescriptor.hueCyan,
+                      ),
                     ),
-                  ),
-                },
-                circles: {
-                  Circle(
-                    circleId: const CircleId('radius'),
-                    center: target,
-                    radius: widget.radiusMeters,
-                    strokeWidth: 2,
-                    strokeColor: semantic.alertEnter,
-                    fillColor: semantic.alertEnter.withValues(alpha: 0.12),
-                  ),
-                },
-                zoomControlsEnabled: false,
-                mapToolbarEnabled: false,
-                myLocationButtonEnabled: false,
-                scrollGesturesEnabled: false,
-                zoomGesturesEnabled: false,
-                rotateGesturesEnabled: false,
-                tiltGesturesEnabled: false,
+                  },
+                  circles: {
+                    Circle(
+                      circleId: const CircleId('radius'),
+                      center: target,
+                      radius: widget.radiusMeters,
+                      strokeWidth: 2,
+                      strokeColor: semantic.alertEnter,
+                      fillColor: semantic.alertEnter.withValues(alpha: 0.12),
+                    ),
+                  },
+                  zoomControlsEnabled: false,
+                  mapToolbarEnabled: false,
+                  myLocationButtonEnabled: false,
+                  scrollGesturesEnabled: false,
+                  zoomGesturesEnabled: false,
+                  rotateGesturesEnabled: false,
+                  tiltGesturesEnabled: false,
+                ),
               ),
             ),
             // `ClipRRect` 가 네이티브 지도 뷰를 자르지 못한다 (이슈 #142)

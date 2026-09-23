@@ -12,6 +12,7 @@ import '../../../core/theme/app_semantic_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/map_style.dart';
+import '../../../core/text/keep_all.dart';
 import '../domain/alert_session.dart';
 import '../domain/audio_route.dart';
 
@@ -117,22 +118,41 @@ class _AlertInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // **자리가 모자라면 이 영역 전체를 줄인다** (이슈 #145 QA).
+    //
+    // 지도 카드와 해제 버튼은 크기가 정해져 있고, 남은 높이에 이 영역이
+    // 들어가야 한다. 장소명이 두 줄이 되면 넘쳤는데, 넘친 자리가 하필 맨
+    // 아래 소리 상태 칩이라 "소리가 새지 않았다"는 표시만 조용히 사라졌다.
+    // 해제 버튼을 줄이는 것은 안 되고(#142 안전선), 칩을 빼는 것도 안
+    // 되므로 넘칠 때만 비율을 유지한 채 축소한다. 넉넉하면 그대로다.
+    //
+    // 폭은 고정해서 넘긴다 — FittedBox 는 자식에게 무한 폭을 주므로
+    // 그대로 두면 장소명이 줄바꿈 없이 한 줄로 늘어난 뒤 작게 줄어든다
+    return LayoutBuilder(
+      builder: (context, constraints) => FittedBox(
+        fit: BoxFit.scaleDown,
+        child: SizedBox(width: constraints.maxWidth, child: _content()),
+      ),
+    );
+  }
+
+  Widget _content() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
         children: [
           // 색만으로 구분하지 않는다 — 아이콘·텍스트를 함께 쓴다 (색각 이상 대응)
           Icon(
             isExit ? Icons.logout_outlined : Icons.login_outlined,
-            size: 56,
+            size: AppIconSize.hero,
             color: accent,
           ),
           const SizedBox(height: AppSpacing.md),
 
           // 가장 큰 글자 — 여러 곳을 등록했으면 "어디인지"가 첫 정보다
           Text(
-            session.placeName,
+            session.placeName.keepAll,
             style: AppTypography.alertPlaceName,
             textAlign: TextAlign.center,
             maxLines: 2,
@@ -201,13 +221,13 @@ class _AudioRouteBadge extends StatelessWidget {
         children: [
           Icon(
             isHeadphones ? Icons.headphones_outlined : Icons.vibration_outlined,
-            size: 18,
+            size: AppIconSize.inline,
             color: isHeadphones
                 ? semantic.audioBluetooth
                 : AppColors.textSecondary,
           ),
           const SizedBox(width: AppSpacing.xs),
-          Flexible(child: Text(label, style: AppTypography.caption)),
+          Flexible(child: Text(label.keepAll, style: AppTypography.caption)),
         ],
       ),
     );

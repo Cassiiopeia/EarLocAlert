@@ -5,6 +5,7 @@ import '../../../core/di/providers.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../core/text/keep_all.dart';
 import '../domain/permission_gate.dart';
 import '../domain/permission_snapshot.dart';
 import 'permission_controller.dart';
@@ -171,9 +172,9 @@ class _StepView extends StatelessWidget {
           const SizedBox(height: AppSpacing.lg),
           _ProgressDots(snapshot: snapshot),
           const SizedBox(height: AppSpacing.lg),
-          Text(copy.title, style: AppTypography.screenTitle),
+          Text(copy.title.keepAll, style: AppTypography.screenTitle),
           const SizedBox(height: AppSpacing.sm),
-          Text(copy.body, style: AppTypography.body),
+          Text(copy.body.keepAll, style: AppTypography.body),
           if (copy.footnote != null) ...[
             const SizedBox(height: AppSpacing.md),
             Row(
@@ -181,12 +182,15 @@ class _StepView extends StatelessWidget {
               children: [
                 const Icon(
                   Icons.lock_outlined,
-                  size: 16,
+                  size: AppIconSize.inline,
                   color: AppColors.textSecondary,
                 ),
                 const SizedBox(width: AppSpacing.xs),
                 Expanded(
-                  child: Text(copy.footnote!, style: AppTypography.caption),
+                  child: Text(
+                    copy.footnote!.keepAll,
+                    style: AppTypography.caption,
+                  ),
                 ),
               ],
             ),
@@ -247,9 +251,9 @@ class _ErrorView extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('권한 상태를 확인하지 못했습니다', style: AppTypography.screenTitle),
+          Text('권한 상태를 확인하지 못했습니다'.keepAll, style: AppTypography.screenTitle),
           const SizedBox(height: AppSpacing.sm),
-          Text('잠시 후 다시 시도해주세요.', style: AppTypography.caption),
+          Text('잠시 후 다시 시도해주세요.'.keepAll, style: AppTypography.caption),
           const SizedBox(height: AppSpacing.md),
           FilledButton(onPressed: onRetry, child: const Text('다시 시도')),
         ],

@@ -14,6 +14,7 @@ import 'background/alert_watch_service.dart';
 import 'background/geofence_callback.dart';
 import 'background/pending_alert_store.dart';
 import 'geofence_registration_sync.dart';
+import 'geofence_sync_signal.dart';
 import 'pending_alert_launcher.dart';
 
 part 'geofence_providers.g.dart';
@@ -44,9 +45,18 @@ GeofenceRegistrationSync geofenceRegistrationSync(Ref ref) {
     monitor: ref.watch(geofenceMonitorProvider),
     states: ref.watch(geofenceStateRepositoryProvider),
     watch: ref.watch(alertWatchServiceProvider),
+    onSynced: ref.watch(geofenceSyncSignalProvider).notify,
   );
   ref.onDispose(() => sync.stop());
   return sync;
+}
+
+/// 등록 동기화가 끝났다는 신호 (이슈 #142 QA) — 홈 상태가 구독한다
+@Riverpod(keepAlive: true)
+GeofenceSyncSignal geofenceSyncSignal(Ref ref) {
+  final signal = GeofenceSyncSignal();
+  ref.onDispose(signal.dispose);
+  return signal;
 }
 
 @Riverpod(keepAlive: true)

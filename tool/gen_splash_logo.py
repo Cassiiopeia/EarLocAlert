@@ -64,6 +64,32 @@ def render(canvas_size: int, height_ratio: float) -> Image.Image:
     return canvas
 
 
+# 앱 안에서 로고로 쓰는 판 — 여백 없이 핀만 담는다 (홈 상단 알약)
+MARK = ROOT / 'assets' / 'icon' / 'app_logo_mark.png'
+
+# 가장 큰 표시(18dp) × 최고 밀도(4x) 의 두 배. 작게 줄일 때 계단이 지지 않는다
+MARK_HEIGHT = 144
+
+
+def render_mark() -> Image.Image:
+    """여백 없는 로고 판.
+
+    **스플래시 판을 로고로 재사용하지 않는다.** 스플래시 판은 768 판에
+    핀이 468 뿐이라, 폭 16 으로 넣으면 핀이 7dp 로 쪼그라든다 — 홈 상단
+    알약에서 실제로 옆 아이콘의 절반 크기로 보였다 (이슈 #155 QA).
+    """
+    source = Image.open(SOURCE).convert('RGBA')
+    box = source.split()[3].getbbox()
+    if box is None:
+        raise SystemExit(f'내용이 없다: {SOURCE}')
+    pin = source.crop(box)
+    scale = MARK_HEIGHT / pin.height
+    return pin.resize(
+        (max(1, round(pin.width * scale)), MARK_HEIGHT),
+        Image.LANCZOS,
+    )
+
+
 def main() -> None:
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     for name, size, ratio in TARGETS:
@@ -72,6 +98,10 @@ def main() -> None:
         image.save(path)
         box = image.split()[3].getbbox()
         print(f'{name}: {size}x{size} 판, 내용 {box[2] - box[0]}x{box[3] - box[1]}')
+
+    mark = render_mark()
+    mark.save(MARK)
+    print(f'{MARK.name}: {mark.width}x{mark.height} (여백 없음)')
 
     print('\n다음: dart run flutter_native_splash:create')
 

@@ -31,6 +31,9 @@ class PendingAlertLauncher {
   /// 트레이에 남아 있으므로 정보는 사라지지 않는다.
   final Duration timeToLive;
 
+  /// 꺼낼 알림이 있는지만 본다 — 소비하지 않는다
+  Future<bool> hasPending() => _store.hasPending();
+
   /// 미처리 알림을 꺼낸다.
   ///
   /// [request] 는 지금 승격할 알림이다. 만료됐거나 값이 깨졌으면 null 이다.

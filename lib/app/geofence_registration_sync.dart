@@ -20,6 +20,7 @@ class GeofenceRegistrationSync {
     required GeofenceStateRepository states,
     AlertWatchService watch = const NoopAlertWatchService(),
     this.maxTargets = 20,
+    this.onSynced,
   }) : _places = places,
        _monitor = monitor,
        _states = states,
@@ -35,6 +36,10 @@ class GeofenceRegistrationSync {
   /// iOS 는 앱당 20개가 OS 제한이다 (docs/05-PLATFORM.md).
   /// 등록 화면이 상한을 막지만, 여기서도 자르는 것이 마지막 방어선이다.
   final int maxTargets;
+
+  /// 동기화가 끝날 때마다 부른다 — 등록 결과를 보여주는 쪽(홈 상태)이
+  /// 다시 읽게 한다 (이슈 #142 QA)
+  final void Function()? onSynced;
 
   StreamSubscription<List<AlertPlace>>? _subscription;
 
@@ -116,5 +121,9 @@ class GeofenceRegistrationSync {
     } else {
       await _watch.startWatching();
     }
+
+    // 등록 결과가 바뀌었을 수 있다 — 홈 상태가 옛 값을 들고 있으면
+    // 첫 장소를 등록하자마자 "감시 꺼짐" 이 뜬다
+    onSynced?.call();
   }
 }

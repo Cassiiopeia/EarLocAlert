@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../core/text/keep_all.dart';
 import '../domain/place_validator.dart';
 
 /// 빈 상태 — 앱 첫인상을 결정한다.
@@ -32,7 +33,7 @@ class PlaceEmptyState extends StatelessWidget {
           if (!compact) ...[
             const Icon(
               Icons.add_location_alt_outlined,
-              size: 64,
+              size: AppIconSize.hero,
               color: AppColors.textSecondary,
             ),
             const SizedBox(height: AppSpacing.md),
@@ -44,7 +45,7 @@ class PlaceEmptyState extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.xs),
           Text(
-            '내릴 정류장, 약속 장소, 집 —\n도착하거나 떠날 때 조용히 알려드립니다.',
+            '내릴 정류장, 약속 장소, 집 —\n도착하거나 떠날 때 조용히 알려드립니다.'.keepAll,
             style: AppTypography.caption,
             textAlign: TextAlign.center,
           ),

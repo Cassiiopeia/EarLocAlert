@@ -241,11 +241,7 @@ void main() {
       final (:alert, :hadStored) = await store.take();
 
       expect(alert, isNotNull);
-      expect(
-        alert!.radiusMeters,
-        isNull,
-        reason: '반쪽짜리 좌표로 지도를 그리면 엉뚱한 곳이 뜬다',
-      );
+      expect(alert!.radiusMeters, isNull, reason: '반쪽짜리 좌표로 지도를 그리면 엉뚱한 곳이 뜬다');
     });
 
     test('좌표도 함께 지워진다 — 다음 take 에 남지 않는다', () async {
@@ -262,6 +258,23 @@ void main() {
 
       expect(alert, isNull);
       expect(hadStored, isFalse);
+    });
+  });
+
+  group('hasPending (이슈 #142 QA)', () {
+    test('있는지만 보고 지우지 않는다', () async {
+      await store.save(makeAlert());
+
+      expect(await store.hasPending(), isTrue);
+      // 고아 판정 직전의 확인이 값을 지우면 승격할 알림이 사라진다
+      expect((await store.take()).alert, isNotNull);
+    });
+
+    test('꺼낸 뒤에는 없다', () async {
+      await store.save(makeAlert());
+      await store.take();
+
+      expect(await store.hasPending(), isFalse);
     });
   });
 }
