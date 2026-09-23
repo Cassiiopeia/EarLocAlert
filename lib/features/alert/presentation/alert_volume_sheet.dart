@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../core/text/keep_all.dart';
 import '../domain/alert_effects.dart';
 import 'alert_controller_provider.dart';
 
@@ -100,8 +101,9 @@ class _AlertVolumeSheetState extends ConsumerState<_AlertVolumeSheet> {
           ),
           const SizedBox(height: AppSpacing.xs),
           Text(
-            '알림이 울릴 때 시스템 볼륨이 이 수준보다 낮으면 여기까지 '
-            '올렸다가, 끄면 원래대로 되돌립니다.',
+            ('알림이 울릴 때 시스템 볼륨이 이 수준보다 낮으면 여기까지 '
+                    '올렸다가, 끄면 원래대로 되돌립니다.')
+                .keepAll,
             style: AppTypography.caption,
           ),
           const SizedBox(height: AppSpacing.md),
@@ -134,7 +136,7 @@ class _AlertVolumeSheetState extends ConsumerState<_AlertVolumeSheet> {
           const SizedBox(height: AppSpacing.xs),
 
           if (_previewNotice != null)
-            Text(_previewNotice!, style: AppTypography.caption),
+            Text(_previewNotice!.keepAll, style: AppTypography.caption),
 
           const SizedBox(height: AppSpacing.sm),
           // **보조 동작이라 주 버튼이 아니다** (docs/06-UX.md 주 액션 규칙).

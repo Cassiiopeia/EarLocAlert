@@ -12,6 +12,7 @@ import '../../../core/theme/app_semantic_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/map_style.dart';
+import '../../../core/text/keep_all.dart';
 import '../domain/alert_session.dart';
 import '../domain/audio_route.dart';
 
@@ -151,7 +152,7 @@ class _AlertInfo extends StatelessWidget {
 
           // 가장 큰 글자 — 여러 곳을 등록했으면 "어디인지"가 첫 정보다
           Text(
-            session.placeName,
+            session.placeName.keepAll,
             style: AppTypography.alertPlaceName,
             textAlign: TextAlign.center,
             maxLines: 2,
@@ -226,7 +227,7 @@ class _AudioRouteBadge extends StatelessWidget {
                 : AppColors.textSecondary,
           ),
           const SizedBox(width: AppSpacing.xs),
-          Flexible(child: Text(label, style: AppTypography.caption)),
+          Flexible(child: Text(label.keepAll, style: AppTypography.caption)),
         ],
       ),
     );

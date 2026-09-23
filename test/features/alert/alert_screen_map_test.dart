@@ -1,3 +1,4 @@
+import 'package:ear_loc_alert/core/text/keep_all.dart';
 import 'package:ear_loc_alert/core/domain/alert_direction.dart';
 import 'package:ear_loc_alert/core/theme/app_theme.dart';
 import 'package:ear_loc_alert/features/alert/domain/alert_session.dart';
@@ -80,7 +81,7 @@ void main() {
     testWidgets('장소명과 시각은 그대로 보인다', (tester) async {
       await pump(tester, session());
 
-      expect(find.text('소만사 출근'), findsOneWidget);
+      expect(find.text('소만사 출근'.keepAll), findsOneWidget);
       expect(find.text('도착했습니다'), findsOneWidget);
       // 지도가 없다고 알림 자체가 망가지면 안 된다
       expect(find.byType(FilledButton), findsOneWidget);
@@ -112,7 +113,7 @@ void main() {
     testWidgets('소리 상태 칩이 화면 안에 보인다', (tester) async {
       await pump(tester, longName());
 
-      final badge = tester.getRect(find.text('진동으로만 알림 중'));
+      final badge = tester.getRect(find.text('진동으로만 알림 중'.keepAll));
       final map = tester.getRect(find.byType(GoogleMap));
       expect(
         badge.bottom,

@@ -4,6 +4,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_semantic_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../core/text/keep_all.dart';
 
 /// 설정 화면이 보여줄 권한 한 줄 (이슈 #102)
 ///
@@ -130,7 +131,7 @@ class _PermissionTile extends StatelessWidget {
       ),
       title: Text(row.title, style: AppTypography.body),
       subtitle: Text(
-        row.granted ? '허용됨' : row.description,
+        (row.granted ? '허용됨' : row.description).keepAll,
         style: AppTypography.caption,
       ),
       // 이미 허용된 권한도 열 수 있게 둔다 — 사용자가 끄고 싶을 수 있다
@@ -177,7 +178,7 @@ class _SettingTile extends StatelessWidget {
     return ListTile(
       leading: Icon(icon, color: AppColors.textSecondary),
       title: Text(title, style: AppTypography.body),
-      subtitle: Text(subtitle, style: AppTypography.caption),
+      subtitle: Text(subtitle.keepAll, style: AppTypography.caption),
       trailing: const Icon(Icons.chevron_right_outlined),
       onTap: onTap,
     );

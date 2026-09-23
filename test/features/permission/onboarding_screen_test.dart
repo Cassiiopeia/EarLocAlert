@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:ear_loc_alert/core/text/keep_all.dart';
 import 'package:ear_loc_alert/core/di/providers.dart';
 import 'package:ear_loc_alert/core/theme/app_theme.dart';
 import 'package:ear_loc_alert/features/permission/domain/permission_kind.dart';
@@ -133,7 +134,7 @@ void main() {
       await settleFrames(tester);
 
       expect(
-        find.text('알림을 놓치지 않으려면'),
+        find.text('알림을 놓치지 않으려면'.keepAll),
         findsOneWidget,
         reason: '저장값은 "아직 안내 안 함"이었다 — 안내 단계가 나와야 한다',
       );
@@ -192,7 +193,7 @@ void main() {
       store.completeRead();
       await settleFrames(tester);
 
-      expect(find.text('위치 권한이 필요합니다'), findsOneWidget);
+      expect(find.text('위치 권한이 필요합니다'.keepAll), findsOneWidget);
       expect(
         find.text('나중에 하기'),
         findsOneWidget,
@@ -240,13 +241,13 @@ void main() {
       store.completeRead();
       await settleFrames(tester);
 
-      expect(find.text('알림을 놓치지 않으려면'), findsOneWidget);
+      expect(find.text('알림을 놓치지 않으려면'.keepAll), findsOneWidget);
 
       // 건너뛰면 기록이 남아 다음 단계가 완료로 바뀐다
       await tester.tap(find.text('나중에 하기'));
       await settleFrames(tester);
 
-      expect(find.text('준비되었습니다'), findsOneWidget);
+      expect(find.text('준비되었습니다'.keepAll), findsOneWidget);
       expect(
         find.text('나중에 하기'),
         findsNothing,

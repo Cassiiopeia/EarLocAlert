@@ -11,6 +11,7 @@ import '../../../core/theme/app_semantic_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/map_style.dart';
+import '../../../core/text/keep_all.dart';
 import '../data/current_location_channel.dart';
 import '../domain/place_search.dart';
 import '../domain/place_validator.dart';
@@ -499,7 +500,7 @@ class _SearchMessage extends StatelessWidget {
         color: AppColors.bgSurface,
         borderRadius: BorderRadius.circular(AppRadius.small),
       ),
-      child: Text(message, style: AppTypography.caption),
+      child: Text(message.keepAll, style: AppTypography.caption),
     );
   }
 }
@@ -541,7 +542,7 @@ class _PickerPanel extends StatelessWidget {
               onChanged: onRadiusChanged,
             ),
             Text(
-              '지도를 움직여 핀을 맞추세요',
+              '지도를 움직여 핀을 맞추세요'.keepAll,
               style: AppTypography.caption,
               textAlign: TextAlign.center,
             ),

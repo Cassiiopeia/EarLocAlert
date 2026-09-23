@@ -1,3 +1,4 @@
+import 'package:ear_loc_alert/core/text/keep_all.dart';
 import 'package:ear_loc_alert/core/audio/alert_sound_source.dart';
 import 'package:ear_loc_alert/core/audio/headphone_detector.dart';
 import 'package:ear_loc_alert/core/di/providers.dart';
@@ -145,7 +146,7 @@ void main() {
   testWidgets('이어폰이 없으면 안내를 띄운다', (tester) async {
     await pumpSheet(tester, headphones: false);
 
-    expect(find.textContaining('이어폰을 연결하면'), findsOneWidget);
+    expect(find.textContaining('이어폰을 연결하면'.keepAll), findsOneWidget);
   });
 
   testWidgets('이어폰이 없으면 미리듣기를 누를 수 없다', (tester) async {
@@ -275,11 +276,11 @@ void main() {
     await pumpSheet(tester, headphones: false);
 
     expect(
-      find.textContaining('0:03'),
+      find.textContaining('0:03'.keepAll),
       findsOneWidget,
       reason: '무엇이 무엇인지 이름만으로는 구분이 안 될 수 있다',
     );
-    expect(find.textContaining('640KB'), findsOneWidget);
+    expect(find.textContaining('640KB'.keepAll), findsOneWidget);
   });
 
   testWidgets('등록 개수를 상한과 함께 보여준다', (tester) async {

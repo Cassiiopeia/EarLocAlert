@@ -13,6 +13,7 @@ import '../../../core/theme/app_semantic_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/map_style.dart';
+import '../../../core/text/keep_all.dart';
 import '../data/current_location_channel.dart';
 import '../domain/alert_place.dart';
 import 'place_card.dart';
@@ -31,8 +32,8 @@ class PlaceMapHomeScreen extends ConsumerStatefulWidget {
     required this.isMonitoring,
     required this.isHeadphoneConnected,
     required this.onAddPlace,
-    this.canAlertReliably = true,
     this.isStatusKnown = true,
+    this.canAlertReliably = true,
     this.missingReliability = const [],
     this.onEditPlace,
     this.onFixMonitoring,
@@ -46,12 +47,12 @@ class PlaceMapHomeScreen extends ConsumerStatefulWidget {
   /// OS 지오펜스에 등록된 장소가 있는가
   final bool isMonitoring;
 
-  /// 지금 이어폰이 연결되어 있는가 (줄·USB-C·블루투스)
   /// [isMonitoring] 을 실제로 확인했는가 (이슈 #142 QA).
   ///
   /// 확인 전의 false 를 "꺼짐"으로 그리면 멀쩡한데 고장으로 보인다
   final bool isStatusKnown;
 
+  /// 지금 이어폰이 연결되어 있는가 (줄·USB-C·블루투스)
   final bool isHeadphoneConnected;
 
   final VoidCallback onAddPlace;
@@ -195,8 +196,8 @@ class _PlaceMapHomeScreenState extends ConsumerState<PlaceMapHomeScreen>
 
           _StatusBar(
             isMonitoring: widget.isMonitoring,
-            // 켜진 장소가 없어서 감시가 안 도는 것은 고장이 아니다 —
             isStatusKnown: widget.isStatusKnown,
+            // 켜진 장소가 없어서 감시가 안 도는 것은 고장이 아니다 —
             // 경고 대신 안내로 보여야 한다
             hasEnabledPlaces: places.any((place) => place.enabled),
             isHeadphoneConnected: widget.isHeadphoneConnected,
@@ -254,7 +255,7 @@ class _PlaceMapHomeScreenState extends ConsumerState<PlaceMapHomeScreen>
 
     if (location == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('현재 위치를 확인할 수 없습니다. 위치 권한을 확인해주세요')),
+        SnackBar(content: Text('현재 위치를 확인할 수 없습니다. 위치 권한을 확인해주세요'.keepAll)),
       );
       return;
     }
@@ -401,8 +402,8 @@ class _PlaceMapHomeScreenState extends ConsumerState<PlaceMapHomeScreen>
 class _StatusBar extends StatelessWidget {
   const _StatusBar({
     required this.isMonitoring,
-    required this.hasEnabledPlaces,
     required this.isStatusKnown,
+    required this.hasEnabledPlaces,
     required this.isHeadphoneConnected,
     required this.canAlertReliably,
     this.missingReliability = const [],
@@ -413,10 +414,10 @@ class _StatusBar extends StatelessWidget {
 
   final bool isMonitoring;
 
-  /// 켜진 장소가 하나라도 있는가.
   /// 감시 상태를 실제로 확인했는가 — false 면 "확인 중"
   final bool isStatusKnown;
 
+  /// 켜진 장소가 하나라도 있는가.
   ///
   /// 감시가 안 도는 이유를 가른다 — 켜진 장소가 없으면 **정상 대기**이고,
   /// 있는데도 안 돌면 **고장(권한 등)**이다. 첫 사용자에게 경고를
@@ -561,9 +562,9 @@ class _StatusBar extends StatelessWidget {
                       ? Icons.radar_outlined
                       : _isBroken
                       ? Icons.warning_amber_outlined
-                      : Icons.pause_circle_outlined,
                       : _isChecking
                       ? Icons.hourglass_empty_outlined
+                      : Icons.pause_circle_outlined,
                   size: AppIconSize.inline,
                   color: statusColor,
                 ),
@@ -580,9 +581,9 @@ class _StatusBar extends StatelessWidget {
                         ? '감시 중'
                         : _isBroken
                         ? '감시 꺼짐'
-                        : '감시 대기',
                         : _isChecking
                         ? '확인 중'
+                        : '감시 대기',
                     style: AppTypography.caption.copyWith(color: statusColor),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -694,9 +695,10 @@ class _WeakAlertBanner extends StatelessWidget {
                     Text(
                       // 조사를 붙이지 않는다 — 항목 이름이 바뀔 때마다
                       // 은/는·이/가가 어긋난다
-                      missing.isEmpty
-                          ? '절전 중이거나 다른 앱을 쓰는 동안 알림이 약해집니다'
-                          : '${missing.join(" · ")} 꺼짐 — 눌러서 켜기',
+                      (missing.isEmpty
+                              ? '절전 중이거나 다른 앱을 쓰는 동안 알림이 약해집니다'
+                              : '${missing.join(" · ")} 꺼짐 — 눌러서 켜기')
+                          .keepAll,
                       style: AppTypography.caption,
                       // **두 줄까지 보여준다** — 한 줄로 자르면 정작 무엇이
                       // 꺼졌는지가 잘려 나간다

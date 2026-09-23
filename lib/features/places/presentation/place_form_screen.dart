@@ -15,6 +15,7 @@ import '../../../core/theme/app_semantic_colors.dart';
 import '../../../core/theme/map_style.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../core/text/keep_all.dart';
 import '../domain/alert_place.dart';
 import '../domain/place_validator.dart';
 import 'alert_schedule_editor.dart';
@@ -208,7 +209,7 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('저장하지 않고 나갈까요?'),
-        content: const Text('지금까지 바꾼 내용은 사라집니다.'),
+        content: Text('지금까지 바꾼 내용은 사라집니다.'.keepAll),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
@@ -286,7 +287,7 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
                 onTap: widget.onPickOnMap == null ? null : _pickOnMap,
               )
             else
-              Text('아직 위치를 고르지 않았습니다', style: AppTypography.caption),
+              Text('아직 위치를 고르지 않았습니다'.keepAll, style: AppTypography.caption),
 
             // 좌표를 직접 아는 경우와, 지도 키 없이 빌드된 경우의 보조 경로.
             // 기본 경로가 아니므로 접어둔다
@@ -383,7 +384,7 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
             SwitchListTile(
               title: Text('이어폰 소리 알림', style: AppTypography.body),
               subtitle: Text(
-                '이어폰(줄·블루투스)이 연결된 경우에만 소리가 납니다.\n스피커로는 절대 소리가 나지 않습니다.',
+                '이어폰(줄·블루투스)이 연결된 경우에만 소리가 납니다.\n스피커로는 절대 소리가 나지 않습니다.'.keepAll,
                 style: AppTypography.caption,
               ),
               value: _soundEnabled,
@@ -486,9 +487,9 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
       return;
     }
 
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(placeErrorMessage(errors.first))));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(placeErrorMessage(errors.first).keepAll)),
+    );
   }
 }
 

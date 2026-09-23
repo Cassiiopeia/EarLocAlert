@@ -9,6 +9,7 @@ import '../../../core/diagnostics/diagnostics.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../core/text/keep_all.dart';
 
 /// 진단 로그 화면 (이슈 #95)
 ///
@@ -112,7 +113,7 @@ class _DiagnosticsScreenState extends ConsumerState<DiagnosticsScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('기록을 지울까요?'),
-        content: const Text('지운 기록은 되돌릴 수 없습니다.'),
+        content: Text('지운 기록은 되돌릴 수 없습니다.'.keepAll),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
@@ -137,7 +138,7 @@ class _DiagnosticsScreenState extends ConsumerState<DiagnosticsScreen> {
     if (!mounted) return;
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(SnackBar(content: Text(message)));
+    ).showSnackBar(SnackBar(content: Text(message.keepAll)));
   }
 
   @override
@@ -210,9 +211,10 @@ class _Header extends StatelessWidget {
           const SizedBox(width: AppSpacing.xs),
           Expanded(
             child: Text(
-              '$lineCount건 · ${_formatSize(sizeBytes)} / 최대 '
-              '${_formatSize(FileDiagnosticLogger.defaultMaxBytes)}\n'
-              '기기 안에만 저장되며 전송되지 않습니다. 가득 차면 오래된 것부터 지워집니다',
+              ('$lineCount건 · ${_formatSize(sizeBytes)} / 최대 '
+                      '${_formatSize(FileDiagnosticLogger.defaultMaxBytes)}\n'
+                      '기기 안에만 저장되며 전송되지 않습니다. 가득 차면 오래된 것부터 지워집니다')
+                  .keepAll,
               style: AppTypography.caption,
             ),
           ),
@@ -243,16 +245,17 @@ class _EmptyState extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              failed
-                  ? '기록을 읽지 못했습니다.'
-                  : '아직 기록이 없습니다.\n앱을 다시 켜거나 감시가 시작되면 쌓입니다.',
+              (failed
+                      ? '기록을 읽지 못했습니다.'
+                      : '아직 기록이 없습니다.\n앱을 다시 켜거나 감시가 시작되면 쌓입니다.')
+                  .keepAll,
               textAlign: TextAlign.center,
               style: AppTypography.body,
             ),
             if (failed) ...[
               const SizedBox(height: AppSpacing.sm),
               Text(
-                readError,
+                readError.keepAll,
                 textAlign: TextAlign.center,
                 style: AppTypography.caption,
               ),

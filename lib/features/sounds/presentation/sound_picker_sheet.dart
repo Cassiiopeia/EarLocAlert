@@ -6,6 +6,7 @@ import '../../../core/di/providers.dart';
 import '../../../core/domain/alert_sound.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../core/text/keep_all.dart';
 import '../domain/custom_sound.dart';
 import '../domain/sound_importer.dart';
 import '../domain/sound_preview_player.dart';
@@ -159,8 +160,9 @@ class _SoundPickerSheetState extends ConsumerState<_SoundPickerSheet>
       builder: (context) => AlertDialog(
         title: const Text('음원을 삭제할까요?'),
         content: Text(
-          '${sound.displayName}\n\n'
-          '이 음원을 쓰던 장소는 기본음으로 알립니다.',
+          ('${sound.displayName}\n\n'
+                  '이 음원을 쓰던 장소는 기본음으로 알립니다.')
+              .keepAll,
           style: AppTypography.body,
         ),
         actions: [
@@ -190,7 +192,7 @@ class _SoundPickerSheetState extends ConsumerState<_SoundPickerSheet>
   void _showMessage(String message) {
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(SnackBar(content: Text(message)));
+    ).showSnackBar(SnackBar(content: Text(message.keepAll)));
   }
 
   @override
@@ -264,7 +266,7 @@ class _SoundPickerSheetState extends ConsumerState<_SoundPickerSheet>
                             vertical: AppSpacing.xs,
                           ),
                           child: Text(
-                            '기기에 있는 음원 파일을 등록해 쓸 수 있습니다.',
+                            '기기에 있는 음원 파일을 등록해 쓸 수 있습니다.'.keepAll,
                             style: AppTypography.caption,
                           ),
                         )
@@ -344,8 +346,9 @@ class _HeadphoneNotice extends StatelessWidget {
           const SizedBox(width: AppSpacing.xs),
           Expanded(
             child: Text(
-              '이어폰을 연결하면 들어볼 수 있습니다. '
-              '알림음은 이어폰이 연결됐을 때만 재생됩니다.',
+              ('이어폰을 연결하면 들어볼 수 있습니다. '
+                      '알림음은 이어폰이 연결됐을 때만 재생됩니다.')
+                  .keepAll,
               style: AppTypography.caption,
             ),
           ),
@@ -378,7 +381,9 @@ class _SoundTile extends StatelessWidget {
     return RadioListTile<AlertSound>(
       value: value,
       title: Text(title, style: AppTypography.body),
-      subtitle: sub == null ? null : Text(sub, style: AppTypography.caption),
+      subtitle: sub == null
+          ? null
+          : Text(sub.keepAll, style: AppTypography.caption),
       contentPadding: EdgeInsets.zero,
       secondary: Row(
         mainAxisSize: MainAxisSize.min,

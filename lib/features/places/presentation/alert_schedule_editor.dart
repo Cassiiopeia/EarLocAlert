@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../core/domain/alert_schedule.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../core/text/keep_all.dart';
 import 'alert_schedule_sheet.dart';
 import 'alert_schedule_summary.dart';
 
@@ -32,7 +33,10 @@ class AlertScheduleEditor extends StatelessWidget {
         const SizedBox(height: AppSpacing.xs),
 
         if (schedules.isEmpty)
-          Text('항상 알림 — 시간대를 더하면 그 시간에만 울립니다', style: AppTypography.caption)
+          Text(
+            '항상 알림 — 시간대를 더하면 그 시간에만 울립니다'.keepAll,
+            style: AppTypography.caption,
+          )
         else
           for (final (index, schedule) in schedules.indexed)
             _ScheduleTile(

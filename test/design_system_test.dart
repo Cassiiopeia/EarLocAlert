@@ -140,6 +140,36 @@ void main() {
     });
   });
 
+  test('한글 문장은 낱말 안에서 끊기지 않게 그린다', () {
+    // Flutter 는 한글 음절 사이를 전부 줄바꿈 지점으로 봐 "알립니 / 다" 로
+    // 쪼갰다 (이슈 #153 QA). 문장을 Text 에 넣을 때는 `.keepAll` 을
+    // 거친다 — 새 문구를 추가하는 자리가 늘 빠지는 자리다.
+    //
+    // 여러 줄이 될 수 있는 설명문만 센다 — 15자 이상에 세 낱말 이상.
+    // "알림 끄기"·"첫 장소를 등록해보세요" 같은 라벨·제목은 한 줄에 든다
+    final literal = RegExp(r"'([^'\n]*)'");
+    bool isSentence(String text) =>
+        RegExp('[가-힣]').hasMatch(text) &&
+        ' '.allMatches(text).length >= 2 &&
+        text.replaceAll(RegExp(r'\$(\{[^}]*\}|\w+)'), '').length >= 15;
+    final offenders = <String>[];
+    for (final file in presentation) {
+      final source = file.readAsStringSync();
+      for (final call in _calls(source, 'Text')) {
+        final first = _firstArgument(call.args);
+        final texts = literal.allMatches(first).map((m) => m.group(1)!);
+        if (!texts.any(isSentence)) continue;
+        if (first.contains('.keepAll')) continue;
+        offenders.add('${file.path}:${call.line} ${first.trim()}');
+      }
+    }
+    expect(
+      offenders,
+      isEmpty,
+      reason: "문장 뒤에 .keepAll 을 붙인다 ('…'.keepAll).\n해당: $offenders",
+    );
+  });
+
   group('아이콘은 한 규격으로', () {
     // 화면 전체(lib) 를 본다 — app 계층에도 아이콘이 있다
     final sources = Directory('lib')
@@ -198,6 +228,33 @@ void main() {
       );
     });
   });
+}
+
+/// 첫 번째 위치 인자 — 최상위 쉼표 앞까지 (괄호·문자열 안 쉼표는 건너뛴다)
+String _firstArgument(String args) {
+  var depth = 0;
+  String? quote;
+  for (var i = 0; i < args.length; i++) {
+    final c = args[i];
+    if (quote != null) {
+      if (c == '\\') {
+        i++;
+      } else if (c == quote) {
+        quote = null;
+      }
+      continue;
+    }
+    if (c == "'" || c == '"') {
+      quote = c;
+    } else if ('([{'.contains(c)) {
+      depth++;
+    } else if (')]}'.contains(c)) {
+      depth--;
+    } else if (c == ',' && depth == 0) {
+      return args.substring(0, i);
+    }
+  }
+  return args;
 }
 
 /// `name(` 호출을 괄호 짝까지 잘라낸다 — 인자가 여러 줄에 걸쳐도 잡는다
