@@ -513,16 +513,12 @@ class _StatusBar extends StatelessWidget {
               //
               // 앱 아이콘에서 딴 그림을 쓴다 — 따로 그리면 아이콘을 바꿨을
               // 때 또 어긋난다 (스플래시가 두 달 그랬다, #150).
+              // 로고는 **16**. 채워진 핀이라 선 아이콘과 같은 크기면
+              // 시각적으로 더 무겁다 (이슈 #155)
               Image.asset(
                 'assets/splash/splash_logo.png',
-                width: 18,
+                width: 16,
                 filterQuality: FilterQuality.medium,
-              ),
-              const SizedBox(width: AppSpacing.xs),
-              Container(
-                width: 1,
-                height: 14,
-                color: AppColors.textSecondary.withValues(alpha: 0.3),
               ),
               const SizedBox(width: AppSpacing.xs),
               // 색만으로 구분하지 않는다 — 아이콘과 문구를 함께 쓴다
@@ -532,39 +528,57 @@ class _StatusBar extends StatelessWidget {
                     : _isBroken
                     ? Icons.warning_amber_outlined
                     : Icons.pause_circle_outlined,
-                size: 18,
+                size: 16,
                 color: statusColor,
               ),
-              const SizedBox(width: AppSpacing.xs),
+              const SizedBox(width: 6),
+              // **라벨만 쓴다.** 예전에는 '감시 대기 · 장소를 켜면 시작됩니다'
+              // 같은 문장이라 40px ~ 192px 로 4.8배까지 벌어졌고, 알약 안에서
+              // 잘려 "장소를 켜면…" 이 되어 아무것도 알려주지 못했다.
+              //
+              // 설명이 필요한 말은 **빈 화면이 이미 하고 있다**
+              // ("첫 장소를 등록해보세요"). 같은 말을 두 곳에서 하지 않는다.
               Flexible(
                 child: Text(
                   isMonitoring
                       ? '감시 중'
                       : _isBroken
-                      ? '감시 꺼짐 · 눌러서 확인'
-                      : '감시 대기 · 장소를 켜면 시작됩니다',
+                      ? '감시 꺼짐'
+                      : '감시 대기',
                   style: AppTypography.caption.copyWith(color: statusColor),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-              const SizedBox(width: AppSpacing.sm),
-              Container(
-                width: 1,
-                height: 14,
-                color: AppColors.textSecondary.withValues(alpha: 0.3),
+              // 누를 수 있다는 것은 글자보다 모양이 빠르다 — '눌러서 확인'
+              // 대신 꺾쇠를 둔다
+              if (_isBroken)
+                Icon(
+                  Icons.chevron_right_outlined,
+                  size: 14,
+                  color: statusColor,
+                ),
+
+              // 구분선 둘을 가운뎃점 하나로 — 요소가 일곱에서 여섯으로 준다
+              const SizedBox(width: AppSpacing.xs),
+              Text(
+                '·',
+                style: AppTypography.caption.copyWith(
+                  color: AppColors.textSecondary.withValues(alpha: 0.5),
+                ),
               ),
-              const SizedBox(width: AppSpacing.sm),
+              const SizedBox(width: AppSpacing.xs),
+
               Icon(
                 isHeadphoneConnected
                     ? Icons.headphones_outlined
                     : Icons.vibration_outlined,
-                size: 18,
+                size: 16,
                 color: isHeadphoneConnected
                     ? semantic.audioBluetooth
                     : AppColors.textSecondary,
               ),
-              const SizedBox(width: AppSpacing.xs),
+              const SizedBox(width: 6),
               Text(
                 isHeadphoneConnected ? '이어폰' : '진동만',
                 style: AppTypography.caption,
