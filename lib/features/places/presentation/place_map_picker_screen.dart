@@ -294,12 +294,13 @@ class _PlaceMapPickerScreenState extends State<PlaceMapPickerScreen> {
             alignment: Alignment.bottomCenter,
             child: Column(
               mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                // 좌측 배치 — 홈과 같은 자리 (docs/06-UX.md)
+                // **오른쪽 배치** — 홈과 같은 자리 (docs/06-UX.md).
+                // 떠 있는 버튼은 엄지가 닿는 오른쪽에 모은다.
                 Padding(
                   padding: const EdgeInsets.only(
-                    left: AppSpacing.sm,
+                    right: AppSpacing.sm,
                     bottom: AppSpacing.sm,
                   ),
                   child: FloatingActionButton.small(

@@ -201,13 +201,9 @@ class _PlaceMapHomeScreenState extends ConsumerState<PlaceMapHomeScreen>
             onOpenSettings: widget.onOpenSettings,
           ),
 
-          _MyLocationButton(
+          _MapControls(
             bottomFraction: _sheetExtent,
-            onPressed: _moveToCurrentLocation,
-          ),
-
-          _AddPlaceButton(
-            bottomFraction: _sheetExtent,
+            onMyLocation: _moveToCurrentLocation,
             onAddPlace: widget.onAddPlace,
           ),
 
@@ -456,7 +452,28 @@ class _StatusBar extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            _statusPill(semantic, statusColor),
+            // **설정을 알약 밖에 둔다** (이슈 #155).
+            //
+            // 예전에는 알약 안에 `Spacer()` + `IconButton` 으로 넣었는데
+            // 셋이 겹쳤다 — Spacer 가 알약을 화면 폭까지 늘려 가운데가
+            // 휑했고, IconButton 의 내부 패딩이 알약 패딩 위에 또 붙어
+            // 오른쪽 여백이 왼쪽과 맞지 않았다. 무엇보다 알약 자체가
+            // "감시 고장 시 권한 화면" 탭 대상인데 그 안에 성격이 다른
+            // 버튼이 또 있어, 어느 쪽을 누르는 것인지 모호했다.
+            Row(
+              // **`Spacer` 를 쓰지 않는다.** flex 공간을 먼저 가져가서 알약이
+              // 눌리고, 로고가 들어온 뒤로는 그대로 넘쳤다(실기기에서 22px).
+              // `spaceBetween` 은 알약에 필요한 만큼 주고 남은 공간으로
+              // 설정을 오른쪽 끝에 민다.
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Flexible(child: _statusPill(semantic, statusColor)),
+                if (onOpenSettings != null) ...[
+                  const SizedBox(width: AppSpacing.xs),
+                  _SettingsButton(onPressed: onOpenSettings!),
+                ],
+              ],
+            ),
             if (_isWeak) ...[
               const SizedBox(height: AppSpacing.xs),
               _WeakAlertBanner(
@@ -485,7 +502,29 @@ class _StatusBar extends StatelessWidget {
             vertical: AppSpacing.xs,
           ),
           child: Row(
+            // 내용만큼만 차지한다 — 늘어나면 가운데가 휑해진다
+            mainAxisSize: MainAxisSize.min,
             children: [
+              // **로고를 알약 안에 둔다** (이슈 #155).
+              //
+              // 따로 띄우면 지도 위에 떠 있는 덩어리가 하나 늘고 그만큼
+              // 지도가 안 보인다. 구글 지도가 검색창 **안쪽** 왼쪽 끝에
+              // G 로고를 넣은 것과 같은 구조다.
+              //
+              // 앱 아이콘에서 딴 그림을 쓴다 — 따로 그리면 아이콘을 바꿨을
+              // 때 또 어긋난다 (스플래시가 두 달 그랬다, #150).
+              Image.asset(
+                'assets/splash/splash_logo.png',
+                width: 18,
+                filterQuality: FilterQuality.medium,
+              ),
+              const SizedBox(width: AppSpacing.xs),
+              Container(
+                width: 1,
+                height: 14,
+                color: AppColors.textSecondary.withValues(alpha: 0.3),
+              ),
+              const SizedBox(width: AppSpacing.xs),
               // 색만으로 구분하지 않는다 — 아이콘과 문구를 함께 쓴다
               Icon(
                 isMonitoring
@@ -530,19 +569,6 @@ class _StatusBar extends StatelessWidget {
                 isHeadphoneConnected ? '이어폰' : '진동만',
                 style: AppTypography.caption,
               ),
-              if (onOpenSettings != null) ...[
-                const Spacer(),
-                // **아이콘 하나만 남긴다** (이슈 #98). 셋이 늘어서니
-                // 정작 중요한 감시 상태가 묻혔다. 상태 바는 "지금 감시
-                // 중인가"를 보여주는 곳이지 설정 모음이 아니다.
-                IconButton(
-                  onPressed: onOpenSettings,
-                  icon: const Icon(Icons.settings_outlined),
-                  iconSize: 18,
-                  visualDensity: VisualDensity.compact,
-                  tooltip: '설정',
-                ),
-              ],
             ],
           ),
         ),
@@ -640,43 +666,29 @@ class _WeakAlertBanner extends StatelessWidget {
 /// 장소 추가 버튼 — 시트 높이를 따라 움직인다.
 ///
 /// 고정해두면 시트를 올렸을 때 버튼이 그 아래로 숨는다.
-/// 내 위치로 이동 (이슈 #98)
+/// 지도 위에 떠 있는 버튼들 (이슈 #155)
 ///
-/// **왼쪽 아래에 둔다.** 오른쪽 아래는 장소 추가 버튼이 쓰고 있고,
-/// 오른쪽 위는 상태 알약이 덮는다 — 그게 이 버튼이 잘려 보이던 이유다.
-class _MyLocationButton extends StatelessWidget {
-  const _MyLocationButton({
+/// **오른쪽 가장자리에 세로로 쌓는다.** 예전에는 내 위치가 왼쪽, 장소
+/// 추가가 오른쪽으로 갈려 있었는데, 그건 "오른쪽 아래를 장소 추가가 이미
+/// 쓰고 있어서" 밀려난 결과지 그 자리가 나아서가 아니었다.
+///
+/// 한쪽에 모으는 이유는 **엄지가 닿는 쪽**이기 때문이다. 이 앱은 버스에서
+/// 한 손으로 쓴다 — 오른손잡이가 왼쪽 버튼을 누르려면 화면을 가로질러야
+/// 하고, 그 동작이 그대로 지도를 건드려 카메라를 움직인다.
+///
+/// 왼쪽을 비우면 지도도 그만큼 넓게 열린다. 갈라 두면 양쪽이 다 좁다.
+///
+/// 시트 높이를 따라 함께 오르내린다 — 고정하면 시트를 올렸을 때 아래로
+/// 숨는다.
+class _MapControls extends StatelessWidget {
+  const _MapControls({
     required this.bottomFraction,
-    required this.onPressed,
-  });
-
-  final double bottomFraction;
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return Positioned(
-      left: AppSpacing.sm,
-      bottom:
-          MediaQuery.sizeOf(context).height * bottomFraction + AppSpacing.sm,
-      child: FloatingActionButton.small(
-        onPressed: onPressed,
-        heroTag: 'myLocation',
-        backgroundColor: AppColors.bgElevated,
-        foregroundColor: AppColors.textPrimary,
-        child: const Icon(Icons.my_location_outlined),
-      ),
-    );
-  }
-}
-
-class _AddPlaceButton extends StatelessWidget {
-  const _AddPlaceButton({
-    required this.bottomFraction,
+    required this.onMyLocation,
     required this.onAddPlace,
   });
 
   final double bottomFraction;
+  final VoidCallback onMyLocation;
   final VoidCallback onAddPlace;
 
   @override
@@ -685,9 +697,25 @@ class _AddPlaceButton extends StatelessWidget {
       right: AppSpacing.sm,
       bottom:
           MediaQuery.sizeOf(context).height * bottomFraction + AppSpacing.sm,
-      child: FloatingActionButton(
-        onPressed: onAddPlace,
-        child: const Icon(Icons.add_outlined),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          // 보조가 위, 주가 아래 — 엄지에 가장 가까운 자리를 주 동작이 쓴다
+          FloatingActionButton.small(
+            onPressed: onMyLocation,
+            heroTag: 'myLocation',
+            backgroundColor: AppColors.bgElevated,
+            foregroundColor: AppColors.textPrimary,
+            child: const Icon(Icons.my_location_outlined),
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          FloatingActionButton(
+            onPressed: onAddPlace,
+            heroTag: 'addPlace',
+            child: const Icon(Icons.add_outlined),
+          ),
+        ],
       ),
     );
   }
@@ -801,6 +829,33 @@ class _PlaceSheet extends ConsumerWidget {
           onDelete: () => deletePlaceWithUndo(context, ref, place),
         );
       },
+    );
+  }
+}
+
+class _SettingsButton extends StatelessWidget {
+  const _SettingsButton({required this.onPressed});
+
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: AppColors.bgSurface,
+      borderRadius: BorderRadius.circular(AppRadius.pill),
+      child: InkWell(
+        onTap: onPressed,
+        borderRadius: BorderRadius.circular(AppRadius.pill),
+        child: const Padding(
+          // 알약의 세로 패딩(xs)과 맞춘다. 가로는 정사각에 가깝게 둬야
+          // 원형 탭 영역이 자연스럽다
+          padding: EdgeInsets.symmetric(
+            horizontal: AppSpacing.xs + 2,
+            vertical: AppSpacing.xs,
+          ),
+          child: Icon(Icons.settings_outlined, size: 18),
+        ),
+      ),
     );
   }
 }

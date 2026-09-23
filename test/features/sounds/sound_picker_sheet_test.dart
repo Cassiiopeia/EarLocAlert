@@ -239,15 +239,35 @@ void main() {
     await tester.tap(find.text('열기'));
     await tester.pumpAndSettle();
 
+    // 하단 확정 버튼이 생기며 목록이 짧아졌다 — 화면 안으로 끌어온 뒤 누른다
+    await tester.ensureVisible(find.text('알람소리.mp3'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('알람소리.mp3'));
     await tester.pumpAndSettle();
 
+    expect(picked, isNull, reason: '고르기만 해서는 닫히지 않는다 — 여러 개를 들어보며 고르는 화면이다');
+
+    await tester.tap(find.widgetWithText(FilledButton, '완료'));
+    await tester.pumpAndSettle();
+
+    expect(picked, const CustomSoundRef('s1'));
+  });
+
+  testWidgets('확정은 하단 주 버튼이 받는다', (tester) async {
+    repo.sounds = [makeSound()];
+    await pumpSheet(tester, headphones: false);
+
+    // 예전에는 오른쪽 위 작은 TextButton 이었고, 큰 버튼 자리는 보조 동작인
+    // '음원 추가' 가 차지했다 (이슈 #153 · #155)
+    expect(find.widgetWithText(FilledButton, '완료'), findsOneWidget);
+    // `OutlinedButton.icon` 은 내부 서브클래스라 byType 으로 안 잡힌다 —
+    // "주 버튼이 아니다"를 세는 것이 이 검사의 목적이다
     expect(
-      picked,
-      const CustomSoundRef('s1'),
-      reason: '한 값을 고르는 시트는 고르는 순간 확정된다 — 확정 버튼이 없다',
+      find.widgetWithText(FilledButton, '음원 추가'),
+      findsNothing,
+      reason: '보조 동작이 주 버튼 자리를 차지하면 안 된다',
     );
-    expect(find.text('완료'), findsNothing, reason: '확정 버튼이 되살아나면 규칙이 깨진 것이다');
+    expect(find.text('음원 추가'), findsOneWidget);
   });
 
   testWidgets('목록에 길이와 크기를 보여준다', (tester) async {

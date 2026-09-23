@@ -209,8 +209,6 @@ class _SoundPickerSheetState extends ConsumerState<_SoundPickerSheet>
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 확정 버튼이 없다 — 한 값을 고르는 시트라 고르는 순간 적용된다
-            // (docs/06-UX.md 시트 확정 규칙)
             Text(
               '알림음',
               style: AppTypography.body.copyWith(fontWeight: FontWeight.w600),
@@ -223,12 +221,16 @@ class _SoundPickerSheetState extends ConsumerState<_SoundPickerSheet>
               child: SingleChildScrollView(
                 child: RadioGroup<AlertSound>(
                   groupValue: _selected,
-                  // **고르는 순간 확정하고 닫는다.** 예전에는 탭이 선택과
-                  // 재생을 동시에 해서 무엇이 일어난 것인지 모호했다 —
-                  // 이제 역할을 가른다: 행은 고르기, ▶ 는 들어보기
+                  // **탭은 고르기만 한다.** 예전에는 탭이 선택과 재생을
+                  // 동시에 해서 무엇이 일어난 것인지 모호했다 — 역할을
+                  // 가른다: 행은 고르기, ▶ 는 들어보기.
+                  //
+                  // 닫지 않는 이유는 **여러 개를 들어보며 고르는 화면**이기
+                  // 때문이다. 탭 즉시 닫으면 스크롤 중 잘못 눌린 것이 그대로
+                  // 저장되고, 되돌리려면 다시 열어야 한다.
                   onChanged: (value) {
                     if (value == null) return;
-                    Navigator.of(context).pop(value);
+                    setState(() => _selected = value);
                   },
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -299,6 +301,21 @@ class _SoundPickerSheetState extends ConsumerState<_SoundPickerSheet>
                     ],
                   ),
                 ),
+              ),
+            ),
+
+            // **확정은 하단 주 버튼이 받는다** (docs/06-UX.md 주 액션 규칙).
+            //
+            // 이 시트는 순수한 단일 선택이 아니라 **관리 화면**이다 —
+            // 추가·삭제·미리듣기가 함께 있다. 그리고 여러 개를 들어보며
+            // 고르는 흐름이라, 탭 즉시 적용·닫기는 잘못 누른 것을 그대로
+            // 저장해버린다. 확정 지점이 있어야 한다.
+            const SizedBox(height: AppSpacing.sm),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton(
+                onPressed: () => Navigator.of(context).pop(_selected),
+                child: const Text('완료'),
               ),
             ),
           ],
