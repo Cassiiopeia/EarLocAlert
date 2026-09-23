@@ -15,7 +15,7 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/map_style.dart';
 import '../../../core/text/keep_all.dart';
-import '../../../core/widgets/hit_slop.dart';
+import '../../../core/widgets/floating_circle_button.dart';
 import '../data/current_location_channel.dart';
 import '../domain/alert_place.dart';
 import 'place_card.dart';
@@ -473,7 +473,7 @@ class _StatusBar extends StatelessWidget {
     // 설정 버튼은 보이는 원보다 탭 영역이 크다. 그 차이만큼 바깥 여백에서
     // 빼야 **보이는 원이 예전 자리 그대로** 오른쪽 끝·알약과 같은 높이에
     // 선다 — 안 빼면 #155 에서 맞춘 좌우 여백이 다시 어긋난다
-    const overhang = (_SettingsButton.hitSize - _SettingsButton.visualSize) / 2;
+    const overhang = _SettingsButton.slop;
 
     return SafeArea(
       child: Padding(
@@ -559,10 +559,12 @@ class _StatusBar extends StatelessWidget {
                 // 같은 18 로 맞춘다 (이슈 #155 QA)
                 Image.asset(
                   'assets/icon/app_logo_mark.png',
-                  height: AppIconSize.inline,
+                  height: AppIconSize.standard,
                   filterQuality: FilterQuality.medium,
                 ),
-                const SizedBox(width: AppSpacing.xs),
+                // 로고와 상태를 한 칸 떼어 놓는다 — 붙어 있으면 청록 아이콘 둘이
+                // 한 덩어리로 보여 무엇이 로고인지 흐려진다 (디자인 리뷰)
+                const SizedBox(width: AppSpacing.sm),
                 // 색만으로 구분하지 않는다 — 아이콘과 문구를 함께 쓴다
                 Icon(
                   isMonitoring
@@ -572,7 +574,7 @@ class _StatusBar extends StatelessWidget {
                       : _isChecking
                       ? Icons.hourglass_empty_outlined
                       : Icons.pause_circle_outlined,
-                  size: AppIconSize.inline,
+                  size: AppIconSize.control,
                   color: statusColor,
                 ),
                 const SizedBox(width: AppSpacing.xs),
@@ -591,7 +593,7 @@ class _StatusBar extends StatelessWidget {
                         : _isChecking
                         ? '확인 중'
                         : '감시 대기',
-                    style: AppTypography.caption.copyWith(color: statusColor),
+                    style: AppTypography.body.copyWith(color: statusColor),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -601,7 +603,7 @@ class _StatusBar extends StatelessWidget {
                 if (_isBroken)
                   Icon(
                     Icons.chevron_right_outlined,
-                    size: AppIconSize.inline,
+                    size: AppIconSize.control,
                     color: statusColor,
                   ),
 
@@ -609,7 +611,7 @@ class _StatusBar extends StatelessWidget {
                 const SizedBox(width: AppSpacing.xs),
                 Text(
                   '·',
-                  style: AppTypography.caption.copyWith(
+                  style: AppTypography.body.copyWith(
                     color: AppColors.textSecondary.withValues(alpha: 0.5),
                   ),
                 ),
@@ -619,7 +621,7 @@ class _StatusBar extends StatelessWidget {
                   isHeadphoneConnected
                       ? Icons.headphones_outlined
                       : Icons.vibration_outlined,
-                  size: AppIconSize.inline,
+                  size: AppIconSize.control,
                   color: isHeadphoneConnected
                       ? semantic.audioBluetooth
                       : AppColors.textSecondary,
@@ -627,7 +629,7 @@ class _StatusBar extends StatelessWidget {
                 const SizedBox(width: AppSpacing.xs),
                 Text(
                   isHeadphoneConnected ? '이어폰' : '진동만',
-                  style: AppTypography.caption,
+                  style: AppTypography.body,
                 ),
               ],
             ),
@@ -755,9 +757,14 @@ class _MapControls extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 두 버튼 모두 보이는 모양보다 [_slop] 만큼 넓게 눌린다 (이슈 #155 QA).
-    // 넓힌 만큼 바깥 여백에서 빼 보이는 자리는 예전과 같다. 두 버튼 사이
-    // 틈(xs)은 반씩 나눠 가져 서로의 범위가 겹치지 않는다
+    // 보조(내 위치 48)가 위, 주(장소 추가 56)가 아래 — 엄지에 가장 가까운
+    // 자리를 주 동작이 쓴다. 둘 다 원이고 **세로 중심을 맞춘다**
+    // (디자인 리뷰 #155 — 예전엔 크기·모양이 다르고 오른쪽 끝에 붙어 어긋나
+    // 보였다).
+    //
+    // 두 버튼 모두 보이는 원보다 [_slop] 만큼 넓게 눌린다. 넓힌 만큼 바깥
+    // 여백에서 빼 보이는 자리는 그대로이고, 두 버튼 사이 틈(xs)은 반씩
+    // 나눠 서로의 범위가 겹치지 않는다
     const gapHalf = AppSpacing.xs / 2;
     return Positioned(
       right: AppSpacing.sm - _slop,
@@ -767,31 +774,21 @@ class _MapControls extends StatelessWidget {
           _slop,
       child: Column(
         mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          // 보조가 위, 주가 아래 — 엄지에 가장 가까운 자리를 주 동작이 쓴다
-          HitSlop(
-            onTap: onMyLocation,
-            padding: const EdgeInsets.fromLTRB(_slop, _slop, _slop, gapHalf),
-            child: FloatingActionButton.small(
-              onPressed: onMyLocation,
-              heroTag: 'myLocation',
-              backgroundColor: AppColors.bgElevated,
-              foregroundColor: AppColors.textPrimary,
-              // 머티리얼이 붙이는 48dp 여백 대신 HitSlop 이 범위를 정한다
-              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              child: const Icon(Icons.my_location_outlined),
-            ),
+          FloatingCircleButton(
+            icon: Icons.my_location_outlined,
+            onPressed: onMyLocation,
+            semanticLabel: '내 위치',
+            slop: const EdgeInsets.fromLTRB(_slop, _slop, _slop, gapHalf),
           ),
-          HitSlop(
-            onTap: onAddPlace,
-            padding: const EdgeInsets.fromLTRB(_slop, gapHalf, _slop, _slop),
-            child: FloatingActionButton(
-              onPressed: onAddPlace,
-              heroTag: 'addPlace',
-              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              child: const Icon(Icons.add_outlined),
-            ),
+          FloatingCircleButton(
+            icon: Icons.add_outlined,
+            onPressed: onAddPlace,
+            semanticLabel: '장소 추가',
+            size: AppControlSize.primary,
+            background: AppColors.primary,
+            foreground: AppColors.textOnPrimary,
+            slop: const EdgeInsets.fromLTRB(_slop, gapHalf, _slop, _slop),
           ),
         ],
       ),
@@ -919,45 +916,17 @@ class _SettingsButton extends StatelessWidget {
 
   final VoidCallback onPressed;
 
-  /// 실제로 눌리는 범위
-  static const double hitSize = AppControlSize.minTouch;
-
-  /// 보이는 원 — 알약·내 위치 버튼과 같은 높이
-  static const double visualSize = AppControlSize.floating;
+  /// 보이는 원 바깥으로 더 받는 폭
+  static const double slop = AppSpacing.xs;
 
   @override
   Widget build(BuildContext context) {
-    // **보이는 크기와 누를 수 있는 범위를 분리한다** (이슈 #155 QA).
-    //
-    // 예전 원은 38×34dp 라 그대로 탭 영역이면 최소 터치 타깃 48dp 에
-    // 못 미쳤다 — 지도 위에 떠 있어 빗나가면 지도가 움직인다. 모양은
-    // 알약과 같은 40 으로 두고 바깥 여백까지 탭을 받는다. 알림 화면
-    // 해제 버튼과 같은 방식이다 (#142)
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: onPressed,
-      child: SizedBox.square(
-        dimension: hitSize,
-        child: Center(
-          child: SizedBox.square(
-            dimension: visualSize,
-            child: Material(
-              color: AppColors.bgSurface,
-              shape: const CircleBorder(),
-              child: InkWell(
-                onTap: onPressed,
-                customBorder: const CircleBorder(),
-                // 아이콘 버튼의 아이콘은 기본 크기(24)다 — 알약 안 아이콘(18)
-                // 과 역할이 다르다 (docs/06-UX.md 아이콘 크기)
-                child: const Icon(
-                  Icons.settings_outlined,
-                  size: AppIconSize.standard,
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
+    // 떠 있는 버튼은 한 규격으로 (디자인 리뷰 #155) — 모양·크기·탭 범위를
+    // 공용 버튼이 정한다. 예전 38×34dp 원은 최소 터치 타깃에도 못 미쳤다
+    return FloatingCircleButton(
+      icon: Icons.settings_outlined,
+      onPressed: onPressed,
+      semanticLabel: '설정',
     );
   }
 }

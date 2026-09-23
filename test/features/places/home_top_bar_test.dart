@@ -106,7 +106,7 @@ void main() {
     expect(opened, 1);
   });
 
-  testWidgets('알약과 설정 원은 같은 높이(40)로 선다', (tester) async {
+  testWidgets('알약과 설정 원은 같은 높이(48)로 선다', (tester) async {
     await pump(tester);
 
     final pill = tester.getRect(
@@ -118,20 +118,21 @@ void main() {
     expect(visibleCircle(tester).height, AppControlSize.floating);
   });
 
-  testWidgets('로고는 옆 아이콘과 같은 높이로 보인다', (tester) async {
+  testWidgets('로고는 옆 상태 아이콘보다 한 단계 크다', (tester) async {
     await pump(tester);
 
-    // 예전에는 스플래시 판(여백이 큰 768 판)을 폭 16 으로 넣어 핀이 7dp 로
-    // 쪼그라들었다 — 여백 없는 판을 옆 아이콘과 같은 높이로 넣는다
+    // 로고 이미지에는 핀 아래 받침 고리와 빛 번짐까지 들어 있어, 옆 아이콘과
+    // 같은 높이면 핀 자체가 작고 흐리게 보였다 (디자인 리뷰 #155).
+    // 여백 없는 판을 쓰되 상태 아이콘(20)보다 한 단계 큰 24 로 둔다
     final logo = tester.widget<Image>(find.byType(Image));
     expect(
       (logo.image as AssetImage).assetName,
       'assets/icon/app_logo_mark.png',
     );
-    expect(tester.getSize(find.byType(Image)).height, AppIconSize.inline);
+    expect(tester.getSize(find.byType(Image)).height, AppIconSize.standard);
     expect(
       tester.getSize(find.byIcon(Icons.radar_outlined)).height,
-      AppIconSize.inline,
+      AppIconSize.control,
     );
   });
 
