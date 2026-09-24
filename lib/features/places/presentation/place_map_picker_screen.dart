@@ -13,7 +13,7 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/map_style.dart';
 import '../../../core/text/keep_all.dart';
-import '../../../core/widgets/hit_slop.dart';
+import '../../../core/widgets/floating_circle_button.dart';
 import '../data/current_location_channel.dart';
 import '../domain/place_search.dart';
 import '../domain/place_validator.dart';
@@ -338,24 +338,17 @@ class _PlaceMapPickerScreenState extends State<PlaceMapPickerScreen> {
               children: [
                 // **오른쪽 배치** — 홈과 같은 자리 (docs/06-UX.md).
                 // 떠 있는 버튼은 엄지가 닿는 오른쪽에 모은다.
-                // 보이는 원보다 넓게 눌린다 — 홈과 같다 (이슈 #155 QA).
-                // 넓힌 만큼 바깥 여백에서 뺐다
+                // 홈과 같은 원형 버튼 — 크기·모양·탭 범위가 한 규격이다
+                // (디자인 리뷰 #155). 넓게 눌리는 만큼 바깥 여백에서 뺐다
                 Padding(
                   padding: const EdgeInsets.only(
                     right: AppSpacing.sm - AppSpacing.xs,
                     bottom: AppSpacing.sm - AppSpacing.xs,
                   ),
-                  child: HitSlop(
-                    onTap: _moveToCurrentLocation,
-                    padding: const EdgeInsets.all(AppSpacing.xs),
-                    child: FloatingActionButton.small(
-                      heroTag: 'pickerMyLocation',
-                      backgroundColor: AppColors.bgElevated,
-                      foregroundColor: AppColors.textPrimary,
-                      onPressed: _moveToCurrentLocation,
-                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      child: const Icon(Icons.my_location_outlined),
-                    ),
+                  child: FloatingCircleButton(
+                    icon: Icons.my_location_outlined,
+                    onPressed: _moveToCurrentLocation,
+                    semanticLabel: '내 위치',
                   ),
                 ),
                 _PickerPanel(
@@ -422,48 +415,53 @@ class _SearchOverlay extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Material(
-              color: AppColors.bgSurface,
-              borderRadius: BorderRadius.circular(AppRadius.pill),
-              child: TextField(
-                controller: controller,
-                focusNode: focusNode,
-                onChanged: onChanged,
-                textInputAction: TextInputAction.search,
-                style: AppTypography.body,
-                decoration: InputDecoration(
-                  hintText: '장소·주소 검색',
-                  hintStyle: AppTypography.caption,
-                  border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.sm,
-                    vertical: AppSpacing.xs,
-                  ),
-                  prefixIcon: const Icon(
-                    Icons.search_outlined,
-                    size: AppIconSize.standard,
-                  ),
-                  suffixIcon: searching
-                      ? const Padding(
-                          padding: EdgeInsets.all(AppSpacing.xs),
-                          child: SizedBox(
-                            width: 18,
-                            height: 18,
-                            child: CircularProgressIndicator(strokeWidth: 2),
+            // 높이를 홈 상단 알약과 같은 48 로 — 지도 위 보조 요소는 한
+            // 높이로 선다 (디자인 리뷰 #155. 예전엔 이것만 42 였다)
+            SizedBox(
+              height: AppControlSize.floating,
+              child: Material(
+                color: AppColors.bgSurface,
+                borderRadius: BorderRadius.circular(AppRadius.pill),
+                child: TextField(
+                  textAlignVertical: TextAlignVertical.center,
+                  controller: controller,
+                  focusNode: focusNode,
+                  onChanged: onChanged,
+                  textInputAction: TextInputAction.search,
+                  style: AppTypography.body,
+                  decoration: InputDecoration(
+                    hintText: '장소·주소 검색',
+                    hintStyle: AppTypography.caption,
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.sm,
+                    ),
+                    prefixIcon: const Icon(
+                      Icons.search_outlined,
+                      size: AppIconSize.standard,
+                    ),
+                    suffixIcon: searching
+                        ? const Padding(
+                            padding: EdgeInsets.all(AppSpacing.xs),
+                            child: SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            ),
+                          )
+                        : controller.text.isEmpty
+                        ? null
+                        : IconButton(
+                            icon: const Icon(
+                              Icons.close_outlined,
+                              size: AppIconSize.standard,
+                            ),
+                            onPressed: () {
+                              controller.clear();
+                              onChanged('');
+                            },
                           ),
-                        )
-                      : controller.text.isEmpty
-                      ? null
-                      : IconButton(
-                          icon: const Icon(
-                            Icons.close_outlined,
-                            size: AppIconSize.standard,
-                          ),
-                          onPressed: () {
-                            controller.clear();
-                            onChanged('');
-                          },
-                        ),
+                  ),
                 ),
               ),
             ),

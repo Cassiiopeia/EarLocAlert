@@ -335,9 +335,21 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
 
             // 반경 — 슬라이더 값이 즉시 보여야 한다.
             // 지도가 붙으면 반경 원이 실시간으로 함께 커진다 (docs/06-UX.md)
-            Text(
-              '알림 반경 ${_radius.round()}m',
-              style: AppTypography.body.copyWith(fontWeight: FontWeight.w600),
+            //
+            // 제목은 다른 칸(위치·알림 시점)과 같은 작은 회색, 값만 오른쪽에
+            // 굵게 둔다 — 예전엔 이 제목만 굵은 흰 글자라 위계가 섞였다
+            // (디자인 리뷰 #155). 알림음 크기 시트와 같은 배치다
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('알림 반경', style: AppTypography.caption),
+                Text(
+                  '${_radius.round()}m',
+                  style: AppTypography.body.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
             ),
             Slider(
               value: _radius,

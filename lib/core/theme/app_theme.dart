@@ -48,6 +48,15 @@ abstract final class AppTheme {
       ),
 
       // 주요 버튼 — 하단 전체 폭 pill (docs/06-UX.md)
+      // 보조 버튼도 전체 폭 (디자인 리뷰 #155). 예전엔 "지도에서 다시
+      // 선택"·"음원 추가" 는 전체 폭, "시간대 추가"·"미리듣기" 는 글자만큼이라
+      // 같은 역할이 두 모양이었다. 화면마다 감싸지 않고 여기서 정해야 새로
+      // 만드는 버튼도 따라온다. 높이는 떠 있는 보조 요소와 같은 48
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          minimumSize: const Size.fromHeight(AppControlSize.floating),
+        ),
+      ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
           backgroundColor: AppColors.primary,
