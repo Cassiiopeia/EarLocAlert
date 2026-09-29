@@ -1,0 +1,10 @@
+{
+  "@@locale": "zh",
+  "appName": "EarLocAlert",
+  "settingsLanguageTitle": "语言",
+  "languageSheetHint": "选择后立即生效",
+  "languageFollowDevice": "跟随设备设置",
+  "languageFollowDeviceHint": "当前：{language}",
+  "languageChanged": "语言已更改",
+  "languageUndo": "撤销"
+}

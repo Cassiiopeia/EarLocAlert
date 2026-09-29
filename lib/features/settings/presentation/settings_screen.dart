@@ -1,4 +1,11 @@
+import 'dart:ui' show PlatformDispatcher;
+
 import 'package:flutter/material.dart';
+
+import '../../../core/l10n/app_language.dart';
+import '../../../core/l10n/l10n.dart';
+import '../../../core/l10n/locale_resolver.dart';
+import 'language_sheet.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_semantic_colors.dart';
@@ -45,6 +52,8 @@ class SettingsScreen extends StatelessWidget {
     required this.onOpenVolumeSettings,
     required this.onOpenVibrationSettings,
     required this.onOpenDiagnostics,
+    required this.language,
+    required this.onLanguageChanged,
     this.permissions = const [],
     this.onPreviewAlert,
     super.key,
@@ -56,12 +65,60 @@ class SettingsScreen extends StatelessWidget {
   final VoidCallback onOpenVibrationSettings;
   final VoidCallback onOpenDiagnostics;
 
+  /// 지금 고른 앱 언어와 바꾸는 방법 (이슈 #163). app 계층이 값을 내려준다
+  final AppLanguage language;
+  final ValueChanged<AppLanguage> onLanguageChanged;
+
   /// 알림이 확실히 도달하는 데 필요한 권한들 (이슈 #102)
   final List<SettingsPermissionRow> permissions;
 
   /// 알림 흐름 수동 확인 (실기기 스파이크용).
   /// 지오펜스 실기기 검증이 끝나면 제거한다 (docs/11-ROADMAP.md).
   final VoidCallback? onPreviewAlert;
+
+  /// 기기 언어를 따를 때 지금 어느 언어로 보이는지
+  static String get _deviceLanguageName {
+    final device = resolveAppLocale(
+      AppLanguage.system,
+      PlatformDispatcher.instance.locales,
+    );
+    return AppLanguage.parse(device.languageCode).nativeName ?? 'English';
+  }
+
+  String _languageSubtitle(BuildContext context) =>
+      language == AppLanguage.system
+      ? context.l10n.languageFollowDeviceHint(_deviceLanguageName)
+      : language.nativeName!;
+
+  Future<void> _openLanguage(BuildContext context) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final picked = await showLanguageSheet(
+      context,
+      current: language,
+      deviceLanguageName: _deviceLanguageName,
+    );
+    if (picked == null || picked == language) return;
+
+    onLanguageChanged(picked);
+
+    // **실수로 눌렀을 때 바로 되돌릴 수 있게 한다.** 문구는 화면이 아직 옛
+    // 언어이므로 **바뀐 언어로** 직접 찾아 보여준다
+    final strings = AppStrings.forLocale(
+      resolveAppLocale(picked, PlatformDispatcher.instance.locales),
+    );
+    messenger
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(strings.languageChanged),
+          duration: const Duration(seconds: 8),
+          action: SnackBarAction(
+            label: strings.languageUndo,
+            onPressed: () => onLanguageChanged(language),
+          ),
+        ),
+      );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -70,6 +127,15 @@ class SettingsScreen extends StatelessWidget {
       body: SafeArea(
         child: ListView(
           children: [
+            // **언어 항목은 설정의 맨 위, 언제나 같은 자리에 둔다** (이슈 #163).
+            // 읽을 수 없는 언어로 바뀐 사용자가 지구본 아이콘만 보고 찾아
+            // 되돌릴 수 있어야 한다
+            _SettingTile(
+              icon: Icons.language_outlined,
+              title: context.l10n.settingsLanguageTitle,
+              subtitle: _languageSubtitle(context),
+              onTap: () => _openLanguage(context),
+            ),
             const _SectionLabel('알림'),
             _SettingTile(
               icon: Icons.vibration_outlined,

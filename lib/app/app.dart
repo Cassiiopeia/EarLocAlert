@@ -7,6 +7,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/config/build_info.dart';
 import '../core/config/dev_flag.dart';
 import '../core/diagnostics/diagnostics.dart';
+import '../core/l10n/app_language_controller.dart';
+import '../core/l10n/l10n.dart';
+import '../core/l10n/locale_resolver.dart';
 import '../features/ads/domain/ad_unit_ids.dart';
 import '../core/theme/app_theme.dart';
 import '../features/ads/presentation/ads_providers.dart';
@@ -219,8 +222,16 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
 
   @override
   Widget build(BuildContext context) {
+    // 사용자가 고른 언어가 기기 언어보다 우선한다. `system` 이면 기기 언어를
+    // 따르고, 지원하지 않는 언어이면 영어다 (이슈 #163)
+    final language = ref.watch(appLanguageControllerProvider);
     return MaterialApp.router(
-      title: 'EarLocAlert',
+      onGenerateTitle: (context) => context.l10n.appName,
+      locale: language.locale,
+      supportedLocales: supportedAppLocales,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      localeListResolutionCallback: (deviceLocales, supported) =>
+          resolveAppLocale(language, deviceLocales ?? const []),
       theme: AppTheme.dark(),
       debugShowCheckedModeBanner: false,
       routerConfig: _router,

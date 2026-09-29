@@ -1,0 +1,10 @@
+{
+  "@@locale": "ja",
+  "appName": "EarLocAlert",
+  "settingsLanguageTitle": "言語",
+  "languageSheetHint": "選ぶとすぐに反映されます",
+  "languageFollowDevice": "端末の設定に合わせる",
+  "languageFollowDeviceHint": "現在: {language}",
+  "languageChanged": "言語を変更しました",
+  "languageUndo": "元に戻す"
+}

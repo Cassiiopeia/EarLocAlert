@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app/app.dart';
+import 'core/l10n/app_language_controller.dart';
+import 'core/l10n/app_language_store.dart';
 import 'app/splash_overlay.dart';
 import 'app/background/watch_engine_entrypoint.dart' as watch_engine;
 
@@ -15,9 +17,18 @@ Future<void> main() async {
   // 핀 없는 검은 판이 잠깐 뜬다. 상한이 걸려 있어 실패해도 앱은 뜬다.
   await SplashOverlay.warmUp();
 
+  // 앱 언어를 첫 프레임 전에 읽는다 (이슈 #163). 비동기로 읽으면 기기 언어로
+  // 그려졌다가 바뀌는 깜빡임이 생긴다. 읽기에 실패해도 기기 언어로 뜬다.
+  final language = await const AppLanguageStore().read();
+
   // Riverpod 으로 통일한다 — get_it 을 병행하지 않는다
   // (docs/02-ARCHITECTURE.md)
-  runApp(const ProviderScope(child: EarLocAlertApp()));
+  runApp(
+    ProviderScope(
+      overrides: [appLanguageInitialProvider.overrideWithValue(language)],
+      child: const EarLocAlertApp(),
+    ),
+  );
 }
 
 /// 감시 서비스가 띄우는 엔진의 진입점 (이슈 #93)

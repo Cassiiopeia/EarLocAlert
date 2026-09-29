@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../core/di/providers.dart';
+import '../core/l10n/app_language_controller.dart';
 import '../core/domain/alert_direction.dart';
 import '../core/domain/alert_sound.dart';
 import '../features/ads/presentation/ads_providers.dart';
@@ -323,6 +324,10 @@ class _SettingsRouteState extends ConsumerState<_SettingsRoute>
       // 진동 세기 (이슈 #103) — 이어폰이 없을 때 유일한 알림 수단이다
       onOpenVibrationSettings: () => showVibrationIntensitySheet(context),
       onOpenDiagnostics: () => context.push(AppRoutes.diagnostics),
+      // 앱 언어 (이슈 #163) — 고르면 바로 적용되고 저장된다
+      language: ref.watch(appLanguageControllerProvider),
+      onLanguageChanged: (next) =>
+          ref.read(appLanguageControllerProvider.notifier).select(next),
       permissions: _permissionRows(ref, snapshot),
       // 백그라운드 감시 연결 전까지 알림 흐름을 확인하는 수단 (S-4·S-5).
       // 지오펜스 실기기 검증이 끝나면 제거한다.

@@ -1,0 +1,10 @@
+{
+  "@@locale": "en",
+  "appName": "EarLocAlert",
+  "settingsLanguageTitle": "Language",
+  "languageSheetHint": "Applies immediately",
+  "languageFollowDevice": "Follow device settings",
+  "languageFollowDeviceHint": "Currently {language}",
+  "languageChanged": "Language changed",
+  "languageUndo": "Undo"
+}

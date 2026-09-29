@@ -11,6 +11,10 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  # 다국어 (이슈 #163) — 한국어·영어·중국어·일본어. 설계는 docs/superpowers/specs/2026-09-29-i18n-design.md
+  flutter_localizations:
+    sdk: flutter
+  intl: ^0.20.2
   cupertino_icons: ^1.0.8
   freezed_annotation: ^3.0.0
   # 상태 관리 · DI — Riverpod 으로 통일한다. provider·get_it 병행 금지 (docs/02-ARCHITECTURE.md)
@@ -89,6 +93,8 @@ dev_dependencies:
   riverpod_lint: ^2.6.1
 flutter:
   uses-material-design: true
+  # 번역 파일에서 AppLocalizations 를 생성한다 (l10n.yaml, 이슈 #163)
+  generate: true
   assets:
     # 알림음. 이어폰이 연결된 경우에만 재생된다 (F3.7)
     #
