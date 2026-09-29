@@ -13,6 +13,7 @@ import android.os.Build
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
+import android.os.SystemClock
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
@@ -202,10 +203,32 @@ class AlertWatchService : Service() {
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onCreate() {
+        val startedAt = SystemClock.elapsedRealtime()
         super.onCreate()
+
+        // **엔진보다 먼저 포그라운드로 올린다** (이슈 #161).
+        //
+        // `startForegroundService()` 로 시작하면 OS 는 약 10초 안에 승격하기를
+        // 요구하고, 넘기면 프로세스째 죽인다
+        // (`ForegroundServiceDidNotStartInTimeException`). 예전에는 승격이
+        // `onStartCommand` 에 있어서 그 앞의 엔진 부팅이 끝나야 도달했다.
+        // 엔진 부팅은 프로세스가 콜드일 때(부팅·앱 교체·킬 뒤) 부하가 크면
+        // 수 초에서 수십 초까지 늘어난다 — 에뮬레이터에서 34초로 크래시를 재현했다.
+        // 크래시는 프로세스째 일어나 진단 기록에 흔적이 남지 않는다.
+        if (!startWatchForeground()) {
+            // API 34+ 는 위치 권한이 없으면 승격이 거부된다. 권한 온보딩 전에
+            // 불린 경우이며, 엔진을 띄울 이유가 없다
+            DiagnosticLog.write(this, "watch", "감시 서비스 승격 실패 — 종료한다")
+            stopSelf()
+            return
+        }
+        val promotedMs = SystemClock.elapsedRealtime() - startedAt
+
         // 서비스가 살아있는지가 알림 발화의 전제다 — 죽은 구간을
-        // 시간순으로 확인할 수 있어야 한다 (이슈 #95)
-        DiagnosticLog.write(this, "watch", "감시 서비스 생성")
+        // 시간순으로 확인할 수 있어야 한다 (이슈 #95).
+        // 승격까지 걸린 시간을 함께 남긴다 — OS 한도(약 10초)에 얼마나
+        // 가까웠는지 실기기에서 보려는 것이다 (이슈 #161)
+        DiagnosticLog.write(this, "watch", "감시 서비스 생성 (승격 ${promotedMs}ms)")
         isRunning = true
 
         // 직전 프로세스가 왜 죽었는지 남긴다 — 감시가 끊긴 원인의 유일한 단서다 (이슈 #159)
@@ -220,7 +243,15 @@ class AlertWatchService : Service() {
 
         // 엔진을 먼저 띄운다 — 이벤트가 오기 전에 준비되어야 한다.
         // 부팅 중 도착한 요청은 WatchEngine 이 큐에 담았다가 흘려보낸다.
+        // **이 호출은 생성 단계에서 동기로 유지한다** — 비동기로 미루면 그 사이 온
+        // 지오펜스 이벤트가 채널 없이 판정 없음으로 떨어져 도착이 유실된다.
+        // 승격은 이미 끝났으므로 여기가 느려도 OS 한도에 걸리지 않는다 (이슈 #161).
         engine.start()
+        DiagnosticLog.write(
+            this,
+            "watch",
+            "감시 엔진 기동 ${SystemClock.elapsedRealtime() - startedAt}ms",
+        )
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
