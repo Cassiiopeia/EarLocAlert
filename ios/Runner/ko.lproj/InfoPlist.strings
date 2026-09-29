@@ -1,0 +1,7 @@
+/* 사용자에게 보이는 iOS 권한 안내와 앱 이름 (이슈 #164).
+   OS 가 기기 언어로 고른다 — 앱 안에서 고른 언어를 따르게 할 수 없다. */
+"NSLocationWhenInUseUsageDescription" = "알림을 걸어둘 장소를 지도에서 고르고, 지금 어디쯤인지 표시하기 위해 사용합니다. 위치 정보는 기기에만 저장되며 외부로 전송되지 않습니다.";
+"NSLocationAlwaysAndWhenInUseUsageDescription" = "앱을 열지 않아도 등록한 장소에 도착·출발할 때 알려드리기 위해 백그라운드에서도 위치를 확인합니다. 위치 정보는 기기에만 저장되며 외부로 전송되지 않습니다.";
+"NSLocationAlwaysUsageDescription" = "앱을 열지 않아도 등록한 장소에 도착·출발할 때 알려드리기 위해 백그라운드에서도 위치를 확인합니다. 위치 정보는 기기에만 저장되며 외부로 전송되지 않습니다.";
+"NSUserTrackingUsageDescription" = "사용자에게 더 관련성 높은 광고를 표시하기 위해 사용합니다. 허용하지 않아도 앱의 모든 기능을 그대로 이용할 수 있습니다.";
+"CFBundleDisplayName" = "이어폰위치알림";

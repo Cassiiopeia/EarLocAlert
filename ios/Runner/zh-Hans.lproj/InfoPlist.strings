@@ -1,0 +1,7 @@
+/* 사용자에게 보이는 iOS 권한 안내와 앱 이름 (이슈 #164).
+   OS 가 기기 언어로 고른다 — 앱 안에서 고른 언어를 따르게 할 수 없다. */
+"NSLocationWhenInUseUsageDescription" = "用于在地图上选择要提醒的地点并显示您当前的大致位置。位置信息仅保存在设备上，不会发送到外部。";
+"NSLocationAlwaysAndWhenInUseUsageDescription" = "为了在您到达或离开已登记的地点时，即使不打开应用也能提醒您，应用会在后台检查位置。位置信息仅保存在设备上，不会发送到外部。";
+"NSLocationAlwaysUsageDescription" = "为了在您到达或离开已登记的地点时，即使不打开应用也能提醒您，应用会在后台检查位置。位置信息仅保存在设备上，不会发送到外部。";
+"NSUserTrackingUsageDescription" = "用于向您展示更相关的广告。即使不允许，也可以照常使用应用的全部功能。";
+"CFBundleDisplayName" = "EarLocAlert";

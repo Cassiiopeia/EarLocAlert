@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  사용자에게 보이는 네이티브 문자열 (이슈 #164).
+  알림은 앱이 죽어 있어도 Kotlin 이 만들기 때문에 Flutter 번역을 쓸 수 없다.
+  기본(values)은 영어다 — 지원하지 않는 기기 언어는 영어로 보인다.
+  중국어는 간체(zh-rCN)만 둔다. 번체(대만, 홍콩) 기기는 영어로 보인다 (명세 4-A).
+  앱 표시 이름(app_name)은 언어별 확정 전이라 한국어만 현지 이름을 쓴다 (이슈 #166).
+-->
+<resources>
+    <string name="app_name">이어폰위치알림</string>
+    <string name="watch_channel_name">위치 감시</string>
+    <string name="watch_channel_description">등록한 장소를 백그라운드에서 지켜보는 중임을 알립니다</string>
+    <string name="watch_notification_title">위치를 지켜보고 있습니다</string>
+    <string name="watch_notification_text">도착하거나 떠날 때 알려드립니다</string>
+    <string name="arrival_channel_name">도착·출발 알림</string>
+    <string name="arrival_channel_description">등록한 장소에 도착하거나 떠날 때 알립니다</string>
+    <string name="arrival_default_title">위치 알림</string>
+    <string name="arrival_body_enter">도착했습니다</string>
+    <string name="arrival_body_exit">떠났습니다</string>
+    <string name="arrival_action_dismiss">알림 끄기</string>
+</resources>
