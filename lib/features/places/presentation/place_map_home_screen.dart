@@ -7,6 +7,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../../../core/domain/alert_direction.dart';
 import '../../../core/l10n/l10n.dart';
+import '../../../core/map/default_map_view.dart';
 import '../../../core/map/map_reveal_cover.dart';
 import '../../../core/map/map_style_guard.dart';
 import '../../../core/map/radius_zoom.dart';
@@ -104,9 +105,9 @@ class _PlaceMapHomeScreenState extends ConsumerState<PlaceMapHomeScreen>
   /// 등록된 장소가 하나도 없을 때의 초기 지도 위치.
   ///
   /// 현재 위치로 시작하는 것이 이상적이지만 권한이 아직 없을 수 있고
-  /// 첫 측정까지 시간이 걸린다. 회색 화면을 보여주느니 고정 좌표에서
-  /// 시작하고 "내 위치" 버튼으로 이동하게 둔다.
-  static const _fallback = LatLng(37.5665, 126.9780); // 서울시청
+  /// 첫 측정까지 시간이 걸린다. 회색 화면을 보여주느니 기기 지역에 맞는
+  /// 곳에서 시작하고 "내 위치" 버튼으로 이동하게 둔다 (이슈 #166).
+  final DefaultMapView _fallback = currentDefaultMapView();
 
   static const _sheetMin = 0.14;
   static const _sheetInitial = 0.3;
@@ -162,9 +163,9 @@ class _PlaceMapHomeScreenState extends ConsumerState<PlaceMapHomeScreen>
             builder: (attach) => GoogleMap(
               initialCameraPosition: CameraPosition(
                 target: places.isEmpty
-                    ? _fallback
+                    ? _fallback.target
                     : LatLng(places.first.latitude, places.first.longitude),
-                zoom: 14,
+                zoom: places.isEmpty ? _fallback.zoom : 14,
               ),
               style: MapStyle.dark,
               markers: _markers(places, semantic),

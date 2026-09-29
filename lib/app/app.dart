@@ -12,6 +12,7 @@ import '../core/l10n/l10n.dart';
 import '../core/l10n/locale_resolver.dart';
 import '../features/ads/domain/ad_unit_ids.dart';
 import '../core/theme/app_theme.dart';
+import '../features/ads/domain/ad_consent.dart';
 import '../features/ads/presentation/ads_providers.dart';
 import '../features/alert/data/alert_notifier_impl.dart';
 import '../features/alert/presentation/alert_controller_provider.dart';
@@ -121,6 +122,8 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
     await _cancelBackgroundNotification();
 
     await _resumePendingAlert('start');
+    // 광고 동의 (이슈 #166) — 알림이 울리는 중이 아닐 때만, 기다리지 않고 받는다
+    unawaited(_gatherAdConsent());
     // 첫 실행에는 resumed 생명주기 콜백이 오지 않는다 — 여기서 건다
     _startPendingAlertPoll();
   }
@@ -208,6 +211,20 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
           .cancel(BackgroundAlertNotifier.notificationId);
     } on Object {
       // 알림이 남는 것은 불편이지 고장이 아니다
+    }
+  }
+
+  /// 유럽 경제 지역과 영국 사용자의 광고 동의를 받는다 (이슈 #166).
+  ///
+  /// **알림 화면 위에 동의 화면을 겹치지 않는다** — 울리는 중이면 건너뛰고 다음
+  /// 실행 때 받는다. 실패해도 흐름을 막지 않는다 (docs/02-ARCHITECTURE.md 규칙 4).
+  Future<void> _gatherAdConsent() async {
+    try {
+      await AdConsentGate(ref.read(adConsentProvider)).gatherWhenIdle(
+        alertActive: () => ref.read(activeAlertProvider) != null,
+      );
+    } on Object catch (error) {
+      Diagnostics.log('ads', 'consent gathering failed $error');
     }
   }
 
