@@ -72,7 +72,7 @@ void main() {
       final results = GooglePlaceSearchService.parseResponse(body);
 
       expect(results, hasLength(1));
-      expect(results.first.name, '이름 없는 장소');
+      expect(results.first.name, '');
       expect(results.first.address, '');
     });
 

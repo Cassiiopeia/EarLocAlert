@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/domain/alert_direction.dart';
+import '../../../core/l10n/l10n.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_semantic_colors.dart';
 import '../../../core/theme/app_spacing.dart';
@@ -56,6 +57,7 @@ class PlaceCard extends StatelessWidget {
     final (directionIcon, directionLabel, directionColor) = describeDirection(
       place.direction,
       semantic,
+      context.l10n,
     );
 
     // 토글 전환을 부드럽게 — 기존에 정의된 모션(지도 홈 시트의
@@ -101,7 +103,10 @@ class PlaceCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        '$directionLabel · 반경 ${place.radiusMeters}m',
+                        context.l10n.placeRadiusInfo(
+                          directionLabel,
+                          place.radiusMeters,
+                        ),
                         style: AppTypography.caption.copyWith(color: secondary),
                       ),
                       // 시간대가 걸려 있으면 드러낸다 — 창 밖이라 안 울린
@@ -110,7 +115,7 @@ class PlaceCard extends StatelessWidget {
                       if (place.schedules.isNotEmpty) ...[
                         const SizedBox(height: 2),
                         Text(
-                          describeSchedules(place.schedules),
+                          describeSchedules(context.l10n, place.schedules),
                           style: AppTypography.caption.copyWith(
                             color: secondary,
                           ),
@@ -139,12 +144,21 @@ class PlaceCard extends StatelessWidget {
 (IconData, String, Color) describeDirection(
   AlertDirection direction,
   AppSemanticColors semantic,
+  AppLocalizations l10n,
 ) => switch (direction) {
-  AlertDirection.enter => (Icons.login_outlined, '도착 알림', semantic.alertEnter),
-  AlertDirection.exit => (Icons.logout_outlined, '출발 알림', semantic.alertExit),
+  AlertDirection.enter => (
+    Icons.login_outlined,
+    l10n.placeDirectionEnter,
+    semantic.alertEnter,
+  ),
+  AlertDirection.exit => (
+    Icons.logout_outlined,
+    l10n.placeDirectionExit,
+    semantic.alertExit,
+  ),
   AlertDirection.both => (
     Icons.sync_alt_outlined,
-    '도착·출발',
+    l10n.placeDirectionBoth,
     semantic.alertEnter,
   ),
 };
@@ -160,12 +174,13 @@ Future<void> deletePlaceWithUndo(
   final actions = ref.read(placeActionsProvider.notifier);
   final deleted = await actions.delete(place.id);
   if (deleted == null || !context.mounted) return;
+  final l10n = context.l10n;
 
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(
-      content: Text('\'${deleted.name}\' 삭제됨'),
+      content: Text(l10n.placeDeleted(deleted.name)),
       action: SnackBarAction(
-        label: '되돌리기',
+        label: l10n.placeUndo,
         onPressed: () => actions.restore(deleted),
       ),
     ),

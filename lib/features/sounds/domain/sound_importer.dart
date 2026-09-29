@@ -69,8 +69,8 @@ class SoundImporter {
     if (rejected != null) {
       Diagnostics.log(
         'sound',
-        '음원 등록 거부 name=${picked.displayName} '
-            '크기=${picked.sizeBytes}B 사유=${rejected.runtimeType}',
+        'sound register rejected name=${picked.displayName} '
+            'size=${picked.sizeBytes}B reason=${rejected.runtimeType}',
       );
       return SoundImportRejected(rejected);
     }
@@ -81,8 +81,8 @@ class SoundImporter {
     if (probeRejected != null) {
       Diagnostics.log(
         'sound',
-        '음원 등록 거부 name=${picked.displayName} '
-            '길이=${duration?.inMilliseconds}ms 사유=${probeRejected.runtimeType}',
+        'sound register rejected name=${picked.displayName} '
+            'duration=${duration?.inMilliseconds}ms reason=${probeRejected.runtimeType}',
       );
       return SoundImportRejected(probeRejected);
     }
@@ -97,7 +97,10 @@ class SoundImporter {
     } on Object catch (error) {
       // 복사·저장 실패는 사용자가 고칠 수 있는 것이 아니다.
       // 거부와 구분해서 다른 문구를 보여준다.
-      Diagnostics.log('sound', '음원 등록 실패 name=${picked.displayName} 사유=$error');
+      Diagnostics.log(
+        'sound',
+        'sound register failed name=${picked.displayName} reason=$error',
+      );
       return SoundImportFailed('$error');
     }
   }

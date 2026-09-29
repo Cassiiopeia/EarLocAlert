@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../core/domain/alert_schedule.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../core/l10n/l10n.dart';
 import '../../../core/text/keep_all.dart';
 import 'alert_schedule_summary.dart';
 
@@ -46,13 +47,12 @@ class _AlertScheduleSheetState extends State<_AlertScheduleSheet> {
   late int _start = widget.initial?.startMinuteOfDay ?? 8 * 60;
   late int _end = widget.initial?.endMinuteOfDay ?? 10 * 60;
 
-  static const _weekdayLabels = ['월', '화', '수', '목', '금', '토', '일'];
-
   bool get _isValid => _days.isNotEmpty && _start != _end;
 
   @override
   Widget build(BuildContext context) {
     final isEdit = widget.initial != null;
+    final l10n = context.l10n;
 
     return Padding(
       padding: EdgeInsets.only(
@@ -65,20 +65,20 @@ class _AlertScheduleSheetState extends State<_AlertScheduleSheet> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            isEdit ? '시간대 편집' : '시간대 추가',
+            isEdit ? l10n.scheduleSheetEditTitle : l10n.scheduleSheetAddTitle,
             style: AppTypography.body.copyWith(fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: AppSpacing.md),
 
-          Text('요일', style: AppTypography.caption),
+          Text(l10n.scheduleDaysLabel, style: AppTypography.caption),
           const SizedBox(height: AppSpacing.xs),
           // 빠른 선택 — 평일/주말/매일은 손이 가장 자주 가는 조합이다
           Wrap(
             spacing: AppSpacing.xs,
             children: [
-              _quickChip('평일', const {1, 2, 3, 4, 5}),
-              _quickChip('주말', const {6, 7}),
-              _quickChip('매일', const {1, 2, 3, 4, 5, 6, 7}),
+              _quickChip(l10n.scheduleWeekdays, const {1, 2, 3, 4, 5}),
+              _quickChip(l10n.scheduleWeekends, const {6, 7}),
+              _quickChip(l10n.scheduleEveryday, const {1, 2, 3, 4, 5, 6, 7}),
             ],
           ),
           const SizedBox(height: AppSpacing.xs),
@@ -87,7 +87,7 @@ class _AlertScheduleSheetState extends State<_AlertScheduleSheet> {
             children: [
               for (var day = 1; day <= 7; day++)
                 FilterChip(
-                  label: Text(_weekdayLabels[day - 1]),
+                  label: Text(weekdayShortName(l10n, day)),
                   selected: _days.contains(day),
                   onSelected: (selected) => setState(() {
                     if (selected) {
@@ -103,25 +103,25 @@ class _AlertScheduleSheetState extends State<_AlertScheduleSheet> {
 
           Row(
             children: [
-              Expanded(child: _timeField('시작', _start, _pickStart)),
+              Expanded(
+                child: _timeField(l10n.scheduleStart, _start, _pickStart),
+              ),
               const SizedBox(width: AppSpacing.sm),
-              Expanded(child: _timeField('종료', _end, _pickEnd)),
+              Expanded(child: _timeField(l10n.scheduleEnd, _end, _pickEnd)),
             ],
           ),
           const SizedBox(height: AppSpacing.xs),
 
           if (_start > _end)
             Text(
-              ('종료가 시작보다 이르므로 자정을 넘긴 것으로 봅니다 — '
-                      '${describeSchedule(_current)}')
-                  .keepAll,
+              context.keepAllText(
+                l10n.scheduleCrossesMidnight(describeSchedule(l10n, _current)),
+              ),
               style: AppTypography.caption,
             )
           else if (_start == _end)
             Text(
-              ('시작과 종료가 같습니다. 하루 종일 알리려면 시간대를 만들지 '
-                      '않으면 됩니다.')
-                  .keepAll,
+              context.keepAllText(l10n.scheduleSameStartEnd),
               style: AppTypography.caption,
             ),
 
@@ -136,14 +136,14 @@ class _AlertScheduleSheetState extends State<_AlertScheduleSheet> {
             onPressed: _isValid
                 ? () => Navigator.of(context).pop(_current)
                 : null,
-            child: Text(isEdit ? '저장' : '추가'),
+            child: Text(isEdit ? l10n.scheduleSave : l10n.scheduleAddButton),
           ),
           const SizedBox(height: AppSpacing.xs),
           SizedBox(
             width: double.infinity,
             child: TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('취소'),
+              child: Text(l10n.scheduleCancel),
             ),
           ),
         ],

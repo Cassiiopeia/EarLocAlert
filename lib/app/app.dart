@@ -7,8 +7,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/config/build_info.dart';
 import '../core/config/dev_flag.dart';
 import '../core/diagnostics/diagnostics.dart';
+import '../core/l10n/app_language_controller.dart';
+import '../core/l10n/l10n.dart';
+import '../core/l10n/locale_resolver.dart';
 import '../features/ads/domain/ad_unit_ids.dart';
 import '../core/theme/app_theme.dart';
+import '../features/ads/domain/ad_consent.dart';
 import '../features/ads/presentation/ads_providers.dart';
 import '../features/alert/data/alert_notifier_impl.dart';
 import '../features/alert/presentation/alert_controller_provider.dart';
@@ -78,8 +82,8 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
     await BuildInfo.init();
     Diagnostics.log(
       'app',
-      '앱 시작 ${BuildInfo.label} devBuild=${DevFlag.isDevBuild} '
-          '광고=${AdUnitIds.usingTestIds ? "테스트" : "실제"}',
+      'app start ${BuildInfo.label} devBuild=${DevFlag.isDevBuild} '
+          'ads=${AdUnitIds.usingTestIds ? "test" : "live"}',
     );
 
     try {
@@ -97,18 +101,18 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
               ),
             ),
           );
-      Diagnostics.log('app', '알림 플러그인 초기화 완료');
+      Diagnostics.log('app', 'notification plugin initialized');
       await _deleteLegacyAlertChannel();
     } on Object catch (error) {
       // 초기화 실패는 알림 탭 라우팅만 잃는다 — 감시는 계속 시도한다
-      Diagnostics.log('app', '알림 플러그인 초기화 실패 $error');
+      Diagnostics.log('app', 'notification plugin init failed $error');
     }
     try {
       await ref.read(geofenceRegistrationSyncProvider).start();
-      Diagnostics.log('app', '지오펜스 동기화 시동 완료');
+      Diagnostics.log('app', 'geofence sync started');
     } on Object catch (error) {
       // 권한 미허용 등 — 다음 장소 변경 때 재시도된다
-      Diagnostics.log('app', '지오펜스 동기화 시동 실패 $error');
+      Diagnostics.log('app', 'geofence sync start failed $error');
     }
     // 지난 세션이 남긴 알림을 먼저 치운다 (이슈 #84).
     //
@@ -117,7 +121,9 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
     // 지금 살아 있는 알림이라면 바로 아래 승격이 화면으로 이어준다.
     await _cancelBackgroundNotification();
 
-    await _resumePendingAlert('시작');
+    await _resumePendingAlert('start');
+    // 광고 동의 (이슈 #166) — 알림이 울리는 중이 아닐 때만, 기다리지 않고 받는다
+    unawaited(_gatherAdConsent());
     // 첫 실행에는 resumed 생명주기 콜백이 오지 않는다 — 여기서 건다
     _startPendingAlertPoll();
   }
@@ -126,7 +132,7 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     // 앱이 언제 앞으로 나오고 언제 내려갔는지가 "그때 왜 안 울렸나"의
     // 기준선이다 (이슈 #106)
-    Diagnostics.log('app', '생명주기 ${state.name}');
+    Diagnostics.log('app', 'lifecycle ${state.name}');
 
     // 백그라운드 알림 뒤 앱을 열면(탭이든 직접이든) 풀 세션으로 잇는다
     if (state == AppLifecycleState.resumed) {
@@ -143,7 +149,7 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
     if (!mounted || _pendingAlertPoll != null) return;
     _pendingAlertPoll = Timer.periodic(
       _pollInterval,
-      (_) => unawaited(_resumePendingAlert('폴링')),
+      (_) => unawaited(_resumePendingAlert('poll')),
     );
   }
 
@@ -187,7 +193,10 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
           ?.deleteNotificationChannel(AlertNotifierImpl.legacyChannelId);
     } on Object catch (error) {
       // 남아도 동작에는 지장이 없다 — 기록만 남긴다
-      Diagnostics.log('app', '옛 알림 채널 삭제 실패 $error');
+      Diagnostics.log(
+        'app',
+        'legacy notification channel delete failed $error',
+      );
     }
   }
 
@@ -205,6 +214,20 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
     }
   }
 
+  /// 유럽 경제 지역과 영국 사용자의 광고 동의를 받는다 (이슈 #166).
+  ///
+  /// **알림 화면 위에 동의 화면을 겹치지 않는다** — 울리는 중이면 건너뛰고 다음
+  /// 실행 때 받는다. 실패해도 흐름을 막지 않는다 (docs/02-ARCHITECTURE.md 규칙 4).
+  Future<void> _gatherAdConsent() async {
+    try {
+      await AdConsentGate(ref.read(adConsentProvider)).gatherWhenIdle(
+        alertActive: () => ref.read(activeAlertProvider) != null,
+      );
+    } on Object catch (error) {
+      Diagnostics.log('ads', 'consent gathering failed $error');
+    }
+  }
+
   Future<void> _preloadAd() async {
     try {
       final coordinator = await ref.read(alertAdCoordinatorProvider.future);
@@ -216,8 +239,16 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
 
   @override
   Widget build(BuildContext context) {
+    // 사용자가 고른 언어가 기기 언어보다 우선한다. `system` 이면 기기 언어를
+    // 따르고, 지원하지 않는 언어이면 영어다 (이슈 #163)
+    final language = ref.watch(appLanguageControllerProvider);
     return MaterialApp.router(
-      title: 'EarLocAlert',
+      onGenerateTitle: (context) => context.l10n.appName,
+      locale: language.locale,
+      supportedLocales: supportedAppLocales,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      localeListResolutionCallback: (deviceLocales, supported) =>
+          resolveAppLocale(language, deviceLocales ?? const []),
       theme: AppTheme.dark(),
       debugShowCheckedModeBanner: false,
       routerConfig: _router,

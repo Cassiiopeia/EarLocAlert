@@ -79,14 +79,17 @@ class DriftCustomSoundRepository implements CustomSoundRepository {
     } on Object catch (error) {
       // 행이 없으면 목록에 안 나오는 파일이 용량만 먹는다
       await _deleteFileQuietly(target);
-      Diagnostics.log('sound', '음원 등록 실패 name=$displayName 사유=$error');
+      Diagnostics.log(
+        'sound',
+        'sound register failed name=$displayName reason=$error',
+      );
       rethrow;
     }
 
     Diagnostics.log(
       'sound',
-      '음원 등록 id=$id name=$displayName '
-          '크기=${sound.sizeBytes}B 길이=${duration.inMilliseconds}ms',
+      'sound registered id=$id name=$displayName '
+          'size=${sound.sizeBytes}B duration=${duration.inMilliseconds}ms',
     );
     return sound;
   }
@@ -97,7 +100,7 @@ class DriftCustomSoundRepository implements CustomSoundRepository {
     if (row == null) {
       // 없는 id 를 지워도 예외를 던지지 않는다 — 목록과 실제가 어긋난
       // 상태에서 사용자가 삭제를 누른 것뿐이다
-      Diagnostics.log('sound', '음원 삭제 대상 없음 id=$id');
+      Diagnostics.log('sound', 'sound delete skipped, not found id=$id');
       return;
     }
 
@@ -108,7 +111,7 @@ class DriftCustomSoundRepository implements CustomSoundRepository {
     final file = await CustomSoundFile.resolve(id, row.fileExtension);
     await _deleteFileQuietly(file);
 
-    Diagnostics.log('sound', '음원 삭제 id=$id name=${row.displayName}');
+    Diagnostics.log('sound', 'sound deleted id=$id name=${row.displayName}');
   }
 
   @override
@@ -120,7 +123,10 @@ class DriftCustomSoundRepository implements CustomSoundRepository {
     if (!await file.exists()) {
       // 앱 데이터 삭제 등으로 파일만 사라질 수 있다. 호출자는 이걸 받아
       // 기본음으로 떨어진다 — 재생 단계에서 터뜨리지 않는다
-      Diagnostics.log('sound', '음원 파일 없음 id=$id name=${row.displayName}');
+      Diagnostics.log(
+        'sound',
+        'sound file missing id=$id name=${row.displayName}',
+      );
       return null;
     }
     return file.path;
@@ -137,7 +143,10 @@ class DriftCustomSoundRepository implements CustomSoundRepository {
     try {
       if (await file.exists()) await file.delete();
     } on Object catch (error) {
-      Diagnostics.log('sound', '음원 파일 삭제 실패 path=${file.path} 사유=$error');
+      Diagnostics.log(
+        'sound',
+        'sound file delete failed path=${file.path} reason=$error',
+      );
     }
   }
 

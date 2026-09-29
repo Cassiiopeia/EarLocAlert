@@ -9,6 +9,12 @@ import 'geofence_providers.dart';
 
 part 'home_status_provider.g.dart';
 
+/// 아직 켜지지 않은 신뢰성 권한의 종류 (이슈 #115)
+///
+/// **문구가 아니라 값이다.** 이 파일은 `BuildContext` 가 없어 언어를 모른다 —
+/// 화면(라우터)이 이 값을 현재 언어의 권한 이름으로 바꾼다 (이슈 #163).
+enum ReliabilityGap { batteryOptimization, overlay, fullScreenIntent }
+
 /// 메인 화면 상태 바에 필요한 값 (docs/06-UX.md F4.5)
 ///
 /// `geofence` 와 `alert` 두 feature 에서 왔다. 화면은 어느 feature 것도
@@ -53,7 +59,7 @@ class HomeStatus {
   ///
   /// **무엇이 빠졌는지 말해주지 않으면 배너가 쓸모없다** — "알림이
   /// 약합니다"만 보고는 무엇을 해야 할지 알 수 없다.
-  final List<String> missingReliability;
+  final List<ReliabilityGap> missingReliability;
 
   /// 백그라운드 알림이 놓치기 어려운 형태로 전달되는가 (이슈 #74).
   ///
@@ -107,13 +113,13 @@ Future<HomeStatus> homeStatus(Ref ref) async {
   final snapshot = ref.watch(permissionControllerProvider).valueOrNull;
   final reliable = snapshot?.canAlertReliably ?? true;
 
-  // 켜지지 않은 것만 골라 이름을 붙인다 — 설정 화면의 항목명과 같은
-  // 말을 써야 사용자가 그 자리를 찾는다
-  final missing = <String>[
+  // 켜지지 않은 것만 골라 종류로 담는다 — 이름은 화면이 설정 화면의
+  // 항목명과 같은 말로 붙인다
+  final missing = <ReliabilityGap>[
     if (snapshot != null) ...[
-      if (!snapshot.survivesDoze) '배터리 최적화 제외',
-      if (!snapshot.canCoverScreen) '다른 앱 위에 표시',
-      if (!snapshot.canWakeScreen) '전체 화면 알림',
+      if (!snapshot.survivesDoze) ReliabilityGap.batteryOptimization,
+      if (!snapshot.canCoverScreen) ReliabilityGap.overlay,
+      if (!snapshot.canWakeScreen) ReliabilityGap.fullScreenIntent,
     ],
   ];
 
@@ -126,9 +132,9 @@ Future<HomeStatus> homeStatus(Ref ref) async {
   // 빨리 밀려났다.** 같은 값이 7000번 찍힌 것에는 정보가 없다.
   final permission = ref.watch(permissionControllerProvider);
   final line =
-      '상태 감시=$monitoring 이어폰=$headphones 알림신뢰=$reliable '
-      '미허용=[${missing.join(",")}] '
-      '(권한조회=${permission.isLoading ? "진행중" : "완료"})';
+      'home status monitoring=$monitoring headphones=$headphones reliable=$reliable '
+      'missing=[${missing.map((gap) => gap.name).join(",")}] '
+      '(permission=${permission.isLoading ? "loading" : "ready"})';
   if (line != _lastLoggedStatus) {
     _lastLoggedStatus = line;
     Diagnostics.log('home', line);

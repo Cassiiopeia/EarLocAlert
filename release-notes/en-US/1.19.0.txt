@@ -1,0 +1,4 @@
+New: 4 languages
+• The app now follows your device language: Korean, English, Chinese, or Japanese.
+• Change the language anytime in Settings. If you pick the wrong one, you can undo it right away.
+• Notifications and alerts also appear in your language.

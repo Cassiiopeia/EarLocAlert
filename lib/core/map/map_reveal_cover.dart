@@ -54,7 +54,7 @@ class _MapRevealCoverState extends State<MapRevealCover> {
     while (mounted && !_revealed) {
       final elapsed = DateTime.now().difference(started);
       if (elapsed >= MapRevealCover.maxWait) {
-        _reveal('시간초과 ${elapsed.inMilliseconds}ms 시도=$tries');
+        _reveal('timeout ${elapsed.inMilliseconds}ms tries=$tries');
         return;
       }
       await Future<void>.delayed(MapRevealCover.interval);
@@ -63,14 +63,14 @@ class _MapRevealCoverState extends State<MapRevealCover> {
         final bytes = await take(controller);
         if (bytes != null && await isMapPainted(bytes)) {
           _reveal(
-            '대기=${DateTime.now().difference(started).inMilliseconds}ms '
-            '시도=$tries',
+            'waited=${DateTime.now().difference(started).inMilliseconds}ms '
+            'tries=$tries',
           );
           return;
         }
       } on Object catch (error) {
         // 스냅샷을 못 찍는 기기면 기다릴 이유가 없다 — 바로 걷는다
-        _reveal('스냅샷 실패 $error');
+        _reveal('snapshot failed $error');
         return;
       }
     }
@@ -78,7 +78,7 @@ class _MapRevealCoverState extends State<MapRevealCover> {
 
   void _reveal(String reason) {
     if (!mounted || _revealed) return;
-    Diagnostics.log('map', '첫 타일 표시 화면=${widget.screen} $reason');
+    Diagnostics.log('map', 'first tile shown screen=${widget.screen} $reason');
     setState(() => _revealed = true);
   }
 

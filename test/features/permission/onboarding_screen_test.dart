@@ -1,3 +1,4 @@
+import 'package:ear_loc_alert/core/l10n/l10n.dart';
 import 'dart:async';
 
 import 'package:ear_loc_alert/core/text/keep_all.dart';
@@ -95,6 +96,10 @@ void main() {
           reliabilityPromptStoreProvider.overrideWithValue(store),
         ],
         child: MaterialApp(
+          // 문구를 한국어로 찾으므로 언어를 한국어로 고정한다 (이슈 #163)
+          locale: const Locale('ko'),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
           theme: AppTheme.dark(),
           home: OnboardingScreen(onFinished: onFinished),
         ),

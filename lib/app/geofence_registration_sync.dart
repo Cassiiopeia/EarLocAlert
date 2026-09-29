@@ -52,6 +52,13 @@ class GeofenceRegistrationSync {
     );
   }
 
+  /// 등록을 지금 목록으로 다시 밀어 넣는다 (이슈 #164).
+  ///
+  /// 앱 언어를 바꾼 직후에 부른다 — 감시 서비스가 다시 시작 요청을 받아 상시
+  /// 알림 문구와 알림 채널 이름을 **바뀐 언어로 다시 만들게** 하려는 것이다.
+  /// 감시 대상이 없으면 서비스를 띄우지 않는다(`_apply` 가 판단한다).
+  Future<void> refresh() async => _applySafely(await _places.findAll());
+
   Future<void> stop() async {
     await _subscription?.cancel();
     _subscription = null;
@@ -67,7 +74,7 @@ class GeofenceRegistrationSync {
       // 동기화 실패가 화면을 죽이면 안 된다. 다음 목록 변경 때 재시도된다.
       // 다만 **기록은 남긴다** — 등록이 조용히 실패하면 도착을 영영
       // 감지하지 못하는데, 예전에는 그 사실조차 알 수 없었다 (이슈 #95)
-      Diagnostics.log('sync', '지오펜스 동기화 실패 $error');
+      Diagnostics.log('sync', 'geofence sync failed $error');
     }
   }
 
@@ -109,7 +116,7 @@ class GeofenceRegistrationSync {
     // 상황에서 가장 먼저 확인해야 할 값이다 (이슈 #95)
     Diagnostics.log(
       'sync',
-      '지오펜스 동기화 완료 등록=${targets.length}건 '
+      'geofence sync done registered=${targets.length} '
           'ids=${targets.map((t) => t.placeId).join(",")}',
     );
 

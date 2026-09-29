@@ -45,8 +45,8 @@ void main() {
     // 네이티브(Kotlin)가 남긴 기록은 Dart 초기화와 무관하게 파일에 있다.
     // 예전 구조에서는 이 상황이 통째로 "0건"이었다
     await logFile.writeAsString(
-      '2026-08-19T10:00:00.000Z [watch] 감시 서비스 생성\n'
-      '2026-08-19T10:00:01.000Z [registrar] 지오펜스 등록 성공 2개\n',
+      '2026-08-19T10:00:00.000Z [watch] watch service created\n'
+      '2026-08-19T10:00:01.000Z [registrar] geofence registration ok 2개\n',
     );
 
     // 로거로 읽으면 빈 문자열이다 — 이것이 예전 화면이 보던 값이다
@@ -55,8 +55,8 @@ void main() {
     final result = await DiagnosticLogReader.read();
 
     expect(result.error, isEmpty);
-    expect(result.content, contains('감시 서비스 생성'));
-    expect(result.content, contains('지오펜스 등록 성공'));
+    expect(result.content, contains('watch service created'));
+    expect(result.content, contains('geofence registration ok'));
   });
 
   test('파일이 없으면 빈 내용이고 오류는 없다', () async {
@@ -99,7 +99,9 @@ void main() {
     // 두 프로세스가 같은 파일에 append 하다 보면 한글 한 글자(3바이트)가
     // 중간에서 잘린다. 예전에는 `readAsString()` 이 통째로 예외를 던졌고,
     // 그것을 삼켜 **수천 줄이 한 글자 때문에 "기록 없음"이 됐다**
-    final good = utf8.encode('2026-08-19T10:00:00.000Z [watch] 감시 서비스 생성\n');
+    final good = utf8.encode(
+      '2026-08-19T10:00:00.000Z [watch] watch service created\n',
+    );
     final broken = [0xED, 0x95]; // '한' 의 3바이트 중 둘만 — 불완전한 시퀀스
     final after = utf8.encode('\n2026-08-19T10:00:02.000Z [app] 그 뒤의 줄\n');
     await logFile.writeAsBytes([...good, ...broken, ...after]);
@@ -107,7 +109,7 @@ void main() {
     final result = await DiagnosticLogReader.read();
 
     expect(result.error, isEmpty);
-    expect(result.content, contains('감시 서비스 생성'));
+    expect(result.content, contains('watch service created'));
     // **깨진 줄 뒤의 기록도 살아남아야 한다** — 그것이 대개 더 최근이다
     expect(result.content, contains('그 뒤의 줄'));
   });

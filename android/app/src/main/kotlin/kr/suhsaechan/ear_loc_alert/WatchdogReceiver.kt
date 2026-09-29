@@ -71,7 +71,7 @@ class WatchdogReceiver : BroadcastReceiver() {
         fun restoreFromCache(context: Context, reason: String) {
             val fences = WatchState.loadFences(context)
             if (fences.isEmpty()) {
-                DiagnosticLog.write(context, "watchdog", "복구 생략 사유=$reason 저장된 지오펜스 없음")
+                DiagnosticLog.write(context, "watchdog", "recovery skipped reason=$reason no stored geofences")
                 return
             }
             GeofenceRegistrar(context).sync(fences)
@@ -79,7 +79,7 @@ class WatchdogReceiver : BroadcastReceiver() {
             DiagnosticLog.write(
                 context,
                 "watchdog",
-                "지오펜스 복구 요청 사유=$reason ${fences.size}곳",
+                "geofence recovery requested reason=$reason places=${fences.size}",
             )
         }
     }
@@ -92,13 +92,13 @@ class WatchdogReceiver : BroadcastReceiver() {
         DiagnosticLog.write(
             context,
             "watchdog",
-            "점검 서비스=${if (AlertWatchService.isRunning) "동작중" else "없음"} " +
-                "마지막등록=${WatchState.agoText(WatchState.registeredAt(context), now)} " +
-                "마지막수신=${WatchState.agoText(WatchState.eventAt(context), now)}",
+            "check service=${if (AlertWatchService.isRunning) "running" else "absent"} " +
+                "last_registered=${WatchState.agoText(WatchState.registeredAt(context), now)} " +
+                "last_received=${WatchState.agoText(WatchState.eventAt(context), now)}",
         )
 
         ExitReasonLogger.logNew(context)
-        restoreFromCache(context, "주기점검")
+        restoreFromCache(context, "watchdog")
 
         // 서비스가 없으면 되살린다. 백그라운드 시작 제한에 걸릴 수 있어 삼키되 기록한다
         if (!AlertWatchService.isRunning) {
@@ -106,10 +106,10 @@ class WatchdogReceiver : BroadcastReceiver() {
                 context.startForegroundService(
                     Intent(context, AlertWatchService::class.java)
                         .setAction(AlertWatchService.ACTION_START_WATCH)
-                        .putExtra(AlertWatchService.EXTRA_START_REASON, "주기점검"),
+                        .putExtra(AlertWatchService.EXTRA_START_REASON, "watchdog"),
                 )
             } catch (error: Exception) {
-                DiagnosticLog.write(context, "watchdog", "서비스 시작 실패 $error")
+                DiagnosticLog.write(context, "watchdog", "service start failed $error")
             }
         }
 

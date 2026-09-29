@@ -49,12 +49,12 @@ void main() {
   test('첫 기록이 파일을 만든다', () async {
     final logger = build();
 
-    await logger.log('geofence', '진입 이벤트 수신');
+    await logger.log('geofence', 'enter event received');
 
     expect(logFile.existsSync(), isTrue);
     final content = await logger.readAll();
     expect(content, contains('[geofence]'));
-    expect(content, contains('진입 이벤트 수신'));
+    expect(content, contains('enter event received'));
     expect(content, contains('2026-08-14T12:30'));
   });
 

@@ -79,7 +79,7 @@ void main() {
       expect(
         restored,
         GeofenceState.outside,
-        reason: 'unknown 으로 돌아가면 outside → inside 전이가 사라져 첫 진입 알림을 놓친다',
+        reason: 'unknown 으로 돌아가면 outside -> inside 전이가 사라져 첫 진입 알림을 놓친다',
       );
     });
   });

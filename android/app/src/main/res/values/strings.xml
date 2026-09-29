@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  사용자에게 보이는 네이티브 문자열 (이슈 #164).
+  알림은 앱이 죽어 있어도 Kotlin 이 만들기 때문에 Flutter 번역을 쓸 수 없다.
+  기본(values)은 영어다 — 지원하지 않는 기기 언어는 영어로 보인다.
+  중국어는 간체(zh-rCN)만 둔다. 번체(대만, 홍콩) 기기는 영어로 보인다 (명세 4-A).
+  앱 표시 이름(app_name)은 언어별 확정 전이라 한국어만 현지 이름을 쓴다 (이슈 #166).
+-->
+<resources>
+    <string name="app_name">EarLocAlert</string>
+    <string name="watch_channel_name">Location watching</string>
+    <string name="watch_channel_description">Shows that your registered places are being watched in the background</string>
+    <string name="watch_notification_title">Watching your locations</string>
+    <string name="watch_notification_text">We\'ll alert you when you arrive or leave</string>
+    <string name="arrival_channel_name">Arrival and departure alerts</string>
+    <string name="arrival_channel_description">Alerts you when you arrive at or leave a registered place</string>
+    <string name="arrival_default_title">Location alert</string>
+    <string name="arrival_body_enter">Arrived</string>
+    <string name="arrival_body_exit">Left</string>
+    <string name="arrival_action_dismiss">Turn off</string>
+</resources>

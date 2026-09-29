@@ -1,6 +1,7 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 import '../domain/alert_effects.dart';
+import '../domain/alert_strings.dart';
 
 /// OS 알림 발행 구현 (F3.2)
 ///
@@ -28,10 +29,12 @@ class AlertNotifierImpl implements AlertNotifier {
 
   @override
   Future<void> show({required String placeName, required String body}) async {
-    const androidDetails = AndroidNotificationDetails(
+    // 채널 이름은 저장된 앱 언어로 만든다 (컨텍스트 없음)
+    final strings = await resolveAlertStrings();
+    final androidDetails = AndroidNotificationDetails(
       _channelId,
-      '알림 진행 중',
-      channelDescription: '알림 화면을 벗어났을 때 다시 돌아오는 알림입니다',
+      strings.alertNotificationChannelName,
+      channelDescription: strings.alertNotificationChannelDescription,
       // 헤드업을 띄우지 않는다 — 상태바와 알림 목록에만 남는다
       importance: Importance.low,
       priority: Priority.low,
@@ -56,7 +59,7 @@ class AlertNotifierImpl implements AlertNotifier {
       _notificationId,
       placeName,
       body,
-      const NotificationDetails(android: androidDetails, iOS: iosDetails),
+      NotificationDetails(android: androidDetails, iOS: iosDetails),
     );
   }
 

@@ -48,15 +48,15 @@ class PermissionController extends _$PermissionController {
     // **권한 상태가 알림 실패 원인의 절반이다** (이슈 #106).
     // 그때 무엇이 켜져 있었는지가 남아야 사후에 가릴 수 있다
     final line =
-        '위치=${snapshot.location.name} '
-        '항상위치=${snapshot.backgroundLocation.name} '
-        '알림=${snapshot.notification.name} '
-        '배터리=${snapshot.batteryOptimization.name} '
-        '오버레이=${snapshot.overlay.name} '
-        '전체화면=${snapshot.fullScreenIntent.name}';
+        'location=${snapshot.location.name} '
+        'background_location=${snapshot.backgroundLocation.name} '
+        'notification=${snapshot.notification.name} '
+        'battery_optimization=${snapshot.batteryOptimization.name} '
+        'overlay=${snapshot.overlay.name} '
+        'full_screen_intent=${snapshot.fullScreenIntent.name}';
     if (line != _lastLoggedSnapshot) {
       _lastLoggedSnapshot = line;
-      Diagnostics.log('permission', '권한 상태 $line');
+      Diagnostics.log('permission', 'permission state $line');
     }
     return snapshot;
   }
@@ -146,7 +146,7 @@ class PermissionController extends _$PermissionController {
   /// 특정 항목을 직접 눌렀을 때 쓴다 — 온보딩처럼 다음 단계를 계산하면
   /// 누른 것과 다른 권한 화면이 열려 사용자가 무엇을 한 건지 알 수 없다.
   Future<void> requestOne(PermissionKind kind) async {
-    Diagnostics.log('permission', '권한 요청 ${kind.name}');
+    Diagnostics.log('permission', 'permission requested ${kind.name}');
     final service = ref.read(permissionServiceProvider);
     state = const AsyncLoading();
     state = await AsyncValue.guard(() => service.request(kind));

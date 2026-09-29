@@ -1,3 +1,5 @@
+import 'package:flutter/widgets.dart';
+
 /// 한글 낱말 안에서 줄이 끊기지 않게 한다 — CSS `word-break: keep-all` 대응
 ///
 /// Flutter 는 한글 음절 사이를 전부 줄바꿈 가능 지점으로 본다. 그래서
@@ -40,4 +42,17 @@ extension KeepAll on String {
       rune == 0x20E3 || // 키캡
       (rune >= 0x1F3FB && rune <= 0x1F3FF) || // 피부색
       (rune >= 0x0300 && rune <= 0x036F); // 결합 부호
+}
+
+/// 화면 언어에 맞게 낱말 보호를 적용한다 (이슈 #163)
+///
+/// **`String.keepAll` 은 공백이 아닌 모든 글자 사이에 줄바꿈 금지 문자를
+/// 넣는다.** 띄어쓰기가 없는 중국어와 일본어에 쓰면 줄이 절대 바뀌지 않아
+/// 한 줄로 넘친다. 그래서 **한국어일 때만** 적용하고, 나머지 언어는 엔진의
+/// 기본 줄바꿈(금칙 처리 포함)에 맡긴다. 영어는 낱말 단위라 필요 없다.
+extension KeepAllContext on BuildContext {
+  String keepAllText(String text) =>
+      (Localizations.maybeLocaleOf(this)?.languageCode ?? 'ko') == 'ko'
+      ? text.keepAll
+      : text;
 }

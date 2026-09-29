@@ -218,7 +218,7 @@ class AlertWatchService : Service() {
         if (!startWatchForeground()) {
             // API 34+ 는 위치 권한이 없으면 승격이 거부된다. 권한 온보딩 전에
             // 불린 경우이며, 엔진을 띄울 이유가 없다
-            DiagnosticLog.write(this, "watch", "감시 서비스 승격 실패 — 종료한다")
+            DiagnosticLog.write(this, "watch", "watch service promotion failed, stopping")
             stopSelf()
             return
         }
@@ -228,7 +228,7 @@ class AlertWatchService : Service() {
         // 시간순으로 확인할 수 있어야 한다 (이슈 #95).
         // 승격까지 걸린 시간을 함께 남긴다 — OS 한도(약 10초)에 얼마나
         // 가까웠는지 실기기에서 보려는 것이다 (이슈 #161)
-        DiagnosticLog.write(this, "watch", "감시 서비스 생성 (승격 ${promotedMs}ms)")
+        DiagnosticLog.write(this, "watch", "watch service created (promoted in ${promotedMs}ms)")
         isRunning = true
 
         // 직전 프로세스가 왜 죽었는지 남긴다 — 감시가 끊긴 원인의 유일한 단서다 (이슈 #159)
@@ -250,7 +250,7 @@ class AlertWatchService : Service() {
         DiagnosticLog.write(
             this,
             "watch",
-            "감시 엔진 기동 ${SystemClock.elapsedRealtime() - startedAt}ms",
+            "watch engine started in ${SystemClock.elapsedRealtime() - startedAt}ms",
         )
     }
 
@@ -258,8 +258,8 @@ class AlertWatchService : Service() {
         // 시작 사유 (이슈 #159) — 이벤트 전달은 지오펜스 로그가 따로 있어 제외한다
         if (intent?.action != ACTION_GEOFENCE_EVENT) {
             val reason = intent?.getStringExtra(EXTRA_START_REASON)
-                ?: if (intent == null) "시스템재시작" else "액션=${intent.action}"
-            DiagnosticLog.write(this, "watch", "서비스 시작 요청 사유=$reason")
+                ?: if (intent == null) "system_restart" else "action=${intent.action}"
+            DiagnosticLog.write(this, "watch", "service start requested reason=$reason")
         }
 
         when (intent?.action) {
@@ -279,7 +279,7 @@ class AlertWatchService : Service() {
             // 사용자가 알림에서 직접 껐다 (이슈 #130) — Dart 를 거치지
             // 않으므로 앱이 죽어 있어도 여기서 끝난다
             ACTION_DISMISS_ALERT -> {
-                DiagnosticLog.write(this, "alert", "알림 끄기 — 사용자가 알림에서 직접 껐다")
+                DiagnosticLog.write(this, "alert", "alert dismissed by the user from the notification")
                 endAlert()
                 releaseArrivalNotification()
             }
@@ -302,7 +302,7 @@ class AlertWatchService : Service() {
 
     override fun onDestroy() {
         isRunning = false
-        DiagnosticLog.write(this, "watch", "감시 서비스 종료")
+        DiagnosticLog.write(this, "watch", "watch service destroyed")
         handler.removeCallbacks(timeoutTask)
         handler.removeCallbacks(preciseTimeoutTask)
         stopPreciseTracking()
@@ -338,14 +338,18 @@ class AlertWatchService : Service() {
 
     private fun createWatchChannel() {
         val manager = getSystemService(NotificationManager::class.java) ?: return
-        if (manager.getNotificationChannel(WATCH_CHANNEL_ID) != null) return
+        val text = AppLocale.localized(this)
+        // **이미 있어도 다시 만든다.** OS 는 채널 이름과 설명을 만든 시점의 언어로
+        // 굳히지만, 같은 아이디로 다시 만들면 이름과 설명만 갱신되고 진동과 소리
+        // 같은 사용자 설정은 그대로 남는다. 언어를 바꾼 뒤에도 설정 화면의 채널
+        // 이름이 바뀐 언어로 보이게 하려는 것이다 (이슈 #164)
         val channel = NotificationChannel(
             WATCH_CHANNEL_ID,
-            "위치 감시",
+            text.getString(R.string.watch_channel_name),
             // 상시 표시되는 알림이다 — 소리도 헤드업도 없어야 한다
             NotificationManager.IMPORTANCE_LOW,
         ).apply {
-            description = "등록한 장소를 백그라운드에서 지켜보는 중임을 알립니다"
+            description = text.getString(R.string.watch_channel_description)
             setShowBadge(false)
             enableVibration(false)
             setSound(null, null)
@@ -354,9 +358,10 @@ class AlertWatchService : Service() {
     }
 
     private fun buildWatchNotification(): Notification {
+        val text = AppLocale.localized(this)
         return Notification.Builder(this, WATCH_CHANNEL_ID)
-            .setContentTitle("위치를 지켜보고 있습니다")
-            .setContentText("도착하거나 떠날 때 알려드립니다")
+            .setContentTitle(text.getString(R.string.watch_notification_title))
+            .setContentText(text.getString(R.string.watch_notification_text))
             .setSmallIcon(applicationInfo.icon)
             .setOngoing(true)
             .setContentIntent(launchPendingIntent())
@@ -418,7 +423,7 @@ class AlertWatchService : Service() {
         DiagnosticLog.write(
             this,
             "watch",
-            "네이티브 지오펜스 등록 ${lastRegisteredIds.size}건 (요청 ${fences.size}건)",
+            "native geofences registered=${lastRegisteredIds.size} requested=${fences.size}",
         )
 
         // 등록 대상이 사라지면 정밀 감시도 의미가 없다
@@ -466,7 +471,7 @@ class AlertWatchService : Service() {
         handler.postDelayed(preciseTimeoutTask, PRECISE_TIMEOUT_MS)
         if (tracker.isRunning) return
 
-        DiagnosticLog.write(this, "precise", "정밀 감시 시작 대상=${proximityPlaces.size}건")
+        DiagnosticLog.write(this, "precise", "precise tracking started targets=${proximityPlaces.size}")
 
         tracker.start { location ->
             engine.evaluatePosition(
@@ -487,7 +492,7 @@ class AlertWatchService : Service() {
 
     private fun stopPreciseTracking() {
         if (tracker.isRunning) {
-            DiagnosticLog.write(this, "precise", "정밀 감시 종료")
+            DiagnosticLog.write(this, "precise", "precise tracking stopped")
         }
         handler.removeCallbacks(preciseTimeoutTask)
         proximityPlaces.clear()
@@ -510,7 +515,7 @@ class AlertWatchService : Service() {
      */
     private fun beginAlert(decision: AlertDecision) {
         if (alerting) {
-            DiagnosticLog.write(this, "alert", "이미 울리는 중 — 중복 발화 무시")
+            DiagnosticLog.write(this, "alert", "already ringing, duplicate fire ignored")
             return
         }
         alerting = true
@@ -519,9 +524,9 @@ class AlertWatchService : Service() {
         DiagnosticLog.write(
             this,
             "alert",
-            "알림 시작 place=${decision.placeName} " +
+            "alert started place=${decision.placeName} " +
                 "direction=${decision.direction} " +
-                "(오버레이권한=${Settings.canDrawOverlays(this)})",
+                "(overlay_permission=${Settings.canDrawOverlays(this)})",
         )
 
         lastDecision = decision
@@ -552,7 +557,7 @@ class AlertWatchService : Service() {
         handler.removeCallbacks(timeoutTask)
         stopVibration()
         if (timedOut) {
-            DiagnosticLog.write(this, "alert", "알림 시간 초과 — 진동 중단, 알림은 남긴다")
+            DiagnosticLog.write(this, "alert", "alert timed out, vibration stopped, notification kept")
             releaseArrivalNotification()
         }
     }
@@ -582,7 +587,7 @@ class AlertWatchService : Service() {
         } catch (error: Exception) {
             // 알림 권한이 없으면 여기서 막힌다 — 진동과 화면 승격은 계속된다.
             // 무엇이 막혔는지는 남긴다. 아무것도 안 뜨는 이유가 이것일 수 있다
-            DiagnosticLog.write(this, "alert", "알림 발행 실패 $error")
+            DiagnosticLog.write(this, "alert", "notification post failed $error")
         }
     }
 
@@ -601,14 +606,15 @@ class AlertWatchService : Service() {
 
     private fun createArrivalChannel() {
         val manager = getSystemService(NotificationManager::class.java) ?: return
-        if (manager.getNotificationChannel(ARRIVAL_CHANNEL_ID) != null) return
+        val text = AppLocale.localized(this)
+        // 이미 있어도 다시 만든다 — 이름과 설명만 갱신된다 (createWatchChannel 참조, 이슈 #164)
         val channel = NotificationChannel(
             ARRIVAL_CHANNEL_ID,
-            "도착·출발 알림",
+            text.getString(R.string.arrival_channel_name),
             // 헤드업으로 뜨려면 HIGH 이상이어야 한다
             NotificationManager.IMPORTANCE_HIGH,
         ).apply {
-            description = "등록한 장소에 도착하거나 떠날 때 알립니다"
+            description = text.getString(R.string.arrival_channel_description)
             // 진동은 서비스가 직접 건다 — 채널 진동과 겹치면 패턴이 어긋난다
             enableVibration(false)
             // **소리 없음.** 이어폰 판정을 우회할 수 없어야 한다
@@ -622,8 +628,13 @@ class AlertWatchService : Service() {
         decision: AlertDecision?,
         ongoing: Boolean,
     ): Notification {
-        val title = decision?.placeName?.takeIf { it.isNotBlank() } ?: "위치 알림"
-        val body = if (decision?.direction == "exit") "떠났습니다" else "도착했습니다"
+        val text = AppLocale.localized(this)
+        val title = decision?.placeName?.takeIf { it.isNotBlank() }
+            ?: text.getString(R.string.arrival_default_title)
+        val body = text.getString(
+            if (decision?.direction == "exit") R.string.arrival_body_exit
+            else R.string.arrival_body_enter,
+        )
         val pending = launchPendingIntent()
 
         return Notification.Builder(this, ARRIVAL_CHANNEL_ID)
@@ -658,7 +669,7 @@ class AlertWatchService : Service() {
                                 this@AlertWatchService,
                                 android.R.drawable.ic_menu_close_clear_cancel,
                             ),
-                            "알림 끄기",
+                            text.getString(R.string.arrival_action_dismiss),
                             stopAlertPendingIntent(),
                         ).build(),
                     )
@@ -699,7 +710,7 @@ class AlertWatchService : Service() {
             vibrator.vibrate(effect)
         } catch (error: Exception) {
             // 진동을 못 걸어도 알림과 화면 승격은 계속된다
-            DiagnosticLog.write(this, "alert", "진동 시작 실패 $error")
+            DiagnosticLog.write(this, "alert", "vibration start failed $error")
         }
     }
 
@@ -727,18 +738,18 @@ class AlertWatchService : Service() {
             DiagnosticLog.write(
                 this,
                 "alert",
-                "화면 승격 생략 — 다른 앱 위에 표시 권한 없음 (알림은 발행됨)",
+                "screen promotion skipped, no draw-over-other-apps permission (notification was posted)",
             )
             return
         }
         val intent = launchIntent() ?: return
         try {
             startActivity(intent)
-            DiagnosticLog.write(this, "alert", "화면 승격 요청 완료")
+            DiagnosticLog.write(this, "alert", "screen promotion requested")
         } catch (error: Exception) {
             // Android 10+ 는 권한이 있어도 백그라운드 액티비티 시작을 막을 수
             // 있다. 그 경우 전체화면 인텐트와 알림이 남는다
-            DiagnosticLog.write(this, "alert", "화면 승격 차단됨 $error")
+            DiagnosticLog.write(this, "alert", "screen promotion blocked $error")
         }
     }
 

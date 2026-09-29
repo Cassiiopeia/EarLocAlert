@@ -1,3 +1,4 @@
+import 'package:ear_loc_alert/core/l10n/l10n.dart';
 import 'package:ear_loc_alert/core/text/keep_all.dart';
 import 'package:ear_loc_alert/core/domain/alert_direction.dart';
 import 'package:ear_loc_alert/core/theme/app_theme.dart';
@@ -28,7 +29,14 @@ void main() {
   Future<void> pump(WidgetTester tester, Widget form) async {
     await tester.pumpWidget(
       ProviderScope(
-        child: MaterialApp(theme: AppTheme.dark(), home: form),
+        child: MaterialApp(
+          // 문구를 한국어로 찾으므로 언어를 한국어로 고정한다 (이슈 #163)
+          locale: const Locale('ko'),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          theme: AppTheme.dark(),
+          home: form,
+        ),
       ),
     );
     await tester.pumpAndSettle();
@@ -80,6 +88,11 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         child: MaterialApp(
+          // 문구를 한국어로 찾으므로 언어를 한국어로 고정한다 (이슈 #163)
+          locale: const Locale('ko'),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+
           navigatorKey: navigator,
           theme: AppTheme.dark(),
           home: PlaceFormScreen(

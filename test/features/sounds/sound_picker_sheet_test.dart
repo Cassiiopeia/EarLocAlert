@@ -11,6 +11,7 @@ import 'package:ear_loc_alert/features/sounds/presentation/sound_picker_sheet.da
 import 'package:ear_loc_alert/features/sounds/presentation/sound_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ear_loc_alert/core/l10n/l10n.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// 알림음 선택 시트 (이슈 #121)
@@ -107,6 +108,10 @@ void main() {
           soundPreviewPlayerProvider.overrideWithValue(player),
         ],
         child: MaterialApp(
+          // 문구를 한국어로 찾으므로 언어를 한국어로 고정한다 (이슈 #163)
+          locale: const Locale('ko'),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
           theme: AppTheme.dark(),
           home: Builder(
             builder: (context) => Scaffold(
@@ -218,6 +223,10 @@ void main() {
           soundPreviewPlayerProvider.overrideWithValue(player),
         ],
         child: MaterialApp(
+          // 문구를 한국어로 찾으므로 언어를 한국어로 고정한다 (이슈 #163)
+          locale: const Locale('ko'),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
           theme: AppTheme.dark(),
           home: Builder(
             builder: (context) => Scaffold(

@@ -42,13 +42,13 @@ Future<void> ensureDarkMapStyle(
     // 거부됐을 수 있으므로 반드시 확인한다.
     final error = await controller.getStyleError();
     if (error != null) {
-      Diagnostics.log('map', '지도 스타일 거부됨 화면=$where 사유=$error');
+      Diagnostics.log('map', 'map style rejected screen=$where reason=$error');
       return;
     }
 
-    Diagnostics.log('map', '지도 스타일 적용 화면=$where');
+    Diagnostics.log('map', 'map style applied screen=$where');
   } on Object catch (e) {
     // 삼키되 기록은 남긴다 (docs/04-CONVENTIONS.md)
-    Diagnostics.log('map', '지도 스타일 적용 실패 화면=$where 사유=$e');
+    Diagnostics.log('map', 'map style apply failed screen=$where reason=$e');
   }
 }

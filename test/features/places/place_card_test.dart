@@ -1,3 +1,4 @@
+import 'package:ear_loc_alert/core/l10n/l10n.dart';
 import 'package:ear_loc_alert/core/domain/alert_direction.dart';
 import 'package:ear_loc_alert/core/theme/app_colors.dart';
 import 'package:ear_loc_alert/core/theme/app_theme.dart';
@@ -28,6 +29,11 @@ AlertPlace makePlace({
 /// (시간대 시트의 주 버튼이 화면 밖으로 밀려난 적이 있다).
 Widget wrap(Widget child) {
   return MaterialApp(
+    // 문구를 한국어로 찾으므로 언어를 한국어로 고정한다 (이슈 #163)
+    locale: const Locale('ko'),
+    localizationsDelegates: AppLocalizations.localizationsDelegates,
+    supportedLocales: AppLocalizations.supportedLocales,
+
     theme: AppTheme.dark(),
     home: Scaffold(body: child),
   );

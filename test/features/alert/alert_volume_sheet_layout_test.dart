@@ -4,6 +4,7 @@ import 'package:ear_loc_alert/features/alert/presentation/alert_controller_provi
 import 'package:ear_loc_alert/features/alert/presentation/alert_volume_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ear_loc_alert/core/l10n/l10n.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// 알림음 크기 시트의 레이아웃 (이슈 #153)
@@ -65,6 +66,10 @@ void main() {
           systemVolumeServiceProvider.overrideWithValue(_NoopSystemVolume()),
         ],
         child: MaterialApp(
+          // 문구를 한국어로 찾으므로 언어를 한국어로 고정한다 (이슈 #163)
+          locale: const Locale('ko'),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
           theme: AppTheme.dark(),
           builder: (context, child) => MediaQuery.withClampedTextScaling(
             minScaleFactor: textScale,

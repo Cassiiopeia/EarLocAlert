@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/l10n/l10n.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
@@ -82,7 +83,7 @@ class _AlertVolumeSheetState extends ConsumerState<_AlertVolumeSheet> {
             children: [
               Expanded(
                 child: Text(
-                  '알림음 크기',
+                  context.l10n.volumeTitle,
                   style: AppTypography.body.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
@@ -101,9 +102,7 @@ class _AlertVolumeSheetState extends ConsumerState<_AlertVolumeSheet> {
           ),
           const SizedBox(height: AppSpacing.xs),
           Text(
-            ('알림이 울릴 때 시스템 볼륨이 이 수준보다 낮으면 여기까지 '
-                    '올렸다가, 끄면 원래대로 되돌립니다.')
-                .keepAll,
+            context.keepAllText(context.l10n.volumeDescription),
             style: AppTypography.caption,
           ),
           const SizedBox(height: AppSpacing.md),
@@ -136,7 +135,10 @@ class _AlertVolumeSheetState extends ConsumerState<_AlertVolumeSheet> {
           const SizedBox(height: AppSpacing.xs),
 
           if (_previewNotice != null)
-            Text(_previewNotice!.keepAll, style: AppTypography.caption),
+            Text(
+              context.keepAllText(_previewNotice!),
+              style: AppTypography.caption,
+            ),
 
           const SizedBox(height: AppSpacing.sm),
           // **보조 동작이라 주 버튼이 아니다** (docs/06-UX.md 주 액션 규칙).
@@ -144,7 +146,11 @@ class _AlertVolumeSheetState extends ConsumerState<_AlertVolumeSheet> {
           // 버튼 자리는 "안 누르면 목적이 달성되지 않는 동작"만 쓴다.
           OutlinedButton(
             onPressed: volume == null ? null : _togglePreview,
-            child: Text(_previewing ? '미리듣기 멈추기' : '미리듣기'),
+            child: Text(
+              _previewing
+                  ? context.l10n.volumePreviewStop
+                  : context.l10n.soundPreview,
+            ),
           ),
         ],
       ),
@@ -156,6 +162,8 @@ class _AlertVolumeSheetState extends ConsumerState<_AlertVolumeSheet> {
   /// 도서관에서 스피커로 샌다.
   Future<void> _togglePreview() async {
     final sound = ref.read(alertSoundServiceProvider);
+    // await 를 건너기 전에 문구를 잡아 둔다 (비동기 뒤 context 사용 금지)
+    final l10n = context.l10n;
 
     if (_previewing) {
       await sound.stop();
@@ -172,7 +180,7 @@ class _AlertVolumeSheetState extends ConsumerState<_AlertVolumeSheet> {
     if (!mounted) return;
 
     if (!connected) {
-      setState(() => _previewNotice = '이어폰이 연결되어 있지 않아 미리듣기를 할 수 없습니다.');
+      setState(() => _previewNotice = l10n.volumePreviewNoHeadphones);
       return;
     }
 
@@ -183,7 +191,7 @@ class _AlertVolumeSheetState extends ConsumerState<_AlertVolumeSheet> {
         _previewNotice = null;
       });
     } on Object {
-      setState(() => _previewNotice = '재생에 실패했습니다.');
+      setState(() => _previewNotice = l10n.volumePreviewFailed);
     }
   }
 }

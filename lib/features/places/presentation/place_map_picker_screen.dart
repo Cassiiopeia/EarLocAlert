@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../../../core/diagnostics/diagnostics.dart';
+import '../../../core/l10n/l10n.dart';
+import '../../../core/map/default_map_view.dart';
 import '../../../core/map/map_reveal_cover.dart';
 import '../../../core/map/map_style_guard.dart';
 import '../../../core/map/radius_zoom.dart';
@@ -80,8 +82,8 @@ class PlaceMapPickerScreen extends StatefulWidget {
   ///
   /// 사용자의 현재 위치로 시작하는 것이 이상적이지만, 위치 권한이 아직
   /// 없을 수 있고 첫 측정까지 시간이 걸린다. 회색 화면을 보여주느니
-  /// 고정 좌표에서 시작하고 "내 위치" 버튼으로 이동하게 둔다.
-  static const _fallback = LatLng(37.5665, 126.9780); // 서울시청
+  /// 기기 지역에 맞는 곳에서 시작하고 "내 위치" 버튼으로 이동하게 둔다.
+  /// 서울시청을 모두에게 보이지 않는다 (이슈 #166).
 
   @override
   State<PlaceMapPickerScreen> createState() => _PlaceMapPickerScreenState();
@@ -121,10 +123,20 @@ class _PlaceMapPickerScreenState extends State<PlaceMapPickerScreen> {
   LatLng get _initialCenter {
     final latitude = widget.args.latitude;
     final longitude = widget.args.longitude;
-    if (latitude == null || longitude == null) {
-      return PlaceMapPickerScreen._fallback;
-    }
+    if (latitude == null || longitude == null) return _fallbackView.target;
     return LatLng(latitude, longitude);
+  }
+
+  /// 좌표 없이 들어왔을 때의 시작 화면 — 기기 지역으로 정한다
+  final DefaultMapView _fallbackView = currentDefaultMapView();
+
+  /// 시작 확대. 세계 지도(도시를 모를 때)는 반경에 맞추지 않는다 —
+  /// 바다 한가운데를 200m 로 확대하면 아무것도 보이지 않는다
+  double get _initialZoom {
+    final hasCoords =
+        widget.args.latitude != null && widget.args.longitude != null;
+    if (!hasCoords && _fallbackView.isWorld) return _fallbackView.zoom;
+    return _fitZoom(_initialCenter);
   }
 
   // ── 검색 ────────────────────────────────────────────────────
@@ -208,7 +220,10 @@ class _PlaceMapPickerScreenState extends State<PlaceMapPickerScreen> {
   Future<void> _moveToCurrentLocation() async {
     final here = await widget.locationService.current();
     if (here == null || !mounted) return;
-    Diagnostics.log('picker', '내 위치로 이동 ${here.latitude},${here.longitude}');
+    Diagnostics.log(
+      'picker',
+      'moved to my location ${here.latitude},${here.longitude}',
+    );
     await _map?.animateCamera(
       CameraUpdate.newLatLngZoom(
         LatLng(here.latitude, here.longitude),
@@ -225,10 +240,16 @@ class _PlaceMapPickerScreenState extends State<PlaceMapPickerScreen> {
     if (widget.args.latitude != null && widget.args.longitude != null) return;
     final here = await widget.locationService.current();
     if (here == null || !mounted) {
-      Diagnostics.log('picker', '현재 위치를 얻지 못해 기본 좌표에서 시작한다');
+      Diagnostics.log(
+        'picker',
+        'current location unavailable, starting at the default coordinates',
+      );
       return;
     }
-    Diagnostics.log('picker', '현재 위치에서 시작 ${here.latitude},${here.longitude}');
+    Diagnostics.log(
+      'picker',
+      'starting at current location ${here.latitude},${here.longitude}',
+    );
     setState(() => _center = LatLng(here.latitude, here.longitude));
     await _map?.moveCamera(
       CameraUpdate.newLatLngZoom(
@@ -244,7 +265,7 @@ class _PlaceMapPickerScreenState extends State<PlaceMapPickerScreen> {
 
     return Scaffold(
       backgroundColor: AppColors.bgBase,
-      appBar: AppBar(title: const Text('지도에서 선택')),
+      appBar: AppBar(title: Text(context.l10n.placePickerTitle)),
       body: Stack(
         children: [
           MapRevealCover(
@@ -260,7 +281,7 @@ class _PlaceMapPickerScreenState extends State<PlaceMapPickerScreen> {
               },
               initialCameraPosition: CameraPosition(
                 target: _initialCenter,
-                zoom: _fitZoom(_initialCenter),
+                zoom: _initialZoom,
               ),
               style: MapStyle.dark,
               // 원의 중심이 카메라 중심이라, 화면에서는 핀 자리에 고정되어
@@ -348,7 +369,7 @@ class _PlaceMapPickerScreenState extends State<PlaceMapPickerScreen> {
                   child: FloatingCircleButton(
                     icon: Icons.my_location_outlined,
                     onPressed: _moveToCurrentLocation,
-                    semanticLabel: '내 위치',
+                    semanticLabel: context.l10n.placeMyLocation,
                   ),
                 ),
                 _PickerPanel(
@@ -430,7 +451,7 @@ class _SearchOverlay extends StatelessWidget {
                   textInputAction: TextInputAction.search,
                   style: AppTypography.body,
                   decoration: InputDecoration(
-                    hintText: '장소·주소 검색',
+                    hintText: context.l10n.placeSearchHint,
                     hintStyle: AppTypography.caption,
                     border: InputBorder.none,
                     contentPadding: const EdgeInsets.symmetric(
@@ -469,7 +490,7 @@ class _SearchOverlay extends StatelessWidget {
             if (unavailable)
               Padding(
                 padding: const EdgeInsets.only(top: AppSpacing.xs),
-                child: _SearchMessage('검색을 사용할 수 없습니다 — 지도를 움직여 위치를 맞춰주세요'),
+                child: _SearchMessage(context.l10n.placeSearchUnavailable),
               )
             else if (results.isNotEmpty)
               Container(
@@ -494,7 +515,9 @@ class _SearchOverlay extends StatelessWidget {
                         size: AppIconSize.standard,
                       ),
                       title: Text(
-                        result.name,
+                        result.name.isEmpty
+                            ? context.l10n.placeSearchUnnamed
+                            : result.name,
                         style: AppTypography.body,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -532,7 +555,7 @@ class _SearchMessage extends StatelessWidget {
         color: AppColors.bgSurface,
         borderRadius: BorderRadius.circular(AppRadius.small),
       ),
-      child: Text(message.keepAll, style: AppTypography.caption),
+      child: Text(context.keepAllText(message), style: AppTypography.caption),
     );
   }
 }
@@ -565,7 +588,7 @@ class _PickerPanel extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              '알림 반경 ${radius.round()}m',
+              context.l10n.placePickerRadius(radius.round()),
               style: AppTypography.body.copyWith(fontWeight: FontWeight.w600),
             ),
             Slider(
@@ -577,7 +600,7 @@ class _PickerPanel extends StatelessWidget {
               onChangeEnd: onRadiusChangeEnd,
             ),
             Text(
-              '지도를 움직여 핀을 맞추세요'.keepAll,
+              context.keepAllText(context.l10n.placePickerPinHint),
               style: AppTypography.caption,
               textAlign: TextAlign.center,
             ),
@@ -588,7 +611,7 @@ class _PickerPanel extends StatelessWidget {
                 backgroundColor: AppColors.primary,
                 foregroundColor: AppColors.textOnPrimary,
               ),
-              child: const Text('이 위치로 선택'),
+              child: Text(context.l10n.placePickerConfirm),
             ),
           ],
         ),

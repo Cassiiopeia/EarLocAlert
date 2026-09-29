@@ -85,7 +85,7 @@ class AlertSoundServiceImpl implements AlertSoundService {
       final granted = await session.setActive(true);
       Diagnostics.log(
         'alert',
-        '오디오 포커스 ${granted ? "획득" : "거부"} (거부여도 재생은 시도한다)',
+        'audio focus ${granted ? "granted" : "denied"} (playback is attempted even when denied)',
       );
       _listenInterruptions(session);
 
@@ -136,7 +136,7 @@ class AlertSoundServiceImpl implements AlertSoundService {
     _interruptions = session.interruptionEventStream.listen((event) {
       Diagnostics.log(
         'alert',
-        '오디오 중단 ${event.begin ? "시작" : "종료"} 유형=${event.type.name}',
+        'audio interruption ${event.begin ? "begin" : "end"} type=${event.type.name}',
       );
     });
   }

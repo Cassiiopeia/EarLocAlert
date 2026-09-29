@@ -57,7 +57,7 @@ class PlaceActions extends _$PlaceActions {
     if (errors.isNotEmpty) {
       Diagnostics.log(
         'place',
-        '장소 저장 거부 name=$name 사유=${errors.map((e) => e.name).join(",")}',
+        'place save rejected name=$name reason=${errors.map((e) => e.name).join(",")}',
       );
       return errors;
     }
@@ -85,12 +85,12 @@ class PlaceActions extends _$PlaceActions {
       'place',
       // id 를 함께 남긴다 (이슈 #127) — 지오펜스·판정 로그는 id 로만
       // 나오므로, 이름만 있으면 같은 장소인지 대조할 수 없다
-      '장소 ${isNew ? "추가" : "수정"} id=${shortId(id ?? "new")} '
+      'place ${isNew ? "added" : "updated"} id=${shortId(id ?? "new")} '
           'name=${name.trim()} '
           'lat=$latitude lng=$longitude radius=${radiusMeters}m '
           'direction=${direction.name} sound=$soundEnabled '
           'tone=${sound.storageValue} '
-          'schedules=${schedules.length}건',
+          'schedules=${schedules.length}',
     );
     return const [];
   }
@@ -98,7 +98,10 @@ class PlaceActions extends _$PlaceActions {
   /// 활성/비활성 토글 (F1.7) — 삭제하지 않고 잠시 끄는 수단
   Future<void> setEnabled(String id, {required bool enabled}) {
     // 꺼둔 장소는 감시되지 않는다 — "왜 안 울렸나"의 가장 단순한 답이다
-    Diagnostics.log('place', '장소 ${enabled ? "켜짐" : "꺼짐"} id=${shortId(id)}');
+    Diagnostics.log(
+      'place',
+      'place ${enabled ? "enabled" : "disabled"} id=${shortId(id)}',
+    );
     return ref.read(placeRepositoryProvider).setEnabled(id, enabled: enabled);
   }
 
@@ -111,7 +114,10 @@ class PlaceActions extends _$PlaceActions {
     await repo.delete(id);
     // 장소가 사라지면 지오펜스 상태도 함께 지운다 (docs/03-DOMAIN.md)
     await ref.read(geofenceStateRepositoryProvider).remove(id);
-    Diagnostics.log('place', '장소 삭제 id=${shortId(id)} name=${place.name}');
+    Diagnostics.log(
+      'place',
+      'place deleted id=${shortId(id)} name=${place.name}',
+    );
     return place;
   }
 
