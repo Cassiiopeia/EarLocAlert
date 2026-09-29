@@ -125,52 +125,45 @@ class SettingsScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: Text(context.l10n.settingsTitle)),
       body: SafeArea(
-        child: Column(
+        child: ListView(
           children: [
-            Expanded(
-              child: ListView(
-                children: [
-                  _SectionLabel(context.l10n.settingsSectionAlert),
-                  _SettingTile(
-                    icon: Icons.vibration_outlined,
-                    title: context.l10n.settingsVibrationTitle,
-                    subtitle: context.l10n.settingsVibrationSubtitle,
-                    onTap: onOpenVibrationSettings,
-                  ),
-                  _SettingTile(
-                    icon: Icons.tune_outlined,
-                    title: context.l10n.settingsVolumeTitle,
-                    subtitle: context.l10n.settingsVolumeSubtitle,
-                    onTap: onOpenVolumeSettings,
-                  ),
-                  if (onPreviewAlert != null)
-                    _SettingTile(
-                      icon: Icons.notifications_active_outlined,
-                      title: context.l10n.settingsPreviewTitle,
-                      subtitle: context.l10n.settingsPreviewSubtitle,
-                      onTap: onPreviewAlert!,
-                    ),
-
-                  if (permissions.isNotEmpty) ...[
-                    _SectionLabel(context.l10n.settingsSectionReach),
-                    for (final row in permissions) _PermissionTile(row: row),
-                  ],
-
-                  _SectionLabel(context.l10n.settingsSectionTroubleshoot),
-                  _SettingTile(
-                    icon: Icons.receipt_long_outlined,
-                    title: context.l10n.settingsDiagnosticsTitle,
-                    subtitle: context.l10n.settingsDiagnosticsSubtitle,
-                    onTap: onOpenDiagnostics,
-                  ),
-                ],
-              ),
+            _SectionLabel(context.l10n.settingsSectionAlert),
+            _SettingTile(
+              icon: Icons.vibration_outlined,
+              title: context.l10n.settingsVibrationTitle,
+              subtitle: context.l10n.settingsVibrationSubtitle,
+              onTap: onOpenVibrationSettings,
             ),
-            // **언어 항목은 화면 맨 아래에 고정한다** (이슈 #163).
-            // 목록 안이 아니라 목록 밖에 두는 이유: 스크롤하지 않아도 언제나
-            // 같은 자리에 보여야 한다. 읽을 수 없는 언어로 바뀐 사용자가
-            // 지구본 아이콘만 보고 찾아 되돌릴 수 있어야 한다.
-            const Divider(height: 1),
+            _SettingTile(
+              icon: Icons.tune_outlined,
+              title: context.l10n.settingsVolumeTitle,
+              subtitle: context.l10n.settingsVolumeSubtitle,
+              onTap: onOpenVolumeSettings,
+            ),
+            if (onPreviewAlert != null)
+              _SettingTile(
+                icon: Icons.notifications_active_outlined,
+                title: context.l10n.settingsPreviewTitle,
+                subtitle: context.l10n.settingsPreviewSubtitle,
+                onTap: onPreviewAlert!,
+              ),
+
+            if (permissions.isNotEmpty) ...[
+              _SectionLabel(context.l10n.settingsSectionReach),
+              for (final row in permissions) _PermissionTile(row: row),
+            ],
+
+            _SectionLabel(context.l10n.settingsSectionTroubleshoot),
+            _SettingTile(
+              icon: Icons.receipt_long_outlined,
+              title: context.l10n.settingsDiagnosticsTitle,
+              subtitle: context.l10n.settingsDiagnosticsSubtitle,
+              onTap: onOpenDiagnostics,
+            ),
+
+            // 언어는 목록의 맨 끝에 둔다 (이슈 #163). 자주 바꾸는 값이 아니라
+            // 앞쪽을 차지할 이유가 없다. 지구본 아이콘을 달아 문구를 못 읽는
+            // 언어가 되어도 알아볼 수 있게 하고, 바꾼 직후에는 되돌리기가 뜬다
             _SettingTile(
               icon: Icons.language_outlined,
               title: context.l10n.settingsLanguageTitle,
