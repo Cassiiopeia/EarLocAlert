@@ -1,14 +1,38 @@
 {
   "metadata": {
-    "lastUpdated": "2026-09-24T16:59:25Z",
-    "currentVersion": "1.18.2",
+    "lastUpdated": "2026-09-29T07:18:56Z",
+    "currentVersion": "1.18.3",
     "projectType": "flutter",
-    "totalReleases": 64,
+    "totalReleases": 65,
     "projectTypes": [
       "flutter"
     ]
   },
   "releases": [
+    {
+      "version": "1.18.3",
+      "project_types": [
+        "flutter"
+      ],
+      "date": "2026-09-29",
+      "pr_number": 160,
+      "raw_summary": "## [1.18.3]\n\n### 🐛 수정\n- 3일간 도착 신호가 끊겼는데 앱을 열기 전엔 알 수 없다 — 앱 교체 직후 복구, 6시간 주기 재등록, 종료 사유·시작 사유·생존 기록을 더해 지오펜스가 조용히 사라져도 스스로 복구하고 원인을 가릴 수 있게 한다\n\n### 📝 문서\n- 3일간 도착 신호가 끊겼는데 앱을 열기 전엔 알 수 없다 — 구현 보고서를 남긴다",
+      "parsed_changes": {
+        "수정": {
+          "title": "🐛 수정",
+          "items": [
+            "3일간 도착 신호가 끊겼는데 앱을 열기 전엔 알 수 없다 — 앱 교체 직후 복구, 6시간 주기 재등록, 종료 사유·시작 사유·생존 기록을 더해 지오펜스가 조용히 사라져도 스스로 복구하고 원인을 가릴 수 있게 한다"
+          ]
+        },
+        "문서": {
+          "title": "📝 문서",
+          "items": [
+            "3일간 도착 신호가 끊겼는데 앱을 열기 전엔 알 수 없다 — 구현 보고서를 남긴다"
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "1.18.2",
       "project_types": [
