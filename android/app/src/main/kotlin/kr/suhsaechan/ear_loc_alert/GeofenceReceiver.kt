@@ -25,6 +25,8 @@ class GeofenceReceiver : BroadcastReceiver() {
         // "OS 가 도착을 감지해 우리에게 알렸는가"를 가르는 지점이라,
         // 알림이 안 왔을 때 가장 먼저 봐야 하는 기록이다.
         DiagnosticLog.write(context, "receiver", "지오펜스 브로드캐스트 수신")
+        // 마지막 수신 시각 — 주기 점검이 "신호가 언제부터 없었나"를 남기는 근거 (이슈 #159)
+        WatchState.markEvent(context)
 
         val event = GeofencingEvent.fromIntent(intent)
         if (event == null) {
