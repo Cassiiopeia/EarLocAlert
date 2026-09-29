@@ -6,6 +6,7 @@ import 'package:share_plus/share_plus.dart';
 import '../../../core/diagnostics/diagnostic_log_reader.dart';
 import '../../../core/diagnostics/file_diagnostic_logger.dart';
 import '../../../core/diagnostics/diagnostics.dart';
+import '../../../core/l10n/l10n.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
@@ -86,16 +87,18 @@ class _DiagnosticsScreenState extends ConsumerState<DiagnosticsScreen> {
   /// 읽을 때 이미 달라져 있다 — 그래서 첨부는 되는데 다운로드가 실패했다.
   Future<void> _export() async {
     if (_content.isEmpty) {
-      _toast('내보낼 기록이 없습니다');
+      _toast(context.l10n.diagnosticsExportEmpty);
       return;
     }
+    // await 뒤에는 context 를 쓰지 않도록 제목을 미리 구해둔다
+    final subject = context.l10n.diagnosticsExportSubject;
     try {
       final snapshot = await DiagnosticLogReader.createExportSnapshot();
       await Share.shareXFiles(
         // **MIME 을 명시한다.** 없으면 확장자로 추론되는데, 받는 앱이
         // 알 수 없는 형식으로 보고 열기를 거부할 수 있다
         [XFile(snapshot.path, mimeType: 'text/plain')],
-        subject: '이어폰위치알림 기록',
+        subject: subject,
       );
     } on Object {
       // 공유 시트를 못 띄우면 복사로 물러난다 — 꺼낼 길이 하나는 남아야 한다
@@ -105,23 +108,24 @@ class _DiagnosticsScreenState extends ConsumerState<DiagnosticsScreen> {
 
   Future<void> _copy() async {
     await Clipboard.setData(ClipboardData(text: _content));
-    _toast('클립보드에 복사했습니다');
+    if (!mounted) return;
+    _toast(context.l10n.diagnosticsCopied);
   }
 
   Future<void> _clear() async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('기록을 지울까요?'),
-        content: Text('지운 기록은 되돌릴 수 없습니다.'.keepAll),
+        title: Text(context.l10n.diagnosticsClearTitle),
+        content: Text(context.keepAllText(context.l10n.diagnosticsClearBody)),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('취소'),
+            child: Text(context.l10n.diagnosticsCancel),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('지우기'),
+            child: Text(context.l10n.diagnosticsClear),
           ),
         ],
       ),
@@ -138,7 +142,7 @@ class _DiagnosticsScreenState extends ConsumerState<DiagnosticsScreen> {
     if (!mounted) return;
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(SnackBar(content: Text(message.keepAll)));
+    ).showSnackBar(SnackBar(content: Text(context.keepAllText(message))));
   }
 
   @override
@@ -147,17 +151,17 @@ class _DiagnosticsScreenState extends ConsumerState<DiagnosticsScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('동작 기록'),
+        title: Text(context.l10n.diagnosticsTitle),
         actions: [
           IconButton(
             onPressed: _load,
             icon: const Icon(Icons.refresh_outlined),
-            tooltip: '새로고침',
+            tooltip: context.l10n.diagnosticsRefresh,
           ),
           IconButton(
             onPressed: _clear,
             icon: const Icon(Icons.delete_outlined),
-            tooltip: '지우기',
+            tooltip: context.l10n.diagnosticsClear,
           ),
         ],
       ),
@@ -184,7 +188,7 @@ class _DiagnosticsScreenState extends ConsumerState<DiagnosticsScreen> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _export,
         icon: const Icon(Icons.ios_share_outlined),
-        label: const Text('내보내기'),
+        label: Text(context.l10n.diagnosticsExport),
       ),
     );
   }
@@ -211,10 +215,13 @@ class _Header extends StatelessWidget {
           const SizedBox(width: AppSpacing.xs),
           Expanded(
             child: Text(
-              ('$lineCount건 · ${_formatSize(sizeBytes)} / 최대 '
-                      '${_formatSize(FileDiagnosticLogger.defaultMaxBytes)}\n'
-                      '기기 안에만 저장되며 전송되지 않습니다. 가득 차면 오래된 것부터 지워집니다')
-                  .keepAll,
+              context.keepAllText(
+                context.l10n.diagnosticsHeader(
+                  lineCount,
+                  _formatSize(sizeBytes),
+                  _formatSize(FileDiagnosticLogger.defaultMaxBytes),
+                ),
+              ),
               style: AppTypography.caption,
             ),
           ),
@@ -245,17 +252,18 @@ class _EmptyState extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              (failed
-                      ? '기록을 읽지 못했습니다.'
-                      : '아직 기록이 없습니다.\n앱을 다시 켜거나 감시가 시작되면 쌓입니다.')
-                  .keepAll,
+              context.keepAllText(
+                failed
+                    ? context.l10n.diagnosticsReadFailed
+                    : context.l10n.diagnosticsEmpty,
+              ),
               textAlign: TextAlign.center,
               style: AppTypography.body,
             ),
             if (failed) ...[
               const SizedBox(height: AppSpacing.sm),
               Text(
-                readError.keepAll,
+                context.keepAllText(readError),
                 textAlign: TextAlign.center,
                 style: AppTypography.caption,
               ),

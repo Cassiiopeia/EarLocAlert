@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/l10n/l10n.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/text/keep_all.dart';
@@ -100,14 +101,12 @@ class _VibrationIntensitySheetState
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '진동 세기',
+            context.l10n.vibrationTitle,
             style: AppTypography.body.copyWith(fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: AppSpacing.xs),
           Text(
-            ('이어폰이 연결되지 않았을 때는 진동만으로 알립니다. '
-                    '고르면 그 세기로 한 번 울려 확인할 수 있습니다.')
-                .keepAll,
+            context.keepAllText(context.l10n.vibrationDescription),
             style: AppTypography.caption,
           ),
           const SizedBox(height: AppSpacing.md),
@@ -126,9 +125,12 @@ class _VibrationIntensitySheetState
                   for (final intensity in VibrationIntensity.values)
                     RadioListTile<VibrationIntensity>(
                       value: intensity,
-                      title: Text(_label(intensity), style: AppTypography.body),
+                      title: Text(
+                        _label(context, intensity),
+                        style: AppTypography.body,
+                      ),
                       subtitle: Text(
-                        _hint(intensity).keepAll,
+                        context.keepAllText(_hint(context, intensity)),
                         style: AppTypography.caption,
                       ),
                       contentPadding: EdgeInsets.zero,
@@ -141,15 +143,17 @@ class _VibrationIntensitySheetState
     );
   }
 
-  String _label(VibrationIntensity intensity) => switch (intensity) {
-    VibrationIntensity.weak => '약하게',
-    VibrationIntensity.normal => '보통',
-    VibrationIntensity.strong => '강하게',
-  };
+  String _label(BuildContext context, VibrationIntensity intensity) =>
+      switch (intensity) {
+        VibrationIntensity.weak => context.l10n.vibrationWeak,
+        VibrationIntensity.normal => context.l10n.vibrationNormal,
+        VibrationIntensity.strong => context.l10n.vibrationStrong,
+      };
 
-  String _hint(VibrationIntensity intensity) => switch (intensity) {
-    VibrationIntensity.weak => '조용한 곳에서 주변에 들리지 않게',
-    VibrationIntensity.normal => '기본값',
-    VibrationIntensity.strong => '주머니나 가방 속에서도 느껴지게',
-  };
+  String _hint(BuildContext context, VibrationIntensity intensity) =>
+      switch (intensity) {
+        VibrationIntensity.weak => context.l10n.vibrationWeakHint,
+        VibrationIntensity.normal => context.l10n.vibrationNormalHint,
+        VibrationIntensity.strong => context.l10n.vibrationStrongHint,
+      };
 }

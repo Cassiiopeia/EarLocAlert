@@ -120,7 +120,7 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
     // 지금 살아 있는 알림이라면 바로 아래 승격이 화면으로 이어준다.
     await _cancelBackgroundNotification();
 
-    await _resumePendingAlert('시작');
+    await _resumePendingAlert('start');
     // 첫 실행에는 resumed 생명주기 콜백이 오지 않는다 — 여기서 건다
     _startPendingAlertPoll();
   }
@@ -146,7 +146,7 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
     if (!mounted || _pendingAlertPoll != null) return;
     _pendingAlertPoll = Timer.periodic(
       _pollInterval,
-      (_) => unawaited(_resumePendingAlert('폴링')),
+      (_) => unawaited(_resumePendingAlert('poll')),
     );
   }
 

@@ -52,6 +52,13 @@ class GeofenceRegistrationSync {
     );
   }
 
+  /// 등록을 지금 목록으로 다시 밀어 넣는다 (이슈 #164).
+  ///
+  /// 앱 언어를 바꾼 직후에 부른다 — 감시 서비스가 다시 시작 요청을 받아 상시
+  /// 알림 문구와 알림 채널 이름을 **바뀐 언어로 다시 만들게** 하려는 것이다.
+  /// 감시 대상이 없으면 서비스를 띄우지 않는다(`_apply` 가 판단한다).
+  Future<void> refresh() async => _applySafely(await _places.findAll());
+
   Future<void> stop() async {
     await _subscription?.cancel();
     _subscription = null;

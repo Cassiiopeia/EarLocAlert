@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/l10n/l10n.dart';
 import '../../../core/theme/app_semantic_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
@@ -39,12 +40,21 @@ class AlertDismissedScreen extends StatelessWidget {
                 color: semantic.statusActive,
               ),
               const SizedBox(height: AppSpacing.md),
-              Text('알림을 껐습니다', style: AppTypography.screenTitle),
+              Text(
+                context.l10n.alertDismissedTitle,
+                style: AppTypography.screenTitle,
+              ),
               const SizedBox(height: AppSpacing.xs),
-              Text(placeName.keepAll, style: AppTypography.caption),
+              Text(
+                context.keepAllText(placeName),
+                style: AppTypography.caption,
+              ),
               const Spacer(),
               // 광고 자리 — google_mobile_ads 통합 시 이 위치에 배너/전면 삽입
-              FilledButton(onPressed: onContinue, child: const Text('확인')),
+              FilledButton(
+                onPressed: onContinue,
+                child: Text(context.l10n.alertDismissedConfirm),
+              ),
             ],
           ),
         ),

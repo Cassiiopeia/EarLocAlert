@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -141,11 +140,7 @@ void main() {
       final ko = keys(load('ko'));
       for (final lang in ['en', 'ja', 'zh']) {
         final other = keys(load(lang));
-        expect(
-          ko.difference(other),
-          isEmpty,
-          reason: '$lang 에 없는 키 — 번역이 빠졌다',
-        );
+        expect(ko.difference(other), isEmpty, reason: '$lang 에 없는 키 — 번역이 빠졌다');
         expect(other.difference(ko), isEmpty, reason: '$lang 에만 있는 키');
       }
     });

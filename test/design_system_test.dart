@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -11,6 +12,29 @@ import 'package:flutter_test/flutter_test.dart';
 /// **소스를 읽는 테스트인 이유** — 위젯 테스트로는 "앱 어디에도 이 패턴이
 /// 없다"를 셀 수 없다. 화면마다 테스트를 쓰면 새 화면이 생겼을 때 또 빠지는데,
 /// 규칙이 깨지는 자리는 언제나 "새로 만든 화면"이다.
+
+/// 한국어 번역 파일의 값 (이슈 #163)
+///
+/// **화면 문구가 번역 파일로 옮겨진 뒤에는 소스에 한글이 없다.** 소스의 한글
+/// 리터럴을 세던 규칙이 그대로면 조용히 아무것도 잡지 못한다. 그래서 화면이
+/// `l10n.키` 를 쓰는 자리에서 키를 찾아 **한국어 값**으로 같은 규칙을 적용한다.
+final Map<String, String> _ko = () {
+  final arb =
+      jsonDecode(File('lib/core/l10n/arb/app_ko.arb').readAsStringSync())
+          as Map<String, dynamic>;
+  return {
+    for (final e in arb.entries)
+      // 값이 들어가는 자리표시자(`{radius}`)는 소스의 보간(`$x`)처럼 길이에서 뺀다
+      if (!e.key.startsWith('@') && e.value is String)
+        e.key: (e.value as String).replaceAll(RegExp(r'\{[^}]*\}'), ''),
+  };
+}();
+
+/// [source] 안의 `l10n.키` 참조에서 한국어 값을 모은다
+Iterable<String> _koValuesIn(String source) => RegExp(
+  r'l10n\.(\w+)',
+).allMatches(source).map((m) => _ko[m.group(1)]).whereType<String>();
+
 void main() {
   final presentation = Directory('lib/features')
       .listSync(recursive: true)
@@ -62,8 +86,14 @@ void main() {
           dotAll: true,
         ).allMatches(source)) {
           final block = match.group(0)!;
+          final values = _koValuesIn(block);
           for (final word in secondaryWords) {
-            if (block.contains("'$word") || block.contains("$word'")) {
+            final inLiteral =
+                block.contains("'$word") || block.contains("$word'");
+            final inTranslation = values.any(
+              (v) => v.startsWith(word) || v.endsWith(word),
+            );
+            if (inLiteral || inTranslation) {
               offenders.add('${file.path}: "$word"');
             }
           }
@@ -91,6 +121,14 @@ void main() {
           if (source.contains("'${entry.key}'")) {
             offenders.add('${file.path}: "${entry.key}" → "${entry.value}"');
           }
+        }
+      }
+      // 번역 파일에서도 같은 라벨을 쓰지 않는다
+      for (final entry in banned.entries) {
+        for (final key in _ko.entries.where((e) => e.value == entry.key)) {
+          offenders.add(
+            'app_ko.arb ${key.key}: "${entry.key}" → "${entry.value}"',
+          );
         }
       }
       expect(offenders, isEmpty, reason: offenders.join('\n'));
@@ -157,16 +195,24 @@ void main() {
       final source = file.readAsStringSync();
       for (final call in _calls(source, 'Text')) {
         final first = _firstArgument(call.args);
-        final texts = literal.allMatches(first).map((m) => m.group(1)!);
+        // 소스의 한글 리터럴과, `l10n.키` 가 가리키는 한국어 번역 값을 함께 본다
+        final texts = [
+          ...literal.allMatches(first).map((m) => m.group(1)!),
+          ..._koValuesIn(first),
+        ];
         if (!texts.any(isSentence)) continue;
-        if (first.contains('.keepAll')) continue;
+        if (first.contains('.keepAll') || first.contains('keepAllText')) {
+          continue;
+        }
         offenders.add('${file.path}:${call.line} ${first.trim()}');
       }
     }
     expect(
       offenders,
       isEmpty,
-      reason: "문장 뒤에 .keepAll 을 붙인다 ('…'.keepAll).\n해당: $offenders",
+      reason:
+          "문장은 context.keepAllText(...) 를 거친다 — 한국어에서만 적용된다.\n"
+          '해당: $offenders',
     );
   });
 

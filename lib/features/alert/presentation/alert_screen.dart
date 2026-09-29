@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../../../core/domain/alert_direction.dart';
+import '../../../core/l10n/l10n.dart';
 import '../../../core/map/map_style_guard.dart';
 import '../../../core/map/map_corner_mask.dart';
 import '../../../core/map/radius_zoom.dart';
@@ -131,12 +132,12 @@ class _AlertInfo extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) => FittedBox(
         fit: BoxFit.scaleDown,
-        child: SizedBox(width: constraints.maxWidth, child: _content()),
+        child: SizedBox(width: constraints.maxWidth, child: _content(context)),
       ),
     );
   }
 
-  Widget _content() {
+  Widget _content(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
       child: Column(
@@ -152,7 +153,7 @@ class _AlertInfo extends StatelessWidget {
 
           // 가장 큰 글자 — 여러 곳을 등록했으면 "어디인지"가 첫 정보다
           Text(
-            session.placeName.keepAll,
+            context.keepAllText(session.placeName),
             style: AppTypography.alertPlaceName,
             textAlign: TextAlign.center,
             maxLines: 2,
@@ -160,13 +161,18 @@ class _AlertInfo extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.xs),
           Text(
-            isExit ? '떠났습니다' : '도착했습니다',
+            isExit
+                ? context.l10n.alertScreenLeft
+                : context.l10n.alertScreenArrived,
             style: AppTypography.screenTitle.copyWith(color: accent),
           ),
           const SizedBox(height: AppSpacing.sm),
           // **언제 울렸는지는 장소 다음으로 중요하다** (이슈 #142).
           // caption 이라 눈에 안 들어온다는 지적을 받고 키웠다.
-          Text(_formatTime(session.startedAt), style: AppTypography.alertTime),
+          Text(
+            _formatTime(context, session.startedAt),
+            style: AppTypography.alertTime,
+          ),
 
           const SizedBox(height: AppSpacing.lg),
           _AudioRouteBadge(route: session.audioRoute, soundFailed: soundFailed),
@@ -176,13 +182,16 @@ class _AlertInfo extends StatelessWidget {
   }
 
   /// 표시 직전에만 로컬 시각으로 바꾼다 (docs/04-CONVENTIONS.md)
-  String _formatTime(DateTime utc) {
+  String _formatTime(BuildContext context, DateTime utc) {
     final local = utc.toLocal();
     final hour = local.hour;
-    final period = hour < 12 ? '오전' : '오후';
     final displayHour = hour % 12 == 0 ? 12 : hour % 12;
     final minute = local.minute.toString().padLeft(2, '0');
-    return '$period $displayHour:$minute';
+    // 오전/오후 위치가 언어마다 달라 문구 통째로 번역한다
+    final l10n = context.l10n;
+    return hour < 12
+        ? l10n.alertScreenTimeAm(displayHour.toString(), minute)
+        : l10n.alertScreenTimePm(displayHour.toString(), minute);
   }
 }
 
@@ -202,9 +211,9 @@ class _AudioRouteBadge extends StatelessWidget {
     final isHeadphones = route == AudioRoute.headphones;
 
     final label = switch ((isHeadphones, soundFailed)) {
-      (true, _) => '이어폰으로 알림 중',
-      (false, true) => '소리를 재생하지 못해 진동으로 알림 중',
-      (false, false) => '진동으로만 알림 중',
+      (true, _) => context.l10n.alertScreenRouteHeadphones,
+      (false, true) => context.l10n.alertScreenRouteSoundFailed,
+      (false, false) => context.l10n.alertScreenRouteVibrationOnly,
     };
 
     return Container(
@@ -227,7 +236,12 @@ class _AudioRouteBadge extends StatelessWidget {
                 : AppColors.textSecondary,
           ),
           const SizedBox(width: AppSpacing.xs),
-          Flexible(child: Text(label.keepAll, style: AppTypography.caption)),
+          Flexible(
+            child: Text(
+              context.keepAllText(label),
+              style: AppTypography.caption,
+            ),
+          ),
         ],
       ),
     );
@@ -268,7 +282,7 @@ class _DismissButton extends StatelessWidget {
               ),
             ),
             child: Text(
-              '알림 끄기',
+              context.l10n.alertScreenDismiss,
               style: AppTypography.displayLarge.copyWith(
                 color: AppColors.textOnPrimary,
               ),
@@ -401,7 +415,10 @@ class _RadiusChip extends StatelessWidget {
         color: AppColors.bgBase.withValues(alpha: 0.78),
         borderRadius: BorderRadius.circular(AppRadius.pill),
       ),
-      child: Text('반경 ${radiusMeters}m', style: AppTypography.caption),
+      child: Text(
+        context.l10n.alertScreenRadius(radiusMeters),
+        style: AppTypography.caption,
+      ),
     );
   }
 }

@@ -123,7 +123,7 @@ class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('설정')),
+      appBar: AppBar(title: Text(context.l10n.settingsTitle)),
       body: SafeArea(
         child: ListView(
           children: [
@@ -136,37 +136,37 @@ class SettingsScreen extends StatelessWidget {
               subtitle: _languageSubtitle(context),
               onTap: () => _openLanguage(context),
             ),
-            const _SectionLabel('알림'),
+            _SectionLabel(context.l10n.settingsSectionAlert),
             _SettingTile(
               icon: Icons.vibration_outlined,
-              title: '진동 세기',
-              subtitle: '이어폰이 없을 때는 진동만으로 알립니다',
+              title: context.l10n.settingsVibrationTitle,
+              subtitle: context.l10n.settingsVibrationSubtitle,
               onTap: onOpenVibrationSettings,
             ),
             _SettingTile(
               icon: Icons.tune_outlined,
-              title: '알림음 크기',
-              subtitle: '이어폰으로 들릴 소리 크기',
+              title: context.l10n.settingsVolumeTitle,
+              subtitle: context.l10n.settingsVolumeSubtitle,
               onTap: onOpenVolumeSettings,
             ),
             if (onPreviewAlert != null)
               _SettingTile(
                 icon: Icons.notifications_active_outlined,
-                title: '알림 미리보기',
-                subtitle: '알림 화면과 진동을 지금 확인합니다',
+                title: context.l10n.settingsPreviewTitle,
+                subtitle: context.l10n.settingsPreviewSubtitle,
                 onTap: onPreviewAlert!,
               ),
 
             if (permissions.isNotEmpty) ...[
-              const _SectionLabel('알림 도달 권한'),
+              _SectionLabel(context.l10n.settingsSectionReach),
               for (final row in permissions) _PermissionTile(row: row),
             ],
 
-            const _SectionLabel('문제 해결'),
+            _SectionLabel(context.l10n.settingsSectionTroubleshoot),
             _SettingTile(
               icon: Icons.receipt_long_outlined,
-              title: '동작 기록',
-              subtitle: '알림이 언제 왜 울렸는지 기록을 보고 내보냅니다',
+              title: context.l10n.settingsDiagnosticsTitle,
+              subtitle: context.l10n.settingsDiagnosticsSubtitle,
               onTap: onOpenDiagnostics,
             ),
           ],
@@ -197,7 +197,11 @@ class _PermissionTile extends StatelessWidget {
       ),
       title: Text(row.title, style: AppTypography.body),
       subtitle: Text(
-        (row.granted ? '허용됨' : row.description).keepAll,
+        context.keepAllText(
+          row.granted
+              ? context.l10n.settingsPermissionGranted
+              : row.description,
+        ),
         style: AppTypography.caption,
       ),
       // 이미 허용된 권한도 열 수 있게 둔다 — 사용자가 끄고 싶을 수 있다
@@ -244,7 +248,10 @@ class _SettingTile extends StatelessWidget {
     return ListTile(
       leading: Icon(icon, color: AppColors.textSecondary),
       title: Text(title, style: AppTypography.body),
-      subtitle: Text(subtitle.keepAll, style: AppTypography.caption),
+      subtitle: Text(
+        context.keepAllText(subtitle),
+        style: AppTypography.caption,
+      ),
       trailing: const Icon(Icons.chevron_right_outlined),
       onTap: onTap,
     );

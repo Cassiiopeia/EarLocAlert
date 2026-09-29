@@ -14,28 +14,25 @@ library;
 /// 실패해 진동만 남는데, 사용자는 자기가 고른 소리가 왜 안 나는지 알 수 없다.
 enum SoundPreset {
   /// 지금까지의 알림음. 기존 장소는 마이그레이션 후에도 이 소리다.
-  defaultTone('default', '기본음', 'assets/sounds/alert.wav'),
+  defaultTone('default', 'assets/sounds/alert.wav'),
 
   /// 두 번 울리는 종. 비조화 배음이라 실제 금속처럼 들린다
-  bell('bell', '종소리', 'assets/sounds/bell.wav'),
+  bell('bell', 'assets/sounds/bell.wav'),
 
   /// 짧게 세 번. 놓치기 어려운 소리다
-  electronic('electronic', '전자음', 'assets/sounds/electronic.wav'),
+  electronic('electronic', 'assets/sounds/electronic.wav'),
 
   /// 주파수가 오르내린다. 급한 알림에
-  siren('siren', '사이렌', 'assets/sounds/siren.wav'),
+  siren('siren', 'assets/sounds/siren.wav'),
 
   /// 부드러운 하강 3음. 놀라지 않게
-  chime('chime', '차임', 'assets/sounds/chime.wav');
+  chime('chime', 'assets/sounds/chime.wav');
 
-  const SoundPreset(this.id, this.label, this.assetPath);
+  const SoundPreset(this.id, this.assetPath);
 
   /// 저장에 쓰는 식별자. **순서(인덱스)가 아니라 이름으로 저장한다** —
   /// 프리셋을 중간에 끼워 넣어도 기존 사용자 설정이 안 바뀐다.
   final String id;
-
-  /// 화면에 보여주는 이름
-  final String label;
 
   final String assetPath;
 

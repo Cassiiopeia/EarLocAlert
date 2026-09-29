@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/di/providers.dart';
+import '../../../core/l10n/l10n.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
@@ -162,7 +163,7 @@ class _StepView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final copy = PermissionCopy.forStep(step);
+    final copy = PermissionCopy.forStep(step, context.l10n);
 
     return Padding(
       padding: const EdgeInsets.all(AppSpacing.md),
@@ -172,9 +173,12 @@ class _StepView extends StatelessWidget {
           const SizedBox(height: AppSpacing.lg),
           _ProgressDots(snapshot: snapshot),
           const SizedBox(height: AppSpacing.lg),
-          Text(copy.title.keepAll, style: AppTypography.screenTitle),
+          Text(
+            context.keepAllText(copy.title),
+            style: AppTypography.screenTitle,
+          ),
           const SizedBox(height: AppSpacing.sm),
-          Text(copy.body.keepAll, style: AppTypography.body),
+          Text(context.keepAllText(copy.body), style: AppTypography.body),
           if (copy.footnote != null) ...[
             const SizedBox(height: AppSpacing.md),
             Row(
@@ -188,7 +192,7 @@ class _StepView extends StatelessWidget {
                 const SizedBox(width: AppSpacing.xs),
                 Expanded(
                   child: Text(
-                    copy.footnote!.keepAll,
+                    context.keepAllText(copy.footnote!),
                     style: AppTypography.caption,
                   ),
                 ),
@@ -200,7 +204,10 @@ class _StepView extends StatelessWidget {
           FilledButton(onPressed: onAction, child: Text(copy.actionLabel)),
           if (onSkip != null) ...[
             const SizedBox(height: AppSpacing.xs),
-            TextButton(onPressed: onSkip, child: const Text('나중에 하기')),
+            TextButton(
+              onPressed: onSkip,
+              child: Text(context.l10n.onboardingSkip),
+            ),
           ],
           const SizedBox(height: AppSpacing.sm),
         ],
@@ -251,11 +258,20 @@ class _ErrorView extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('권한 상태를 확인하지 못했습니다'.keepAll, style: AppTypography.screenTitle),
+          Text(
+            context.keepAllText(context.l10n.onboardingErrorTitle),
+            style: AppTypography.screenTitle,
+          ),
           const SizedBox(height: AppSpacing.sm),
-          Text('잠시 후 다시 시도해주세요.'.keepAll, style: AppTypography.caption),
+          Text(
+            context.keepAllText(context.l10n.onboardingErrorHint),
+            style: AppTypography.caption,
+          ),
           const SizedBox(height: AppSpacing.md),
-          FilledButton(onPressed: onRetry, child: const Text('다시 시도')),
+          FilledButton(
+            onPressed: onRetry,
+            child: Text(context.l10n.onboardingRetry),
+          ),
         ],
       ),
     );

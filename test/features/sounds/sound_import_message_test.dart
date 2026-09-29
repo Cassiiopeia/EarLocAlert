@@ -1,6 +1,11 @@
 import 'package:ear_loc_alert/features/sounds/presentation/sound_import_message.dart';
 import 'package:ear_loc_alert/features/sounds/domain/sound_validator.dart';
+import 'package:ear_loc_alert/core/l10n/l10n.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+/// 문구 검증은 한국어로 고정한다 (이슈 #163)
+final _ko = AppStrings.forLocale(const Locale('ko'));
 
 /// 등록 실패 문구 (이슈 #121)
 ///
@@ -24,17 +29,18 @@ void main() {
 
   group('formatDuration', () {
     test('1분 미만은 초 표기다', () {
-      expect(formatDuration(const Duration(seconds: 3)), '0:03');
+      expect(formatDuration(_ko, const Duration(seconds: 3)), '0:03');
     });
 
     test('1분 이상은 분·초로 읽는다', () {
-      expect(formatDuration(const Duration(seconds: 72)), '1분 12초');
+      expect(formatDuration(_ko, const Duration(seconds: 72)), '1분 12초');
     });
   });
 
   group('실패 문구', () {
     test('크기 초과는 실제 크기와 상한을 함께 보여준다', () {
       final message = soundImportErrorMessage(
+        _ko,
         SoundTooLarge(8 * 1024 * 1024 + 200 * 1024),
       );
 
@@ -44,6 +50,7 @@ void main() {
 
     test('길이 초과는 실제 길이와 상한을 함께 보여준다', () {
       final message = soundImportErrorMessage(
+        _ko,
         const SoundTooLong(Duration(seconds: 72)),
       );
 
@@ -53,6 +60,7 @@ void main() {
 
     test('형식 오류는 쓸 수 있는 형식을 알려준다', () {
       final message = soundImportErrorMessage(
+        _ko,
         const UnsupportedSoundFormat('mp4'),
       );
 
@@ -63,13 +71,16 @@ void main() {
     });
 
     test('확장자가 없는 경우도 문구가 어색하지 않다', () {
-      final message = soundImportErrorMessage(const UnsupportedSoundFormat(''));
+      final message = soundImportErrorMessage(
+        _ko,
+        const UnsupportedSoundFormat(''),
+      );
 
       expect(message, contains('확장자가 없는'));
     });
 
     test('개수 초과는 상한과 해결 방법을 알려준다', () {
-      final message = soundImportErrorMessage(const SoundLimitReached(10));
+      final message = soundImportErrorMessage(_ko, const SoundLimitReached(10));
 
       expect(message, contains('${SoundLimits.maxCount}개'));
       expect(message, contains('지우고'));
@@ -77,7 +88,7 @@ void main() {
 
     test('재생 불가는 다른 파일을 권한다', () {
       expect(
-        soundImportErrorMessage(const SoundNotPlayable()),
+        soundImportErrorMessage(_ko, const SoundNotPlayable()),
         contains('재생할 수 없는'),
       );
     });

@@ -3,6 +3,7 @@ import 'dart:async';
 import '../../../core/diagnostics/diagnostics.dart';
 import '../../../core/domain/alert_direction.dart';
 import 'alert_effects.dart';
+import 'alert_strings.dart';
 import 'alert_session.dart';
 import 'audio_route.dart';
 import 'vibration_intensity.dart';
@@ -174,9 +175,13 @@ class AlertController {
       interval: vibrationInterval,
       intensity: intensity,
     );
+    // 문구 조회는 던지지 않는다 — 실패해도 알림은 나가야 한다
+    final strings = await resolveAlertStrings();
     await _notifier.show(
       placeName: request.placeName,
-      body: request.direction == AlertDirection.exit ? '떠났습니다' : '도착했습니다',
+      body: request.direction == AlertDirection.exit
+          ? strings.alertScreenLeft
+          : strings.alertScreenArrived,
     );
 
     // **세션을 오디오 판정 전에 만든다.**

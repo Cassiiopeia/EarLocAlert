@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/audio/alert_sound_source.dart';
 import '../../../core/di/providers.dart';
 import '../../../core/domain/alert_sound.dart';
+import '../../../core/domain/sound_preset_label.dart';
+import '../../../core/l10n/l10n.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/text/keep_all.dart';
@@ -114,7 +116,7 @@ class _SoundPickerSheetState extends ConsumerState<_SoundPickerSheet>
     try {
       await _previewPlayer.play(source);
     } on Object {
-      if (mounted) _showMessage('재생할 수 없는 음원입니다');
+      if (mounted) _showMessage(context.l10n.soundPreviewFailed);
     }
   }
 
@@ -145,9 +147,9 @@ class _SoundPickerSheetState extends ConsumerState<_SoundPickerSheet>
           // 방금 넣은 것을 바로 쓰게 한다 — 목록에서 다시 찾게 하지 않는다
           if (mounted) setState(() => _selected = CustomSoundRef(sound.id));
         case SoundImportRejected(:final error):
-          _showMessage(soundImportErrorMessage(error));
+          _showMessage(soundImportErrorMessage(context.l10n, error));
         case SoundImportFailed():
-          _showMessage('음원을 저장하지 못했습니다. 잠시 후 다시 시도해주세요.');
+          _showMessage(context.l10n.soundSaveFailed);
       }
     } finally {
       if (mounted) setState(() => _busy = false);
@@ -158,21 +160,19 @@ class _SoundPickerSheetState extends ConsumerState<_SoundPickerSheet>
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('음원을 삭제할까요?'),
+        title: Text(context.l10n.soundDeleteTitle),
         content: Text(
-          ('${sound.displayName}\n\n'
-                  '이 음원을 쓰던 장소는 기본음으로 알립니다.')
-              .keepAll,
+          context.keepAllText(context.l10n.soundDeleteBody(sound.displayName)),
           style: AppTypography.body,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('취소'),
+            child: Text(context.l10n.soundCancel),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('삭제'),
+            child: Text(context.l10n.soundDelete),
           ),
         ],
       ),
@@ -192,7 +192,7 @@ class _SoundPickerSheetState extends ConsumerState<_SoundPickerSheet>
   void _showMessage(String message) {
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(SnackBar(content: Text(message.keepAll)));
+    ).showSnackBar(SnackBar(content: Text(context.keepAllText(message))));
   }
 
   @override
@@ -212,7 +212,7 @@ class _SoundPickerSheetState extends ConsumerState<_SoundPickerSheet>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              '알림음',
+              context.l10n.soundPickerTitle,
               style: AppTypography.body.copyWith(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: AppSpacing.xs),
@@ -239,19 +239,24 @@ class _SoundPickerSheetState extends ConsumerState<_SoundPickerSheet>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const SizedBox(height: AppSpacing.xs),
-                      Text('기본 알림음', style: AppTypography.caption),
+                      Text(
+                        context.l10n.soundPickerPresetHeader,
+                        style: AppTypography.caption,
+                      ),
                       for (final preset in SoundPreset.values)
                         _SoundTile(
                           value: PresetSound(preset),
-                          title: preset.label,
+                          title: preset.localizedLabel(context.l10n),
                           canPreview: canPreview,
                           onPreview: () => _preview(PresetSound(preset)),
                         ),
 
                       const SizedBox(height: AppSpacing.md),
                       Text(
-                        '내 음원  ${customSounds?.length ?? 0}/'
-                        '${SoundLimits.maxCount}',
+                        context.l10n.soundPickerCustomHeader(
+                          customSounds?.length ?? 0,
+                          SoundLimits.maxCount,
+                        ),
                         style: AppTypography.caption,
                       ),
 
@@ -266,7 +271,9 @@ class _SoundPickerSheetState extends ConsumerState<_SoundPickerSheet>
                             vertical: AppSpacing.xs,
                           ),
                           child: Text(
-                            '기기에 있는 음원 파일을 등록해 쓸 수 있습니다.'.keepAll,
+                            context.keepAllText(
+                              context.l10n.soundPickerCustomEmpty,
+                            ),
                             style: AppTypography.caption,
                           ),
                         )
@@ -276,7 +283,7 @@ class _SoundPickerSheetState extends ConsumerState<_SoundPickerSheet>
                             value: CustomSoundRef(sound.id),
                             title: sound.displayName,
                             subtitle:
-                                '${formatDuration(sound.duration)} · '
+                                '${formatDuration(context.l10n, sound.duration)} · '
                                 '${formatBytes(sound.sizeBytes)}',
                             canPreview: canPreview,
                             onPreview: () => _preview(CustomSoundRef(sound.id)),
@@ -297,7 +304,11 @@ class _SoundPickerSheetState extends ConsumerState<_SoundPickerSheet>
                                   ),
                                 )
                               : const Icon(Icons.add_outlined),
-                          label: Text(_busy ? '확인 중…' : '음원 추가'),
+                          label: Text(
+                            _busy
+                                ? context.l10n.soundPickerChecking
+                                : context.l10n.soundPickerAdd,
+                          ),
                         ),
                       ),
                     ],
@@ -317,7 +328,7 @@ class _SoundPickerSheetState extends ConsumerState<_SoundPickerSheet>
               width: double.infinity,
               child: FilledButton(
                 onPressed: () => Navigator.of(context).pop(_selected),
-                child: const Text('완료'),
+                child: Text(context.l10n.soundDone),
               ),
             ),
           ],
@@ -346,9 +357,7 @@ class _HeadphoneNotice extends StatelessWidget {
           const SizedBox(width: AppSpacing.xs),
           Expanded(
             child: Text(
-              ('이어폰을 연결하면 들어볼 수 있습니다. '
-                      '알림음은 이어폰이 연결됐을 때만 재생됩니다.')
-                  .keepAll,
+              context.keepAllText(context.l10n.soundPickerHeadphoneNotice),
               style: AppTypography.caption,
             ),
           ),
@@ -383,7 +392,7 @@ class _SoundTile extends StatelessWidget {
       title: Text(title, style: AppTypography.body),
       subtitle: sub == null
           ? null
-          : Text(sub.keepAll, style: AppTypography.caption),
+          : Text(context.keepAllText(sub), style: AppTypography.caption),
       contentPadding: EdgeInsets.zero,
       secondary: Row(
         mainAxisSize: MainAxisSize.min,
@@ -392,13 +401,13 @@ class _SoundTile extends StatelessWidget {
             // 이어폰이 없으면 눌리지 않는다 — 소리가 샐 경로를 만들지 않는다
             onPressed: canPreview ? onPreview : null,
             icon: const Icon(Icons.play_arrow_outlined),
-            tooltip: '미리듣기',
+            tooltip: context.l10n.soundPreview,
           ),
           if (onDelete != null)
             IconButton(
               onPressed: onDelete,
               icon: const Icon(Icons.delete_outlined),
-              tooltip: '삭제',
+              tooltip: context.l10n.soundDelete,
             ),
         ],
       ),

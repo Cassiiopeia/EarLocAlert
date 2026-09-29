@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../core/domain/alert_schedule.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../core/l10n/l10n.dart';
 import '../../../core/text/keep_all.dart';
 import 'alert_schedule_sheet.dart';
 import 'alert_schedule_summary.dart';
@@ -29,12 +30,12 @@ class AlertScheduleEditor extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('알림 시간대', style: AppTypography.caption),
+        Text(context.l10n.scheduleTitle, style: AppTypography.caption),
         const SizedBox(height: AppSpacing.xs),
 
         if (schedules.isEmpty)
           Text(
-            '항상 알림 — 시간대를 더하면 그 시간에만 울립니다'.keepAll,
+            context.keepAllText(context.l10n.scheduleAlwaysHint),
             style: AppTypography.caption,
           )
         else
@@ -49,7 +50,7 @@ class AlertScheduleEditor extends StatelessWidget {
         OutlinedButton.icon(
           onPressed: () => _add(context),
           icon: const Icon(Icons.more_time_outlined),
-          label: const Text('시간대 추가'),
+          label: Text(context.l10n.scheduleAdd),
         ),
       ],
     );
@@ -95,10 +96,13 @@ class _ScheduleTile extends StatelessWidget {
       contentPadding: EdgeInsets.zero,
       dense: true,
       leading: const Icon(Icons.schedule_outlined),
-      title: Text(describeSchedule(schedule), style: AppTypography.body),
+      title: Text(
+        describeSchedule(context.l10n, schedule),
+        style: AppTypography.body,
+      ),
       trailing: IconButton(
         icon: const Icon(Icons.close_outlined),
-        tooltip: '이 시간대 삭제',
+        tooltip: context.l10n.scheduleRemove,
         onPressed: onRemove,
       ),
       onTap: onEdit,
