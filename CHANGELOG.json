@@ -1,14 +1,32 @@
 {
   "metadata": {
-    "lastUpdated": "2026-09-23T07:33:18Z",
-    "currentVersion": "1.18.1",
+    "lastUpdated": "2026-09-24T16:59:25Z",
+    "currentVersion": "1.18.2",
     "projectType": "flutter",
-    "totalReleases": 63,
+    "totalReleases": 64,
     "projectTypes": [
       "flutter"
     ]
   },
   "releases": [
+    {
+      "version": "1.18.2",
+      "project_types": [
+        "flutter"
+      ],
+      "date": "2026-09-24",
+      "pr_number": 158,
+      "raw_summary": "## [1.18.2]\n\n### 🐛 수정\n- 고른 위치를 폼에서 지도로 확인하고, 홈 상단 바의 설정 버튼을 알약 밖으로 꺼낸다 — 디자인 리뷰 — 떠 있는 버튼을 원형 48·56 으로 통일하고 상단 알약·로고를 키우며 폼 제목과 보조 버튼 폭을 맞춘다",
+      "parsed_changes": {
+        "수정": {
+          "title": "🐛 수정",
+          "items": [
+            "고른 위치를 폼에서 지도로 확인하고, 홈 상단 바의 설정 버튼을 알약 밖으로 꺼낸다 — 디자인 리뷰 — 떠 있는 버튼을 원형 48·56 으로 통일하고 상단 알약·로고를 키우며 폼 제목과 보조 버튼 폭을 맞춘다"
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "1.18.1",
       "project_types": [
