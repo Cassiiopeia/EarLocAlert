@@ -1,8 +1,13 @@
 import 'dart:typed_data';
+import 'dart:ui' show PlatformDispatcher;
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
+import '../../core/diagnostics/diagnostics.dart';
 import '../../core/domain/alert_direction.dart';
+import '../../core/l10n/app_language_store.dart';
+import '../../core/l10n/l10n.dart';
+import '../../core/l10n/locale_resolver.dart';
 import 'background_alert_port.dart';
 import 'pending_alert.dart';
 import 'pending_alert_store.dart';
@@ -43,10 +48,12 @@ class BackgroundAlertNotifier implements BackgroundAlertPort {
     // 저장이 먼저다 — 알림 발행이 실패해도 앱을 열면 알림이 이어진다
     await _store.save(alert);
 
+    final strings = await _loadStrings();
+
     final androidDetails = AndroidNotificationDetails(
       _channelId,
-      '도착·출발 알림',
-      channelDescription: '등록한 장소에 도착하거나 떠날 때 알립니다',
+      strings.notificationChannelName,
+      channelDescription: strings.notificationChannelDescription,
       importance: Importance.max,
       priority: Priority.high,
       // 앱 프로세스가 없으므로 진동은 채널에 위임한다
@@ -84,9 +91,35 @@ class BackgroundAlertNotifier implements BackgroundAlertPort {
     await _plugin.show(
       notificationId,
       alert.placeName,
-      alert.direction == AlertDirection.exit ? '떠났습니다' : '도착했습니다',
+      alert.direction == AlertDirection.exit
+          ? strings.notificationLeft
+          : strings.notificationArrived,
       NotificationDetails(android: androidDetails, iOS: iosDetails),
     );
+  }
+}
+
+/// 알림 문구의 언어를 구한다 (이슈 #163).
+///
+/// 백그라운드 isolate 는 `BuildContext` 가 없고 저장소 캐시도 앱과 따로라,
+/// 저장된 언어를 **다시 읽어** 최신 값을 본다. **문구를 못 구해도 알림은
+/// 반드시 나가야 하므로** 어떤 실패든 삼키고 영어로 떨어진다.
+Future<AppLocalizations> _loadStrings() async {
+  try {
+    final language = await const AppLanguageStore().readFresh();
+    final locale = resolveAppLocale(
+      language,
+      PlatformDispatcher.instance.locales,
+    );
+    Diagnostics.log(
+      'notify',
+      'notification language preference=${language.storageValue} '
+          'resolved=${locale.languageCode}',
+    );
+    return AppStrings.forLocale(locale);
+  } on Object catch (error) {
+    Diagnostics.log('notify', 'notification language lookup failed $error');
+    return AppStrings.forLocale(fallbackAppLocale);
   }
 }
 

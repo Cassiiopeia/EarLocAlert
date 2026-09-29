@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/l10n/l10n.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
@@ -39,18 +40,21 @@ class PlaceEmptyState extends StatelessWidget {
             const SizedBox(height: AppSpacing.md),
           ],
           Text(
-            '첫 장소를 등록해보세요',
+            context.l10n.placeEmptyTitle,
             style: compact ? AppTypography.body : AppTypography.screenTitle,
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: AppSpacing.xs),
           Text(
-            '내릴 정류장, 약속 장소, 집 —\n도착하거나 떠날 때 조용히 알려드립니다.'.keepAll,
+            context.keepAllText(context.l10n.placeEmptyBody),
             style: AppTypography.caption,
             textAlign: TextAlign.center,
           ),
           SizedBox(height: compact ? AppSpacing.md : AppSpacing.lg),
-          FilledButton(onPressed: onAddPlace, child: const Text('장소 등록')),
+          FilledButton(
+            onPressed: onAddPlace,
+            child: Text(context.l10n.placeEmptyAction),
+          ),
         ],
       ),
     );
@@ -58,14 +62,17 @@ class PlaceEmptyState extends StatelessWidget {
 }
 
 /// 검증 오류를 사용자 문구로 바꾼다
-String placeErrorMessage(PlaceValidationError error) => switch (error) {
-  PlaceValidationError.emptyName => '이름을 입력해주세요',
-  PlaceValidationError.radiusOutOfRange =>
-    '반경은 ${PlaceValidator.minRadiusMeters}m ~ ${PlaceValidator.maxRadiusMeters}m 사이여야 합니다',
-  PlaceValidationError.invalidCoordinates => '위치 좌표가 올바르지 않습니다',
-  PlaceValidationError.limitReached =>
-    '장소는 최대 ${PlaceValidator.maxPlaces}개까지 등록할 수 있습니다',
-  PlaceValidationError.emptyScheduleWindow =>
-    '시간대의 시작과 종료가 같습니다. 하루 종일 알리려면 시간대를 지우세요',
-  PlaceValidationError.scheduleWithoutDays => '시간대에 요일을 하나 이상 골라주세요',
-};
+String placeErrorMessage(AppLocalizations l10n, PlaceValidationError error) =>
+    switch (error) {
+      PlaceValidationError.emptyName => l10n.placeErrorEmptyName,
+      PlaceValidationError.radiusOutOfRange => l10n.placeErrorRadius(
+        PlaceValidator.minRadiusMeters,
+        PlaceValidator.maxRadiusMeters,
+      ),
+      PlaceValidationError.invalidCoordinates => l10n.placeErrorCoordinates,
+      PlaceValidationError.limitReached => l10n.placeErrorLimit(
+        PlaceValidator.maxPlaces,
+      ),
+      PlaceValidationError.emptyScheduleWindow => l10n.placeErrorEmptyWindow,
+      PlaceValidationError.scheduleWithoutDays => l10n.placeErrorNoDays,
+    };

@@ -16,6 +16,8 @@ import '../../../core/theme/app_semantic_colors.dart';
 import '../../../core/theme/map_style.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../core/domain/sound_preset_label.dart';
+import '../../../core/l10n/l10n.dart';
 import '../../../core/text/keep_all.dart';
 import '../domain/alert_place.dart';
 import '../domain/place_validator.dart';
@@ -81,8 +83,11 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
   late bool _soundEnabled = widget.existing?.soundEnabled ?? true;
   late AlertSound _sound = widget.existing?.sound ?? AlertSound.fallback;
 
-  /// 화면에 보여줄 알림음 이름. 조회 전에는 잠정값을 쓴다
-  late String _soundLabel = _fallbackLabel(_sound);
+  /// 조회로 얻은 알림음 이름. null 이면 잠정값을 쓴다.
+  ///
+  /// 잠정값은 번역이 필요해 `BuildContext` 가 있어야 만들 수 있다 —
+  /// initState 에서는 못 만들므로 build 에서 채운다.
+  String? _soundLabel;
 
   /// 빈 목록이면 항상 알림 (이슈 #81)
   late List<AlertSchedule> _schedules =
@@ -113,10 +118,11 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
 
   /// 프리셋은 여기서 바로 알 수 있다. 사용자 음원은 이름을 모르므로
   /// 조회 콜백이 채워줄 때까지 이 값이 쓰인다.
-  static String _fallbackLabel(AlertSound sound) => switch (sound) {
-    PresetSound(:final preset) => preset.label,
-    CustomSoundRef() => '내 음원',
-  };
+  static String _fallbackLabel(AppLocalizations l10n, AlertSound sound) =>
+      switch (sound) {
+        PresetSound(:final preset) => preset.localizedLabel(l10n),
+        CustomSoundRef() => l10n.placeFormCustomSound,
+      };
 
   Future<void> _refreshSoundLabel() async {
     final describe = widget.onDescribeSound;
@@ -136,8 +142,8 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
     if (picked == null || !mounted) return;
     setState(() {
       _sound = picked;
-      // 조회가 끝나기 전에도 무언가 보여야 한다
-      _soundLabel = _fallbackLabel(picked);
+      // 조회가 끝나기 전에도 무언가 보여야 한다 — 잠정값으로 되돌린다
+      _soundLabel = null;
     });
     await _refreshSoundLabel();
   }
@@ -209,16 +215,16 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
     final discard = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('저장하지 않고 나갈까요?'),
-        content: Text('지금까지 바꾼 내용은 사라집니다.'.keepAll),
+        title: Text(context.l10n.placeFormLeaveTitle),
+        content: Text(context.keepAllText(context.l10n.placeFormLeaveBody)),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('계속 편집'),
+            child: Text(context.l10n.placeFormKeepEditing),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('나가기'),
+            child: Text(context.l10n.placeFormLeave),
           ),
         ],
       ),
@@ -247,28 +253,35 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
   }
 
   Widget _buildForm(bool isNew) {
+    final l10n = context.l10n;
     return Scaffold(
-      appBar: AppBar(title: Text(isNew ? '장소 등록' : '장소 편집')),
+      appBar: AppBar(
+        title: Text(isNew ? l10n.placeFormTitleNew : l10n.placeFormTitleEdit),
+      ),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(AppSpacing.md),
           children: [
             TextField(
               controller: _name,
-              decoration: const InputDecoration(
-                labelText: '이름',
-                hintText: '예: 내릴 정류장, 약속 장소',
+              decoration: InputDecoration(
+                labelText: l10n.placeFormNameLabel,
+                hintText: l10n.placeFormNameHint,
               ),
               textInputAction: TextInputAction.next,
             ),
             const SizedBox(height: AppSpacing.md),
 
-            Text('위치', style: AppTypography.caption),
+            Text(l10n.placeFormLocationLabel, style: AppTypography.caption),
             const SizedBox(height: AppSpacing.xs),
             OutlinedButton.icon(
               onPressed: widget.onPickOnMap == null ? null : _pickOnMap,
               icon: const Icon(Icons.map_outlined),
-              label: Text(_hasCoordinates ? '지도에서 다시 선택' : '지도에서 선택'),
+              label: Text(
+                _hasCoordinates
+                    ? l10n.placeFormRepickOnMap
+                    : l10n.placeFormPickOnMap,
+              ),
             ),
             const SizedBox(height: AppSpacing.xs),
 
@@ -288,7 +301,10 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
                 onTap: widget.onPickOnMap == null ? null : _pickOnMap,
               )
             else
-              Text('아직 위치를 고르지 않았습니다'.keepAll, style: AppTypography.caption),
+              Text(
+                context.keepAllText(l10n.placeFormNoLocation),
+                style: AppTypography.caption,
+              ),
 
             // 좌표를 직접 아는 경우와, 지도 키 없이 빌드된 경우의 보조 경로.
             // 기본 경로가 아니므로 접어둔다
@@ -296,7 +312,9 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
               // 지도 카드가 "어디인가"에 답하므로, 펼치기 제목에는
               // **정확한 값**을 보여준다 — 둘의 역할이 다르다
               title: Text(
-                _hasCoordinates ? '좌표  $_coordinateSummary' : '좌표 직접 입력',
+                _hasCoordinates
+                    ? l10n.placeFormCoordinates(_coordinateSummary)
+                    : l10n.placeFormCoordinatesManual,
                 style: AppTypography.caption,
               ),
               tilePadding: EdgeInsets.zero,
@@ -307,7 +325,9 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
                     Expanded(
                       child: TextField(
                         controller: _latitude,
-                        decoration: const InputDecoration(labelText: '위도'),
+                        decoration: InputDecoration(
+                          labelText: l10n.placeFormLatitude,
+                        ),
                         keyboardType: const TextInputType.numberWithOptions(
                           decimal: true,
                           signed: true,
@@ -319,7 +339,9 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
                     Expanded(
                       child: TextField(
                         controller: _longitude,
-                        decoration: const InputDecoration(labelText: '경도'),
+                        decoration: InputDecoration(
+                          labelText: l10n.placeFormLongitude,
+                        ),
                         keyboardType: const TextInputType.numberWithOptions(
                           decimal: true,
                           signed: true,
@@ -342,9 +364,9 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('알림 반경', style: AppTypography.caption),
+                Text(l10n.placeFormRadiusLabel, style: AppTypography.caption),
                 Text(
-                  '${_radius.round()}m',
+                  l10n.placeFormRadiusValue(_radius.round()),
                   style: AppTypography.body.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
@@ -360,24 +382,24 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
             ),
             const SizedBox(height: AppSpacing.md),
 
-            Text('알림 시점', style: AppTypography.caption),
+            Text(l10n.placeFormTimingLabel, style: AppTypography.caption),
             const SizedBox(height: AppSpacing.xs),
             SegmentedButton<AlertDirection>(
-              segments: const [
+              segments: [
                 ButtonSegment(
                   value: AlertDirection.enter,
-                  icon: Icon(Icons.login_outlined),
-                  label: Text('도착'),
+                  icon: const Icon(Icons.login_outlined),
+                  label: Text(l10n.placeFormTimingEnter),
                 ),
                 ButtonSegment(
                   value: AlertDirection.exit,
-                  icon: Icon(Icons.logout_outlined),
-                  label: Text('출발'),
+                  icon: const Icon(Icons.logout_outlined),
+                  label: Text(l10n.placeFormTimingExit),
                 ),
                 ButtonSegment(
                   value: AlertDirection.both,
-                  icon: Icon(Icons.sync_alt_outlined),
-                  label: Text('둘 다'),
+                  icon: const Icon(Icons.sync_alt_outlined),
+                  label: Text(l10n.placeFormTimingBoth),
                 ),
               ],
               selected: {_direction},
@@ -395,9 +417,9 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
             const SizedBox(height: AppSpacing.md),
 
             SwitchListTile(
-              title: Text('이어폰 소리 알림', style: AppTypography.body),
+              title: Text(l10n.placeFormSoundTitle, style: AppTypography.body),
               subtitle: Text(
-                '이어폰(줄·블루투스)이 연결된 경우에만 소리가 납니다.\n스피커로는 절대 소리가 나지 않습니다.'.keepAll,
+                context.keepAllText(l10n.placeFormSoundDescription),
                 style: AppTypography.caption,
               ),
               value: _soundEnabled,
@@ -414,8 +436,14 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
                 child: ListTile(
                   contentPadding: EdgeInsets.zero,
                   leading: const Icon(Icons.music_note_outlined),
-                  title: Text('알림음', style: AppTypography.body),
-                  subtitle: Text(_soundLabel, style: AppTypography.caption),
+                  title: Text(
+                    l10n.placeFormSoundLabel,
+                    style: AppTypography.body,
+                  ),
+                  subtitle: Text(
+                    _soundLabel ?? _fallbackLabel(l10n, _sound),
+                    style: AppTypography.caption,
+                  ),
                   trailing: const Icon(Icons.chevron_right_outlined),
                   onTap: _soundEnabled ? _pickSound : null,
                 ),
@@ -425,7 +453,9 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
 
             FilledButton(
               onPressed: _saving ? null : _save,
-              child: Text(isNew ? '등록' : '저장'),
+              child: Text(
+                isNew ? l10n.placeFormSubmitNew : l10n.placeFormSubmitSave,
+              ),
             ),
           ],
         ),
@@ -506,7 +536,11 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
     }
 
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(placeErrorMessage(errors.first).keepAll)),
+      SnackBar(
+        content: Text(
+          context.keepAllText(placeErrorMessage(context.l10n, errors.first)),
+        ),
+      ),
     );
   }
 }

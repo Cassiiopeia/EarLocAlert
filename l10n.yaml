@@ -1,0 +1,10 @@
+# 다국어 설정 (이슈 #163, docs/superpowers/specs/2026-09-29-i18n-design.md)
+#
+# 한국어가 원문(template)이고 나머지 언어는 번역이다. 키가 하나라도 빠지면
+# test/core/l10n_test.dart 가 실패한다.
+arb-dir: lib/core/l10n/arb
+template-arb-file: app_ko.arb
+output-localization-file: app_localizations.dart
+output-dir: lib/core/l10n/generated
+output-class: AppLocalizations
+nullable-getter: false

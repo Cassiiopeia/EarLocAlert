@@ -32,7 +32,7 @@ class GooglePlaceSearchService implements PlaceSearchService {
 
     final key = _cachedKey ??= (await _apiKeyLoader()) ?? '';
     if (key.isEmpty) {
-      throw const PlaceSearchUnavailable('Maps API 키가 없다');
+      throw const PlaceSearchUnavailable('Maps API key is missing');
     }
 
     final client = HttpClient()..connectionTimeout = const Duration(seconds: 8);
@@ -97,7 +97,8 @@ class GooglePlaceSearchService implements PlaceSearchService {
 
       results.add(
         PlaceSearchResult(
-          name: name is String && name.isNotEmpty ? name : '이름 없는 장소',
+          // 이름이 없으면 빈 문자열 — 데이터 계층은 문구를 만들지 않고 화면이 바꾼다
+          name: name is String ? name : '',
           address: place['formattedAddress'] is String
               ? place['formattedAddress'] as String
               : '',

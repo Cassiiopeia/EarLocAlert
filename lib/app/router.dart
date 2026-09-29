@@ -6,6 +6,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../core/di/providers.dart';
+import '../core/domain/sound_preset_label.dart';
+import '../core/l10n/app_language_controller.dart';
+import 'geofence_providers.dart';
+import '../core/l10n/l10n.dart';
 import '../core/domain/alert_direction.dart';
 import '../core/domain/alert_sound.dart';
 import '../features/ads/presentation/ads_providers.dart';
@@ -139,7 +143,7 @@ class _PlaceFormRoute extends ConsumerWidget {
       onSaved: () => _leaveForm(context),
       onPickOnMap: (args) => _pickOnMap(context, args),
       onPickSound: (current) => showSoundPickerSheet(context, current: current),
-      onDescribeSound: (sound) => _describeSound(ref, sound),
+      onDescribeSound: (sound) => _describeSound(ref, sound, context.l10n),
     );
   }
 }
@@ -150,13 +154,17 @@ class _PlaceFormRoute extends ConsumerWidget {
 /// 음원이다** — 그 사실을 숨기지 않는다. 실제 알림은 기본음으로 울리므로
 /// 소리가 안 나지는 않지만, 사용자는 자기가 고른 것이 사라졌음을
 /// 알아야 다시 고를 수 있다.
-Future<String> _describeSound(WidgetRef ref, AlertSound sound) async {
+Future<String> _describeSound(
+  WidgetRef ref,
+  AlertSound sound,
+  AppLocalizations l10n,
+) async {
   switch (sound) {
     case PresetSound(:final preset):
-      return preset.label;
+      return preset.localizedLabel(l10n);
     case CustomSoundRef(:final id):
       final found = await ref.read(customSoundRepositoryProvider).findById(id);
-      return found?.displayName ?? '삭제된 음원 (기본음으로 알림)';
+      return found?.displayName ?? l10n.routeDeletedSound;
   }
 }
 
@@ -256,7 +264,17 @@ class _HomeRoute extends ConsumerWidget {
       isStatusKnown: status.isKnown,
       isHeadphoneConnected: status.isHeadphoneConnected,
       canAlertReliably: status.canAlertReliably,
-      missingReliability: status.missingReliability,
+      // 설정 화면의 항목명과 같은 말을 써야 사용자가 그 자리를 찾는다
+      missingReliability: [
+        for (final gap in status.missingReliability)
+          switch (gap) {
+            ReliabilityGap.batteryOptimization =>
+              context.l10n.settingsPermBatteryTitle,
+            ReliabilityGap.overlay => context.l10n.settingsPermOverlayTitle,
+            ReliabilityGap.fullScreenIntent =>
+              context.l10n.settingsPermFullScreenTitle,
+          },
+      ],
       // **push 다 — go 를 쓰면 스택이 교체되어 돌아갈 곳이 사라진다** (이슈 #97).
       // 그러면 AppBar 가 뒤로가기 버튼을 만들지 않고 시스템 뒤로가기도
       // 먹지 않아, 등록을 마치거나 앱을 강제 종료하는 것 외에 나올 길이 없다.
@@ -323,7 +341,15 @@ class _SettingsRouteState extends ConsumerState<_SettingsRoute>
       // 진동 세기 (이슈 #103) — 이어폰이 없을 때 유일한 알림 수단이다
       onOpenVibrationSettings: () => showVibrationIntensitySheet(context),
       onOpenDiagnostics: () => context.push(AppRoutes.diagnostics),
-      permissions: _permissionRows(ref, snapshot),
+      // 앱 언어 (이슈 #163) — 고르면 바로 적용되고 저장된다
+      language: ref.watch(appLanguageControllerProvider),
+      onLanguageChanged: (next) async {
+        await ref.read(appLanguageControllerProvider.notifier).select(next);
+        // 네이티브 알림 문구와 채널 이름도 바뀐 언어로 다시 만든다 (이슈 #164).
+        // 알림은 앱이 죽어 있어도 Kotlin 이 만들어서 스스로는 언어 변경을 모른다
+        unawaited(ref.read(geofenceRegistrationSyncProvider).refresh());
+      },
+      permissions: _permissionRows(ref, snapshot, context.l10n),
       // 백그라운드 감시 연결 전까지 알림 흐름을 확인하는 수단 (S-4·S-5).
       // 지오펜스 실기기 검증이 끝나면 제거한다.
       onPreviewAlert: () async {
@@ -332,7 +358,7 @@ class _SettingsRouteState extends ConsumerState<_SettingsRoute>
             .fire(
               AlertRequest(
                 placeId: 'preview',
-                placeName: '테스트 장소',
+                placeName: context.l10n.routePreviewPlaceName,
                 direction: AlertDirection.enter,
                 soundEnabled: true,
                 occurredAt: DateTime.now().toUtc(),
@@ -362,6 +388,7 @@ class _SettingsRouteState extends ConsumerState<_SettingsRoute>
 List<SettingsPermissionRow> _permissionRows(
   WidgetRef ref,
   PermissionSnapshot? snapshot,
+  AppLocalizations l10n,
 ) {
   if (snapshot == null) return const [];
 
@@ -375,26 +402,26 @@ List<SettingsPermissionRow> _permissionRows(
 
   return [
     SettingsPermissionRow(
-      title: '알림 표시',
-      description: '없으면 도착해도 알림이 뜨지 않습니다',
+      title: l10n.settingsPermNotifyTitle,
+      description: l10n.settingsPermNotifyDesc,
       granted: snapshot.canNotify,
       onTap: () => request(PermissionKind.notification),
     ),
     SettingsPermissionRow(
-      title: '배터리 최적화 제외',
-      description: '없으면 절전 중 알림이 늦거나 오지 않습니다',
+      title: l10n.settingsPermBatteryTitle,
+      description: l10n.settingsPermBatteryDesc,
       granted: snapshot.survivesDoze,
       onTap: () => request(PermissionKind.batteryOptimization),
     ),
     SettingsPermissionRow(
-      title: '다른 앱 위에 표시',
-      description: '없으면 앱 사용 중에 알림 화면이 뜨지 않습니다',
+      title: l10n.settingsPermOverlayTitle,
+      description: l10n.settingsPermOverlayDesc,
       granted: snapshot.canCoverScreen,
       onTap: () => request(PermissionKind.overlay),
     ),
     SettingsPermissionRow(
-      title: '전체 화면 알림',
-      description: '없으면 화면이 꺼져 있을 때 알림 화면이 뜨지 않습니다',
+      title: l10n.settingsPermFullScreenTitle,
+      description: l10n.settingsPermFullScreenDesc,
       granted: snapshot.canWakeScreen,
       onTap: () => request(PermissionKind.fullScreenIntent),
     ),

@@ -1,3 +1,4 @@
+import '../../../core/l10n/l10n.dart';
 import '../domain/sound_validator.dart';
 
 /// 등록 실패 문구 (이슈 #121)
@@ -8,23 +9,23 @@ import '../domain/sound_validator.dart';
 ///
 /// 문구를 도메인이 아니라 여기 두는 것은 `place_empty_state.dart` 의
 /// `placeErrorMessage` 와 같은 배치다.
-String soundImportErrorMessage(SoundImportError error) => switch (error) {
-  SoundLimitReached() =>
-    '음원은 최대 ${SoundLimits.maxCount}개까지 등록할 수 있습니다. '
-        '쓰지 않는 음원을 지우고 다시 시도해주세요.',
-  UnsupportedSoundFormat(:final extension) =>
-    extension.isEmpty
-        ? '확장자가 없는 파일입니다. ${_allowedList()} 형식만 쓸 수 있습니다.'
-        : '$extension 형식은 쓸 수 없습니다. ${_allowedList()} 만 가능합니다.',
-  SoundTooLarge(:final bytes) =>
-    '파일이 너무 큽니다 (${formatBytes(bytes)} / 최대 '
-        '${formatBytes(SoundLimits.maxBytes)}).',
-  SoundTooLong(:final duration) =>
-    '너무 깁니다 (${formatDuration(duration)} / 최대 '
-        '${formatDuration(SoundLimits.maxDuration)}). '
-        '알림음은 반복 재생되므로 짧아도 됩니다.',
-  SoundNotPlayable() => '재생할 수 없는 파일입니다. 다른 파일을 골라주세요.',
-};
+String soundImportErrorMessage(AppLocalizations l10n, SoundImportError error) =>
+    switch (error) {
+      SoundLimitReached() => l10n.soundImportLimitReached(SoundLimits.maxCount),
+      UnsupportedSoundFormat(:final extension) =>
+        extension.isEmpty
+            ? l10n.soundImportNoExtension(_allowedList())
+            : l10n.soundImportUnsupported(extension, _allowedList()),
+      SoundTooLarge(:final bytes) => l10n.soundImportTooLarge(
+        formatBytes(bytes),
+        formatBytes(SoundLimits.maxBytes),
+      ),
+      SoundTooLong(:final duration) => l10n.soundImportTooLong(
+        formatDuration(l10n, duration),
+        formatDuration(l10n, SoundLimits.maxDuration),
+      ),
+      SoundNotPlayable() => l10n.soundImportNotPlayable,
+    };
 
 String _allowedList() {
   final sorted = SoundLimits.allowedExtensions.toList()..sort();
@@ -44,12 +45,12 @@ String formatBytes(int bytes) {
 }
 
 /// `0:03` · `1분 12초`
-String formatDuration(Duration duration) {
+String formatDuration(AppLocalizations l10n, Duration duration) {
   final totalSeconds = duration.inSeconds;
   if (totalSeconds < 60) {
     return '0:${totalSeconds.toString().padLeft(2, '0')}';
   }
   final minutes = totalSeconds ~/ 60;
   final seconds = totalSeconds % 60;
-  return '$minutes분 $seconds초';
+  return l10n.soundDurationMinutesSeconds(minutes, seconds);
 }

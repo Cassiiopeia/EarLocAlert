@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../../../core/diagnostics/diagnostics.dart';
+import '../../../core/l10n/l10n.dart';
 import '../../../core/map/map_reveal_cover.dart';
 import '../../../core/map/map_style_guard.dart';
 import '../../../core/map/radius_zoom.dart';
@@ -253,7 +254,7 @@ class _PlaceMapPickerScreenState extends State<PlaceMapPickerScreen> {
 
     return Scaffold(
       backgroundColor: AppColors.bgBase,
-      appBar: AppBar(title: const Text('지도에서 선택')),
+      appBar: AppBar(title: Text(context.l10n.placePickerTitle)),
       body: Stack(
         children: [
           MapRevealCover(
@@ -357,7 +358,7 @@ class _PlaceMapPickerScreenState extends State<PlaceMapPickerScreen> {
                   child: FloatingCircleButton(
                     icon: Icons.my_location_outlined,
                     onPressed: _moveToCurrentLocation,
-                    semanticLabel: '내 위치',
+                    semanticLabel: context.l10n.placeMyLocation,
                   ),
                 ),
                 _PickerPanel(
@@ -439,7 +440,7 @@ class _SearchOverlay extends StatelessWidget {
                   textInputAction: TextInputAction.search,
                   style: AppTypography.body,
                   decoration: InputDecoration(
-                    hintText: '장소·주소 검색',
+                    hintText: context.l10n.placeSearchHint,
                     hintStyle: AppTypography.caption,
                     border: InputBorder.none,
                     contentPadding: const EdgeInsets.symmetric(
@@ -478,7 +479,7 @@ class _SearchOverlay extends StatelessWidget {
             if (unavailable)
               Padding(
                 padding: const EdgeInsets.only(top: AppSpacing.xs),
-                child: _SearchMessage('검색을 사용할 수 없습니다 — 지도를 움직여 위치를 맞춰주세요'),
+                child: _SearchMessage(context.l10n.placeSearchUnavailable),
               )
             else if (results.isNotEmpty)
               Container(
@@ -503,7 +504,9 @@ class _SearchOverlay extends StatelessWidget {
                         size: AppIconSize.standard,
                       ),
                       title: Text(
-                        result.name,
+                        result.name.isEmpty
+                            ? context.l10n.placeSearchUnnamed
+                            : result.name,
                         style: AppTypography.body,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -541,7 +544,7 @@ class _SearchMessage extends StatelessWidget {
         color: AppColors.bgSurface,
         borderRadius: BorderRadius.circular(AppRadius.small),
       ),
-      child: Text(message.keepAll, style: AppTypography.caption),
+      child: Text(context.keepAllText(message), style: AppTypography.caption),
     );
   }
 }
@@ -574,7 +577,7 @@ class _PickerPanel extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              '알림 반경 ${radius.round()}m',
+              context.l10n.placePickerRadius(radius.round()),
               style: AppTypography.body.copyWith(fontWeight: FontWeight.w600),
             ),
             Slider(
@@ -586,7 +589,7 @@ class _PickerPanel extends StatelessWidget {
               onChangeEnd: onRadiusChangeEnd,
             ),
             Text(
-              '지도를 움직여 핀을 맞추세요'.keepAll,
+              context.keepAllText(context.l10n.placePickerPinHint),
               style: AppTypography.caption,
               textAlign: TextAlign.center,
             ),
@@ -597,7 +600,7 @@ class _PickerPanel extends StatelessWidget {
                 backgroundColor: AppColors.primary,
                 foregroundColor: AppColors.textOnPrimary,
               ),
-              child: const Text('이 위치로 선택'),
+              child: Text(context.l10n.placePickerConfirm),
             ),
           ],
         ),

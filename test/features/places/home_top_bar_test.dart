@@ -1,3 +1,4 @@
+import 'package:ear_loc_alert/core/l10n/l10n.dart';
 import 'package:ear_loc_alert/core/domain/alert_direction.dart';
 import 'package:ear_loc_alert/core/theme/app_spacing.dart';
 import 'package:ear_loc_alert/core/theme/app_theme.dart';
@@ -34,6 +35,11 @@ void main() {
           placeListProvider.overrideWith((ref) => Stream.value(places)),
         ],
         child: MaterialApp(
+          // 문구를 한국어로 찾으므로 언어를 한국어로 고정한다 (이슈 #163)
+          locale: const Locale('ko'),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+
           theme: AppTheme.dark(),
           home: PlaceMapHomeScreen(
             isMonitoring: isMonitoring,

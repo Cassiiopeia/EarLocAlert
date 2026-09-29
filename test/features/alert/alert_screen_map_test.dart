@@ -5,6 +5,7 @@ import 'package:ear_loc_alert/features/alert/domain/alert_session.dart';
 import 'package:ear_loc_alert/features/alert/domain/audio_route.dart';
 import 'package:ear_loc_alert/features/alert/presentation/alert_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:ear_loc_alert/core/l10n/l10n.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
@@ -38,6 +39,10 @@ void main() {
     addTearDown(() => tester.binding.setSurfaceSize(null));
     await tester.pumpWidget(
       MaterialApp(
+        // 문구를 한국어로 찾으므로 언어를 한국어로 고정한다 (이슈 #163)
+        locale: const Locale('ko'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         theme: AppTheme.dark(),
         home: AlertScreen(session: value, onDismiss: onDismiss ?? () {}),
       ),

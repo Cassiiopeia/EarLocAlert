@@ -176,7 +176,8 @@ play();
 |---|---|
 | `pubspec.yaml` 의 version 직접 수정 | `version.yml` 이 단일 출처. 워크플로우가 동기화한다 |
 | `DateTime.now()` 저장 | `DateTime.now().toUtc()` — 표시할 때만 로컬 변환 |
-| 화면 문자열 하드코딩 | MVP 가 한국어만이어도 l10n 을 거친다 |
+| 화면 문자열 하드코딩 | 네 언어를 지원한다. `context.l10n.키`, 백그라운드는 `AppStrings`. `test/core/l10n/no_hardcoded_korean_test.dart` 가 막는다 |
+| `String.keepAll` 을 그대로 쓴다 | 한국어에서만. 중국어·일본어에 쓰면 줄이 안 바뀌어 넘친다 → `context.keepAllText(...)` |
 | 지오펜스 상태를 메모리에 보관 | 재부팅 후 살아 있어야 한다. Drift 에 저장 |
 | `unknown → inside` 에 알림 발생 | 밖에 있었던 적이 확인돼야 진입 알림이다 |
 | iOS 에 21개 이상 지오펜스 등록 | OS 제한 20개 |

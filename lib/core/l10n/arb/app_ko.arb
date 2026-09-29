@@ -1,0 +1,464 @@
+{
+  "@@locale": "ko",
+  "appName": "이어폰위치알림",
+  "settingsLanguageTitle": "언어",
+  "languageSheetHint": "고르면 바로 적용됩니다",
+  "languageFollowDevice": "기기 설정 따르기",
+  "languageFollowDeviceHint": "지금은 {language}",
+  "languageChanged": "언어를 바꿨습니다",
+  "languageUndo": "되돌리기",
+  "@languageFollowDeviceHint": {
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  },
+  "permissionContinue": "계속",
+  "permissionLocalOnlyFootnote": "위치 정보는 기기에만 저장되며 어디에도 전송되지 않습니다.",
+  "permissionLocationTitle": "위치 권한이 필요합니다",
+  "permissionLocationBody": "알림을 걸어둘 장소를 지도에서 고르고, 지금 어디쯤인지 표시하기 위해 사용합니다.",
+  "permissionBackgroundTitle": "항상 허용이 필요합니다",
+  "permissionBackgroundBody": "앱을 열어두지 않아도 도착과 출발을 알려드리려면 백그라운드에서 위치를 확인해야 합니다.\n\n이 권한이 없으면 화면을 계속 보고 있어야 해서, 알림 자체가 의미를 잃습니다.",
+  "permissionBackgroundActionAndroid": "설정에서 항상 허용",
+  "permissionBackgroundFootnoteAndroid": "설정 화면에서 위치 권한을 \"항상 허용\"으로 바꿔주세요.\n위치 정보는 기기에만 저장되며 어디에도 전송되지 않습니다.",
+  "permissionNotificationTitle": "알림 권한이 필요합니다",
+  "permissionNotificationBody": "도착하거나 떠날 때 알려드리기 위해 사용합니다.",
+  "permissionReliabilityTitle": "알림을 놓치지 않으려면",
+  "permissionReliabilityBody": "휴대폰이 절전에 들어가거나 다른 앱을 보고 있으면, 도착 알림이 늦게 오거나 작은 알림으로만 지나갑니다.\n\n다음 세 가지를 켜면 화면을 덮는 알림이 해제할 때까지 계속됩니다.\n\n• 배터리 사용량 최적화 제외 — 절전 중에도 제때 알립니다\n• 다른 앱 위에 표시 — 영상을 보는 중에도 알림 화면이 뜹니다\n• 전체 화면 알림 — 화면이 꺼져 있어도 깨웁니다",
+  "permissionReliabilityAction": "세 가지 모두 켜기",
+  "permissionReliabilityFootnote": "설정 화면이 차례로 열립니다. 건너뛰면 알림 화면이 저절로 뜨지 않아, 진동을 끄려면 알림을 눌러 앱을 열어야 합니다.",
+  "permissionOpenSettingsTitle": "설정에서 권한을 켜주세요",
+  "permissionOpenSettingsBody": "권한이 거부된 상태라 앱에서 다시 요청할 수 없습니다. 설정 화면에서 직접 허용해주세요.",
+  "permissionOpenSettingsAction": "설정 열기",
+  "permissionDoneTitle": "준비되었습니다",
+  "permissionDoneBody": "이제 장소를 등록하면 도착과 출발을 알려드립니다.",
+  "permissionDoneAction": "시작하기",
+  "onboardingSkip": "나중에 하기",
+  "onboardingErrorTitle": "권한 상태를 확인하지 못했습니다",
+  "onboardingErrorHint": "잠시 후 다시 시도해주세요.",
+  "onboardingRetry": "다시 시도",
+  "settingsTitle": "설정",
+  "settingsSectionAlert": "알림",
+  "settingsVibrationTitle": "진동 세기",
+  "settingsVibrationSubtitle": "이어폰이 없을 때는 진동만으로 알립니다",
+  "settingsVolumeTitle": "알림음 크기",
+  "settingsVolumeSubtitle": "이어폰으로 들릴 소리 크기",
+  "settingsPreviewTitle": "알림 미리보기",
+  "settingsPreviewSubtitle": "알림 화면과 진동을 지금 확인합니다",
+  "settingsSectionReach": "알림 도달 권한",
+  "settingsSectionTroubleshoot": "문제 해결",
+  "settingsDiagnosticsTitle": "동작 기록",
+  "settingsDiagnosticsSubtitle": "알림이 언제 왜 울렸는지 기록을 보고 내보냅니다",
+  "settingsPermissionGranted": "허용됨",
+  "settingsPermNotifyTitle": "알림 표시",
+  "settingsPermNotifyDesc": "없으면 도착해도 알림이 뜨지 않습니다",
+  "settingsPermBatteryTitle": "배터리 최적화 제외",
+  "settingsPermBatteryDesc": "없으면 절전 중 알림이 늦거나 오지 않습니다",
+  "settingsPermOverlayTitle": "다른 앱 위에 표시",
+  "settingsPermOverlayDesc": "없으면 앱 사용 중에 알림 화면이 뜨지 않습니다",
+  "settingsPermFullScreenTitle": "전체 화면 알림",
+  "settingsPermFullScreenDesc": "없으면 화면이 꺼져 있을 때 알림 화면이 뜨지 않습니다",
+  "diagnosticsTitle": "동작 기록",
+  "diagnosticsRefresh": "새로고침",
+  "diagnosticsClear": "지우기",
+  "diagnosticsCancel": "취소",
+  "diagnosticsExport": "내보내기",
+  "diagnosticsExportEmpty": "내보낼 기록이 없습니다",
+  "diagnosticsExportSubject": "이어폰위치알림 기록",
+  "diagnosticsCopied": "클립보드에 복사했습니다",
+  "diagnosticsClearTitle": "기록을 지울까요?",
+  "diagnosticsClearBody": "지운 기록은 되돌릴 수 없습니다.",
+  "diagnosticsHeader": "{lineCount}건 · {size} / 최대 {maxSize}\n기기 안에만 저장되며 전송되지 않습니다. 가득 차면 오래된 것부터 지워집니다",
+  "@diagnosticsHeader": {
+    "placeholders": {
+      "lineCount": {
+        "type": "int"
+      },
+      "size": {
+        "type": "String"
+      },
+      "maxSize": {
+        "type": "String"
+      }
+    }
+  },
+  "diagnosticsReadFailed": "기록을 읽지 못했습니다.",
+  "diagnosticsEmpty": "아직 기록이 없습니다.\n앱을 다시 켜거나 감시가 시작되면 쌓입니다.",
+  "routeDeletedSound": "삭제된 음원 (기본음으로 알림)",
+  "routePreviewPlaceName": "테스트 장소",
+  "notificationChannelName": "도착·출발 알림",
+  "notificationChannelDescription": "등록한 장소에 도착하거나 떠날 때 알립니다",
+  "notificationArrived": "도착했습니다",
+  "notificationLeft": "떠났습니다",
+  "alertScreenLeft": "떠났습니다",
+  "alertScreenArrived": "도착했습니다",
+  "alertScreenTimeAm": "오전 {hour}:{minute}",
+  "@alertScreenTimeAm": {
+    "placeholders": {
+      "hour": {
+        "type": "String"
+      },
+      "minute": {
+        "type": "String"
+      }
+    }
+  },
+  "alertScreenTimePm": "오후 {hour}:{minute}",
+  "@alertScreenTimePm": {
+    "placeholders": {
+      "hour": {
+        "type": "String"
+      },
+      "minute": {
+        "type": "String"
+      }
+    }
+  },
+  "alertScreenRouteHeadphones": "이어폰으로 알림 중",
+  "alertScreenRouteSoundFailed": "소리를 재생하지 못해 진동으로 알림 중",
+  "alertScreenRouteVibrationOnly": "진동으로만 알림 중",
+  "alertScreenDismiss": "알림 끄기",
+  "alertScreenRadius": "반경 {meters}m",
+  "@alertScreenRadius": {
+    "placeholders": {
+      "meters": {
+        "type": "int"
+      }
+    }
+  },
+  "alertNotificationChannelName": "알림 진행 중",
+  "alertNotificationChannelDescription": "알림 화면을 벗어났을 때 다시 돌아오는 알림입니다",
+  "alertDismissedTitle": "알림을 껐습니다",
+  "alertDismissedConfirm": "확인",
+  "volumeTitle": "알림음 크기",
+  "volumeDescription": "알림이 울릴 때 시스템 볼륨이 이 수준보다 낮으면 여기까지 올렸다가, 끄면 원래대로 되돌립니다.",
+  "volumePreviewStop": "미리듣기 멈추기",
+  "volumePreviewNoHeadphones": "이어폰이 연결되어 있지 않아 미리듣기를 할 수 없습니다.",
+  "volumePreviewFailed": "재생에 실패했습니다.",
+  "vibrationTitle": "진동 세기",
+  "vibrationDescription": "이어폰이 연결되지 않았을 때는 진동만으로 알립니다. 고르면 그 세기로 한 번 울려 확인할 수 있습니다.",
+  "vibrationWeak": "약하게",
+  "vibrationNormal": "보통",
+  "vibrationStrong": "강하게",
+  "vibrationWeakHint": "조용한 곳에서 주변에 들리지 않게",
+  "vibrationNormalHint": "기본값",
+  "vibrationStrongHint": "주머니나 가방 속에서도 느껴지게",
+  "soundPreview": "미리듣기",
+  "soundCancel": "취소",
+  "soundDelete": "삭제",
+  "soundDone": "완료",
+  "soundPickerTitle": "알림음",
+  "soundPickerPresetHeader": "기본 알림음",
+  "soundPickerCustomHeader": "내 음원  {count}/{max}",
+  "@soundPickerCustomHeader": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "soundPickerCustomEmpty": "기기에 있는 음원 파일을 등록해 쓸 수 있습니다.",
+  "soundPickerAdd": "음원 추가",
+  "soundPickerChecking": "확인 중…",
+  "soundPickerHeadphoneNotice": "이어폰을 연결하면 들어볼 수 있습니다. 알림음은 이어폰이 연결됐을 때만 재생됩니다.",
+  "soundPreviewFailed": "재생할 수 없는 음원입니다",
+  "soundSaveFailed": "음원을 저장하지 못했습니다. 잠시 후 다시 시도해주세요.",
+  "soundDeleteTitle": "음원을 삭제할까요?",
+  "soundDeleteBody": "{name}\n\n이 음원을 쓰던 장소는 기본음으로 알립니다.",
+  "@soundDeleteBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "soundDurationMinutesSeconds": "{minutes}분 {seconds}초",
+  "@soundDurationMinutesSeconds": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      },
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "soundImportLimitReached": "음원은 최대 {max}개까지 등록할 수 있습니다. 쓰지 않는 음원을 지우고 다시 시도해주세요.",
+  "@soundImportLimitReached": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "soundImportNoExtension": "확장자가 없는 파일입니다. {allowed} 형식만 쓸 수 있습니다.",
+  "@soundImportNoExtension": {
+    "placeholders": {
+      "allowed": {
+        "type": "String"
+      }
+    }
+  },
+  "soundImportUnsupported": "{extension} 형식은 쓸 수 없습니다. {allowed} 만 가능합니다.",
+  "@soundImportUnsupported": {
+    "placeholders": {
+      "extension": {
+        "type": "String"
+      },
+      "allowed": {
+        "type": "String"
+      }
+    }
+  },
+  "soundImportTooLarge": "파일이 너무 큽니다 ({size} / 최대 {max}).",
+  "@soundImportTooLarge": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      },
+      "max": {
+        "type": "String"
+      }
+    }
+  },
+  "soundImportTooLong": "너무 깁니다 ({duration} / 최대 {max}). 알림음은 반복 재생되므로 짧아도 됩니다.",
+  "@soundImportTooLong": {
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      },
+      "max": {
+        "type": "String"
+      }
+    }
+  },
+  "soundImportNotPlayable": "재생할 수 없는 파일입니다. 다른 파일을 골라주세요.",
+  "soundPresetDefault": "기본음",
+  "soundPresetBell": "종소리",
+  "soundPresetElectronic": "전자음",
+  "soundPresetSiren": "사이렌",
+  "soundPresetChime": "차임",
+  "placeSearchUnnamed": "이름 없는 장소",
+  "placePickerTitle": "지도에서 선택",
+  "placeMyLocation": "내 위치",
+  "placeSearchHint": "장소·주소 검색",
+  "placeSearchUnavailable": "검색을 사용할 수 없습니다 — 지도를 움직여 위치를 맞춰주세요",
+  "placePickerRadius": "알림 반경 {meters}m",
+  "@placePickerRadius": {
+    "placeholders": {
+      "meters": {
+        "type": "int"
+      }
+    }
+  },
+  "placePickerPinHint": "지도를 움직여 핀을 맞추세요",
+  "placePickerConfirm": "이 위치로 선택",
+  "placeDirectionEnter": "도착 알림",
+  "placeDirectionExit": "출발 알림",
+  "placeDirectionBoth": "도착·출발",
+  "placeRadiusInfo": "{direction} · 반경 {meters}m",
+  "@placeRadiusInfo": {
+    "placeholders": {
+      "direction": {
+        "type": "String"
+      },
+      "meters": {
+        "type": "int"
+      }
+    }
+  },
+  "placeDeleted": "'{name}' 삭제됨",
+  "@placeDeleted": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "placeUndo": "되돌리기",
+  "placeFormLeaveTitle": "저장하지 않고 나갈까요?",
+  "placeFormLeaveBody": "지금까지 바꾼 내용은 사라집니다.",
+  "placeFormKeepEditing": "계속 편집",
+  "placeFormLeave": "나가기",
+  "placeFormTitleNew": "장소 등록",
+  "placeFormTitleEdit": "장소 편집",
+  "placeFormNameLabel": "이름",
+  "placeFormNameHint": "예: 내릴 정류장, 약속 장소",
+  "placeFormLocationLabel": "위치",
+  "placeFormPickOnMap": "지도에서 선택",
+  "placeFormRepickOnMap": "지도에서 다시 선택",
+  "placeFormNoLocation": "아직 위치를 고르지 않았습니다",
+  "placeFormCoordinates": "좌표  {value}",
+  "@placeFormCoordinates": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "placeFormCoordinatesManual": "좌표 직접 입력",
+  "placeFormLatitude": "위도",
+  "placeFormLongitude": "경도",
+  "placeFormRadiusLabel": "알림 반경",
+  "placeFormRadiusValue": "{meters}m",
+  "@placeFormRadiusValue": {
+    "placeholders": {
+      "meters": {
+        "type": "int"
+      }
+    }
+  },
+  "placeFormTimingLabel": "알림 시점",
+  "placeFormTimingEnter": "도착",
+  "placeFormTimingExit": "출발",
+  "placeFormTimingBoth": "둘 다",
+  "placeFormSoundTitle": "이어폰 소리 알림",
+  "placeFormSoundDescription": "이어폰(줄·블루투스)이 연결된 경우에만 소리가 납니다.\n스피커로는 절대 소리가 나지 않습니다.",
+  "placeFormSoundLabel": "알림음",
+  "placeFormCustomSound": "내 음원",
+  "placeFormSubmitNew": "등록",
+  "placeFormSubmitSave": "저장",
+  "placeErrorEmptyName": "이름을 입력해주세요",
+  "placeErrorRadius": "반경은 {min}m ~ {max}m 사이여야 합니다",
+  "@placeErrorRadius": {
+    "placeholders": {
+      "min": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "placeErrorCoordinates": "위치 좌표가 올바르지 않습니다",
+  "placeErrorLimit": "장소는 최대 {max}개까지 등록할 수 있습니다",
+  "@placeErrorLimit": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "placeErrorEmptyWindow": "시간대의 시작과 종료가 같습니다. 하루 종일 알리려면 시간대를 지우세요",
+  "placeErrorNoDays": "시간대에 요일을 하나 이상 골라주세요",
+  "placeEmptyTitle": "첫 장소를 등록해보세요",
+  "placeEmptyBody": "내릴 정류장, 약속 장소, 집 —\n도착하거나 떠날 때 조용히 알려드립니다.",
+  "placeEmptyAction": "장소 등록",
+  "placeHomeLocationUnavailable": "현재 위치를 확인할 수 없습니다. 위치 권한을 확인해주세요",
+  "placeHomeStatusWatching": "감시 중",
+  "placeHomeStatusOff": "감시 꺼짐",
+  "placeHomeStatusChecking": "확인 중",
+  "placeHomeStatusIdle": "감시 대기",
+  "placeHomeAudioHeadphones": "이어폰",
+  "placeHomeAudioVibrationOnly": "진동만",
+  "placeHomeWeakTitle": "알림을 놓칠 수 있습니다",
+  "placeHomeWeakPowerSaving": "절전 중이거나 다른 앱을 쓰는 동안 알림이 약해집니다",
+  "placeHomeWeakMissing": "{items} 꺼짐 — 눌러서 켜기",
+  "@placeHomeWeakMissing": {
+    "placeholders": {
+      "items": {
+        "type": "String"
+      }
+    }
+  },
+  "placeHomeAddPlace": "장소 추가",
+  "placeHomeLoadFailed": "장소를 불러오지 못했습니다",
+  "placeHomeSettings": "설정",
+  "scheduleTitle": "알림 시간대",
+  "scheduleAlways": "항상 알림",
+  "scheduleAlwaysHint": "항상 알림 — 시간대를 더하면 그 시간에만 울립니다",
+  "scheduleAdd": "시간대 추가",
+  "scheduleRemove": "이 시간대 삭제",
+  "scheduleSheetAddTitle": "시간대 추가",
+  "scheduleSheetEditTitle": "시간대 편집",
+  "scheduleDaysLabel": "요일",
+  "scheduleEveryday": "매일",
+  "scheduleWeekdays": "평일",
+  "scheduleWeekends": "주말",
+  "scheduleDayMon": "월",
+  "scheduleDayTue": "화",
+  "scheduleDayWed": "수",
+  "scheduleDayThu": "목",
+  "scheduleDayFri": "금",
+  "scheduleDaySat": "토",
+  "scheduleDaySun": "일",
+  "scheduleStart": "시작",
+  "scheduleEnd": "종료",
+  "scheduleCrossesMidnight": "종료가 시작보다 이르므로 자정을 넘긴 것으로 봅니다 — {window}",
+  "@scheduleCrossesMidnight": {
+    "placeholders": {
+      "window": {
+        "type": "String"
+      }
+    }
+  },
+  "scheduleSameStartEnd": "시작과 종료가 같습니다. 하루 종일 알리려면 시간대를 만들지 않으면 됩니다.",
+  "scheduleSave": "저장",
+  "scheduleAddButton": "추가",
+  "scheduleCancel": "취소",
+  "scheduleWindow": "{days} {start} ~ {end}",
+  "@scheduleWindow": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      },
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
+  "scheduleWindowNextDay": "{days} {start} ~ {end} (익일)",
+  "@scheduleWindowNextDay": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      },
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
+  "scheduleTimeRange": "{start} ~ {end}",
+  "@scheduleTimeRange": {
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
+  "scheduleTimeRangeNextDay": "{start} ~ {end} (익일)",
+  "@scheduleTimeRangeNextDay": {
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
+  "scheduleMore": "{first} 외 {count}개",
+  "@scheduleMore": {
+    "placeholders": {
+      "first": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  }
+}

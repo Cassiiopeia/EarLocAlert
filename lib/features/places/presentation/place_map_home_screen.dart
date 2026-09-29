@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../../../core/domain/alert_direction.dart';
+import '../../../core/l10n/l10n.dart';
 import '../../../core/map/map_reveal_cover.dart';
 import '../../../core/map/map_style_guard.dart';
 import '../../../core/map/radius_zoom.dart';
@@ -262,7 +263,11 @@ class _PlaceMapHomeScreenState extends ConsumerState<PlaceMapHomeScreen>
 
     if (location == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('현재 위치를 확인할 수 없습니다. 위치 권한을 확인해주세요'.keepAll)),
+        SnackBar(
+          content: Text(
+            context.keepAllText(context.l10n.placeHomeLocationUnavailable),
+          ),
+        ),
       );
       return;
     }
@@ -289,8 +294,10 @@ class _PlaceMapHomeScreenState extends ConsumerState<PlaceMapHomeScreen>
           infoWindow: InfoWindow(
             title: place.name,
             // 카드와 같은 문구를 쓴다 — 지도와 목록이 다른 말을 하면 안 된다
-            snippet:
-                '${describeDirection(place.direction, semantic).$2} · 반경 ${place.radiusMeters}m',
+            snippet: context.l10n.placeRadiusInfo(
+              describeDirection(place.direction, semantic, context.l10n).$2,
+              place.radiusMeters,
+            ),
           ),
           onTap: () => _onMarkerTapped(place),
         ),
@@ -501,7 +508,7 @@ class _StatusBar extends StatelessWidget {
               // 설정을 오른쪽 끝에 민다.
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Flexible(child: _statusPill(semantic, statusColor)),
+                Flexible(child: _statusPill(context, semantic, statusColor)),
                 if (onOpenSettings != null) ...[
                   const SizedBox(width: AppSpacing.xs),
                   _SettingsButton(onPressed: onOpenSettings!),
@@ -525,7 +532,11 @@ class _StatusBar extends StatelessWidget {
     );
   }
 
-  Widget _statusPill(AppSemanticColors semantic, Color statusColor) {
+  Widget _statusPill(
+    BuildContext context,
+    AppSemanticColors semantic,
+    Color statusColor,
+  ) {
     return Material(
       color: AppColors.bgSurface,
       borderRadius: BorderRadius.circular(AppRadius.pill),
@@ -587,12 +598,12 @@ class _StatusBar extends StatelessWidget {
                 Flexible(
                   child: Text(
                     isMonitoring
-                        ? '감시 중'
+                        ? context.l10n.placeHomeStatusWatching
                         : _isBroken
-                        ? '감시 꺼짐'
+                        ? context.l10n.placeHomeStatusOff
                         : _isChecking
-                        ? '확인 중'
-                        : '감시 대기',
+                        ? context.l10n.placeHomeStatusChecking
+                        : context.l10n.placeHomeStatusIdle,
                     style: AppTypography.body.copyWith(color: statusColor),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -628,7 +639,9 @@ class _StatusBar extends StatelessWidget {
                 ),
                 const SizedBox(width: AppSpacing.xs),
                 Text(
-                  isHeadphoneConnected ? '이어폰' : '진동만',
+                  isHeadphoneConnected
+                      ? context.l10n.placeHomeAudioHeadphones
+                      : context.l10n.placeHomeAudioVibrationOnly,
                   style: AppTypography.body,
                 ),
               ],
@@ -694,7 +707,7 @@ class _WeakAlertBanner extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      '알림을 놓칠 수 있습니다',
+                      context.l10n.placeHomeWeakTitle,
                       style: AppTypography.body.copyWith(
                         fontWeight: FontWeight.w700,
                         color: accent,
@@ -704,10 +717,13 @@ class _WeakAlertBanner extends StatelessWidget {
                     Text(
                       // 조사를 붙이지 않는다 — 항목 이름이 바뀔 때마다
                       // 은/는·이/가가 어긋난다
-                      (missing.isEmpty
-                              ? '절전 중이거나 다른 앱을 쓰는 동안 알림이 약해집니다'
-                              : '${missing.join(" · ")} 꺼짐 — 눌러서 켜기')
-                          .keepAll,
+                      context.keepAllText(
+                        missing.isEmpty
+                            ? context.l10n.placeHomeWeakPowerSaving
+                            : context.l10n.placeHomeWeakMissing(
+                                missing.join(' · '),
+                              ),
+                      ),
                       style: AppTypography.caption,
                       // **두 줄까지 보여준다** — 한 줄로 자르면 정작 무엇이
                       // 꺼졌는지가 잘려 나간다
@@ -778,13 +794,13 @@ class _MapControls extends StatelessWidget {
           FloatingCircleButton(
             icon: Icons.my_location_outlined,
             onPressed: onMyLocation,
-            semanticLabel: '내 위치',
+            semanticLabel: context.l10n.placeMyLocation,
             slop: const EdgeInsets.fromLTRB(_slop, _slop, _slop, gapHalf),
           ),
           FloatingCircleButton(
             icon: Icons.add_outlined,
             onPressed: onAddPlace,
-            semanticLabel: '장소 추가',
+            semanticLabel: context.l10n.placeHomeAddPlace,
             size: AppControlSize.primary,
             background: AppColors.primary,
             foreground: AppColors.textOnPrimary,
@@ -856,7 +872,7 @@ class _PlaceSheet extends ConsumerWidget {
           Padding(
             padding: const EdgeInsets.all(AppSpacing.md),
             child: Text(
-              '장소를 불러오지 못했습니다',
+              context.l10n.placeHomeLoadFailed,
               style: AppTypography.caption,
               textAlign: TextAlign.center,
             ),
@@ -926,7 +942,7 @@ class _SettingsButton extends StatelessWidget {
     return FloatingCircleButton(
       icon: Icons.settings_outlined,
       onPressed: onPressed,
-      semanticLabel: '설정',
+      semanticLabel: context.l10n.placeHomeSettings,
     );
   }
 }

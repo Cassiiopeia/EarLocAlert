@@ -6,6 +6,7 @@ import 'package:ear_loc_alert/features/alert/presentation/alert_volume_sheet.dar
 import 'package:ear_loc_alert/features/alert/presentation/vibration_intensity_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ear_loc_alert/core/l10n/l10n.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// 시트를 닫으면 미리듣기·미리보기가 멎는가 (이슈 #122)
@@ -93,6 +94,10 @@ void main() {
       ProviderScope(
         overrides: overrides,
         child: MaterialApp(
+          // 문구를 한국어로 찾으므로 언어를 한국어로 고정한다 (이슈 #163)
+          locale: const Locale('ko'),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
           theme: AppTheme.dark(),
           home: Builder(
             builder: (context) => Scaffold(
