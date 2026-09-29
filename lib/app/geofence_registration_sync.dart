@@ -67,7 +67,7 @@ class GeofenceRegistrationSync {
       // 동기화 실패가 화면을 죽이면 안 된다. 다음 목록 변경 때 재시도된다.
       // 다만 **기록은 남긴다** — 등록이 조용히 실패하면 도착을 영영
       // 감지하지 못하는데, 예전에는 그 사실조차 알 수 없었다 (이슈 #95)
-      Diagnostics.log('sync', '지오펜스 동기화 실패 $error');
+      Diagnostics.log('sync', 'geofence sync failed $error');
     }
   }
 
@@ -109,7 +109,7 @@ class GeofenceRegistrationSync {
     // 상황에서 가장 먼저 확인해야 할 값이다 (이슈 #95)
     Diagnostics.log(
       'sync',
-      '지오펜스 동기화 완료 등록=${targets.length}건 '
+      'geofence sync done registered=${targets.length} '
           'ids=${targets.map((t) => t.placeId).join(",")}',
     );
 

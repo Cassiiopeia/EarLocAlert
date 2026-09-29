@@ -23,14 +23,14 @@ import android.os.SystemClock
 class BootReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         val reason = when (intent.action) {
-            Intent.ACTION_BOOT_COMPLETED -> "재부팅"
-            Intent.ACTION_MY_PACKAGE_REPLACED -> "앱교체"
+            Intent.ACTION_BOOT_COMPLETED -> "boot"
+            Intent.ACTION_MY_PACKAGE_REPLACED -> "package_replaced"
             else -> return
         }
         // 가동 시간을 함께 남긴다 — 일부 기기는 앱을 강제 종료했다 다시 실행할 때도
         // 부팅 완료 브로드캐스트를 다시 전달해, 사유만 보면 재부팅한 것으로 오해한다 (이슈 #161)
         val uptimeMinutes = SystemClock.elapsedRealtime() / 60_000L
-        DiagnosticLog.write(context, "boot", "복구 시작 사유=$reason (기기 가동 ${uptimeMinutes}분)")
+        DiagnosticLog.write(context, "boot", "recovery started reason=$reason (device uptime ${uptimeMinutes}min)")
 
         ExitReasonLogger.logNew(context)
         WatchdogReceiver.restoreFromCache(context, reason)
@@ -45,7 +45,7 @@ class BootReceiver : BroadcastReceiver() {
         } catch (error: Exception) {
             // 삼키되 기록은 남긴다 — 예전에는 여기서 조용히 끝나 원인을 알 수 없었다.
             // 앱을 켜면 복구된다
-            DiagnosticLog.write(context, "boot", "서비스 시작 실패 사유=$reason $error")
+            DiagnosticLog.write(context, "boot", "service start failed reason=$reason $error")
         }
     }
 }

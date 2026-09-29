@@ -42,7 +42,10 @@ class PendingAlertResumer {
   Future<void> resume({required String trigger}) {
     final running = _running;
     if (running != null) {
-      Diagnostics.log('app', '대기 알림 확인 겹침 — 진행 중인 것을 기다린다 (호출=$trigger)');
+      Diagnostics.log(
+        'app',
+        'pending alert check overlapped, waiting for the running one (trigger=$trigger)',
+      );
       return running;
     }
     final attempt = _resumeOnce().whenComplete(() => _running = null);
@@ -63,8 +66,8 @@ class PendingAlertResumer {
       if (hadPending) {
         Diagnostics.log(
           'app',
-          '대기 알림 발견 승격=${request != null} '
-              'place=${request?.placeName ?? "만료·손상"}',
+          'pending alert found promote=${request != null} '
+              'place=${request?.placeName ?? "expired_or_corrupt"}',
         );
         await _watch.stopNativeAlert();
         // 백그라운드 알림은 스와이프로 지워지지 않게 걸어두었다 (이슈 #84)
@@ -81,11 +84,14 @@ class PendingAlertResumer {
         return;
       }
 
-      Diagnostics.log('app', '알림 세션 승격 place=${request.placeName}');
+      Diagnostics.log(
+        'app',
+        'alert session promoted place=${request.placeName}',
+      );
       await _promote(request);
     } on Object catch (error) {
       // 알림 승격 실패가 앱 시작을 막으면 안 된다
-      Diagnostics.log('app', '알림 승격 실패 $error');
+      Diagnostics.log('app', 'alert promotion failed $error');
     }
   }
 
@@ -102,11 +108,17 @@ class PendingAlertResumer {
     // 다음에 울리므로, 지금 울리는 알림의 짝이 있다면 여기서 보인다.
     // 있으면 고아가 아니라 방금 도착한 알림이다
     if (await _hasPending()) {
-      Diagnostics.log('app', '울리는 알림의 대기 값이 방금 도착했다 — 정리하지 않고 승격한다');
+      Diagnostics.log(
+        'app',
+        'pending value for the ringing alert just arrived, promoting instead of clearing',
+      );
       return true;
     }
 
-    Diagnostics.log('app', '세션 없이 울리는 알림 발견 — 정리한다 (앱이 재시작된 것으로 보인다)');
+    Diagnostics.log(
+      'app',
+      'ringing alert without a session found, clearing it (the app seems to have restarted)',
+    );
     await _watch.stopNativeAlert();
     await _cancelNotification();
     return false;

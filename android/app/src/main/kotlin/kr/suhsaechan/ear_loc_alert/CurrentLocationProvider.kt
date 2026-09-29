@@ -42,19 +42,19 @@ class CurrentLocationProvider(private val context: Context) {
             client.getCurrentLocation(request, null)
                 .addOnSuccessListener { location ->
                     if (location == null) {
-                        DiagnosticLog.write(context, "location", "현재 위치 조회 결과 없음")
+                        DiagnosticLog.write(context, "location", "current location lookup returned nothing")
                         onResult(null)
                     } else {
                         onResult(location.latitude to location.longitude)
                     }
                 }
                 .addOnFailureListener { error ->
-                    DiagnosticLog.write(context, "location", "현재 위치 조회 실패 $error")
+                    DiagnosticLog.write(context, "location", "current location lookup failed $error")
                     onResult(null)
                 }
         } catch (error: SecurityException) {
             // 위치 권한이 없다 — 화면이 이유를 안내한다
-            DiagnosticLog.write(context, "location", "위치 권한 없음 — 조회 불가")
+            DiagnosticLog.write(context, "location", "location permission missing, lookup unavailable")
             onResult(null)
         }
     }

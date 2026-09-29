@@ -39,16 +39,16 @@ enum AlertSuppression {
   /// 1km 떨어진 곳에서 진입 이벤트가 오고 몇 초 뒤 되돌아간다.
   implausibleJump;
 
-  /// 로그에 남길 짧은 한국어. **여기가 단일 출처다** —
+  /// 로그에 남길 고정 영문 토큰. **여기가 단일 출처다** —
   /// 호출부에서 문자열을 조립하면 표현이 갈린다.
   String get label => switch (this) {
-    placeNotFound => '장소없음',
-    placeDisabled => '장소꺼짐',
-    noTransition => '전이없음',
-    deferred => '정확도부족',
-    directionMismatch => '방향불일치',
-    outsideSchedule => '시간대밖',
-    implausibleJump => '위치튐',
+    placeNotFound => 'place_not_found',
+    placeDisabled => 'place_disabled',
+    noTransition => 'no_transition',
+    deferred => 'low_accuracy',
+    directionMismatch => 'direction_mismatch',
+    outsideSchedule => 'outside_schedule',
+    implausibleJump => 'location_jump',
   };
 }
 
@@ -98,19 +98,19 @@ String formatDecision({
 }) {
   final buffer = StringBuffer()
     // id 는 앞 8자만 — 지오펜스 로그와 대조하기에 충분하고 줄이 짧아진다
-    ..write('판정 place=${shortId(placeId)} name=$placeName ')
-    ..write('전이=${transition.name} ');
+    ..write('decision place=${shortId(placeId)} name=$placeName ')
+    ..write('transition=${transition.name} ');
 
   if (suppression == null) {
-    buffer.write('→ 알림 (방향=${direction?.name ?? "?"})');
+    buffer.write('-> alert (direction=${direction?.name ?? "?"})');
   } else {
-    buffer.write('→ 알림없음 (사유=${suppression.label}');
+    buffer.write('-> no_alert (reason=${suppression.label}');
     // 정확도 부족은 실제 값이 있어야 판단할 수 있다
     if (suppression == AlertSuppression.deferred && accuracyMeters != null) {
       buffer.write(' acc=${meters(accuracyMeters)}');
     }
     if (suppression == AlertSuppression.directionMismatch) {
-      buffer.write(' 설정=${direction?.name ?? "?"}');
+      buffer.write(' configured=${direction?.name ?? "?"}');
     }
     buffer.write(')');
   }
@@ -131,8 +131,8 @@ String formatTransition({
   double? accuracyMeters,
 }) {
   final buffer = StringBuffer()
-    ..write('상태 전이 place=${shortId(placeId)} name=$placeName ')
-    ..write('${from.name} → ${to.name}');
+    ..write('state transition place=${shortId(placeId)} name=$placeName ')
+    ..write('${from.name} -> ${to.name}');
   if (latitude != null && longitude != null) {
     buffer.write(' lat=$latitude lng=$longitude');
   }

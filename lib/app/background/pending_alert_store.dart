@@ -50,10 +50,10 @@ class PendingAlertStore {
     // 어디서 빠졌는지 알 수 있었다.
     Diagnostics.log(
       'pending',
-      '저장 place=${shortId(alert.placeId)} name=${alert.placeName} '
+      'saved place=${shortId(alert.placeId)} name=${alert.placeName} '
           'direction=${alert.direction.name} sound=${alert.soundEnabled} '
           'tone=${alert.sound.storageValue} '
-          '좌표=${_formatLocation(alert.latitude, alert.longitude, alert.radiusMeters)}',
+          'coords=${_formatLocation(alert.latitude, alert.longitude, alert.radiusMeters)}',
     );
   }
 
@@ -84,7 +84,7 @@ class PendingAlertStore {
   /// 로그용 좌표 표기. 없으면 없다고 남긴다 — 빈칸이면 "안 실었나
   /// 못 읽었나"를 나중에 구분할 수 없다 (이슈 #127).
   static String _formatLocation(double? lat, double? lng, int? radius) {
-    if (lat == null || lng == null || radius == null) return '없음';
+    if (lat == null || lng == null || radius == null) return 'none';
     return '${lat.toStringAsFixed(5)},${lng.toStringAsFixed(5)}/${radius}m';
   }
 
@@ -178,10 +178,10 @@ class PendingAlertStore {
     final age = now.difference(alert.occurredAt);
     Diagnostics.log(
       'pending',
-      '복원 place=${shortId(alert.placeId)} name=${alert.placeName} '
+      'restored place=${shortId(alert.placeId)} name=${alert.placeName} '
           'tone=${alert.sound.storageValue} '
-          '좌표=${_formatLocation(alert.latitude, alert.longitude, alert.radiusMeters)} '
-          '경과=${age.inSeconds}초',
+          'coords=${_formatLocation(alert.latitude, alert.longitude, alert.radiusMeters)} '
+          'age=${age.inSeconds}s',
     );
   }
 

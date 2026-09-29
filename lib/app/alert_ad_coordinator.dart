@@ -43,7 +43,7 @@ class AlertAdCoordinator {
       // 미리 로딩 실패는 무시한다 — 광고가 없으면 그냥 안 보여주면 된다.
       // 다만 기록은 남긴다 (이슈 #127): 광고가 계속 안 뜨는 이유를
       // 나중에 물어보면 이 줄이 유일한 단서다
-      Diagnostics.log('ads', '미리 로딩 실패 $error');
+      Diagnostics.log('ads', 'preload failed $error');
     }
   }
 
@@ -67,8 +67,8 @@ class AlertAdCoordinator {
         // (이슈 #127). 로그가 없으면 "왜 광고가 안 나오나"에 답할 수 없다
         Diagnostics.log(
           'ads',
-          '전면광고 생략 (사유=빈도제한 오늘${state.shownToday}회 '
-              '마지막=${state.lastShownAt?.toIso8601String() ?? "없음"})',
+          'interstitial skipped (reason=frequency_limit shown_today=${state.shownToday} '
+              'last_shown=${state.lastShownAt?.toIso8601String() ?? "none"})',
         );
         return false;
       }
@@ -79,15 +79,18 @@ class AlertAdCoordinator {
       );
       if (shown) {
         await _store.recordShown(now);
-        Diagnostics.log('ads', '전면광고 표시');
+        Diagnostics.log('ads', 'interstitial shown');
       } else {
-        Diagnostics.log('ads', '전면광고 생략 (사유=준비안됨·시간초과)');
+        Diagnostics.log(
+          'ads',
+          'interstitial skipped (reason=not_ready_or_timeout)',
+        );
       }
       return shown;
     } on Object catch (error) {
       // 저장소·광고 어느 쪽이 실패해도 조용히 넘어간다.
       // 사용자는 이미 알림을 껐고, 그것이 이 흐름의 목적이었다.
-      Diagnostics.log('ads', '전면광고 실패 $error');
+      Diagnostics.log('ads', 'interstitial failed $error');
       return false;
     }
   }

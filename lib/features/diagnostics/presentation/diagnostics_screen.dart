@@ -62,7 +62,7 @@ class _DiagnosticsScreenState extends ConsumerState<DiagnosticsScreen> {
     // **이 줄이 다음에 보이면 로깅이 살아있다는 뜻이다** (이슈 #106).
     // 기록이 비어 보일 때 "안 쌓이는 것"인지 "못 읽는 것"인지를
     // 사용자가 스스로 가릴 수 있는 가장 단순한 신호다
-    Diagnostics.log('diag', '진단 기록 화면 열림');
+    Diagnostics.log('diag', 'diagnostics screen opened');
 
     final result = await DiagnosticLogReader.read();
     final size = await DiagnosticLogReader.sizeInBytes();

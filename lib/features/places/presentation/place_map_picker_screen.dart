@@ -208,7 +208,10 @@ class _PlaceMapPickerScreenState extends State<PlaceMapPickerScreen> {
   Future<void> _moveToCurrentLocation() async {
     final here = await widget.locationService.current();
     if (here == null || !mounted) return;
-    Diagnostics.log('picker', '내 위치로 이동 ${here.latitude},${here.longitude}');
+    Diagnostics.log(
+      'picker',
+      'moved to my location ${here.latitude},${here.longitude}',
+    );
     await _map?.animateCamera(
       CameraUpdate.newLatLngZoom(
         LatLng(here.latitude, here.longitude),
@@ -225,10 +228,16 @@ class _PlaceMapPickerScreenState extends State<PlaceMapPickerScreen> {
     if (widget.args.latitude != null && widget.args.longitude != null) return;
     final here = await widget.locationService.current();
     if (here == null || !mounted) {
-      Diagnostics.log('picker', '현재 위치를 얻지 못해 기본 좌표에서 시작한다');
+      Diagnostics.log(
+        'picker',
+        'current location unavailable, starting at the default coordinates',
+      );
       return;
     }
-    Diagnostics.log('picker', '현재 위치에서 시작 ${here.latitude},${here.longitude}');
+    Diagnostics.log(
+      'picker',
+      'starting at current location ${here.latitude},${here.longitude}',
+    );
     setState(() => _center = LatLng(here.latitude, here.longitude));
     await _map?.moveCamera(
       CameraUpdate.newLatLngZoom(

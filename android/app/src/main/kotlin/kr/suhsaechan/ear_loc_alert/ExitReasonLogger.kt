@@ -31,14 +31,14 @@ object ExitReasonLogger {
                 DiagnosticLog.write(
                     context,
                     "exit",
-                    "프로세스 종료 이력 사유=${reasonName(exit.reason)} " +
-                        "시각=${formatTime(exit.timestamp)} 중요도=${exit.importance} " +
-                        "설명=${exit.description ?: "-"}",
+                    "process exit reason=${reasonName(exit.reason)} " +
+                        "time=${formatTime(exit.timestamp)} importance=${exit.importance} " +
+                        "description=${exit.description ?: "-"}",
                 )
             }
             exits.lastOrNull()?.let { WatchState.markExitLogged(context, it.timestamp) }
         } catch (error: Exception) {
-            DiagnosticLog.write(context, "exit", "종료 이력 조회 실패 $error")
+            DiagnosticLog.write(context, "exit", "exit history lookup failed $error")
         }
     }
 
@@ -50,24 +50,24 @@ object ExitReasonLogger {
     }
 
     private fun reasonName(reason: Int): String = when (reason) {
-        ApplicationExitInfo.REASON_EXIT_SELF -> "앱스스로종료"
-        ApplicationExitInfo.REASON_SIGNALED -> "시그널"
-        ApplicationExitInfo.REASON_LOW_MEMORY -> "메모리부족"
-        ApplicationExitInfo.REASON_CRASH -> "크래시"
-        ApplicationExitInfo.REASON_CRASH_NATIVE -> "네이티브크래시"
+        ApplicationExitInfo.REASON_EXIT_SELF -> "exit_self"
+        ApplicationExitInfo.REASON_SIGNALED -> "signaled"
+        ApplicationExitInfo.REASON_LOW_MEMORY -> "low_memory"
+        ApplicationExitInfo.REASON_CRASH -> "crash"
+        ApplicationExitInfo.REASON_CRASH_NATIVE -> "crash_native"
         ApplicationExitInfo.REASON_ANR -> "ANR"
-        ApplicationExitInfo.REASON_INITIALIZATION_FAILURE -> "초기화실패"
-        ApplicationExitInfo.REASON_PERMISSION_CHANGE -> "권한변경"
-        ApplicationExitInfo.REASON_EXCESSIVE_RESOURCE_USAGE -> "자원과다사용"
-        ApplicationExitInfo.REASON_USER_REQUESTED -> "사용자강제종료"
-        ApplicationExitInfo.REASON_USER_STOPPED -> "사용자중지"
-        ApplicationExitInfo.REASON_DEPENDENCY_DIED -> "의존성종료"
-        ApplicationExitInfo.REASON_OTHER -> "기타"
+        ApplicationExitInfo.REASON_INITIALIZATION_FAILURE -> "initialization_failure"
+        ApplicationExitInfo.REASON_PERMISSION_CHANGE -> "permission_change"
+        ApplicationExitInfo.REASON_EXCESSIVE_RESOURCE_USAGE -> "excessive_resource_usage"
+        ApplicationExitInfo.REASON_USER_REQUESTED -> "user_requested"
+        ApplicationExitInfo.REASON_USER_STOPPED -> "user_stopped"
+        ApplicationExitInfo.REASON_DEPENDENCY_DIED -> "dependency_died"
+        ApplicationExitInfo.REASON_OTHER -> "other"
         // API 34 에서 추가된 사유라 상수 대신 값으로 적는다. **앱 업데이트로 죽은
         // 것은 여기서 가려진다** — 이번 이슈가 알고 싶던 바로 그 구분이다
-        14 -> "냉동(freezer)"
-        15 -> "패키지상태변경"
-        16 -> "앱업데이트로종료"
-        else -> "알수없음($reason)"
+        14 -> "freezer"
+        15 -> "package_state_change"
+        16 -> "package_updated"
+        else -> "unknown($reason)"
     }
 }
