@@ -3,6 +3,7 @@ package kr.suhsaechan.ear_loc_alert
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.os.SystemClock
 
 /**
  * 재부팅·앱 교체 후 감시 복구 (이슈 #93, #159)
@@ -26,7 +27,10 @@ class BootReceiver : BroadcastReceiver() {
             Intent.ACTION_MY_PACKAGE_REPLACED -> "앱교체"
             else -> return
         }
-        DiagnosticLog.write(context, "boot", "복구 시작 사유=$reason")
+        // 가동 시간을 함께 남긴다 — 일부 기기는 앱을 강제 종료했다 다시 실행할 때도
+        // 부팅 완료 브로드캐스트를 다시 전달해, 사유만 보면 재부팅한 것으로 오해한다 (이슈 #161)
+        val uptimeMinutes = SystemClock.elapsedRealtime() / 60_000L
+        DiagnosticLog.write(context, "boot", "복구 시작 사유=$reason (기기 가동 ${uptimeMinutes}분)")
 
         ExitReasonLogger.logNew(context)
         WatchdogReceiver.restoreFromCache(context, reason)

@@ -1,14 +1,38 @@
 {
   "metadata": {
-    "lastUpdated": "2026-09-29T07:18:56Z",
-    "currentVersion": "1.18.3",
+    "lastUpdated": "2026-09-29T11:53:38Z",
+    "currentVersion": "1.18.4",
     "projectType": "flutter",
-    "totalReleases": 65,
+    "totalReleases": 66,
     "projectTypes": [
       "flutter"
     ]
   },
   "releases": [
+    {
+      "version": "1.18.4",
+      "project_types": [
+        "flutter"
+      ],
+      "date": "2026-09-29",
+      "pr_number": 162,
+      "raw_summary": "## [1.18.4]\n\n### 🐛 수정\n- 콜드 스타트가 느리면 포그라운드 승격 전에 크래시한다 — 감시 서비스를 엔진보다 먼저 포그라운드로 올리고 승격 시간과 엔진 기동 시간, 기기 가동 시간을 진단 기록에 남긴다\n\n### 📝 문서\n- 콜드 스타트가 느리면 포그라운드 승격 전에 크래시한다 — 구현 보고서를 남긴다",
+      "parsed_changes": {
+        "수정": {
+          "title": "🐛 수정",
+          "items": [
+            "콜드 스타트가 느리면 포그라운드 승격 전에 크래시한다 — 감시 서비스를 엔진보다 먼저 포그라운드로 올리고 승격 시간과 엔진 기동 시간, 기기 가동 시간을 진단 기록에 남긴다"
+          ]
+        },
+        "문서": {
+          "title": "📝 문서",
+          "items": [
+            "콜드 스타트가 느리면 포그라운드 승격 전에 크래시한다 — 구현 보고서를 남긴다"
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "1.18.3",
       "project_types": [
