@@ -37,7 +37,7 @@ void watchEngineMain() {
   // 앱 isolate 와 같은 파일에 쌓이므로 한 화면에서 시간순으로 읽힌다.
   unawaited(
     Diagnostics.init().then((_) {
-      Diagnostics.log('engine', '감시 엔진 시작');
+      Diagnostics.log('engine', 'watch engine started');
     }),
   );
 
@@ -129,7 +129,7 @@ Future<void> _restoreGeofences(
     final all = await places.findAll();
     final enabled = all.where((p) => p.enabled).take(20).toList();
     if (enabled.isEmpty) {
-      Diagnostics.log('engine', '복원할 지오펜스 없음');
+      Diagnostics.log('engine', 'no geofences to restore');
       return;
     }
 
@@ -145,8 +145,11 @@ Future<void> _restoreGeofences(
           },
       ],
     });
-    Diagnostics.log('engine', '지오펜스 복원 요청 ${enabled.length}건');
+    Diagnostics.log(
+      'engine',
+      'geofence restore requested count=${enabled.length}',
+    );
   } on Object catch (error) {
-    Diagnostics.log('engine', '지오펜스 복원 실패 $error');
+    Diagnostics.log('engine', 'geofence restore failed $error');
   }
 }

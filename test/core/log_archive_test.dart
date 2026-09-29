@@ -51,8 +51,8 @@ void main() {
       final buffer = StringBuffer();
       for (var i = 0; i < 2000; i++) {
         buffer.writeln(
-          '2026-09-01T23:0$i [engine] 정밀 판정 lat=37.4126384 '
-          'lng=127.0971434 acc=24m → 알림없음 (검토 4곳)',
+          '2026-09-01T23:0$i [engine] precise decision lat=37.4126384 '
+          'lng=127.0971434 acc=24m -> no_alert (inspected 4 places)',
         );
       }
       await logFile.writeAsString(buffer.toString());

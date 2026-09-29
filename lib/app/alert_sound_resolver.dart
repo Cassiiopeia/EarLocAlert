@@ -29,13 +29,19 @@ class AlertSoundResolver {
             // **재생 단계가 아니라 여기서 막는다.** 재생 실패는 "재시도
             // 금지" 규칙에 걸려 진동으로 떨어지는데, 파일 부재는 그것과
             // 성격이 다른 실패다 (docs/10-DECISIONS.md 007).
-            Diagnostics.log('sound', '음원 파일 없음 id=$id → 기본음으로 재생');
+            Diagnostics.log(
+              'sound',
+              'sound file missing id=$id, falling back to default tone',
+            );
             return _fallback;
           }
           return FileSound(path);
       }
     } on Object catch (error) {
-      Diagnostics.log('sound', '음원 해석 실패 → 기본음으로 재생 사유=$error');
+      Diagnostics.log(
+        'sound',
+        'sound resolve failed, falling back to default tone reason=$error',
+      );
       return _fallback;
     }
   }

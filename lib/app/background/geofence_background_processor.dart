@@ -131,8 +131,8 @@ class GeofenceBackgroundProcessor {
       await _states.remove(placeId);
       Diagnostics.log(
         'engine',
-        '판정 place=$placeId → 알림없음 '
-            '(사유=${AlertSuppression.placeNotFound.label})',
+        'decision place=$placeId -> no_alert '
+            '(reason=${AlertSuppression.placeNotFound.label})',
       );
       return null;
     }
@@ -152,8 +152,8 @@ class GeofenceBackgroundProcessor {
       if (speed != null && speed > maxPlausibleSpeedKmh) {
         Diagnostics.log(
           'engine',
-          '판정 place=$placeId → 알림없음 '
-              '(사유=${AlertSuppression.implausibleJump.label} '
+          'decision place=$placeId -> no_alert '
+              '(reason=${AlertSuppression.implausibleJump.label} '
               '${speed.toStringAsFixed(0)}km/h)',
         );
         // **상태도 바꾸지 않는다.** 가짜 좌표로 inside 가 되면 다음 진짜
@@ -221,9 +221,9 @@ class GeofenceBackgroundProcessor {
     )) {
       Diagnostics.log(
         'engine',
-        '정밀 판정 lat=${sample.latitude} lng=${sample.longitude} '
-            'acc=${sample.accuracyMeters.toStringAsFixed(0)}m → 무시 '
-            '(사유=${AlertSuppression.implausibleJump.label})',
+        'precise decision lat=${sample.latitude} lng=${sample.longitude} '
+            'acc=${sample.accuracyMeters.toStringAsFixed(0)}m -> ignored '
+            '(reason=${AlertSuppression.implausibleJump.label})',
       );
       // **기준을 갱신하지 않는다.** 튄 좌표를 기준으로 삼으면 다음
       // 진짜 좌표가 도리어 튐으로 걸린다
@@ -276,9 +276,9 @@ class GeofenceBackgroundProcessor {
     if (firstAlert == null) {
       Diagnostics.log(
         'engine',
-        '정밀 판정 lat=${sample.latitude} lng=${sample.longitude} '
+        'precise decision lat=${sample.latitude} lng=${sample.longitude} '
             'acc=${sample.accuracyMeters.toStringAsFixed(0)}m '
-            '→ 알림없음 (검토 $inspected곳)',
+            '-> no_alert (inspected $inspected places)',
       );
     }
 

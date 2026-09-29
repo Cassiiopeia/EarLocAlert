@@ -27,13 +27,19 @@ void main() {
 
   test('초기화 전에 남긴 줄이 초기화 뒤에 흘러나온다', () async {
     Diagnostics.resetForTest();
-    Diagnostics.log('splash', '전환 애니메이션 생략 사유=핀 디코드 전');
+    Diagnostics.log(
+      'splash',
+      'transition animation skipped reason=pin_not_decoded',
+    );
 
     final logger = _RecordingLogger();
     Diagnostics.overrideLogger(logger);
     await Future<void>.delayed(Duration.zero);
 
-    expect(logger.lines, contains('[splash] 전환 애니메이션 생략 사유=핀 디코드 전'));
+    expect(
+      logger.lines,
+      contains('[splash] transition animation skipped reason=pin_not_decoded'),
+    );
   });
 
   test('쌓인 순서를 지킨다 — 시간순이 깨지면 읽을 수 없다', () async {

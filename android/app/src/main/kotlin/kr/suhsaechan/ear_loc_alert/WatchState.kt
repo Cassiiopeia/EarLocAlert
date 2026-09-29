@@ -70,10 +70,10 @@ object WatchState {
         prefs(context).edit().putLong(KEY_EXIT_LOGGED_AT, timestampMs).apply()
     }
 
-    /** "3시간 12분 전" 같은 표기. 기록이 없으면 "기록없음" */
+    /** "3h12m ago" 같은 표기. 기록이 없으면 "never" */
     fun agoText(sinceMs: Long, nowMs: Long = System.currentTimeMillis()): String {
-        if (sinceMs <= 0L) return "기록없음"
+        if (sinceMs <= 0L) return "never"
         val minutes = ((nowMs - sinceMs) / 60_000L).coerceAtLeast(0L)
-        return "${minutes / 60}시간 ${minutes % 60}분 전"
+        return "${minutes / 60}h${minutes % 60}m ago"
     }
 }

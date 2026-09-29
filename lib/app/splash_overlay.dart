@@ -98,11 +98,11 @@ class _SplashOverlayState extends ConsumerState<SplashOverlay>
   void initState() {
     super.initState();
     if (ref.read(activeAlertProvider) != null) {
-      _cutShort('시작 시점에 알림 세션 있음');
+      _cutShort('alert_session_at_start');
       return;
     }
     if (!SplashOverlay.isWarm) {
-      _cutShort('핀 디코드 전');
+      _cutShort('pin_not_decoded');
       return;
     }
     // **첫 프레임이 그려진 뒤에 시작한다.** `initState` 에서 바로 돌리면
@@ -123,7 +123,7 @@ class _SplashOverlayState extends ConsumerState<SplashOverlay>
   /// 애니메이션을 끝으로 밀어 즉시 걷는다.
   void _cutShort(String reason) {
     if (_controller.isCompleted) return;
-    Diagnostics.log('splash', '전환 애니메이션 생략 사유=$reason');
+    Diagnostics.log('splash', 'transition animation skipped reason=$reason');
     _controller.value = 1;
   }
 
@@ -131,7 +131,7 @@ class _SplashOverlayState extends ConsumerState<SplashOverlay>
   Widget build(BuildContext context) {
     // 승격은 첫 프레임 뒤 부트스트랩에서 일어난다 — 그 순간 걷는다
     ref.listen(activeAlertProvider, (_, next) {
-      if (next != null) _cutShort('대기 알림 승격');
+      if (next != null) _cutShort('pending_alert_promoted');
     });
 
     return Stack(

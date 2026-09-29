@@ -24,17 +24,17 @@ class GeofenceReceiver : BroadcastReceiver() {
         // **이 한 줄이 이 로그의 존재 이유다** (이슈 #95).
         // "OS 가 도착을 감지해 우리에게 알렸는가"를 가르는 지점이라,
         // 알림이 안 왔을 때 가장 먼저 봐야 하는 기록이다.
-        DiagnosticLog.write(context, "receiver", "지오펜스 브로드캐스트 수신")
+        DiagnosticLog.write(context, "receiver", "geofence broadcast received")
         // 마지막 수신 시각 — 주기 점검이 "신호가 언제부터 없었나"를 남기는 근거 (이슈 #159)
         WatchState.markEvent(context)
 
         val event = GeofencingEvent.fromIntent(intent)
         if (event == null) {
-            DiagnosticLog.write(context, "receiver", "이벤트 파싱 실패 — 무시")
+            DiagnosticLog.write(context, "receiver", "event parse failed, ignored")
             return
         }
         if (event.hasError()) {
-            DiagnosticLog.write(context, "receiver", "이벤트 오류 code=${event.errorCode}")
+            DiagnosticLog.write(context, "receiver", "event error code=${event.errorCode}")
             return
         }
 
@@ -46,7 +46,7 @@ class GeofenceReceiver : BroadcastReceiver() {
                 DiagnosticLog.write(
                     context,
                     "receiver",
-                    "처리하지 않는 전이 type=${event.geofenceTransition}",
+                    "unhandled transition type=${event.geofenceTransition}",
                 )
                 return
             }
@@ -54,7 +54,7 @@ class GeofenceReceiver : BroadcastReceiver() {
 
         val triggered = event.triggeringGeofences
         if (triggered.isNullOrEmpty()) {
-            DiagnosticLog.write(context, "receiver", "발화한 지오펜스 없음 — 무시")
+            DiagnosticLog.write(context, "receiver", "no triggering geofence, ignored")
             return
         }
 
@@ -86,8 +86,8 @@ class GeofenceReceiver : BroadcastReceiver() {
         DiagnosticLog.write(
             context,
             "receiver",
-            "${if (entered) "ENTER" else "EXIT"} 근접=${proximityIds.size}건 " +
-                "실제=${placeIds.size}건 ids=${placeIds.joinToString(",")} " +
+            "${if (entered) "ENTER" else "EXIT"} proximity=${proximityIds.size} " +
+                "actual=${placeIds.size} ids=${placeIds.joinToString(",")} " +
                 "lat=${location?.latitude} lng=${location?.longitude}",
         )
 
@@ -98,7 +98,7 @@ class GeofenceReceiver : BroadcastReceiver() {
         } catch (error: Exception) {
             // 백그라운드 서비스 시작 제한에 걸렸다. 다음 이벤트에서 재시도된다.
             // 기록은 남긴다 — 여기서 막히면 알림이 통째로 사라진다 (이슈 #95)
-            DiagnosticLog.write(context, "receiver", "서비스 시작 실패 $error")
+            DiagnosticLog.write(context, "receiver", "service start failed $error")
         }
     }
 }

@@ -78,8 +78,8 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
     await BuildInfo.init();
     Diagnostics.log(
       'app',
-      '앱 시작 ${BuildInfo.label} devBuild=${DevFlag.isDevBuild} '
-          '광고=${AdUnitIds.usingTestIds ? "테스트" : "실제"}',
+      'app start ${BuildInfo.label} devBuild=${DevFlag.isDevBuild} '
+          'ads=${AdUnitIds.usingTestIds ? "test" : "live"}',
     );
 
     try {
@@ -97,18 +97,18 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
               ),
             ),
           );
-      Diagnostics.log('app', '알림 플러그인 초기화 완료');
+      Diagnostics.log('app', 'notification plugin initialized');
       await _deleteLegacyAlertChannel();
     } on Object catch (error) {
       // 초기화 실패는 알림 탭 라우팅만 잃는다 — 감시는 계속 시도한다
-      Diagnostics.log('app', '알림 플러그인 초기화 실패 $error');
+      Diagnostics.log('app', 'notification plugin init failed $error');
     }
     try {
       await ref.read(geofenceRegistrationSyncProvider).start();
-      Diagnostics.log('app', '지오펜스 동기화 시동 완료');
+      Diagnostics.log('app', 'geofence sync started');
     } on Object catch (error) {
       // 권한 미허용 등 — 다음 장소 변경 때 재시도된다
-      Diagnostics.log('app', '지오펜스 동기화 시동 실패 $error');
+      Diagnostics.log('app', 'geofence sync start failed $error');
     }
     // 지난 세션이 남긴 알림을 먼저 치운다 (이슈 #84).
     //
@@ -126,7 +126,7 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     // 앱이 언제 앞으로 나오고 언제 내려갔는지가 "그때 왜 안 울렸나"의
     // 기준선이다 (이슈 #106)
-    Diagnostics.log('app', '생명주기 ${state.name}');
+    Diagnostics.log('app', 'lifecycle ${state.name}');
 
     // 백그라운드 알림 뒤 앱을 열면(탭이든 직접이든) 풀 세션으로 잇는다
     if (state == AppLifecycleState.resumed) {
@@ -187,7 +187,10 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
           ?.deleteNotificationChannel(AlertNotifierImpl.legacyChannelId);
     } on Object catch (error) {
       // 남아도 동작에는 지장이 없다 — 기록만 남긴다
-      Diagnostics.log('app', '옛 알림 채널 삭제 실패 $error');
+      Diagnostics.log(
+        'app',
+        'legacy notification channel delete failed $error',
+      );
     }
   }
 

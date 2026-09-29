@@ -152,8 +152,8 @@ void main() {
       expect(line, contains('019fc9f2'));
       expect(line, isNot(contains('c3a388c8ea25')), reason: '앞 8자만 쓴다');
       expect(line, contains('소만사 출근'));
-      expect(line, contains('→ 알림'));
-      expect(line, isNot(contains('알림없음')));
+      expect(line, contains('-> alert ('));
+      expect(line, isNot(contains('no_alert')));
     });
 
     test('사유를 남긴다', () {
@@ -164,8 +164,8 @@ void main() {
         suppression: AlertSuppression.noTransition,
       );
 
-      expect(line, contains('알림없음'));
-      expect(line, contains('전이없음'));
+      expect(line, contains('no_alert'));
+      expect(line, contains('no_transition'));
     });
 
     test('정확도 부족은 실제 값을 함께 남긴다', () {
@@ -189,8 +189,8 @@ void main() {
         direction: AlertDirection.enter,
       );
 
-      expect(line, contains('전이=exited'));
-      expect(line, contains('설정=enter'));
+      expect(line, contains('transition=exited'));
+      expect(line, contains('configured=enter'));
     });
   });
 
@@ -207,7 +207,7 @@ void main() {
       );
 
       expect(line, contains('019fc9f2'));
-      expect(line, contains('outside → inside'));
+      expect(line, contains('outside -> inside'));
       expect(line, contains('37.4117'));
       expect(line, contains('50m'), reason: '소수점은 GPS 정확도에 의미가 없다');
     });
@@ -220,7 +220,7 @@ void main() {
         to: GeofenceState.inside,
       );
 
-      expect(line, contains('unknown → inside'));
+      expect(line, contains('unknown -> inside'));
       expect(line, isNot(contains('lat=')));
     });
   });

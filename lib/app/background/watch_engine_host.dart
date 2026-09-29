@@ -77,7 +77,7 @@ class WatchEngineHost {
   }) {
     Diagnostics.log(
       'geofence',
-      'OS 전이 수신 place=$placeId ${entered ? "ENTER" : "EXIT"} '
+      'os transition received place=$placeId ${entered ? "ENTER" : "EXIT"} '
           'lat=$latitude lng=$longitude',
     );
     return _decide(
@@ -111,7 +111,7 @@ class WatchEngineHost {
 
       Diagnostics.log(
         'engine',
-        '알림 발생 place=${alert.placeId} name=${alert.placeName} '
+        'alert raised place=${alert.placeId} name=${alert.placeName} '
             'direction=${alert.direction.name} sound=${alert.soundEnabled} '
             'vibration=${intensity.name}',
       );
@@ -129,7 +129,7 @@ class WatchEngineHost {
       // 예외를 삼키되 **기록은 남긴다** (이슈 #95).
       // 예전에는 좌표 노출을 우려해 아무것도 안 남겼고, 그래서 백그라운드
       // 실패를 추적할 방법이 통째로 없었다.
-      Diagnostics.log('engine', '판정 실패 $error');
+      Diagnostics.log('engine', 'decision failed $error');
       return AlertDecision.none;
     }
   }
@@ -144,7 +144,7 @@ class WatchEngineHost {
     try {
       return await store.intensity();
     } on Object catch (error) {
-      Diagnostics.log('engine', '진동 세기 조회 실패 $error');
+      Diagnostics.log('engine', 'vibration intensity lookup failed $error');
       return VibrationIntensity.normal;
     }
   }

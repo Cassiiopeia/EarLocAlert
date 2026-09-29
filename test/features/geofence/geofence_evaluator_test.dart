@@ -31,7 +31,7 @@ void main() {
   }
 
   group('상태 전이 (docs/03-DOMAIN.md)', () {
-    test('unknown → inside 는 알림을 만들지 않는다', () {
+    test('unknown -> inside 는 알림을 만들지 않는다', () {
       final result = evaluator.evaluate(
         target: target,
         current: GeofenceState.unknown,
@@ -53,7 +53,7 @@ void main() {
       expect(result.transition, GeofenceTransition.none);
     });
 
-    test('outside → inside 는 진입 전이를 만든다', () {
+    test('outside -> inside 는 진입 전이를 만든다', () {
       final result = evaluator.evaluate(
         target: target,
         current: GeofenceState.outside,
@@ -64,7 +64,7 @@ void main() {
       expect(result.transition, GeofenceTransition.entered);
     });
 
-    test('inside → outside 는 이탈 전이를 만든다', () {
+    test('inside -> outside 는 이탈 전이를 만든다', () {
       final result = evaluator.evaluate(
         target: target,
         current: GeofenceState.inside,

@@ -163,6 +163,34 @@ Diagnostics.log('geofence', 'OS 전이 수신 place=$placeId ENTER');
 
 `print` 와 `stdout` 은 릴리스에서 아무 데도 남지 않고, `android.util.Log` 는 logcat 으로 가는데 Android 4.1+ 부터 앱이 자기 프로세스 로그조차 읽을 수 없다. **사용자 기기에서 "왜 안 울렸는지" 확인하려면 앱이 읽을 수 있는 곳에 남아야 한다.**
 
+### 로그는 영어로 쓴다 (2026-09-29, 이슈 #165)
+
+로그는 사용자 화면이 아니라 **개발자와 지원이 읽는 기록**이다. 앱 언어 설정(#163)과 무관하게 **항상 영어**로 남긴다. 사용자가 내보낸 로그를 언어와 상관없이 같은 검색어로 찾고 집계하기 위해서다.
+
+- 형식: `[tag] event key=value ...`. 태그와 `key=value` 는 그대로, 사유와 결과는 **고정 영문 토큰**(`reason=location_jump`)으로 쓴다. 자유 문장 대신 토큰을 쓰면 집계와 필터가 된다.
+- 화살표는 ASCII(`->`)를 쓴다. 사용자가 입력한 값(장소 이름)만 원문 그대로 남는다.
+- 새 로그도 영어로 쓴다. **한글 문장을 로그에 넣지 않는다.**
+- **옛 로그는 한국어다.** 이미 내보낸 로그와 이전 보고서(#93~#159)는 옛 표기를 쓴다. 아래 대응표로 읽는다.
+
+**옛 표기 → 새 표기**
+
+| 옛 | 새 |
+|---|---|
+| `사유=` | `reason=` |
+| 장소없음 / 장소꺼짐 / 전이없음 / 정확도부족 / 방향불일치 / 시간대밖 / 위치튐 | `place_not_found` / `place_disabled` / `no_transition` / `low_accuracy` / `direction_mismatch` / `outside_schedule` / `location_jump` |
+| `알림없음` / `알림` (판정) | `no_alert` / `alert` |
+| `판정 place=… 전이=` | `decision place=… transition=` |
+| `상태 전이` | `state transition` |
+| `정밀 판정` / `정밀 감시 시작·종료` | `precise decision` / `precise tracking started·stopped` |
+| `감시 서비스 생성 (승격 Nms)` / `감시 서비스 종료` | `watch service created (promoted in Nms)` / `watch service destroyed` |
+| `서비스 시작 요청 사유=` (재부팅, 앱교체, 주기점검, 시스템재시작) | `service start requested reason=` (`boot`, `package_replaced`, `watchdog`, `system_restart`) |
+| `프로세스 종료 이력 사유=` (크래시, 시그널, 사용자강제종료, 앱업데이트로종료 …) | `process exit reason=` (`crash`, `signaled`, `user_requested`, `package_updated` …) |
+| `지오펜스 등록 성공 N개 (장소 M곳)` | `geofence registration ok fences=N places=M` |
+| `지오펜스 브로드캐스트 수신` / `근접=` / `실제=` | `geofence broadcast received` / `proximity=` / `actual=` |
+| `권한 상태 위치=… 항상위치=… 알림=… 배터리=… 오버레이=… 전체화면=…` | `permission state location=… background_location=… notification=… battery_optimization=… overlay=… full_screen_intent=…` |
+| `마지막등록=` / `마지막수신=` / `N시간 M분 전` / `기록없음` | `last_registered=` / `last_received=` / `NhMm ago` / `never` |
+| `좌표=` / `경과=N초` | `coords=` / `age=Ns` |
+
 ### 좌표를 남긴다 (2026-08-14 변경, 이슈 #95)
 
 이전 규칙은 "릴리스 빌드에 위치 좌표를 로그로 남기지 않는다"였다. **그 규칙은 폐기한다.**
