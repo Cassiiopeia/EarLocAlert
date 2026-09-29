@@ -88,6 +88,24 @@ class AlertWatchService : Service() {
         const val EXTRA_LONGITUDE = "longitude"
         const val EXTRA_GEOFENCES = "geofences"
 
+        /**
+         * 서비스를 띄운 이유 (이슈 #159).
+         *
+         * 감시가 끊긴 뒤 "누가 언제 되살렸는가"를 알아야 원인을 가릴 수 있다.
+         * 없으면 액션으로 추정하고, 인텐트 자체가 없으면 OS 재시작이다.
+         */
+        const val EXTRA_START_REASON = "start_reason"
+
+        /**
+         * 이 프로세스에서 서비스가 살아 있는가 (이슈 #159).
+         *
+         * 프로세스가 새로 떴다면 항상 false 로 시작하므로, 주기 점검이
+         * "서비스가 없다"를 보면 프로세스째 죽었다 살아난 것이다.
+         */
+        @Volatile
+        var isRunning: Boolean = false
+            private set
+
         private const val WATCH_CHANNEL_ID = "ear_loc_alert_watch"
         private const val WATCH_NOTIFICATION_ID = 3001
 
@@ -188,6 +206,12 @@ class AlertWatchService : Service() {
         // 서비스가 살아있는지가 알림 발화의 전제다 — 죽은 구간을
         // 시간순으로 확인할 수 있어야 한다 (이슈 #95)
         DiagnosticLog.write(this, "watch", "감시 서비스 생성")
+        isRunning = true
+
+        // 직전 프로세스가 왜 죽었는지 남긴다 — 감시가 끊긴 원인의 유일한 단서다 (이슈 #159)
+        ExitReasonLogger.logNew(this)
+        // 주기 점검 알람은 재부팅·앱 교체·강제 종료로 사라진다. 서비스가 뜰 때마다 다시 건다
+        WatchdogReceiver.schedule(this)
 
         // 엔진이 저장된 장소로 등록을 복원하면 그대로 OS 에 밀어넣는다 (이슈 #93).
         // **재부팅 후 앱을 켜지 않아도 감시가 되살아나는 지점이다** — OS 는
@@ -200,6 +224,13 @@ class AlertWatchService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        // 시작 사유 (이슈 #159) — 이벤트 전달은 지오펜스 로그가 따로 있어 제외한다
+        if (intent?.action != ACTION_GEOFENCE_EVENT) {
+            val reason = intent?.getStringExtra(EXTRA_START_REASON)
+                ?: if (intent == null) "시스템재시작" else "액션=${intent.action}"
+            DiagnosticLog.write(this, "watch", "서비스 시작 요청 사유=$reason")
+        }
+
         when (intent?.action) {
             ACTION_STOP_WATCH -> {
                 endAlert()
@@ -239,6 +270,8 @@ class AlertWatchService : Service() {
     }
 
     override fun onDestroy() {
+        isRunning = false
+        DiagnosticLog.write(this, "watch", "감시 서비스 종료")
         handler.removeCallbacks(timeoutTask)
         handler.removeCallbacks(preciseTimeoutTask)
         stopPreciseTracking()
@@ -345,6 +378,10 @@ class AlertWatchService : Service() {
     private fun applyGeofences(fences: List<Map<String, Any?>>) {
         registrar.sync(fences)
         lastRegisteredIds = registrar.registeredIds()
+
+        // 서비스가 없어도 복구할 수 있게 네이티브 사본을 남긴다 (이슈 #159)
+        WatchState.saveFences(this, fences)
+        WatchState.markRegistered(this)
 
         // 등록 개수가 0 이면 어떤 도착도 감지되지 않는다 (이슈 #95)
         DiagnosticLog.write(

@@ -155,17 +155,26 @@
             android:name=".GeofenceReceiver"
             android:exported="false" />
 
-        <!-- 재부팅 후 감시 복구 (이슈 #93).
+        <!-- 재부팅·앱 교체 후 감시 복구 (이슈 #93, #159).
              위의 RECEIVE_BOOT_COMPLETED 권한과 주석은 있었으나 정작 이
              리시버가 없어, 재부팅 후 앱을 켜지 않으면 감시가 죽은 채로
-             남아 있었다. -->
+             남아 있었다. 스토어 자동 업데이트로 앱이 교체된 직후에도
+             같은 경로로 복구한다. -->
         <receiver
             android:name=".BootReceiver"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
             </intent-filter>
         </receiver>
+
+        <!-- 주기 점검 (이슈 #159). OS 지오펜스 등록을 조회할 방법이 없어,
+             조용히 사라진 등록을 원인과 무관하게 주기적으로 다시 건다.
+             앱 내부 알람만 받으므로 외부에 노출하지 않는다. -->
+        <receiver
+            android:name=".WatchdogReceiver"
+            android:exported="false" />
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and
