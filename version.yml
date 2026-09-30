@@ -1,57 +1,76 @@
-# ===
-# Version format: x.y.z (semantic versioning)
-# - patch: auto-incremented by the release workflows
-# - version_code: monotonically increasing build number, bumped alongside version
-# - major/minor: auto-bumped when metadata.template.options.semver_auto is true
-#   (default) — feat: commits bump minor, a `!` breaking marker on any commit
-#   type bumps major. Set semver_auto: false to always patch-bump instead
-#   (then edit major/minor manually, e.g., 1.0.5 -> 1.1.0 or 2.0.0).
-# ===
-# Supported project types: spring, flutter, next, react, react-native,
-#                          react-native-expo, node, python, basic
-# Multi-type projects: list every type in the project_types array
-#   -> the first entry is the primary type (project_types is the single source of truth)
-# Monorepo paths: project_paths maps each type to its subdir relative to the repo root
-#   (e.g., flutter: "app", react: "client"). Omitted -> repo root.
+# ===================================================================
+# 프로젝트 버전 관리 파일
+# ===================================================================
 #
-# Synced files per type:
-# - spring: build.gradle / build.gradle.kts
-# - flutter: pubspec.yaml
-# - next/react/node: package.json
-# - react-native: Info.plist + build.gradle
-# - react-native-expo: app.json
-# - python: pyproject.toml
-# - basic: version.yml only
-# ===
+# 이 파일은 다양한 프로젝트 타입에서 버전 정보를 중앙 관리하기 위한 파일입니다.
+# GitHub Actions 워크플로우가 이 파일을 읽어 자동으로 버전을 관리합니다.
+#
+# 사용법:
+# 1. version: "1.0.0" - 사용자에게 표시되는 버전
+# 2. version_code: 1 - Play Store/App Store 빌드 번호 (1부터 자동 증가)
+# 3. project_types: 프로젝트 타입 배열 — 첫 항목이 primary
+# 4. project_paths: 타입별 프로젝트 폴더 (레포 루트 기준 상대경로, 모노레포용)
+#
+# 자동 버전 업데이트:
+# - version_code: 매 빌드마다 자동으로 1씩 증가 (아래 판정과 무관)
+# - 버전 승격 폭은 metadata.template.options.semver_auto 가 정합니다
+#   semver_auto: true  -> 릴리스 구간 커밋 제목으로 판정
+#                         "제목 : feat! : 내용" 또는 "feat!:" -> major (x+1.0.0)
+#                         "제목 : feat : 내용"  또는 "feat:"  -> minor (x.y+1.0)
+#                         그 외(fix/docs/chore/refactor/test) -> patch (x.y.z+1)
+#   키 없음 / false     -> 항상 patch +1
+# - 위 판정과 무관하게 version 값을 직접 수정해도 됩니다
+#
+# 프로젝트 타입별 동기화 파일:
+# - spring: build.gradle (version = "x.y.z")
+# - flutter: pubspec.yaml (version: x.y.z+i, buildNumber 포함)
+# - react/node: package.json ("version": "x.y.z")
+# - react-native: iOS Info.plist 또는 Android build.gradle
+# - react-native-expo: app.json (expo.version)
+# - python: pyproject.toml (version = "x.y.z")
+# - basic/기타: version.yml 파일만 사용
+#
+# 연관된 워크플로우:
+# - .github/workflows/PROJECT-VERSION-CONTROL.yaml
+# - .github/workflows/PROJECT-README-VERSION-UPDATE.yaml
+# - .github/workflows/PROJECT-RELEASE-CHANGELOG.yaml
+#
+# 주의사항:
+# - project_types는 최초 설정 후 변경하지 마세요
+# - 버전은 항상 높은 버전으로 자동 동기화됩니다
+# ===================================================================
 
 version: "1.20.2"
 version_code: 112  # app build number
-# 마법사 재통합 때 1 로 초기화되지 않도록 주의한다. version_manager.py 가
-# pubspec 을 "version+version_code" 로 덮어쓰므로, 이 값이 뒤로 가면 다음
-# 배포에서 versionCode 가 역행해 Play Store 가 업로드를 거부한다.
-project_types: ["flutter"] # first entry is primary
-project_paths: # 타입별 프로젝트 폴더 (레포 루트 기준 상대경로)
-  flutter: "." # pubspec.yaml
+project_types: ["flutter"]   # 멀티타입 배열 — 첫 항목이 primary, 직접 편집 가능
+project_paths:                # 타입별 프로젝트 폴더 (레포 루트 기준 상대경로)
+  flutter: "."   # pubspec.yaml
 metadata:
-  last_updated: "2026-09-30"
-  last_updated_by: "Cassiiopeia"
+  last_updated: "2026-09-30 15:50:39"
+  last_updated_by: "template_integrator"
   default_branch: "main"
-  integration_date: "2026-08-10"
-  template:
-    source: "project-auto-wizard"
-    version: "0.1.33"
-    integrated_date: "2026-08-10"
-    last_update_date: "2026-08-10"
-    branches:
-      main: "main"
-      develop: "develop"
-      mode: "pr-flow" # pr-flow | trunk-based
-    options:
-      nexus: false
-      secret_backup: true
-      semver_auto: true
+  integrated_from: "projectops"
+  integration_date: "2026-09-30"
 
-deploy: # 마법사가 기억하는 배포 설정 (비민감 / 직접 수정 가능)
+deploy:                          # 마법사가 기억하는 배포 설정 (비민감 / 직접 수정 가능)
   flutter:
     APP_ARTIFACT_NAME: "EarLocAlert"
     JAVA_VERSION: "17"
+  template:
+    source: "projectops"
+    version: "4.27.0"
+    mode: "full"   # 통합 범위(full/version/workflows) — 업데이트 모드 재실행 기준
+    integrated_date: "2026-09-30"
+    last_update_date: "2026-09-30"
+    options:
+      intent: "none"   # 프로젝트 성격(app/library/both/none/manual) — 배포 질문 유도 기준
+      deploy: "none"
+      publish: []
+      secret_backup: true
+      semver_auto: true   # 커밋 제목으로 버전 승격 폭 결정 (false면 항상 patch)
+      code_review:
+        coderabbit: false
+        ai_summary: true
+      changelog:
+        provider: "commit"
+        base_url: ""
