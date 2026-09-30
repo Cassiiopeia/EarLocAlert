@@ -28,7 +28,7 @@ abstract final class AdUnitIds {
   /// 을 넘기지 않아 릴리스 빌드도 테스트 광고로 나가고 있었다.** 그
   /// 워크플로우는 템플릿이 관리해서 고쳐도 다음 갱신에 덮인다.
   static const _prodInterstitialAndroid =
-      'ca-app-pub-4452677329657064/2338682821';
+      'ca-app-pub-2025665624324395/6789282892';
 
   /// iOS 는 AdMob 앱 미등록 (#51 로 서명이 막혀 있다).
   /// 비어 있으면 테스트 ID 로 떨어진다.

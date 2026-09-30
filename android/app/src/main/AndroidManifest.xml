@@ -103,7 +103,7 @@
              정한다 (AdUnitIds) — 디버그 빌드는 언제나 테스트 단위를 쓴다. -->
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-4452677329657064~8983198402"/>
+            android:value="ca-app-pub-2025665624324395~2867273198"/>
 
         <!-- Google Maps API 키 (docs/08-OPERATIONS.md).
              값은 build.gradle.kts 가 레포 루트 .env 에서 읽어 치환한다.
