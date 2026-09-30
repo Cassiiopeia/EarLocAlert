@@ -460,5 +460,7 @@
         "type": "int"
       }
     }
-  }
+  },
+  "appUpdateReady": "새 버전을 받았어요",
+  "appUpdateRestart": "다시 시작"
 }

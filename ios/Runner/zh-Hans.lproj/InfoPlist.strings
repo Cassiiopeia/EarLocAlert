@@ -4,4 +4,4 @@
 "NSLocationAlwaysAndWhenInUseUsageDescription" = "为了在您到达或离开已登记的地点时，即使不打开应用也能提醒您，应用会在后台检查位置。位置信息仅保存在设备上，不会发送到外部。";
 "NSLocationAlwaysUsageDescription" = "为了在您到达或离开已登记的地点时，即使不打开应用也能提醒您，应用会在后台检查位置。位置信息仅保存在设备上，不会发送到外部。";
 "NSUserTrackingUsageDescription" = "用于向您展示更相关的广告。即使不允许，也可以照常使用应用的全部功能。";
-"CFBundleDisplayName" = "EarLocAlert";
+"CFBundleDisplayName" = "耳机位置提醒";

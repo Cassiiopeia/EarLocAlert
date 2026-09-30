@@ -1,0 +1,6 @@
+New: update inside the app
+• When a new version is out, it downloads in the app. Tap "Restart" to apply it.
+• It never appears while an alert is ringing.
+
+Improved
+• The app name now appears in Japanese and Chinese.

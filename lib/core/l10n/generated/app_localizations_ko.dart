@@ -727,4 +727,10 @@ class AppLocalizationsKo extends AppLocalizations {
   String scheduleMore(String first, int count) {
     return '$first 외 $count개';
   }
+
+  @override
+  String get appUpdateReady => '새 버전을 받았어요';
+
+  @override
+  String get appUpdateRestart => '다시 시작';
 }
