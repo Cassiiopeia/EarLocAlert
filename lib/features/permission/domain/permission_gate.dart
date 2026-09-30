@@ -73,7 +73,6 @@ class PermissionGate {
       if (status.canRequestAgain) return _stepFor(kind);
     }
 
-    // 남은 것이 전부 영구 거부·제한 상태인지 확인
     final blocked = requestOrder
         .map(snapshot.statusOf)
         .any((s) => s.needsSettings);

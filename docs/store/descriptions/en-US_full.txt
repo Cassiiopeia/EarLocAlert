@@ -16,7 +16,7 @@ Sound plays only when earphones are connected.
 Wired earphones, USB-C earphones and Bluetooth earphones all count.
 
 Without earphones, it alerts you by vibration only.
-In a library, in a meeting, on a quiet bus, only you know.
+In a library, in a meeting, on a quiet bus, only you'll know.
 
 Sound never goes out through car audio or an external speaker.
 
@@ -56,18 +56,18 @@ No sign-up, no login.
 
 · Drop a pin on the map and set a radius (50 m to 2 km)
 · Alert on arrival, on leaving, or both
-· Set days and times, such as the same setup on weekday mornings only
+· Set days and times, e.g. weekday mornings only
 · Choose a sound per place and add your own sound
 · 3 vibration strengths
 · Adjustable alert volume
-· Watch several places at once
+· Monitor several places at once
 
 
 ■ Permissions
 
-· Location (Always allow): needed to detect your arrival without opening the app
+· Location (Allow all the time): needed to detect your arrival without opening the app
 · Notifications: shows the arrival alert
-· Exempt from battery optimization (optional): alerts you on time even in power saving mode
+· Unrestricted battery use (optional): alerts you on time even in power saving mode
 · Display over other apps (optional): shows the alert screen while you use other apps
 
 If you decline the optional permissions, alerts and vibration still work normally.

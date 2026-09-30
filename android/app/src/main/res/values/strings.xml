@@ -8,14 +8,14 @@
 -->
 <resources>
     <string name="app_name">EarLocAlert</string>
-    <string name="watch_channel_name">Location watching</string>
-    <string name="watch_channel_description">Shows that your registered places are being watched in the background</string>
-    <string name="watch_notification_title">Watching your locations</string>
+    <string name="watch_channel_name">Location monitoring</string>
+    <string name="watch_channel_description">Shows that your saved places are being monitored in the background</string>
+    <string name="watch_notification_title">Monitoring your places</string>
     <string name="watch_notification_text">We\'ll alert you when you arrive or leave</string>
     <string name="arrival_channel_name">Arrival and departure alerts</string>
-    <string name="arrival_channel_description">Alerts you when you arrive at or leave a registered place</string>
+    <string name="arrival_channel_description">Alerts you when you arrive at or leave a saved place</string>
     <string name="arrival_default_title">Location alert</string>
-    <string name="arrival_body_enter">Arrived</string>
-    <string name="arrival_body_exit">Left</string>
-    <string name="arrival_action_dismiss">Turn off</string>
+    <string name="arrival_body_enter">You\'ve arrived</string>
+    <string name="arrival_body_exit">You\'ve left</string>
+    <string name="arrival_action_dismiss">Dismiss</string>
 </resources>

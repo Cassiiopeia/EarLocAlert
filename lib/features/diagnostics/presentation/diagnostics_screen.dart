@@ -11,6 +11,8 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/text/keep_all.dart';
+import '../../../core/widgets/app_feedback.dart';
+import '../../../core/text/two_digits.dart';
 
 /// 진단 로그 화면 (이슈 #95)
 ///
@@ -113,24 +115,14 @@ class _DiagnosticsScreenState extends ConsumerState<DiagnosticsScreen> {
   }
 
   Future<void> _clear() async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(context.l10n.diagnosticsClearTitle),
-        content: Text(context.keepAllText(context.l10n.diagnosticsClearBody)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text(context.l10n.diagnosticsCancel),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: Text(context.l10n.diagnosticsClear),
-          ),
-        ],
-      ),
+    final confirmed = await showConfirmDialog(
+      context,
+      title: context.l10n.diagnosticsClearTitle,
+      body: context.l10n.diagnosticsClearBody,
+      cancelLabel: context.l10n.diagnosticsCancel,
+      confirmLabel: context.l10n.diagnosticsClear,
     );
-    if (confirmed != true) return;
+    if (!confirmed) return;
 
     // 로거가 초기화되지 않았을 수 있으므로 파일도 직접 비운다 (이슈 #106)
     await Diagnostics.logger.clear();
@@ -140,9 +132,7 @@ class _DiagnosticsScreenState extends ConsumerState<DiagnosticsScreen> {
 
   void _toast(String message) {
     if (!mounted) return;
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(context.keepAllText(message))));
+    context.showToast(message);
   }
 
   @override
@@ -331,8 +321,7 @@ class _LogLine extends StatelessWidget {
     final parsed = DateTime.tryParse(iso);
     if (parsed == null) return iso;
     final local = parsed.toLocal();
-    String two(int n) => n.toString().padLeft(2, '0');
-    return '${two(local.month)}/${two(local.day)} '
-        '${two(local.hour)}:${two(local.minute)}:${two(local.second)}';
+    return '${twoDigits(local.month)}/${twoDigits(local.day)} '
+        '${twoDigits(local.hour)}:${twoDigits(local.minute)}:${twoDigits(local.second)}';
   }
 }

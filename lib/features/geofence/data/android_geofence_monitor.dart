@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import '../domain/geofence_monitor.dart';
 import '../domain/geofence_target.dart';
 import '../domain/proximity_radius.dart';
+import '../../../core/platform/channel_names.dart';
 
 /// Android 지오펜스 등록 어댑터 (이슈 #93)
 ///
@@ -25,9 +26,7 @@ class AndroidGeofenceMonitor implements GeofenceMonitor {
 
   /// 감시 서비스 제어와 같은 채널을 쓴다 — 등록 주체가 서비스이기 때문이다.
   /// 앱이 소유하면 프로세스가 회수될 때 등록도 함께 사라진다.
-  static const _channel = MethodChannel(
-    'kr.suhsaechan.ear_loc_alert/alert_window',
-  );
+  static const _channel = MethodChannel(ChannelNames.alertWindow);
 
   @override
   Future<void> sync(List<GeofenceTarget> targets) async {

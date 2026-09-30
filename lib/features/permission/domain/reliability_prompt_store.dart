@@ -16,17 +16,3 @@ abstract interface class ReliabilityPromptStore {
   /// 요청한 것이므로 한 번 거절했다는 기록이 길을 막으면 안 된다.
   Future<void> reset();
 }
-
-/// 저장하지 않는 구현 — 테스트·플랫폼 미지원 경로용
-class InMemoryReliabilityPromptStore implements ReliabilityPromptStore {
-  bool _seen = false;
-
-  @override
-  Future<bool> wasSeen() async => _seen;
-
-  @override
-  Future<void> markSeen() async => _seen = true;
-
-  @override
-  Future<void> reset() async => _seen = false;
-}

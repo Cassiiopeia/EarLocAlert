@@ -2,6 +2,7 @@ import 'package:flutter/services.dart';
 
 import '../domain/full_screen_intent_gate.dart';
 import '../domain/permission_kind.dart';
+import '../../../core/platform/channel_names.dart';
 
 /// 전체화면 알림 권한의 네이티브 구현 (이슈 #74)
 ///
@@ -14,9 +15,7 @@ import '../domain/permission_kind.dart';
 class FullScreenIntentChannel implements FullScreenIntentGate {
   const FullScreenIntentChannel();
 
-  static const _channel = MethodChannel(
-    'kr.suhsaechan.ear_loc_alert/alert_reliability',
-  );
+  static const _channel = MethodChannel(ChannelNames.alertReliability);
 
   @override
   Future<PermissionStatus> status() async {

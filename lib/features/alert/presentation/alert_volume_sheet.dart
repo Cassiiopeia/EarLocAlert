@@ -47,7 +47,6 @@ class _AlertVolumeSheetState extends ConsumerState<_AlertVolumeSheet> {
   void initState() {
     super.initState();
     _sound = ref.read(alertSoundServiceProvider);
-    // 저장된 값을 읽어 슬라이더 초기 위치를 맞춘다
     ref.read(alertVolumeStoreProvider).volume().then((value) {
       if (mounted) setState(() => _volume = value);
     });

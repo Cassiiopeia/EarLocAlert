@@ -26,7 +26,7 @@ Play Console 에서 2026-09-29 읽은 한국어 원문(기본 언어 ko-KR)을 �
 | 언어 | 제안 |
 |---|---|
 | en-US | Never miss your stop. Alerts by vibration or earphones only, never the speaker. |
-| ja-JP | 降りる場所を逃さない。到着をバイブとイヤホンだけで静かにお知らせします。 |
+| ja-JP | 降りる場所を逃さない。到着をバイブレーションとイヤホンだけで静かにお知らせします。 |
 | zh-CN | 不再错过下车地点。到站时仅通过振动或耳机提醒，不外放声音。 |
 
 ## 자세한 설명 — 도입부만 (전문은 원문을 보고 이어서 번역한다)

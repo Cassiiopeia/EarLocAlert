@@ -14,6 +14,14 @@ import 'package:ear_loc_alert/core/l10n/locale_resolver.dart';
 import 'package:ear_loc_alert/core/text/keep_all.dart';
 
 /// 다국어 (이슈 #163, docs/superpowers/specs/2026-09-29-i18n-design.md)
+/// 지원 언어 코드 — 언어가 늘어도 이 파일을 고치지 않는다 ([AppLanguage.supported])
+final _languageCodes = [
+  for (final language in AppLanguage.supported) language.storageValue,
+];
+
+/// 원문(ko)을 뺀 번역 언어
+final _translated = _languageCodes.where((code) => code != 'ko').toList();
+
 void main() {
   group('로케일 해석', () {
     test('기본값은 기기 언어를 따른다', () {
@@ -136,9 +144,9 @@ void main() {
     Set<String> keys(Map<String, dynamic> arb) =>
         arb.keys.where((k) => !k.startsWith('@')).toSet();
 
-    test('네 언어의 키가 서로 빠짐없이 같다', () {
+    test('모든 지원 언어의 키가 서로 빠짐없이 같다', () {
       final ko = keys(load('ko'));
-      for (final lang in ['en', 'ja', 'zh']) {
+      for (final lang in _translated) {
         final other = keys(load(lang));
         expect(ko.difference(other), isEmpty, reason: '$lang 에 없는 키 — 번역이 빠졌다');
         expect(other.difference(ko), isEmpty, reason: '$lang 에만 있는 키');
@@ -146,7 +154,7 @@ void main() {
     });
 
     test('빈 번역이 없다', () {
-      for (final lang in ['ko', 'en', 'ja', 'zh']) {
+      for (final lang in _languageCodes) {
         final arb = load(lang);
         for (final key in keys(arb)) {
           if (key == '@@locale') continue;

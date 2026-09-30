@@ -15,6 +15,7 @@ import '../domain/sound_preview_player.dart';
 import '../domain/sound_validator.dart';
 import 'sound_import_message.dart';
 import 'sound_providers.dart';
+import '../../../core/widgets/app_feedback.dart';
 
 /// 알림음 선택 시트 (이슈 #121)
 ///
@@ -157,27 +158,15 @@ class _SoundPickerSheetState extends ConsumerState<_SoundPickerSheet>
   }
 
   Future<void> _deleteSound(CustomSound sound) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(context.l10n.soundDeleteTitle),
-        content: Text(
-          context.keepAllText(context.l10n.soundDeleteBody(sound.displayName)),
-          style: AppTypography.body,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text(context.l10n.soundCancel),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: Text(context.l10n.soundDelete),
-          ),
-        ],
-      ),
+    final confirmed = await showConfirmDialog(
+      context,
+      title: context.l10n.soundDeleteTitle,
+      body: context.l10n.soundDeleteBody(sound.displayName),
+      cancelLabel: context.l10n.soundCancel,
+      confirmLabel: context.l10n.soundDelete,
+      bodyStyle: AppTypography.body,
     );
-    if (confirmed != true || !mounted) return;
+    if (!confirmed || !mounted) return;
 
     await _previewPlayer.stop();
     await ref.read(customSoundRepositoryProvider).delete(sound.id);
@@ -189,11 +178,7 @@ class _SoundPickerSheetState extends ConsumerState<_SoundPickerSheet>
     }
   }
 
-  void _showMessage(String message) {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(context.keepAllText(message))));
-  }
+  void _showMessage(String message) => context.showToast(message);
 
   @override
   Widget build(BuildContext context) {

@@ -22,7 +22,6 @@ class AudioSessionHeadphoneDetector implements HeadphoneDetector {
     AudioDeviceType.wiredHeadphones,
     // USB-C 이어폰. 3.5mm 잭이 없는 기기에서는 이쪽이 유일한 유선 경로다
     AudioDeviceType.usbAudio,
-    // 블루투스
     AudioDeviceType.bluetoothA2dp,
     AudioDeviceType.bluetoothSco,
     AudioDeviceType.bluetoothLe,

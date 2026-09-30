@@ -10,7 +10,7 @@
 #     **그 자동 노트에는 커밋 메시지 그대로의 내부 문구(문서 항목, 이슈 번호,
 #     "구현 보고서를 남긴다")가 섞여 스토어 사용자에게 보인다** (2026-09-29 Play
 #     Console 실측, 1.18.3~1.18.5). 그래서 직접 쓴 파일이 있으면 그것이 우선한다.
-#   - 다른 언어(en-US, ja-JP, zh-CN)도 언어별 파일이 있으면 그것을, 없으면 한국어
+#   - 다른 언어(release-notes/ 아래 폴더)도 언어별 파일이 있으면 그것을, 없으면 한국어
 #     노트를 그대로 올린다. 빈 화면보다 낫다.
 #   - 언어별 파일 위치: release-notes/<언어>/<버전>.txt
 #     (예: release-notes/ko-KR/1.19.0.txt, release-notes/en-US/1.19.0.txt)
@@ -48,7 +48,11 @@ if [ ! -s "$KO_NOTES" ]; then
   exit 0
 fi
 
-for LANG_DIR in en-US ja-JP zh-CN; do
+# 언어 목록은 release-notes/ 아래 폴더가 정한다 — 언어를 늘릴 때 이 스크립트를 고치지 않는다
+# (폴더가 빠지지 않는지는 test/core/l10n/language_sync_test.dart 가 지킨다)
+for LANG_PATH in "$WORKSPACE"/release-notes/*/; do
+  LANG_DIR="$(basename "$LANG_PATH")"
+  [ "$LANG_DIR" = "ko-KR" ] && continue
   TARGET_DIR="$BASE/$LANG_DIR/changelogs"
   TARGET="$TARGET_DIR/${VERSION_CODE}.txt"
   SOURCE="$WORKSPACE/release-notes/$LANG_DIR/${VERSION_NAME}.txt"

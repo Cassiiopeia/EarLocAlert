@@ -115,7 +115,6 @@ class _MapPickerRoute extends ConsumerWidget {
     return PlaceMapPickerScreen(
       args: args,
       searchService: ref.watch(placeSearchServiceProvider),
-      // 선택 결과를 push 를 기다리던 폼에게 돌려준다
       onPicked: (result) => context.pop(result),
     );
   }

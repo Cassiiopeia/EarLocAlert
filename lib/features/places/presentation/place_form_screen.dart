@@ -25,6 +25,7 @@ import 'alert_schedule_editor.dart';
 import 'place_list_controller.dart';
 import 'place_empty_state.dart' show placeErrorMessage;
 import 'place_map_picker_screen.dart';
+import '../../../core/widgets/app_feedback.dart';
 
 /// 장소 등록/편집 폼 (docs/06-UX.md)
 ///
@@ -212,24 +213,13 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
   /// **기본 선택은 "계속 편집"이다.** 실수로 나가려던 사용자가 다시
   /// 실수로 버리는 것을 막는다.
   Future<bool> _confirmDiscard() async {
-    final discard = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(context.l10n.placeFormLeaveTitle),
-        content: Text(context.keepAllText(context.l10n.placeFormLeaveBody)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text(context.l10n.placeFormKeepEditing),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: Text(context.l10n.placeFormLeave),
-          ),
-        ],
-      ),
+    return showConfirmDialog(
+      context,
+      title: context.l10n.placeFormLeaveTitle,
+      body: context.l10n.placeFormLeaveBody,
+      cancelLabel: context.l10n.placeFormKeepEditing,
+      confirmLabel: context.l10n.placeFormLeave,
     );
-    return discard ?? false;
   }
 
   @override
@@ -535,13 +525,7 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
       return;
     }
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          context.keepAllText(placeErrorMessage(context.l10n, errors.first)),
-        ),
-      ),
-    );
+    context.showToast(placeErrorMessage(context.l10n, errors.first));
   }
 }
 

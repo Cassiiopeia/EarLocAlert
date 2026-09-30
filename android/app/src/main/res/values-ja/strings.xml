@@ -8,14 +8,14 @@
 -->
 <resources>
     <string name="app_name">イヤホン位置通知</string>
-    <string name="watch_channel_name">位置の見守り</string>
-    <string name="watch_channel_description">登録した場所をバックグラウンドで見守っていることをお知らせします</string>
-    <string name="watch_notification_title">位置を見守っています</string>
+    <string name="watch_channel_name">位置情報の監視</string>
+    <string name="watch_channel_description">登録した場所をバックグラウンドで監視していることをお知らせします</string>
+    <string name="watch_notification_title">位置情報を監視しています</string>
     <string name="watch_notification_text">到着・出発時にお知らせします</string>
     <string name="arrival_channel_name">到着・出発アラート</string>
     <string name="arrival_channel_description">登録した場所に到着または出発したときにお知らせします</string>
     <string name="arrival_default_title">位置アラート</string>
     <string name="arrival_body_enter">到着しました</string>
-    <string name="arrival_body_exit">出発しました</string>
+    <string name="arrival_body_exit">離れました</string>
     <string name="arrival_action_dismiss">アラートを止める</string>
 </resources>
