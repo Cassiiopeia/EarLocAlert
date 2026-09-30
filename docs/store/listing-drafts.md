@@ -15,11 +15,11 @@ Play Console 에서 2026-09-29 읽은 한국어 원문(기본 언어 ko-KR)을 �
 | 언어 | 제안 | 비고 |
 |---|---|---|
 | ko-KR | 이어폰 위치 알림 | 현재 그대로 |
-| en-US | EarLocAlert: Quiet Alerts | 브랜드명을 살리고 성격을 덧붙인다(25자) |
-| ja-JP | EarLocAlert イヤホン位置通知 | 18자 안팎 |
-| zh-CN | EarLocAlert 耳机位置提醒 | 15자 안팎 |
+| en-US | Earphone Location Alert | "이어폰 위치 알림"을 그대로 옮긴다(23자) — 2026-09-30 변경 |
+| ja-JP | イヤホン位置通知 | 8자 — 2026-09-30 변경 |
+| zh-CN | 耳机位置提醒 | 6자 — 2026-09-30 변경 |
 
-런처에 보이는 이름(앱 리소스)은 별개이며 한국어만 현지 이름, 나머지는 `EarLocAlert` 다(#164). 스토어 제목과 런처 이름이 어긋나도 정책상 문제는 없다.
+런처에 보이는 이름(앱 리소스)도 같은 이름이다(#170). 한국어 런처 이름만 띄어쓰기 없는 `이어폰위치알림` 이다.
 
 ## 간단한 설명 (80자 이내)
 
@@ -36,21 +36,21 @@ Play Console 에서 2026-09-29 읽은 한국어 원문(기본 언어 ko-KR)을 �
 >
 > You doze off on the bus and miss it, get lost in thought on the subway and ride past your station, or drive right by the exit you needed.
 >
-> EarLocAlert tells you when you arrive at or leave a place you registered. You don't have to keep the app open or look at the screen.
+> Earphone Location Alert tells you when you arrive at or leave a place you registered. You don't have to keep the app open or look at the screen.
 
 **ja-JP**
 > 降りる場所を通り過ぎてしまったことはありませんか？
 >
 > バスでうとうとして停留所を逃したり、電車でぼんやりして駅を乗り過ごしたり、運転中に降りるはずのインターチェンジを通り過ぎたり。
 >
-> EarLocAlert は、登録した場所への到着と出発をお知らせします。アプリを開いておく必要も、画面を見る必要もありません。
+> イヤホン位置通知は、登録した場所への到着と出発をお知らせします。アプリを開いておく必要も、画面を見る必要もありません。
 
 **zh-CN**
 > 你是否曾经坐过站？
 >
 > 在公交车上打盹错过站点，在地铁上走神坐过站，或者开车时错过了该下的出口。
 >
-> EarLocAlert 会在你到达或离开已登记的地点时提醒你。无需一直打开应用，也不用看屏幕。
+> 耳机位置提醒会在你到达或离开已登记的地点时提醒你。无需一直打开应用，也不用看屏幕。
 
 ## 콘솔에서 해야 할 일 (사용자 작업, 읽기만 확인했다)
 

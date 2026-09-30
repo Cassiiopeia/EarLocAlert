@@ -1,6 +1,6 @@
 {
   "@@locale": "zh",
-  "appName": "EarLocAlert",
+  "appName": "耳机位置提醒",
   "settingsLanguageTitle": "语言",
   "languageSheetHint": "选择后立即生效",
   "languageFollowDevice": "跟随设备设置",

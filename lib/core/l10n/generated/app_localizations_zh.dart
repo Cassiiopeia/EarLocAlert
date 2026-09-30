@@ -9,7 +9,7 @@ class AppLocalizationsZh extends AppLocalizations {
   AppLocalizationsZh([String locale = 'zh']) : super(locale);
 
   @override
-  String get appName => 'EarLocAlert';
+  String get appName => '耳机位置提醒';
 
   @override
   String get settingsLanguageTitle => '语言';

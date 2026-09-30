@@ -9,7 +9,7 @@ class AppLocalizationsJa extends AppLocalizations {
   AppLocalizationsJa([String locale = 'ja']) : super(locale);
 
   @override
-  String get appName => 'EarLocAlert';
+  String get appName => 'イヤホン位置通知';
 
   @override
   String get settingsLanguageTitle => '言語';

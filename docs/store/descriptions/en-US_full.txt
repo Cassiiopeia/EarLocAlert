@@ -2,7 +2,7 @@ Ever missed your stop?
 
 You doze off on the bus and miss it, get lost in thought on the subway and ride past your station, or drive right by the exit you needed.
 
-EarLocAlert tells you when you arrive at or leave a place you registered. You don't have to keep the app open or look at the screen.
+Earphone Location Alert tells you when you arrive at or leave a place you registered. You don't have to keep the app open or look at the screen.
 
 
 ■ It alerts you without opening the app

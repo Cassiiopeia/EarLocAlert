@@ -1,6 +1,6 @@
 {
   "@@locale": "ja",
-  "appName": "EarLocAlert",
+  "appName": "イヤホン位置通知",
   "settingsLanguageTitle": "言語",
   "languageSheetHint": "選ぶとすぐに反映されます",
   "languageFollowDevice": "端末の設定に合わせる",
