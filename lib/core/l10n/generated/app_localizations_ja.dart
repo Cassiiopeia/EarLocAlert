@@ -68,7 +68,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get permissionReliabilityBody =>
-      'スマートフォンが省電力状態のときや他のアプリを見ているときは、到着アラートが遅れたり、小さな通知だけで終わったりします。\n\n次の3つをオンにすると、画面全体のアラートが解除するまで続きます。\n\n• バッテリー最適化の除外 — 省電力中でも時間どおりに知らせます\n• 他のアプリの上に表示 — 動画を見ている間もアラート画面が表示されます\n• 全画面通知 — 画面が消えていても起こします';
+      'スマートフォンが省電力状態のときや他のアプリを見ているときは、到着アラートが遅れたり、小さな通知だけで終わったりします。\n\n次の3つをオンにすると、画面いっぱいに表示されるアラートを止めるまで鳴り続けます。\n\n• バッテリー最適化の除外 — 省電力中でも時間どおりに知らせます\n• 他のアプリの上に表示 — 動画を見ている間もアラート画面が表示されます\n• 全画面通知 — 画面が消えていても自動で点灯します';
 
   @override
   String get permissionReliabilityAction => '3つすべてオンにする';
@@ -136,7 +136,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get settingsSectionReach => 'アラートを届けるための権限';
 
   @override
-  String get settingsSectionTroubleshoot => '問題の解決';
+  String get settingsSectionTroubleshoot => 'トラブルシューティング';
 
   @override
   String get settingsDiagnosticsTitle => '動作ログ';
@@ -190,7 +190,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get diagnosticsExportEmpty => '書き出す記録がありません';
 
   @override
-  String get diagnosticsExportSubject => 'EarLocAlert 動作ログ';
+  String get diagnosticsExportSubject => 'イヤホン位置通知 動作ログ';
 
   @override
   String get diagnosticsCopied => 'クリップボードにコピーしました';
@@ -210,10 +210,10 @@ class AppLocalizationsJa extends AppLocalizations {
   String get diagnosticsReadFailed => '記録を読み込めませんでした。';
 
   @override
-  String get diagnosticsEmpty => 'まだ記録がありません。\nアプリを再起動するか見守りが始まると記録されます。';
+  String get diagnosticsEmpty => 'まだ記録がありません。\nアプリを再起動するか監視が始まると記録されます。';
 
   @override
-  String get routeDeletedSound => '削除された音源（標準の音で通知）';
+  String get routeDeletedSound => '削除された音源（標準音で通知）';
 
   @override
   String get routePreviewPlaceName => 'テスト用の場所';
@@ -229,10 +229,10 @@ class AppLocalizationsJa extends AppLocalizations {
   String get notificationArrived => '到着しました';
 
   @override
-  String get notificationLeft => '出発しました';
+  String get notificationLeft => '離れました';
 
   @override
-  String get alertScreenLeft => '出発しました';
+  String get alertScreenLeft => '離れました';
 
   @override
   String get alertScreenArrived => '到着しました';
@@ -257,7 +257,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get alertScreenRouteVibrationOnly => 'バイブレーションのみでお知らせ中';
 
   @override
-  String get alertScreenDismiss => '解除';
+  String get alertScreenDismiss => 'アラートを止める';
 
   @override
   String alertScreenRadius(int meters) {
@@ -265,13 +265,13 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
-  String get alertNotificationChannelName => 'アラート中';
+  String get alertNotificationChannelName => 'アラート作動中';
 
   @override
   String get alertNotificationChannelDescription => 'アラート画面から離れたときに戻るための通知です';
 
   @override
-  String get alertDismissedTitle => 'アラートを解除しました';
+  String get alertDismissedTitle => 'アラートを止めました';
 
   @override
   String get alertDismissedConfirm => 'OK';
@@ -337,7 +337,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String soundPickerCustomHeader(int count, int max) {
-    return 'マイ音源  $count/$max';
+    return '登録した音源  $count/$max';
   }
 
   @override
@@ -364,7 +364,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String soundDeleteBody(String name) {
-    return '$name\n\nこの音源を使っていた場所は初期のアラート音でお知らせします。';
+    return '$name\n\nこの音源を使っていた場所は標準音でお知らせします。';
   }
 
   @override
@@ -394,7 +394,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String soundImportTooLong(String duration, String max) {
-    return '長すぎます（$duration / 最大 $max）。アラート音は繰り返し再生されるので短くて構いません。';
+    return '長すぎます（$duration / 最大 $max）。アラート音は繰り返し再生されるので短くても問題ありません。';
   }
 
   @override
@@ -473,7 +473,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get placeFormKeepEditing => '編集を続ける';
 
   @override
-  String get placeFormLeave => '戻る';
+  String get placeFormLeave => '編集をやめる';
 
   @override
   String get placeFormTitleNew => '場所を登録';
@@ -538,13 +538,13 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get placeFormSoundDescription =>
-      'イヤホン（有線・Bluetooth）が接続されているときだけ音が鳴ります。\nスピーカーからは絶対に鳴りません。';
+      'イヤホン（有線・USB-C・Bluetooth）が接続されているときだけ音が鳴ります。\nスピーカーからは絶対に鳴りません。';
 
   @override
   String get placeFormSoundLabel => 'アラート音';
 
   @override
-  String get placeFormCustomSound => 'マイ音源';
+  String get placeFormCustomSound => '登録した音源';
 
   @override
   String get placeFormSubmitNew => '登録';
@@ -587,22 +587,22 @@ class AppLocalizationsJa extends AppLocalizations {
   String get placeHomeLocationUnavailable => '現在地を取得できません。位置情報の権限を確認してください';
 
   @override
-  String get placeHomeStatusWatching => '見守り中';
+  String get placeHomeStatusWatching => '監視中';
 
   @override
-  String get placeHomeStatusOff => '見守りオフ';
+  String get placeHomeStatusOff => '監視オフ';
 
   @override
   String get placeHomeStatusChecking => '確認中';
 
   @override
-  String get placeHomeStatusIdle => '見守り待機';
+  String get placeHomeStatusIdle => '待機中';
 
   @override
   String get placeHomeAudioHeadphones => 'イヤホン';
 
   @override
-  String get placeHomeAudioVibrationOnly => 'バイブのみ';
+  String get placeHomeAudioVibrationOnly => '振動のみ';
 
   @override
   String get placeHomeWeakTitle => 'アラートを見逃すかもしれません';
@@ -690,7 +690,7 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
-  String get scheduleSameStartEnd => '開始と終了が同じです。一日中通知するには、時間帯を作らなければOKです。';
+  String get scheduleSameStartEnd => '開始と終了が同じです。一日中通知するには、時間帯を設定しないでください。';
 
   @override
   String get scheduleSave => '保存';
@@ -727,7 +727,7 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
-  String get appUpdateReady => '新しいバージョンを受け取りました';
+  String get appUpdateReady => '新しいバージョンをダウンロードしました';
 
   @override
   String get appUpdateRestart => '再起動';

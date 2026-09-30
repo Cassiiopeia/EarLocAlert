@@ -26,7 +26,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get languageChanged => '语言已更改';
+  String get languageChanged => '语言已切换';
 
   @override
   String get languageUndo => '撤销';
@@ -68,7 +68,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get permissionReliabilityBody =>
-      '手机处于省电状态或正在使用其他应用时，到达提醒可能会延迟，或只显示为一条小通知。\n\n开启以下三项后，全屏提醒会一直持续到您解除为止。\n\n• 不受电池优化限制 — 省电时也能准时提醒\n• 显示在其他应用上层 — 看视频时也会弹出提醒界面\n• 全屏通知 — 屏幕关闭时也会唤醒';
+      '手机处于省电状态或正在使用其他应用时，到达提醒可能会延迟，或只显示为一条小通知。\n\n开启以下三项后，全屏提醒会一直持续到您关闭为止。\n\n• 忽略电池优化 — 省电时也能准时提醒\n• 显示在其他应用的上层 — 看视频时也会弹出提醒界面\n• 全屏通知 — 屏幕熄灭时也会自动点亮';
 
   @override
   String get permissionReliabilityAction => '全部开启';
@@ -147,19 +147,19 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsPermissionGranted => '已允许';
 
   @override
-  String get settingsPermNotifyTitle => '显示通知';
+  String get settingsPermNotifyTitle => '允许通知';
 
   @override
   String get settingsPermNotifyDesc => '没有此权限，到达时不会显示提醒';
 
   @override
-  String get settingsPermBatteryTitle => '不受电池优化限制';
+  String get settingsPermBatteryTitle => '忽略电池优化';
 
   @override
   String get settingsPermBatteryDesc => '没有此权限，省电时提醒可能延迟或收不到';
 
   @override
-  String get settingsPermOverlayTitle => '显示在其他应用上层';
+  String get settingsPermOverlayTitle => '显示在其他应用的上层';
 
   @override
   String get settingsPermOverlayDesc => '没有此权限，使用应用时不会弹出提醒界面';
@@ -189,7 +189,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get diagnosticsExportEmpty => '没有可导出的记录';
 
   @override
-  String get diagnosticsExportSubject => 'EarLocAlert 运行日志';
+  String get diagnosticsExportSubject => '耳机位置提醒 运行日志';
 
   @override
   String get diagnosticsCopied => '已复制到剪贴板';
@@ -218,7 +218,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get routePreviewPlaceName => '测试地点';
 
   @override
-  String get notificationChannelName => '到达・离开提醒';
+  String get notificationChannelName => '到达·离开提醒';
 
   @override
   String get notificationChannelDescription => '在您到达或离开已保存的地点时提醒您';
@@ -246,16 +246,16 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get alertScreenRouteHeadphones => '正通过耳机提醒';
+  String get alertScreenRouteHeadphones => '正在通过耳机提醒';
 
   @override
-  String get alertScreenRouteSoundFailed => '无法播放声音，正通过振动提醒';
+  String get alertScreenRouteSoundFailed => '无法播放声音，正在通过振动提醒';
 
   @override
   String get alertScreenRouteVibrationOnly => '仅通过振动提醒';
 
   @override
-  String get alertScreenDismiss => '解除';
+  String get alertScreenDismiss => '关闭提醒';
 
   @override
   String alertScreenRadius(int meters) {
@@ -269,7 +269,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get alertNotificationChannelDescription => '离开提醒界面后用于返回的通知';
 
   @override
-  String get alertDismissedTitle => '提醒已解除';
+  String get alertDismissedTitle => '提醒已关闭';
 
   @override
   String get alertDismissedConfirm => '确定';
@@ -399,16 +399,16 @@ class AppLocalizationsZh extends AppLocalizations {
   String get soundPresetDefault => '默认音';
 
   @override
-  String get soundPresetBell => '钟声';
+  String get soundPresetBell => '铃声';
 
   @override
   String get soundPresetElectronic => '电子音';
 
   @override
-  String get soundPresetSiren => '警笛';
+  String get soundPresetSiren => '警报声';
 
   @override
-  String get soundPresetChime => '和弦音';
+  String get soundPresetChime => '风铃声';
 
   @override
   String get placeSearchUnnamed => '未命名地点';
@@ -529,10 +529,11 @@ class AppLocalizationsZh extends AppLocalizations {
   String get placeFormTimingBoth => '两者';
 
   @override
-  String get placeFormSoundTitle => '耳机声音提醒';
+  String get placeFormSoundTitle => '耳机提示音';
 
   @override
-  String get placeFormSoundDescription => '仅在连接耳机（有线或蓝牙）时才会发出声音。\n绝不会通过扬声器播放。';
+  String get placeFormSoundDescription =>
+      '仅在连接耳机（有线、USB-C 或蓝牙）时才会发出声音。\n绝不会通过扬声器发出声音。';
 
   @override
   String get placeFormSoundLabel => '提示音';
@@ -566,7 +567,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get placeErrorEmptyWindow => '时段的开始和结束相同。若要全天提醒，请删除该时段';
 
   @override
-  String get placeErrorNoDays => '请至少为时段选择一个星期';
+  String get placeErrorNoDays => '请至少为时段选择一天';
 
   @override
   String get placeEmptyTitle => '添加你的第一个地点';
@@ -590,7 +591,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get placeHomeStatusChecking => '检查中';
 
   @override
-  String get placeHomeStatusIdle => '监测待机';
+  String get placeHomeStatusIdle => '待机中';
 
   @override
   String get placeHomeAudioHeadphones => '耳机';
@@ -606,7 +607,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String placeHomeWeakMissing(String items) {
-    return '$items已关闭——点按开启';
+    return '$items 已关闭——点按开启';
   }
 
   @override
@@ -717,7 +718,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String scheduleMore(String first, int count) {
-    return '$first 等另外 $count 项';
+    return '$first 等 $count 项';
   }
 
   @override
