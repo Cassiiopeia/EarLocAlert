@@ -9,28 +9,34 @@
 
 let detectedOS = 'mac'; // 기본값: Mac
 
-function detectOS() {
-    const userAgent = navigator.userAgent || navigator.appVersion || navigator.platform;
-    
-    if (/Win/i.test(userAgent)) {
-        return 'windows';
-    } else if (/Mac/i.test(userAgent)) {
-        return 'mac';
-    } else if (/Linux/i.test(userAgent)) {
-        return 'linux';
-    }
-    return 'mac'; // 기본값: Mac
-}
-
 // ============================================
 // State Management
 // ============================================
+
+/**
+ * 마법사 스크립트(.github/util/...)는 레포 루트 기준인데
+ * pubspec.yaml은 Flutter 루트 기준이다. 모노레포(repo/client 등)에서는
+ * 두 위치가 달라 cd 대상과 인자를 분리해야 한다.
+ */
+function getRepoRoot() {
+    return state.repoRoot || state.projectPath || '/path/to/your/project';
+}
+
+
+/** 레포 루트 입력 시 state 반영 + 명령어 갱신 (모노레포에서만 채운다) */
+function onRepoRootInput(el) {
+    const v = (el.value || '').trim();
+    state.repoRoot = v;
+    saveState();
+    if (typeof updateCommandsForOS === 'function') updateCommandsForOS();
+}
 
 const state = {
     currentStep: 1,
     maxReachedStep: 1, // 도달한 최대 단계 (이전 단계로 돌아가도 유지)
     totalSteps: 7, // Step 1~7 (프로젝트, Keystore, AAB 빌드, 앱 생성, AAB 업로드, Service Account, 완료)
     projectPath: '',
+    repoRoot: '',      // 모노레포: .github가 있는 레포 루트 (비면 projectPath와 동일)
     detectedOS: 'mac', // OS 감지 결과
     // Project Info
     applicationId: '',
@@ -52,7 +58,16 @@ const state = {
     serviceAccountBase64: '',
     // Optional
     googleServicesJson: '',
-    envFileContent: ''
+    envFileContent: '',
+    // Custom Secrets (사용자 추가)
+    customSecrets: []
+    // [{
+    //   key: 'SECRET_NAME',
+    //   value: '...',
+    //   fileName: 'file.json',
+    //   type: 'text' | 'binary',
+    //   hint: '사용법 힌트'
+    // }]
 };
 
 // ============================================
@@ -117,6 +132,7 @@ function restoreUIFromState() {
     // 입력 필드 복원
     const inputs = {
         'projectPath': state.projectPath,
+        'repoRoot': state.repoRoot,
         'applicationId': state.applicationId,
         'keyAlias': state.keyAlias,
         'storePassword': state.storePassword,
@@ -203,29 +219,17 @@ function restoreUIFromState() {
         setElementText('detectedVersionCode', state.versionCode);
         setElementText('detectedGradleType', state.gradleType);
     }
+
+    // 커스텀 Secrets 복원 (배열이 아닌 경우 초기화)
+    if (!Array.isArray(state.customSecrets)) {
+        state.customSecrets = [];
+    }
+    renderCustomSecrets();
 }
 
 // ============================================
 // Security Warning
 // ============================================
-
-function showSecurityWarning() {
-    const dismissed = localStorage.getItem(STORAGE_WARNING_KEY);
-    if (!dismissed) {
-        const warning = document.getElementById('securityWarning');
-        if (warning) {
-            warning.classList.remove('hidden');
-        }
-    }
-}
-
-function closeSecurityWarning() {
-    const warning = document.getElementById('securityWarning');
-    if (warning) {
-        warning.classList.add('hidden');
-        localStorage.setItem(STORAGE_WARNING_KEY, 'true');
-    }
-}
 
 // ============================================
 // DOM Utility Functions
@@ -239,40 +243,9 @@ function $$(selector) {
     return document.querySelectorAll(selector);
 }
 
-function getInputValue(id) {
-    const element = document.getElementById(id);
-    return element?.value?.trim() || '';
-}
-
-function setElementText(id, text) {
-    const element = document.getElementById(id);
-    if (element) {
-        element.textContent = text;
-    }
-}
-
-function setElementHtml(id, html) {
-    const element = document.getElementById(id);
-    if (element) {
-        element.innerHTML = html;
-    }
-}
-
 // ============================================
 // File Upload & Base64 Conversion
 // ============================================
-
-function fileToBase64(file) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => {
-            const base64 = reader.result.split(',')[1];
-            resolve(base64);
-        };
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-    });
-}
 
 // Keystore 파일 업로드
 async function handleKeystoreUpload(input) {
@@ -374,30 +347,6 @@ function handleGoogleServicesUpload(input) {
         showToast('✅ google-services.json 업로드 완료');
     };
     reader.readAsText(file);
-}
-
-// Drag & Drop 설정
-function setupDragAndDrop() {
-    document.querySelectorAll('.file-upload').forEach(el => {
-        el.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            el.classList.add('dragover');
-        });
-
-        el.addEventListener('dragleave', () => {
-            el.classList.remove('dragover');
-        });
-
-        el.addEventListener('drop', (e) => {
-            e.preventDefault();
-            el.classList.remove('dragover');
-            const input = el.querySelector('input');
-            if (input && e.dataTransfer.files.length > 0) {
-                input.files = e.dataTransfer.files;
-                input.dispatchEvent(new Event('change'));
-            }
-        });
-    });
 }
 
 // ============================================
@@ -537,7 +486,7 @@ function updateCommandsForOS() {
         }
         
         if (windowsCommandEl) {
-            windowsCommandEl.textContent = `cd "${winPath}"; powershell -ExecutionPolicy Bypass -File .github\\util\\flutter\\playstore-wizard\\playstore-wizard-setup.ps1`;
+            windowsCommandEl.textContent = `cd "${toWinPath(getRepoRoot())}"; python .github\\util\\flutter\\playstore-wizard\\playstore-wizard.py setup`;
         }
         
         // Windows 사용자에게 관리자 권한 안내 표시
@@ -563,7 +512,7 @@ function updateCommandsForOS() {
         }
         
         if (macCommandEl) {
-            macCommandEl.textContent = `cd "${unixPath}" && bash .github/util/flutter/playstore-wizard/playstore-wizard-setup.sh`;
+            macCommandEl.textContent = `cd "${getRepoRoot()}" && python3 .github/util/flutter/playstore-wizard/playstore-wizard.py setup`;
         }
     }
 }
@@ -593,50 +542,6 @@ function updateOSBadge() {
 // Clipboard Functions
 // ============================================
 
-async function copyToClipboard(text) {
-    try {
-        await navigator.clipboard.writeText(text);
-        showToast('클립보드에 복사되었습니다!');
-        return true;
-    } catch (err) {
-        // Fallback
-        const textarea = document.createElement('textarea');
-        textarea.value = text;
-        document.body.appendChild(textarea);
-        textarea.select();
-        document.execCommand('copy');
-        document.body.removeChild(textarea);
-        showToast('클립보드에 복사되었습니다!');
-        return true;
-    }
-}
-
-function copyCode(button) {
-    const codeBlock = button.closest('.code-block');
-    const pre = codeBlock?.querySelector('pre');
-    if (!pre) return;
-
-    const text = pre.textContent || '';
-
-    navigator.clipboard.writeText(text).then(() => {
-        const originalText = button.textContent;
-        button.textContent = '복사됨!';
-        button.classList.add('bg-green-600');
-        setTimeout(() => {
-            button.textContent = originalText;
-            button.classList.remove('bg-green-600');
-        }, 2000);
-    }).catch(() => {
-        const textarea = document.createElement('textarea');
-        textarea.value = text;
-        document.body.appendChild(textarea);
-        textarea.select();
-        document.execCommand('copy');
-        document.body.removeChild(textarea);
-        showToast('복사되었습니다!');
-    });
-}
-
 function copySecret(name) {
     const value = state[name] || '';
     if (!value) {
@@ -647,27 +552,6 @@ function copySecret(name) {
     navigator.clipboard.writeText(value).then(() => {
         showToast(`✅ ${name} 복사 완료!`);
     });
-}
-
-function showToast(message) {
-    const existingToast = document.querySelector('.toast');
-    if (existingToast) {
-        existingToast.remove();
-    }
-
-    const toast = document.createElement('div');
-    toast.className = 'toast';
-    toast.textContent = message;
-    document.body.appendChild(toast);
-
-    setTimeout(() => {
-        toast.classList.add('show');
-    }, 10);
-
-    setTimeout(() => {
-        toast.classList.remove('show');
-        setTimeout(() => toast.remove(), 300);
-    }, 3000);
 }
 
 // ============================================
@@ -872,6 +756,7 @@ cd "${winPath}"; flutter build appbundle --release`;
 function restoreInputValues() {
     const inputs = {
         'projectPath': state.projectPath,
+        'repoRoot': state.repoRoot,
         'keyAlias': state.keyAlias,
         'storePassword': state.storePassword,
         'keyPassword': state.keyPassword,
@@ -998,7 +883,7 @@ function resetWizard() {
         }
 
         // UI 초기화
-        const inputs = ['projectPath', 'applicationId', 'keyAlias', 'storePassword', 'keyPassword', 'certCN', 'certO', 'certL', 'certC', 'envFileContent', 'scriptOutput'];
+        const inputs = ['projectPath', 'repoRoot', 'applicationId', 'keyAlias', 'storePassword', 'keyPassword', 'certCN', 'certO', 'certL', 'certC', 'envFileContent', 'scriptOutput'];
         inputs.forEach(id => {
             const input = document.getElementById(id);
             if (input) {
@@ -1013,7 +898,7 @@ function resetWizard() {
         // Application ID 입력 필드 placeholder 복원
         const applicationIdInput = document.getElementById('applicationId');
         if (applicationIdInput) {
-            applicationIdInput.placeholder = '예: com.example.app 또는 kr.suhsaechan.suh_devops_template';
+            applicationIdInput.placeholder = '예: kr.mycompany.myapp';
         }
         
         // 유효기간 초기화
@@ -1151,7 +1036,7 @@ function generateSetupCommand() {
             return str.replace(/"/g, '`"').replace(/\$/g, '`$');
         };
         
-        cmd = `cd "${winPath}"; powershell -ExecutionPolicy Bypass -File .github\\util\\flutter\\playstore-wizard\\playstore-wizard-setup.ps1 "${escapePowerShell(winPath)}" "${escapePowerShell(applicationId)}" "${escapePowerShell(keyAlias)}" "${escapePowerShell(storePassword)}" "${escapePowerShell(keyPassword)}" "${validityDays}" "${escapePowerShell(certCN)}" "${escapePowerShell(certO)}" "${escapePowerShell(certL)}" "${certC}"`;
+        cmd = `cd "${toWinPath(getRepoRoot())}"; python .github\\util\\flutter\\playstore-wizard\\playstore-wizard.py setup "${escapePowerShell(winPath)}" "${escapePowerShell(applicationId)}" "${escapePowerShell(keyAlias)}" "${escapePowerShell(storePassword)}" "${escapePowerShell(keyPassword)}" "${validityDays}" "${escapePowerShell(certCN)}" "${escapePowerShell(certO)}" "${escapePowerShell(certL)}" "${certC}"`;
     } else {
         // Mac/Linux Bash 명령어
         // 특수문자 이스케이프 처리
@@ -1159,7 +1044,7 @@ function generateSetupCommand() {
             return str.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\$/g, '\\$');
         };
         
-        cmd = `cd "${projectPath}" && bash .github/util/flutter/playstore-wizard/playstore-wizard-setup.sh "${escapeBash(projectPath)}" "${escapeBash(applicationId)}" "${escapeBash(keyAlias)}" "${escapeBash(storePassword)}" "${escapeBash(keyPassword)}" "${validityDays}" "${escapeBash(certCN)}" "${escapeBash(certO)}" "${escapeBash(certL)}" "${certC}"`;
+        cmd = `cd "${getRepoRoot()}" && python3 .github/util/flutter/playstore-wizard/playstore-wizard.py setup "${escapeBash(projectPath)}" "${escapeBash(applicationId)}" "${escapeBash(keyAlias)}" "${escapeBash(storePassword)}" "${escapeBash(keyPassword)}" "${validityDays}" "${escapeBash(certCN)}" "${escapeBash(certO)}" "${escapeBash(certL)}" "${certC}"`;
     }
 
     const setupCmdEl = document.getElementById('setupCmd');
@@ -1209,12 +1094,12 @@ function generateApplicationIdDetectionCommand(projectPath) {
         const escapePowerShell = (str) => {
             return str.replace(/"/g, '`"').replace(/\$/g, '`$');
         };
-        cmd = `cd "${winPath}"; powershell -ExecutionPolicy Bypass -File .github\\util\\flutter\\playstore-wizard\\detect-application-id.ps1 "${escapePowerShell(winPath)}"`;
+        cmd = `cd "${toWinPath(getRepoRoot())}"; python .github\\util\\flutter\\playstore-wizard\\playstore-wizard.py detect-app-id "${escapePowerShell(winPath)}"`;
     } else {
         const escapeBash = (str) => {
             return str.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\$/g, '\\$');
         };
-        cmd = `cd "${projectPath}" && bash .github/util/flutter/playstore-wizard/detect-application-id.sh "${escapeBash(projectPath)}"`;
+        cmd = `cd "${getRepoRoot()}" && python3 .github/util/flutter/playstore-wizard/playstore-wizard.py detect-app-id "${escapeBash(projectPath)}"`;
     }
     
     // 명령어 표시
@@ -1426,13 +1311,13 @@ function generateKeystoreCreationCommand() {
             return str.replace(/"/g, '`"').replace(/\$/g, '`$');
         };
         
-        cmd = `cd "${winPath}"; powershell -ExecutionPolicy Bypass -File .github\\util\\flutter\\playstore-wizard\\playstore-wizard-setup.ps1 "${escapePowerShell(winPath)}" "${escapePowerShell(applicationId)}" "${escapePowerShell(keyAlias)}" "${escapePowerShell(storePassword)}" "${escapePowerShell(keyPassword)}" "${validityDays}" "${escapePowerShell(certCN)}" "${escapePowerShell(certO)}" "${escapePowerShell(certL)}" "${certC}"`;
+        cmd = `cd "${toWinPath(getRepoRoot())}"; python .github\\util\\flutter\\playstore-wizard\\playstore-wizard.py setup "${escapePowerShell(winPath)}" "${escapePowerShell(applicationId)}" "${escapePowerShell(keyAlias)}" "${escapePowerShell(storePassword)}" "${escapePowerShell(keyPassword)}" "${validityDays}" "${escapePowerShell(certCN)}" "${escapePowerShell(certO)}" "${escapePowerShell(certL)}" "${certC}"`;
     } else {
         const escapeBash = (str) => {
             return str.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\$/g, '\\$');
         };
         
-        cmd = `cd "${projectPath}" && bash .github/util/flutter/playstore-wizard/playstore-wizard-setup.sh "${escapeBash(projectPath)}" "${escapeBash(applicationId)}" "${escapeBash(keyAlias)}" "${escapeBash(storePassword)}" "${escapeBash(keyPassword)}" "${validityDays}" "${escapeBash(certCN)}" "${escapeBash(certO)}" "${escapeBash(certL)}" "${certC}"`;
+        cmd = `cd "${getRepoRoot()}" && python3 .github/util/flutter/playstore-wizard/playstore-wizard.py setup "${escapeBash(projectPath)}" "${escapeBash(applicationId)}" "${escapeBash(keyAlias)}" "${escapeBash(storePassword)}" "${escapeBash(keyPassword)}" "${validityDays}" "${escapeBash(certCN)}" "${escapeBash(certO)}" "${escapeBash(certL)}" "${certC}"`;
     }
     
     // 명령어 표시 (항상 보이므로 hidden 처리 불필요)
@@ -1701,6 +1586,12 @@ function copyAllSecrets() {
         { key: 'ENV_FILE', value: state.envFileContent }
     ];
 
+    // 커스텀 Secrets 추가
+    const customSecrets = getCustomSecretsForExport();
+    customSecrets.forEach(cs => {
+        secrets.push({ key: cs.key, value: cs.value });
+    });
+
     // 설정된 값만 필터링
     const configuredSecrets = secrets.filter(s => s.value);
 
@@ -1743,6 +1634,12 @@ function downloadAsJson() {
         ENV_FILE: state.envFileContent
     };
 
+    // 커스텀 Secrets 추가
+    const customSecrets = getCustomSecretsForExport();
+    customSecrets.forEach(cs => {
+        secrets[cs.key] = cs.value;
+    });
+
     const jsonStr = JSON.stringify(secrets, null, 2);
     const blob = new Blob([jsonStr], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -1783,9 +1680,23 @@ function downloadAsTxt() {
         '',
         'ENV_FILE:',
         state.envFileContent || '(미입력)',
-        '',
-        '====================================='
+        ''
     ];
+
+    // 커스텀 Secrets 추가
+    const customSecrets = getCustomSecretsForExport();
+    if (customSecrets.length > 0) {
+        lines.push('===== 사용자 추가 Secrets =====');
+        lines.push('');
+        customSecrets.forEach(cs => {
+            const typeLabel = cs.type === 'text' ? '[텍스트]' : '[Base64]';
+            lines.push(`${cs.key}: ${typeLabel}`);
+            lines.push(cs.value.substring(0, 100) + (cs.value.length > 100 ? '...' : ''));
+            lines.push('');
+        });
+    }
+
+    lines.push('=====================================');
 
     const txtStr = lines.join('\n');
     const blob = new Blob([txtStr], { type: 'text/plain' });
@@ -1831,11 +1742,6 @@ function downloadConfig() {
 // ============================================
 // ZIP Export Functions
 // ============================================
-
-function getDateString() {
-    const now = new Date();
-    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-}
 
 function generateReadme() {
     return `# Play Store 배포 설정 백업
@@ -1913,6 +1819,31 @@ async function downloadAsZip() {
         { name: 'GOOGLE_SERVICES_JSON.txt', value: state.googleServicesJson },
         { name: 'ENV_FILE.txt', value: state.envFileContent }
     ];
+
+    // 커스텀 Secrets 추가
+    const customSecrets = getCustomSecretsForExport();
+    customSecrets.forEach(cs => {
+        secrets.push({ name: `${cs.key}.txt`, value: cs.value });
+
+        // 바이너리 파일은 실제 파일로도 복원
+        if (cs.type === 'binary') {
+            try {
+                const binaryString = atob(cs.value);
+                const bytes = new Uint8Array(binaryString.length);
+                for (let i = 0; i < binaryString.length; i++) {
+                    bytes[i] = binaryString.charCodeAt(i);
+                }
+                // 파일명에서 확장자 추출
+                const ext = cs.fileName.split('.').pop() || 'bin';
+                zip.file(`custom-files/${cs.fileName}`, bytes);
+            } catch (e) {
+                console.error(`커스텀 파일 디코딩 실패 (${cs.key}):`, e);
+            }
+        } else {
+            // 텍스트 파일은 그대로 저장
+            zip.file(`custom-files/${cs.fileName}`, cs.value);
+        }
+    });
 
     const secretsFolder = zip.folder("github-secrets");
     let fileCount = 0;
@@ -2052,69 +1983,6 @@ function importFromJson(event) {
 // Changelog Modal Functions
 // ============================================
 
-function getVersionData() {
-    const scriptEl = document.getElementById('versionJson');
-    if (scriptEl) {
-        try {
-            return JSON.parse(scriptEl.textContent);
-        } catch (e) {
-            console.error('버전 정보 파싱 실패:', e);
-        }
-    }
-    return null;
-}
-
-function openChangelogModal() {
-    const modal = document.getElementById('changelogModal');
-    const content = document.getElementById('changelogContent');
-    const lastUpdated = document.getElementById('changelogLastUpdated');
-
-    const data = getVersionData();
-    if (!data) {
-        content.innerHTML = '<div class="text-center text-red-400 py-4">버전 정보를 불러올 수 없습니다.</div>';
-        modal.classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
-        return;
-    }
-
-    // Build changelog HTML
-    let html = '';
-    data.changelog.forEach((release, index) => {
-        const isLatest = index === 0;
-
-        html += `
-            <div class="pb-4 ${index < data.changelog.length - 1 ? 'border-b border-slate-700 mb-4' : ''}">
-                <div class="flex items-center gap-2 mb-2">
-                    <span class="text-white font-semibold">v${release.version}</span>
-                    ${isLatest ? '<span class="px-2 py-0.5 text-xs bg-blue-500/20 text-blue-400 rounded-full">Latest</span>' : ''}
-                    <span class="text-slate-500 text-xs">${release.date}</span>
-                </div>
-                <ul class="space-y-1.5 pl-2">
-                    ${release.changes.map(change => `
-                        <li class="text-sm text-slate-400 flex items-start gap-2">
-                            <span class="text-slate-600 mt-1">•</span>
-                            <span>${change}</span>
-                        </li>
-                    `).join('')}
-                </ul>
-            </div>
-        `;
-    });
-
-    content.innerHTML = html;
-    lastUpdated.textContent = `Last updated: ${data.lastUpdated}`;
-
-    modal.classList.remove('hidden');
-    document.body.style.overflow = 'hidden';
-}
-
-function closeChangelogModal(event) {
-    if (event && event.target !== event.currentTarget) return;
-    const modal = document.getElementById('changelogModal');
-    modal.classList.add('hidden');
-    document.body.style.overflow = '';
-}
-
 // ============================================
 // Input Event Handlers
 // ============================================
@@ -2128,7 +1996,7 @@ function setupInputHandlers() {
     });
 
     // 입력 필드 변경 시 저장
-    const inputIds = ['projectPath', 'keyAlias', 'storePassword', 'keyPassword', 'certCN', 'certO', 'certL', 'certC', 'envFileContent', 'scriptOutput'];
+    const inputIds = ['projectPath', 'repoRoot', 'keyAlias', 'storePassword', 'keyPassword', 'certCN', 'certO', 'certL', 'certC', 'envFileContent', 'scriptOutput'];
     inputIds.forEach(id => {
         const input = document.getElementById(id);
         if (input) {
@@ -2289,3 +2157,204 @@ window.addEventListener('beforeunload', (e) => {
         e.returnValue = '입력한 데이터가 사라질 수 있습니다. 정말 나가시겠습니까?';
     }
 });
+
+// ============================================
+// Custom Secrets Functions (파일 타입별 자동 처리)
+// ============================================
+
+// 텍스트 파일 확장자 (원본 그대로 저장 - cat <<EOF 로 사용)
+const TEXT_EXTENSIONS = ['.json', '.yml', '.yaml', '.env', '.txt', '.xml', '.plist', '.properties', '.toml', '.ini', '.cfg', '.conf'];
+
+// 바이너리 파일 확장자 (Base64 인코딩 - echo $SECRET | base64 -d 로 사용)
+const BINARY_EXTENSIONS = ['.jks', '.keystore', '.p12', '.mobileprovision', '.p8', '.cer', '.pfx', '.pem', '.der', '.key', '.crt'];
+
+/**
+ * 파일을 타입에 따라 처리
+ * @param {File} file 파일 객체
+ * @returns {Promise<{value: string, type: 'text' | 'binary', hint: string}>}
+ */
+async function processFile(file) {
+    const fileType = getFileType(file.name);
+
+    if (fileType === 'text') {
+        // 텍스트 파일: 원본 내용 그대로
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve({
+                value: reader.result,
+                type: 'text',
+                hint: 'cat <<EOF > file 로 사용'
+            });
+            reader.onerror = reject;
+            reader.readAsText(file);
+        });
+    } else {
+        // 바이너리 파일: Base64 인코딩
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve({
+                value: reader.result.split(',')[1],  // data URL에서 base64만 추출
+                type: 'binary',
+                hint: 'echo $SECRET | base64 -d > file 로 사용'
+            });
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+        });
+    }
+}
+
+/**
+ * 새 커스텀 Secret 슬롯 추가
+ */
+function addCustomSecret() {
+    state.customSecrets.push({
+        key: '',
+        value: '',
+        fileName: '',
+        type: null,
+        hint: ''
+    });
+    renderCustomSecrets();
+    saveState();
+}
+
+/**
+ * 커스텀 Secret 삭제
+ * @param {number} index 인덱스
+ */
+function removeCustomSecret(index) {
+    state.customSecrets.splice(index, 1);
+    renderCustomSecrets();
+    saveState();
+}
+
+/**
+ * 커스텀 Secret 키 이름 업데이트
+ * @param {number} index 인덱스
+ * @param {string} key 새 키 이름
+ */
+function updateCustomSecretKey(index, key) {
+    if (state.customSecrets[index]) {
+        state.customSecrets[index].key = key.toUpperCase().replace(/[^A-Z0-9_]/g, '_');
+        saveState();
+    }
+}
+
+/**
+ * 커스텀 Secret 파일 업로드 처리
+ * @param {number} index 인덱스
+ * @param {File} file 파일 객체
+ */
+async function handleCustomFileUpload(index, file) {
+    if (!file) return;
+
+    try {
+        const result = await processFile(file);
+        const suggestedKey = generateKeyName(file.name, result.type);
+
+        state.customSecrets[index] = {
+            key: state.customSecrets[index]?.key || suggestedKey,
+            value: result.value,
+            fileName: file.name,
+            type: result.type,
+            hint: result.hint
+        };
+
+        // 키가 비어있으면 자동 생성된 키 사용
+        if (!state.customSecrets[index].key) {
+            state.customSecrets[index].key = suggestedKey;
+        }
+
+        renderCustomSecrets();
+        saveState();
+        showToast(`✅ ${file.name} 업로드 완료 (${result.type === 'text' ? '텍스트' : 'Base64'})`);
+    } catch (error) {
+        showToast('❌ 파일 읽기 실패: ' + error.message);
+    }
+}
+
+/**
+ * 커스텀 Secret 값 복사
+ * @param {number} index 인덱스
+ */
+function copyCustomSecretValue(index) {
+    const secret = state.customSecrets[index];
+    if (secret && secret.value) {
+        navigator.clipboard.writeText(secret.value).then(() => {
+            showToast(`✅ ${secret.key} 값 복사됨`);
+        }).catch(() => {
+            showToast('❌ 클립보드 복사 실패');
+        });
+    }
+}
+
+/**
+ * 커스텀 Secrets 목록 렌더링
+ */
+function renderCustomSecrets() {
+    const container = document.getElementById('customSecretsList');
+    if (!container) return;
+
+    if (state.customSecrets.length === 0) {
+        container.innerHTML = '';
+        return;
+    }
+
+    container.innerHTML = state.customSecrets.map((secret, index) => {
+        const hasFile = secret.value && secret.fileName;
+        const typeIcon = secret.type === 'text' ? '📄' : '🔐';
+        const typeBadge = secret.type === 'text' ? 'Raw Text' : 'Base64';
+        const typeClass = secret.type === 'text' ? 'text' : 'binary';
+
+        return `
+            <div class="custom-secret-item">
+                <div class="flex items-center justify-between gap-3 mb-3">
+                    ${hasFile ? `<span class="type-badge ${typeClass}">${typeIcon} ${typeBadge}</span>` : '<span></span>'}
+                    <button class="remove-secret-btn" onclick="removeCustomSecret(${index})">✕ 삭제</button>
+                </div>
+
+                <div class="mb-3">
+                    <label class="block text-xs text-slate-400 mb-1">Secret 이름</label>
+                    <input type="text"
+                           class="secret-key-input"
+                           placeholder="SECRET_NAME"
+                           value="${secret.key || ''}"
+                           onchange="updateCustomSecretKey(${index}, this.value)"
+                           oninput="this.value = this.value.toUpperCase().replace(/[^A-Z0-9_]/g, '_')">
+                </div>
+
+                <div class="custom-file-upload ${hasFile ? 'has-file' : ''}"
+                     onclick="document.getElementById('customFile${index}').click()">
+                    <input type="file" id="customFile${index}" onchange="handleCustomFileUpload(${index}, this.files[0])">
+                    ${hasFile
+                        ? `<div class="text-green-400 text-sm">✅ ${escapeHtml(secret.fileName)}</div>`
+                        : `<div class="text-slate-400 text-sm">📁 파일 선택 또는 클릭</div>`
+                    }
+                </div>
+
+                ${hasFile ? `
+                    <div class="usage-hint">💡 ${escapeHtml(secret.hint)}</div>
+                    <div class="flex justify-end mt-2">
+                        <button class="copy-btn-small" onclick="copyCustomSecretValue(${index})">값 복사</button>
+                    </div>
+                ` : ''}
+            </div>
+        `;
+    }).join('');
+}
+
+/**
+ * 커스텀 Secrets를 기존 Secrets와 통합하여 반환
+ * @returns {Array} 통합된 Secrets 배열
+ */
+function getCustomSecretsForExport() {
+    return state.customSecrets
+        .filter(cs => cs.key && cs.value)
+        .map(cs => ({
+            key: cs.key,
+            value: cs.value,
+            desc: `사용자 추가 (${cs.fileName})`,
+            type: cs.type,
+            hint: cs.hint
+        }));
+}
