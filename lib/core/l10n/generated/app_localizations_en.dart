@@ -18,7 +18,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get languageSheetHint => 'Applies immediately';
 
   @override
-  String get languageFollowDevice => 'Follow device settings';
+  String get languageFollowDevice => 'Use device language';
 
   @override
   String languageFollowDeviceHint(String language) {
@@ -46,14 +46,15 @@ class AppLocalizationsEn extends AppLocalizations {
       'Used to pick places on the map for your alerts and to show roughly where you are now.';
 
   @override
-  String get permissionBackgroundTitle => 'Always allow is needed';
+  String get permissionBackgroundTitle => 'Allow location all the time';
 
   @override
   String get permissionBackgroundBody =>
       'To alert you on arrival and departure without keeping the app open, the app has to check your location in the background.\n\nWithout it you would have to keep watching the screen, which defeats the purpose of alerts.';
 
   @override
-  String get permissionBackgroundActionAndroid => 'Allow always in settings';
+  String get permissionBackgroundActionAndroid =>
+      'Allow all the time in Settings';
 
   @override
   String get permissionBackgroundFootnoteAndroid =>
@@ -71,7 +72,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get permissionReliabilityBody =>
-      'When your phone is in power saving or you are using another app, arrival alerts can come late or show up only as a small notification.\n\nTurn on these three and a full-screen alert stays until you dismiss it.\n\n• Exempt from battery optimization — alerts on time even in power saving\n• Display over other apps — the alert screen appears even while you watch a video\n• Full-screen alerts — wakes the screen when it is off';
+      'When your phone is in power saving or you are using another app, arrival alerts can come late or show up only as a small notification.\n\nTurn on all three and the full-screen alert stays on until you dismiss it.\n\n• Unrestricted battery use — alerts on time even in power saving\n• Display over other apps — the alert screen appears even while you watch a video\n• Full-screen notifications — wakes the screen when it is off';
 
   @override
   String get permissionReliabilityAction => 'Turn on all three';
@@ -81,14 +82,15 @@ class AppLocalizationsEn extends AppLocalizations {
       'Settings screens will open one after another. If you skip, the alert screen will not appear on its own, so you would have to tap the notification to open the app and stop the vibration.';
 
   @override
-  String get permissionOpenSettingsTitle => 'Turn on permission in settings';
+  String get permissionOpenSettingsTitle =>
+      'Turn on the permission in Settings';
 
   @override
   String get permissionOpenSettingsBody =>
-      'The permission was denied, so the app cannot ask again. Please allow it in settings yourself.';
+      'The permission was denied, so the app can\'t ask again. Please allow it in Settings.';
 
   @override
-  String get permissionOpenSettingsAction => 'Open settings';
+  String get permissionOpenSettingsAction => 'Open Settings';
 
   @override
   String get permissionDoneTitle => 'All set';
@@ -101,7 +103,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get permissionDoneAction => 'Get started';
 
   @override
-  String get onboardingSkip => 'Later';
+  String get onboardingSkip => 'Not now';
 
   @override
   String get onboardingErrorTitle => 'Could not check permission status';
@@ -123,13 +125,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsVibrationSubtitle =>
-      'Without headphones, alerts use vibration only';
+      'Without earphones, alerts use vibration only';
 
   @override
   String get settingsVolumeTitle => 'Alert sound volume';
 
   @override
-  String get settingsVolumeSubtitle => 'How loud it plays in your headphones';
+  String get settingsVolumeSubtitle => 'How loud it plays in your earphones';
 
   @override
   String get settingsPreviewTitle => 'Preview alert';
@@ -162,7 +164,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Without it, no alert appears when you arrive';
 
   @override
-  String get settingsPermBatteryTitle => 'Exempt from battery optimization';
+  String get settingsPermBatteryTitle => 'Unrestricted battery use';
 
   @override
   String get settingsPermBatteryDesc =>
@@ -176,7 +178,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Without it, the alert screen will not appear while you use another app';
 
   @override
-  String get settingsPermFullScreenTitle => 'Full-screen alerts';
+  String get settingsPermFullScreenTitle => 'Full-screen notifications';
 
   @override
   String get settingsPermFullScreenDesc =>
@@ -238,10 +240,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Alerts you when you arrive at or leave a saved place';
 
   @override
-  String get notificationArrived => 'Arrived';
+  String get notificationArrived => 'You\'ve arrived';
 
   @override
-  String get notificationLeft => 'Left';
+  String get notificationLeft => 'You\'ve left';
 
   @override
   String get alertScreenLeft => 'You\'ve left';
@@ -260,11 +262,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get alertScreenRouteHeadphones => 'Alerting via headphones';
+  String get alertScreenRouteHeadphones => 'Alerting via earphones';
 
   @override
   String get alertScreenRouteSoundFailed =>
-      'Sound failed, alerting by vibration';
+      'Couldn\'t play sound — alerting by vibration';
 
   @override
   String get alertScreenRouteVibrationOnly => 'Alerting by vibration only';
@@ -278,7 +280,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get alertNotificationChannelName => 'Alert in progress';
+  String get alertNotificationChannelName => 'Active alert';
 
   @override
   String get alertNotificationChannelDescription =>
@@ -302,7 +304,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get volumePreviewNoHeadphones =>
-      'Headphones aren\'t connected, so you can\'t preview.';
+      'Earphones aren\'t connected, so you can\'t preview.';
 
   @override
   String get volumePreviewFailed => 'Playback failed.';
@@ -312,7 +314,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get vibrationDescription =>
-      'Without headphones, alerts use vibration only. Pick a strength to feel it once.';
+      'Without earphones, alerts use vibration only. Pick a strength to feel it once.';
 
   @override
   String get vibrationWeak => 'Light';
@@ -324,7 +326,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get vibrationStrong => 'Strong';
 
   @override
-  String get vibrationWeakHint => 'Quiet enough for silent places';
+  String get vibrationWeakHint => 'Too quiet for others nearby to hear';
 
   @override
   String get vibrationNormalHint => 'Default';
@@ -367,7 +369,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get soundPickerHeadphoneNotice =>
-      'Connect headphones to listen. Alert sounds only play when headphones are connected.';
+      'Connect earphones to listen. Alert sounds only play when earphones are connected.';
 
   @override
   String get soundPreviewFailed => 'This sound can\'t be played';
@@ -401,7 +403,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String soundImportUnsupported(String extension, String allowed) {
-    return 'The $extension format isn\'t supported. Only $allowed work.';
+    return 'The $extension format isn\'t supported. Only $allowed are supported.';
   }
 
   @override
@@ -411,7 +413,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String soundImportTooLong(String duration, String max) {
-    return 'Too long ($duration / max $max). Alert sounds repeat, so short is fine.';
+    return 'This file is too long ($duration / max $max). Alert sounds repeat, so a short one is fine.';
   }
 
   @override
@@ -443,7 +445,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get placeMyLocation => 'My location';
 
   @override
-  String get placeSearchHint => 'Search places or address';
+  String get placeSearchHint => 'Search places or addresses';
 
   @override
   String get placeSearchUnavailable =>
@@ -467,7 +469,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get placeDirectionExit => 'Departure alert';
 
   @override
-  String get placeDirectionBoth => 'Arrival·departure';
+  String get placeDirectionBoth => 'Arrival & departure';
 
   @override
   String placeRadiusInfo(String direction, int meters) {
@@ -553,11 +555,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get placeFormTimingBoth => 'Both';
 
   @override
-  String get placeFormSoundTitle => 'Sound alert on headphones';
+  String get placeFormSoundTitle => 'Sound alert on earphones';
 
   @override
   String get placeFormSoundDescription =>
-      'Plays sound only when headphones (wired or Bluetooth) are connected.\nNever plays through the speaker.';
+      'Plays sound only when earphones (wired or Bluetooth) are connected.\nNever plays through the speaker.';
 
   @override
   String get placeFormSoundLabel => 'Alert sound';
@@ -589,10 +591,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get placeErrorEmptyWindow =>
-      'The time window starts and ends at the same time. To alert all day, remove the window';
+      'The start and end times are the same. To alert all day, remove the hours';
 
   @override
-  String get placeErrorNoDays => 'Pick at least one day for the time window';
+  String get placeErrorNoDays => 'Pick at least one day';
 
   @override
   String get placeEmptyTitle => 'Add your first place';
@@ -609,10 +611,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Can\'t get your current location. Check the location permission';
 
   @override
-  String get placeHomeStatusWatching => 'Watching';
+  String get placeHomeStatusWatching => 'Monitoring';
 
   @override
-  String get placeHomeStatusOff => 'Watching off';
+  String get placeHomeStatusOff => 'Monitoring off';
 
   @override
   String get placeHomeStatusChecking => 'Checking';
@@ -621,7 +623,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get placeHomeStatusIdle => 'Standby';
 
   @override
-  String get placeHomeAudioHeadphones => 'Headphones';
+  String get placeHomeAudioHeadphones => 'Earphones';
 
   @override
   String get placeHomeAudioVibrationOnly => 'Vibration only';
@@ -635,7 +637,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String placeHomeWeakMissing(String items) {
-    return '$items off — tap to turn on';
+    return 'Turned off: $items — tap to turn on';
   }
 
   @override
@@ -648,20 +650,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get placeHomeSettings => 'Settings';
 
   @override
-  String get scheduleTitle => 'Alert hours';
+  String get scheduleTitle => 'Alert schedule';
 
   @override
   String get scheduleAlways => 'Always alert';
 
   @override
   String get scheduleAlwaysHint =>
-      'Always alert — add hours to alert only then';
+      'Alerts at any time — add a time range to limit them';
 
   @override
-  String get scheduleAdd => 'Add hours';
+  String get scheduleAdd => 'Add time range';
 
   @override
-  String get scheduleRemove => 'Delete these hours';
+  String get scheduleRemove => 'Delete this time range';
 
   @override
   String get scheduleSheetAddTitle => 'Add hours';
@@ -715,7 +717,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get scheduleSameStartEnd =>
-      'Start and end are the same. To alert all day, just don\'t add hours.';
+      'Start and end are the same. To alert all day, don\'t add a time range.';
 
   @override
   String get scheduleSave => 'Save';
