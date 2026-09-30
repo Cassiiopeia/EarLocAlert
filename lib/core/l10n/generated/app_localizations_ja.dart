@@ -151,25 +151,25 @@ class AppLocalizationsJa extends AppLocalizations {
   String get settingsPermNotifyTitle => '通知の表示';
 
   @override
-  String get settingsPermNotifyDesc => 'ないと、到着してもアラートが表示されません';
+  String get settingsPermNotifyDesc => 'オフのままだと、到着してもアラートが表示されません';
 
   @override
   String get settingsPermBatteryTitle => 'バッテリー最適化の除外';
 
   @override
-  String get settingsPermBatteryDesc => 'ないと、省電力中はアラートが遅れたり届かなかったりします';
+  String get settingsPermBatteryDesc => 'オフのままだと、省電力中はアラートが遅れたり届かなかったりします';
 
   @override
   String get settingsPermOverlayTitle => '他のアプリの上に表示';
 
   @override
-  String get settingsPermOverlayDesc => 'ないと、アプリの使用中にアラート画面が表示されません';
+  String get settingsPermOverlayDesc => 'オフのままだと、アプリの使用中にアラート画面が表示されません';
 
   @override
   String get settingsPermFullScreenTitle => '全画面通知';
 
   @override
-  String get settingsPermFullScreenDesc => 'ないと、画面が消えているときにアラート画面が表示されません';
+  String get settingsPermFullScreenDesc => 'オフのままだと、画面が消えているときにアラート画面が表示されません';
 
   @override
   String get diagnosticsTitle => '動作ログ';
