@@ -53,15 +53,18 @@ class AppUpdateGate {
 
   DateTime? _lastCheck;
 
+  /// [force] 는 사용자가 설정에서 직접 눌렀을 때다 — 간격 제한만 건너뛴다.
+  /// 알림이 울리는 중에는 누른 경우에도 확인하지 않는다 (안내가 해제 버튼을 가린다).
   Future<AppUpdateOutcome> checkWhenIdle({
     required bool Function() alertActive,
+    bool force = false,
   }) async {
     if (alertActive()) {
       Diagnostics.log('update', 'check skipped reason=alert_active');
       return AppUpdateOutcome.skippedAlertActive;
     }
     final last = _lastCheck;
-    if (last != null && _now().difference(last) < minInterval) {
+    if (!force && last != null && _now().difference(last) < minInterval) {
       return AppUpdateOutcome.skippedRecent;
     }
     _lastCheck = _now();

@@ -98,4 +98,29 @@ void main() {
     await gate.checkWhenIdle(alertActive: () => false);
     expect(updater.checks, 2);
   });
+
+  test('직접 눌렀을 때(force)는 간격 안이어도 바로 확인한다 (이슈 #179)', () async {
+    final clock = DateTime(2026, 10, 1, 9);
+    final updater = _FakeUpdater(available: false);
+    final gate = AppUpdateGate(updater, now: () => clock);
+
+    await gate.checkWhenIdle(alertActive: () => false);
+    final forced = await gate.checkWhenIdle(
+      alertActive: () => false,
+      force: true,
+    );
+
+    expect(forced, AppUpdateOutcome.none);
+    expect(updater.checks, 2);
+  });
+
+  test('직접 눌러도 알림이 울리는 중이면 확인하지 않는다 (이슈 #179)', () async {
+    final updater = _FakeUpdater();
+    final outcome = await AppUpdateGate(
+      updater,
+    ).checkWhenIdle(alertActive: () => true, force: true);
+
+    expect(outcome, AppUpdateOutcome.skippedAlertActive);
+    expect(updater.checks, 0);
+  });
 }

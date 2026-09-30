@@ -59,6 +59,7 @@ dependencies:
   # 받으면 되는 일에 그 대가를 치를 이유가 없다.
   file_picker: ^11.0.3
   in_app_update: ^4.2.5
+  package_info_plus: ^9.0.1
 # 전이 의존성 고정 (이슈 #76)
 #
 # device_info_plus 12.4.0 이 `NSProcessInfo.isiOSAppOnVision` 을 쓰기 시작했는데

@@ -32,6 +32,9 @@ import '../features/diagnostics/presentation/diagnostics_screen.dart';
 import '../features/places/presentation/place_search_provider.dart';
 import '../features/settings/presentation/settings_screen.dart';
 import '../features/sounds/presentation/sound_picker_sheet.dart';
+import '../features/app_update/domain/app_updater.dart';
+import '../features/app_update/presentation/app_update_providers.dart';
+import 'app_version_provider.dart';
 import 'home_status_provider.dart';
 
 /// 앱 라우팅 (docs/02-ARCHITECTURE.md)
@@ -330,6 +333,44 @@ class _SettingsRouteState extends ConsumerState<_SettingsRoute>
     }
   }
 
+  /// 설정에서 직접 누른 업데이트 확인 (이슈 #179)
+  ///
+  /// 자동 확인(6시간 간격)과 달리 바로 확인한다. 결과는 세 가지다 — 받아 두었다면
+  /// 재시작을 묻고, 받을 게 없으면 그렇다고 알리고, 알림이 울리는 중이면 아무것도
+  /// 하지 않는다 (설정 화면은 알림 화면 뒤에 있어 사실상 오지 않는 경우다).
+  Future<void> _checkUpdateNow(BuildContext context) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = context.l10n;
+    final gate = ref.read(appUpdateGateProvider);
+    final outcome = await gate.checkWhenIdle(
+      alertActive: () => ref.read(activeAlertProvider) != null,
+      force: true,
+    );
+    if (!mounted) return;
+    switch (outcome) {
+      case AppUpdateOutcome.downloaded:
+        messenger
+          ..hideCurrentSnackBar()
+          ..showSnackBar(
+            SnackBar(
+              content: Text(l10n.appUpdateReady),
+              duration: const Duration(seconds: 15),
+              action: SnackBarAction(
+                label: l10n.appUpdateRestart,
+                onPressed: () => unawaited(gate.install()),
+              ),
+            ),
+          );
+      case AppUpdateOutcome.none:
+        messenger
+          ..hideCurrentSnackBar()
+          ..showSnackBar(SnackBar(content: Text(l10n.appUpdateNone)));
+      case AppUpdateOutcome.skippedAlertActive:
+      case AppUpdateOutcome.skippedRecent:
+        break;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final snapshot = ref.watch(permissionControllerProvider).valueOrNull;
@@ -349,6 +390,9 @@ class _SettingsRouteState extends ConsumerState<_SettingsRoute>
         unawaited(ref.read(geofenceRegistrationSyncProvider).refresh());
       },
       permissions: _permissionRows(ref, snapshot, context.l10n),
+      // 앱 버전과 업데이트 확인 (이슈 #179) — 읽기 실패는 `-` 로 보여준다
+      appVersion: ref.watch(appVersionProvider).valueOrNull ?? '-',
+      onCheckUpdate: () => _checkUpdateNow(context),
       // 백그라운드 감시 연결 전까지 알림 흐름을 확인하는 수단 (S-4·S-5).
       // 지오펜스 실기기 검증이 끝나면 제거한다.
       onPreviewAlert: () async {
