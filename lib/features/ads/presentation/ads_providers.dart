@@ -1,4 +1,3 @@
-// Ref 는 riverpod_annotation 이 아니라 flutter_riverpod 이 제공한다
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';

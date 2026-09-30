@@ -17,6 +17,7 @@ import 'background_alert_notifier.dart';
 import 'geofence_background_processor.dart';
 import 'pending_alert_store.dart';
 import 'watch_engine_host.dart';
+import '../../core/platform/channel_names.dart';
 
 /// 감시 서비스가 보유하는 엔진의 진입점 (이슈 #93)
 ///
@@ -67,7 +68,7 @@ void watchEngineMain() {
   );
 
   final places = DriftPlaceRepository(db);
-  const channel = MethodChannel('kr.suhsaechan.ear_loc_alert/watch_engine');
+  const channel = MethodChannel(ChannelNames.watchEngine);
 
   channel.setMethodCallHandler((call) async {
     try {

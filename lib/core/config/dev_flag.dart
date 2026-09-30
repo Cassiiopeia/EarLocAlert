@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/services.dart';
+import '../platform/channel_names.dart';
 
 /// 개발·검증 빌드 여부 (이슈 #109)
 ///
@@ -20,9 +21,7 @@ import 'package:flutter/services.dart';
 /// 그래서 상태가 셋이다. `true`/`false` 이분법으로 두면 못 읽은 경우가
 /// 둘 중 한쪽에 붙어 반드시 한 쪽이 위험해진다.
 abstract final class DevFlag {
-  static const _channel = MethodChannel(
-    'kr.suhsaechan.ear_loc_alert/app_config',
-  );
+  static const _channel = MethodChannel(ChannelNames.appConfig);
 
   /// null 이면 아직 못 읽었다 — 그 자체가 의미 있는 상태다
   static bool? _value;

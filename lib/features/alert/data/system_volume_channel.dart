@@ -1,6 +1,7 @@
 import 'package:flutter/services.dart';
 
 import '../domain/alert_effects.dart';
+import '../../../core/platform/channel_names.dart';
 
 /// [SystemVolumeService] 의 네이티브 채널 구현 (이슈 #86)
 ///
@@ -13,9 +14,7 @@ import '../domain/alert_effects.dart';
 class SystemVolumeChannel implements SystemVolumeService {
   const SystemVolumeChannel();
 
-  static const _channel = MethodChannel(
-    'kr.suhsaechan.ear_loc_alert/system_volume',
-  );
+  static const _channel = MethodChannel(ChannelNames.systemVolume);
 
   @override
   Future<void> raiseTo(double fraction) =>

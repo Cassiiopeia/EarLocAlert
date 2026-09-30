@@ -58,7 +58,6 @@ class PermissionHandlerService implements PermissionService {
         }
 
       case PermissionKind.overlay:
-        // "다른 앱 위에 표시" 설정 화면으로 나간다
         if (Platform.isAndroid) {
           await ph.Permission.systemAlertWindow.request();
         }

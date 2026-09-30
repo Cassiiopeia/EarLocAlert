@@ -2,10 +2,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import '../../features/geofence/data/drift_geofence_event_repository.dart';
 import '../../features/geofence/data/drift_geofence_state_repository.dart';
-import '../../features/geofence/domain/geofence_event_repository.dart';
-import '../../features/geofence/domain/geofence_evaluator.dart';
 import '../../features/geofence/domain/geofence_state_repository.dart';
 import '../../features/permission/data/full_screen_intent_channel.dart';
 import '../../features/permission/data/permission_handler_service.dart';
@@ -50,11 +47,6 @@ CustomSoundRepository customSoundRepository(Ref ref) {
 }
 
 @Riverpod(keepAlive: true)
-GeofenceEventRepository geofenceEventRepository(Ref ref) {
-  return DriftGeofenceEventRepository(ref.watch(appDatabaseProvider));
-}
-
-@Riverpod(keepAlive: true)
 GeofenceStateRepository geofenceStateRepository(Ref ref) {
   return DriftGeofenceStateRepository(ref.watch(appDatabaseProvider));
 }
@@ -73,10 +65,6 @@ ReliabilityPromptStore reliabilityPromptStore(Ref ref) =>
 PermissionService permissionService(Ref ref) => PermissionHandlerService(
   fullScreenIntent: ref.watch(fullScreenIntentGateProvider),
 );
-
-/// 판정 로직은 상태가 없는 순수 객체다
-@Riverpod(keepAlive: true)
-GeofenceEvaluator geofenceEvaluator(Ref ref) => const GeofenceEvaluator();
 
 @Riverpod(keepAlive: true)
 PermissionGate permissionGate(Ref ref) => const PermissionGate();

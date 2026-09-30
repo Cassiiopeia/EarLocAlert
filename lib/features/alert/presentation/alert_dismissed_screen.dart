@@ -50,7 +50,6 @@ class AlertDismissedScreen extends StatelessWidget {
                 style: AppTypography.caption,
               ),
               const Spacer(),
-              // 광고 자리 — google_mobile_ads 통합 시 이 위치에 배너/전면 삽입
               FilledButton(
                 onPressed: onContinue,
                 child: Text(context.l10n.alertDismissedConfirm),

@@ -27,7 +27,6 @@ class JustAudioPreviewPlayer implements SoundPreviewPlayer {
         await player.setFilePath(filePath);
     }
 
-    // 한 번만 들려준다
     await player.setLoopMode(LoopMode.off);
 
     // 재생 완료를 기다리지 않는다 — 기다리면 목록이 멈춘 것처럼 보인다.

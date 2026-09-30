@@ -5,6 +5,7 @@
 // 필요하다.
 import '../../../core/domain/alert_schedule.dart';
 import '../../../core/l10n/l10n.dart';
+import '../../../core/text/two_digits.dart';
 
 /// 요일 번호(1=월 ~ 7=일) → 짧은 이름.
 ///
@@ -46,9 +47,7 @@ String describeDaysOfWeek(AppLocalizations l10n, Set<int> days) {
 
 /// 자정 기준 분 → "08:00"
 String describeMinuteOfDay(int minuteOfDay) {
-  final hour = (minuteOfDay ~/ 60).toString().padLeft(2, '0');
-  final minute = (minuteOfDay % 60).toString().padLeft(2, '0');
-  return '$hour:$minute';
+  return '${twoDigits(minuteOfDay ~/ 60)}:${twoDigits(minuteOfDay % 60)}';
 }
 
 /// 창 하나 → "평일 08:00 ~ 10:00" · "금 23:00 ~ 02:00 (익일)"

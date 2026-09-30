@@ -1,0 +1,4 @@
+Improved
+• Polished the English, Japanese and Chinese wording and made terms consistent.
+• Permission names now match the Android Settings screen.
+• Fixed mistranslated alert sound names in Chinese.

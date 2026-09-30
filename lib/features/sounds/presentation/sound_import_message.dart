@@ -1,5 +1,6 @@
 import '../../../core/l10n/l10n.dart';
 import '../domain/sound_validator.dart';
+import '../../../core/text/two_digits.dart';
 
 /// 등록 실패 문구 (이슈 #121)
 ///
@@ -48,7 +49,7 @@ String formatBytes(int bytes) {
 String formatDuration(AppLocalizations l10n, Duration duration) {
   final totalSeconds = duration.inSeconds;
   if (totalSeconds < 60) {
-    return '0:${totalSeconds.toString().padLeft(2, '0')}';
+    return '0:${twoDigits(totalSeconds)}';
   }
   final minutes = totalSeconds ~/ 60;
   final seconds = totalSeconds % 60;
