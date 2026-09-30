@@ -3,8 +3,7 @@ import '../../../core/audio/alert_sound_source.dart';
 import 'audio_route.dart';
 import 'vibration_intensity.dart';
 
-/// 음원 타입은 `core/audio` 로 옮겼다 (미리듣기와 공유하기 위해).
-/// 이 파일을 통해 쓰던 코드가 그대로 동작하도록 재노출한다.
+/// 음원 타입은 `core/audio` 에 있다 — 여기서는 재노출만 한다.
 export '../../../core/audio/alert_sound_source.dart';
 
 /// 진동 제어 (docs/02-ARCHITECTURE.md 규칙 3)

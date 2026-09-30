@@ -150,7 +150,6 @@ class _PlaceMapHomeScreenState extends ConsumerState<PlaceMapHomeScreen>
     final placesAsync = ref.watch(placeListProvider);
     final places = placesAsync.valueOrNull ?? const <AlertPlace>[];
 
-    // 장소가 처음 도착한 시점에 카메라를 맞춘다
     if (places.isNotEmpty && !_didFitCamera) {
       WidgetsBinding.instance.addPostFrameCallback((_) => _fitCamera(places));
     }
@@ -276,8 +275,6 @@ class _PlaceMapHomeScreenState extends ConsumerState<PlaceMapHomeScreen>
     );
   }
 
-  // ── 지도 요소 ────────────────────────────────────────────────
-
   Set<Marker> _markers(List<AlertPlace> places, AppSemanticColors semantic) {
     return {
       for (final place in places)
@@ -332,8 +329,6 @@ class _PlaceMapHomeScreenState extends ConsumerState<PlaceMapHomeScreen>
   double _markerHue(AlertPlace place) => place.direction == AlertDirection.exit
       ? BitmapDescriptor.hueOrange
       : BitmapDescriptor.hueCyan;
-
-  // ── 상호작용 ────────────────────────────────────────────────
 
   /// 마커를 누르면 그 장소를 지목하고 시트를 연다.
   ///

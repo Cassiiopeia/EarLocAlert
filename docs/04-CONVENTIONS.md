@@ -4,7 +4,7 @@
 
 ## 상태 관리 — Riverpod code generation 만
 
-**손으로 Provider 를 선언하지 않는다.** 전부 `@riverpod` 애노테이션 + 코드 생성이다.
+**손으로 Provider 를 선언하지 않는다.** 전부 `@riverpod` 애노테이션 + 코드 생성이다. `Ref` 는 `riverpod_annotation` 이 아니라 `flutter_riverpod` 에서 가져온다.
 
 ```dart
 // O

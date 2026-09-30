@@ -200,7 +200,6 @@ class _StepView extends StatelessWidget {
             ),
           ],
           const Spacer(),
-          // 하단 전체 폭 pill 버튼 (docs/06-UX.md)
           FilledButton(onPressed: onAction, child: Text(copy.actionLabel)),
           if (onSkip != null) ...[
             const SizedBox(height: AppSpacing.xs),

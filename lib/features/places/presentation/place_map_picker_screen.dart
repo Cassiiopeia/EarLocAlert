@@ -100,7 +100,6 @@ class _PlaceMapPickerScreenState extends State<PlaceMapPickerScreen> {
 
   GoogleMapController? _map;
 
-  // ── 검색 상태 ──
   final _searchController = TextEditingController();
   final _searchFocus = FocusNode();
   Timer? _debounce;
@@ -138,8 +137,6 @@ class _PlaceMapPickerScreenState extends State<PlaceMapPickerScreen> {
     if (!hasCoords && _fallbackView.isWorld) return _fallbackView.zoom;
     return _fitZoom(_initialCenter);
   }
-
-  // ── 검색 ────────────────────────────────────────────────────
 
   void _onQueryChanged(String query) {
     _debounce?.cancel();

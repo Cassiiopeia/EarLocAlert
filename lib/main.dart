@@ -21,8 +21,6 @@ Future<void> main() async {
   // 그려졌다가 바뀌는 깜빡임이 생긴다. 읽기에 실패해도 기기 언어로 뜬다.
   final language = await const AppLanguageStore().read();
 
-  // Riverpod 으로 통일한다 — get_it 을 병행하지 않는다
-  // (docs/02-ARCHITECTURE.md)
   runApp(
     ProviderScope(
       overrides: [appLanguageInitialProvider.overrideWithValue(language)],
