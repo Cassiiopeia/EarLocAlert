@@ -733,4 +733,13 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get appUpdateRestart => '다시 시작';
+
+  @override
+  String get settingsVersionTitle => '앱 버전';
+
+  @override
+  String get settingsVersionCheck => '업데이트 확인';
+
+  @override
+  String get appUpdateNone => '지금 받을 수 있는 업데이트가 없어요';
 }

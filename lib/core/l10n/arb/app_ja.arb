@@ -219,5 +219,8 @@
   "scheduleTimeRangeNextDay": "{start} ~ {end}（翌日）",
   "scheduleMore": "{first} ほか{count}件",
   "appUpdateReady": "新しいバージョンをダウンロードしました",
-  "appUpdateRestart": "再起動"
+  "appUpdateRestart": "再起動",
+  "settingsVersionTitle": "アプリのバージョン",
+  "settingsVersionCheck": "アップデートを確認",
+  "appUpdateNone": "今のところ利用できるアップデートはありません"
 }

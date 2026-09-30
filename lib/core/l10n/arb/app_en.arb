@@ -219,5 +219,8 @@
   "scheduleTimeRangeNextDay": "{start} ~ {end} (next day)",
   "scheduleMore": "{first} +{count} more",
   "appUpdateReady": "A new version is ready",
-  "appUpdateRestart": "Restart"
+  "appUpdateRestart": "Restart",
+  "settingsVersionTitle": "App version",
+  "settingsVersionCheck": "Check for updates",
+  "appUpdateNone": "No update is available right now"
 }

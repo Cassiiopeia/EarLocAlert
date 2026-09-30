@@ -462,5 +462,8 @@
     }
   },
   "appUpdateReady": "새 버전을 받았어요",
-  "appUpdateRestart": "다시 시작"
+  "appUpdateRestart": "다시 시작",
+  "settingsVersionTitle": "앱 버전",
+  "settingsVersionCheck": "업데이트 확인",
+  "appUpdateNone": "지금 받을 수 있는 업데이트가 없어요"
 }

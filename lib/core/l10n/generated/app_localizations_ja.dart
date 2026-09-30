@@ -731,4 +731,13 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get appUpdateRestart => '再起動';
+
+  @override
+  String get settingsVersionTitle => 'アプリのバージョン';
+
+  @override
+  String get settingsVersionCheck => 'アップデートを確認';
+
+  @override
+  String get appUpdateNone => '今のところ利用できるアップデートはありません';
 }
