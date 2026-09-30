@@ -56,6 +56,14 @@ class AlertAdCoordinator {
   Future<bool> onAlertDismissed({required DateTime now}) async {
     try {
       final state = await _store.read();
+      if (state.isFirstLaunch) {
+        // 첫 해제에서는 광고를 내지 않고 "첫 실행 끝" 표시만 남긴다 — 첫인상을
+        // 광고로 만들지 않는다. 이 표시를 남기는 곳이 없어서 예전에는 광고가 영원히
+        // 나오지 않았다 (이슈 #175). 이미 해제가 끝난 뒤라 사용자에게 영향이 없다.
+        await _store.markLaunched();
+        Diagnostics.log('ads', 'interstitial skipped (reason=first_launch)');
+        return false;
+      }
       final allowed = _policy.canShowInterstitial(
         now: now,
         lastShownAt: state.lastShownAt,
