@@ -1,550 +1,645 @@
 #!/usr/bin/env python3
-# ===================================================================
-# version_manager.py — 프로젝트 버전 관리 (version_manager.sh의 Python 포팅)
-# ===================================================================
-#
-# 크로스 플랫폼(Windows/macOS/Linux) 표준 라이브러리 전용 — yq/jq 불필요.
-# 기존 version_manager.sh는 이 파일로 위임하는 shim이며, 호출 계약은 동일하다:
-#   - 결과값은 stdout 마지막 줄, 로그는 stderr (워크플로우의 `| tail -n 1` 호환)
-#   - 커맨드: get | get-code | increment | increment-code | set | sync | validate
-#
-# version.yml 스키마 (v4.1.0 SSOT):
-#   - project_types 배열이 유일한 소스 (첫 항목이 primary)
-#   - 단수 project_type 키는 제거됨 — 잔존 시 무시(경고), 단수-only legacy는 명시적 실패
-#   - project_paths 맵으로 모노레포 서브폴더 지원
-# ===================================================================
+"""
+version_manager.py — general-purpose version management script (stdlib only).
 
+This script is copied into user repos (.github/scripts/) by project-auto-wizard
+and runs standalone on GitHub Actions ubuntu runners (python3, no third-party deps).
+
+It is a Python rewrite of the battle-tested bash version_manager.sh from
+SUH-DEVOPS-TEMPLATE. Behavioral equivalence with that script is the design goal:
+- version.yml is the single source of truth for `version` and `version_code`.
+- version.yml is edited via line-based regex replacements that preserve all
+  comments and formatting (never rewritten wholesale, never parsed with a YAML lib).
+- Versions are synced out to type-specific project files (build.gradle,
+  pubspec.yaml, package.json, pyproject.toml, Info.plist, app.json, ...).
+
+Usage:
+    version_manager.py get              # current version (synced)
+    version_manager.py get-code         # current version_code
+    version_manager.py increment        # patch+1, sync, bump version_code
+    version_manager.py increment-code   # version_code+1 only
+    version_manager.py set X.Y.Z        # set version explicitly, sync
+    version_manager.py sync             # sync version.yml <-> project files
+
+Contract:
+    - The LAST line printed to stdout is always the value (callers do `| tail -n 1`).
+    - Exit 0 on success; exit 1 on validation failure or missing version.yml.
+"""
+
+import argparse
+import datetime
 import json
 import os
 import re
 import sys
 from pathlib import Path
 
-VERSION_RE = re.compile(r"^\d+\.\d+\.\d+$")
-VERSION_YML = Path("version.yml")
+VERSION_YML = "version.yml"
+SEMVER_RE = re.compile(r"^\d+\.\d+\.\d+$")
 
 
-# ── 로그 (stderr — .sh 이모지 동일) ─────────────────────────────────
-def log_info(msg): print(f"ℹ️  {msg}", file=sys.stderr)
-def log_success(msg): print(f"✅ {msg}", file=sys.stderr)
-def log_error(msg): print(f"❌ {msg}", file=sys.stderr)
-def log_warning(msg): print(f"⚠️  {msg}", file=sys.stderr)
-def log_debug(msg):
-    if os.environ.get("DEBUG") == "true":
-        print(f"🔍 DEBUG: {msg}", file=sys.stderr)
+def log(message):
+    """Non-value logging output, written to stderr (mirroring the bash
+    script's log_* helpers). stdout is reserved for the value contract:
+    its last line is always the command's result."""
+    print(message, file=sys.stderr)
 
 
-# ── version.yml 읽기/쓰기 (라인 단위 — 주석·서식 보존) ────────────────
-def read_text(path: Path) -> str:
-    return path.read_text(encoding="utf-8")
+# ===================================================================
+# Newline-preserving file I/O
+# ===================================================================
+
+def _detect_eol(raw):
+    """Return the dominant line ending of raw text ("\r\n" or "\n")."""
+    crlf = raw.count("\r\n")
+    lf = raw.count("\n") - crlf
+    return "\r\n" if crlf > lf else "\n"
 
 
-def write_text(path: Path, content: str):
-    path.write_text(content, encoding="utf-8", newline="\n")
+def read_file(path):
+    """Read a text file with newlines normalized to \\n for regex processing.
+    The original dominant line ending is re-applied by write_file()."""
+    with open(path, "r", encoding="utf-8", newline="") as f:
+        return f.read().replace("\r\n", "\n")
 
 
-def yml_lines():
-    return read_text(VERSION_YML).split("\n")
+def write_file(path, text):
+    """Write text preserving the dominant line ending of the existing file
+    on disk (LF stays LF, CRLF stays CRLF — never platform-dependent)."""
+    p = Path(path)
+    eol = "\n"
+    if p.is_file():
+        with open(p, "r", encoding="utf-8", newline="") as f:
+            eol = _detect_eol(f.read())
+    if eol != "\n":
+        text = text.replace("\n", eol)
+    with open(p, "w", encoding="utf-8", newline="") as f:
+        f.write(text)
 
 
-def parse_project_types() -> list:
-    """project_types: ["a","b"] → ["a","b"] (주석 라인 제외). 없으면 []."""
-    if not VERSION_YML.is_file():
-        return []
-    for line in yml_lines():
-        if line.lstrip().startswith("#"):
-            continue
-        m = re.match(r"^project_types:\s*(\[[^\]]*\])", line)
-        if m:
-            return [t.strip().strip('"').strip("'") for t in m.group(1)[1:-1].split(",") if t.strip()]
+# ===================================================================
+# version.yml line-based read/write helpers
+# ===================================================================
+
+def _version_yml_path():
+    return Path(VERSION_YML)
+
+
+def require_version_yml():
+    if not _version_yml_path().is_file():
+        log("ERROR: version.yml not found")
+        sys.exit(1)
+
+
+def read_text():
+    return read_file(_version_yml_path())
+
+
+def write_text(text):
+    write_file(_version_yml_path(), text)
+
+
+def read_scalar_key(key, default=None):
+    """Read a simple top-level `key: "value"` or `key: value` line.
+    Trailing `# comment` (unquoted values only) is stripped."""
+    text = read_text()
+    m = re.search(
+        r'^' + re.escape(key) + r':[ \t]*(.*)$',
+        text,
+        re.MULTILINE,
+    )
+    if not m:
+        return default
+    raw = m.group(1).strip()
+    if raw.startswith('"'):
+        qm = re.match(r'"([^"]*)"', raw)
+        val = qm.group(1) if qm else raw.strip('"')
+    else:
+        # unquoted scalar: strip trailing comment
+        val = raw.split("#", 1)[0].strip()
+    return val if val != "" else default
+
+
+def write_scalar_key(key, value, quote=True):
+    """Replace a top-level `key: ...` line's value, preserving everything else.
+    If the key doesn't exist, does nothing (mirrors bash's yq behavior of only
+    updating existing keys for metadata fields)."""
+    text = read_text()
+    pattern = re.compile(r'^(' + re.escape(key) + r':)[ \t]*.*$', re.MULTILINE)
+    if not pattern.search(text):
+        return False
+    if quote:
+        replacement = r'\1 "' + value.replace('\\', '\\\\').replace('"', '\\"') + '"'
+    else:
+        replacement = r'\1 ' + str(value)
+    new_text = pattern.sub(replacement, text, count=1)
+    write_text(new_text)
+    return True
+
+
+def key_exists(key):
+    text = read_text()
+    return re.search(r'^' + re.escape(key) + r':', text, re.MULTILINE) is not None
+
+
+def get_current_version():
+    return read_scalar_key("version", "0.0.0")
+
+
+def get_project_types_csv():
+    """Return project_types as a list. Supports both:
+      project_types: ["a", "b"]
+      project_types:
+        - "a"
+        - "b"
+    Returns [] if the key is absent — project_types is the single source of
+    truth (issue #62), so callers must treat [] as a hard error rather than
+    falling back to a singular key."""
+    text = read_text()
+
+    # Inline array form: project_types: ["a", "b"]  # trailing comment allowed
+    # The template always appends "# first entry is primary", so anchoring at
+    # end-of-line made this branch never match — every install silently fell
+    # through to the singular key instead (issue #62).
+    m = re.search(r'^project_types:[ \t]*\[(.*?)\][ \t]*(?:#.*)?$', text, re.MULTILINE)
+    if m:
+        inner = m.group(1)
+        items = re.findall(r'"([^"]*)"|\'([^\']*)\'', inner)
+        types = [a or b for a, b in items]
+        return [t for t in types if t]
+
+    # Block list form:
+    # project_types:
+    #   - "a"
+    #   - "b"
+    m = re.search(r'^project_types:[ \t]*\n((?:[ \t]+-[ \t]*.*\n?)+)', text, re.MULTILINE)
+    if m:
+        block = m.group(1)
+        # trailing comments are allowed on list items too
+        types = re.findall(r'-[ \t]*["\']?([^"\'#\n]+?)["\']?[ \t]*(?:#.*)?$', block, re.MULTILINE)
+        return [t.strip() for t in types if t.strip()]
+
     return []
 
 
-def parse_legacy_single_type() -> str:
-    """v4.1.0 이전 단수 project_type 키 (감지용 — 값은 쓰지 않음)."""
-    for line in yml_lines():
-        if line.lstrip().startswith("#"):
-            continue
-        m = re.match(r"^project_type:\s*[\"']?([A-Za-z0-9_-]+)", line)
-        if m:
-            return m.group(1)
-    return ""
-
-
-def get_type_path(t: str) -> str:
-    """project_paths.<type> — 키 없으면 '.' (legacy: 루트 기준)."""
-    in_paths = False
-    for line in yml_lines():
-        if re.match(r"^project_paths:", line):
-            in_paths = True
-            continue
-        if in_paths:
-            m = re.match(r'^\s+([A-Za-z0-9_-]+):\s*"([^"]*)"', line)
-            if m:
-                if m.group(1) == t:
-                    return m.group(2) or "."
-            elif re.match(r"^\S", line):
-                break
+def get_type_path(project_type, project_types_list=None):
+    """Return project_paths.<type> if set, else '.' (repo root)."""
+    text = read_text()
+    m = re.search(r'^project_paths:[ \t]*\n((?:[ \t]+.+\n?)+)', text, re.MULTILINE)
+    if not m:
+        return "."
+    block = m.group(1)
+    km = re.search(
+        r'^[ \t]+["\']?' + re.escape(project_type) + r'["\']?:[ \t]*["\']?([^"\'\n]+?)["\']?[ \t]*$',
+        block,
+        re.MULTILINE,
+    )
+    if km:
+        val = km.group(1).strip()
+        if val and val != "null":
+            return val
     return "."
 
 
-def get_yml_version() -> str:
-    for line in yml_lines():
-        if line.lstrip().startswith("#"):
-            continue
-        m = re.match(r"^version:\s*[\"']?([0-9][0-9.]*)[\"']?", line)
-        if m:
-            return m.group(1)
-    return "0.0.0"
-
-
-def set_yml_field(pattern: str, new_line_fn):
-    """pattern에 걸리는 첫 라인을 new_line_fn(match)로 교체. 교체 여부 반환."""
-    lines = yml_lines()
-    for i, line in enumerate(lines):
-        if line.lstrip().startswith("#"):
-            continue
-        m = re.match(pattern, line)
-        if m:
-            lines[i] = new_line_fn(m)
-            write_text(VERSION_YML, "\n".join(lines))
-            return True
-    return False
-
-
-# ── 설정 읽기 (.sh read_version_config 등가, v4.1.0 SSOT) ───────────
-class Config:
-    def __init__(self):
-        if not VERSION_YML.is_file():
-            log_error("version.yml 파일을 찾을 수 없습니다!")
-            sys.exit(1)
-
-        log_debug("version.yml 파싱 시작 (stdlib 사용)")
-
-        self.types = parse_project_types()
-        legacy = parse_legacy_single_type()
-
-        if self.types:
-            if legacy:
-                log_warning("project_type 단수 키는 v4.1.0부터 무시됩니다 — version.yml에서 해당 라인을 제거하세요 (project_types 배열이 유일한 소스)")
-            self.primary = self.types[0]
-        elif legacy:
-            log_error("version.yml이 v4.1.0 이전 형식입니다 (project_type 단수 키만 존재).")
-            log_error("전환 절차: project_type 라인을 삭제하고 project_types 배열로 교체하세요.")
-            log_error(f'  예) project_type: "{legacy}"  →  project_types: ["{legacy}"]')
-            sys.exit(1)
+def get_version_code():
+    require_version_yml()
+    code = read_scalar_key("version_code", None)
+    if code is None or code == "" or code == "null":
+        log("WARNING: version_code field missing, adding default value 1")
+        text = read_text()
+        if re.search(r'^version:', text, re.MULTILINE):
+            new_text = re.sub(
+                r'^(version:[^\n]*\n)',
+                r'\1version_code: 1  # app build number\n',
+                text,
+                count=1,
+                flags=re.MULTILINE,
+            )
         else:
-            self.primary = "basic"
-
-        self.current_version = get_yml_version()
-        self.version_file = self._resolve_version_file()
-
-        log_info("프로젝트 설정:")
-        if self.types:
-            log_info(f"  타입(배열): {','.join(self.types)}")
-        log_info(f"  타입(primary): {self.primary}")
-        log_info(f"  버전 파일(primary): {self.version_file}")
-        log_info(f"  현재 버전: {self.current_version}")
-
-    def _resolve_version_file(self) -> str:
-        p = get_type_path(self.primary)
-        t = self.primary
-        if t == "spring":
-            return f"{p}/build.gradle"
-        if t == "flutter":
-            return f"{p}/pubspec.yaml"
-        if t in ("react", "node"):
-            return f"{p}/package.json"
-        if t == "react-native":
-            ios_dir = Path(p) / "ios"
-            if ios_dir.is_dir():
-                plists = sorted(ios_dir.rglob("Info.plist"))
-                if plists:
-                    return str(plists[0])
-            return f"{p}/android/app/build.gradle"
-        if t == "react-native-expo":
-            return f"{p}/app.json"
-        if t == "python":
-            return f"{p}/pyproject.toml"
-        return "version.yml"  # basic 및 그 외
+            new_text = text.rstrip("\n") + '\nversion_code: 1  # app build number\n'
+        write_text(new_text)
+        return "1"
+    return code.strip()
 
 
-# ── 버전 유틸 ────────────────────────────────────────────────────────
-def validate_version(version: str) -> bool:
-    if VERSION_RE.match(version or ""):
-        return True
-    log_error(f"잘못된 버전 형식: '{version}' (x.y.z 형식이어야 함)")
-    return False
+def set_version_code(new_code):
+    current = read_scalar_key("version_code", None)
+    if current not in (None, "", "null"):
+        try:
+            if int(new_code) < int(current):
+                log(f"WARNING: version_code {new_code} is lower than current {current} — writing anyway (regression?)")
+        except ValueError:
+            pass
+    text = read_text()
+    pattern = re.compile(r'^version_code:[ \t]*.*$', re.MULTILINE)
+    replacement = f'version_code: {new_code}  # app build number'
+    if pattern.search(text):
+        new_text = pattern.sub(replacement, text, count=1)
+    else:
+        new_text = re.sub(
+            r'^(version:[^\n]*\n)',
+            r'\1' + replacement + '\n',
+            text,
+            count=1,
+            flags=re.MULTILINE,
+        )
+    write_text(new_text)
 
 
-def increment_patch(version: str) -> str:
+def validate_version(version):
+    return bool(version) and SEMVER_RE.match(version) is not None
+
+
+def increment_patch(version):
     major, minor, patch = version.split(".")
     return f"{major}.{minor}.{int(patch) + 1}"
 
 
-def increment_version(version: str, bump: str = "patch") -> str:
-    """bump: 'major'|'minor'|'patch'. 생략하면 기존과 동일하게 patch 증가(하위호환)."""
-    major, minor, patch = version.split(".")
+def increment_version(version, bump="patch"):
+    """bump: 'major'|'minor'|'patch'. 생략하면 기존과 동일하게 patch(increment_patch)로 동작."""
     if bump == "major":
+        major, _minor, _patch = version.split(".")
         return f"{int(major) + 1}.0.0"
     if bump == "minor":
+        major, minor, _patch = version.split(".")
         return f"{major}.{int(minor) + 1}.0"
-    return f"{major}.{minor}.{int(patch) + 1}"
+    return increment_patch(version)
 
 
-def higher_version(v1: str, v2: str) -> str:
-    a = [int(x) for x in v1.split(".")[:3]]
-    b = [int(x) for x in v2.split(".")[:3]]
-    return v1 if a >= b else v2
-
-
-# ── version_code ─────────────────────────────────────────────────────
-def get_version_code() -> int:
-    if not VERSION_YML.is_file():
-        log_warning("version.yml 파일이 없습니다. 기본값 1 반환")
-        return 1
-    for line in yml_lines():
-        if line.lstrip().startswith("#"):
-            continue
-        m = re.match(r"^version_code:\s*([0-9]+)", line)
-        if m:
-            log_debug(f"현재 version_code: {m.group(1)}")
-            return int(m.group(1))
-    # 필드 없음 → version 라인 다음에 추가 (초기값 1)
-    log_warning("version_code 필드가 없습니다. 자동으로 추가합니다 (초기값: 1)")
-    lines = yml_lines()
-    for i, line in enumerate(lines):
-        if not line.lstrip().startswith("#") and re.match(r"^version:", line):
-            lines.insert(i + 1, "version_code: 1 # app build number")
-            write_text(VERSION_YML, "\n".join(lines))
-            break
-    else:
-        lines.append("version_code: 1 # app build number")
-        write_text(VERSION_YML, "\n".join(lines))
-    log_success("version_code 필드 추가 완료: 1")
-    return 1
-
-
-def set_version_code(new_code: int):
-    replaced = set_yml_field(
-        r"^version_code:\s*[0-9]+",
-        lambda m: f"version_code: {new_code} # app build number",
-    )
-    if not replaced:
-        get_version_code()  # 필드 생성
-        set_yml_field(r"^version_code:\s*[0-9]+", lambda m: f"version_code: {new_code} # app build number")
-
-
-def increment_version_code() -> int:
-    current = get_version_code()
-    new_code = current + 1
-    log_info(f"VERSION_CODE 증가: {current} → {new_code}")
-    set_version_code(new_code)
-    log_success(f"VERSION_CODE 업데이트 완료: {new_code}")
-    return new_code
-
-
-# ── 파일별 버전 읽기/쓰기 헬퍼 ────────────────────────────────────────
-def read_json(path: Path):
-    return json.loads(read_text(path))
-
-
-def write_json(path: Path, obj):
-    # jq 등가: 2-space indent + 마지막 개행
-    write_text(path, json.dumps(obj, indent=2, ensure_ascii=False) + "\n")
-
-
-def sub_file(path: Path, pattern: str, repl, count=0, flags=re.MULTILINE) -> bool:
-    text = read_text(path)
-    new_text, n = re.subn(pattern, repl, text, count=count, flags=flags)
-    if n:
-        write_text(path, new_text)
-    return n > 0
-
-
-def plist_set_version(path: Path, new_version: str) -> bool:
-    """CFBundleShortVersionString 키 다음 <string> 값을 교체 (.sh sed 등가)."""
-    lines = read_text(path).split("\n")
-    changed = False
-    for i, line in enumerate(lines):
-        if "CFBundleShortVersionString" in line and i + 1 < len(lines):
-            lines[i + 1] = re.sub(r"<string>[^<]*</string>", f"<string>{new_version}</string>", lines[i + 1])
-            changed = True
-    if changed:
-        write_text(path, "\n".join(lines))
-    return changed
-
-
-def get_project_file_version(cfg: Config) -> str:
-    vf = Path(cfg.version_file)
-    if cfg.primary == "basic" or not vf.is_file():
-        return cfg.current_version
-
-    v = ""
-    t = cfg.primary
-    try:
-        if t == "spring":
-            m = re.search(r"^\s*version\s*=\s*['\"](\d+\.\d+\.\d+)['\"]", read_text(vf), re.MULTILINE)
-            v = m.group(1) if m else ""
-        elif t == "flutter":
-            m = re.search(r"^version:\s*(\S+)", read_text(vf), re.MULTILINE)
-            v = (m.group(1) if m else "").split("+")[0].strip('"').strip("'")
-        elif t in ("react", "node"):
-            v = str(read_json(vf).get("version", "") or "")
-        elif t == "react-native":
-            if cfg.version_file.endswith("Info.plist"):
-                m = re.search(r"CFBundleShortVersionString</key>\s*<string>([^<]*)</string>", read_text(vf))
-                v = m.group(1) if m else ""
-            else:
-                m = re.search(r'versionName\s*"([^"]+)"', read_text(vf))
-                v = m.group(1) if m else ""
-        elif t == "react-native-expo":
-            v = str((read_json(vf).get("expo") or {}).get("version", "") or "")
-        elif t == "python":
-            m = re.search(r'^version\s*=\s*"(\d+\.\d+\.\d+)"', read_text(vf), re.MULTILINE)
-            v = m.group(1) if m else ""
-        else:
-            v = cfg.current_version
-    except (OSError, json.JSONDecodeError) as e:
-        log_warning(f"프로젝트 파일 읽기 실패({vf}): {e}")
-        v = ""
-
-    if not v:
-        v = cfg.current_version
-    log_debug(f"프로젝트 파일 버전: '{v}'")
-    return v
-
-
-# ── 타입별 sync (.sh sync_for_type 등가) ─────────────────────────────
-def sync_for_type(t: str, new_version: str):
-    p = get_type_path(t)
-    log_info(f"타입별 sync: {t} → {new_version} (경로: {p})")
-    base = Path(p)
-
-    if t == "spring":
-        if base.is_dir():
-            # find -maxdepth 2 -name build.gradle 등가
-            candidates = sorted(set(base.glob("build.gradle")) | set(base.glob("*/build.gradle")))
-            for gradle in candidates:
-                changed = sub_file(gradle, r"version = '[^']*'", f"version = '{new_version}'")
-                changed |= sub_file(gradle, r'version = "[^"]*"', f'version = "{new_version}"')
-                if changed:
-                    log_success(f"업데이트: {gradle.as_posix()}")
-        else:
-            log_warning(f"spring: {p} 디렉토리 없음 — 건너뜀")
-    elif t == "flutter":
-        pubspec = base / "pubspec.yaml"
-        if pubspec.is_file():
-            code = get_version_code()
-            sub_file(pubspec, r"^version:.*$", f"version: {new_version}+{code}", count=1)
-            log_success(f"업데이트: {pubspec.as_posix()}")
-        else:
-            log_warning(f"flutter: {p}/pubspec.yaml 없음 — 건너뜀")
-    elif t in ("react", "node"):
-        pkg = base / "package.json"
-        if pkg.is_file():
-            obj = read_json(pkg)
-            obj["version"] = new_version
-            write_json(pkg, obj)
-            log_success(f"업데이트: {pkg.as_posix()}")
-        else:
-            log_warning(f"{t}: {p}/package.json 없음 — 건너뜀")
-    elif t == "python":
-        toml = base / "pyproject.toml"
-        if toml.is_file():
-            sub_file(toml, r'^version = "[^"]*"', f'version = "{new_version}"')
-            log_success(f"업데이트: {toml.as_posix()}")
-        else:
-            log_warning(f"python: {p}/pyproject.toml 없음 — 건너뜀")
-    elif t == "react-native":
-        ios_dir = base / "ios"
-        if ios_dir.is_dir():
-            for plist in sorted(ios_dir.rglob("Info.plist")):
-                if plist_set_version(plist, new_version):
-                    log_success(f"업데이트: {plist.as_posix()}")
-        else:
-            log_warning(f"react-native: {p}/ios 디렉토리 없음 — 건너뜀")
-        gradle = base / "android" / "app" / "build.gradle"
-        if gradle.is_file():
-            sub_file(gradle, r'versionName "[^"]*"', f'versionName "{new_version}"')
-            log_success(f"업데이트: {gradle.as_posix()}")
-        else:
-            log_warning(f"react-native: {p}/android/app/build.gradle 없음 — 건너뜀")
-    elif t == "react-native-expo":
-        app_json = base / "app.json"
-        if app_json.is_file():
-            obj = read_json(app_json)
-            obj.setdefault("expo", {})["version"] = new_version
-            write_json(app_json, obj)
-            log_success(f"업데이트: {app_json.as_posix()}")
-        else:
-            log_warning(f"react-native-expo: {p}/app.json 없음 — 건너뜀")
-    elif t == "basic":
-        pass
-    else:
-        log_warning(f"알 수 없는 타입: {t} — 건너뜀")
-
-
-def sync_all_project_files(cfg: Config, new_version: str):
-    if cfg.types:
-        log_info(f"멀티타입 sync 시작: {','.join(cfg.types)}")
-        for t in cfg.types:
-            sync_for_type(t, new_version)
-    else:
-        # 배열이 없으면 basic 취급 (Config에서 이미 primary=basic) — 대상 파일 없음
-        sync_for_type(cfg.primary, new_version)
-
-
-# ── version.yml 갱신 (.sh update_version_yml 등가) ───────────────────
-def update_version_yml(cfg: Config, new_version: str):
-    from datetime import datetime, timezone
-
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    user = os.environ.get("GITHUB_ACTOR") or os.environ.get("USER") or os.environ.get("USERNAME") or "unknown"
-
-    log_debug(f"version.yml 업데이트: {new_version}")
-    set_yml_field(
-        r"^version:\s*[\"']?[0-9][0-9.]*[\"']?(\s*#.*)?$",
-        lambda m: f'version: "{new_version}"' + (m.group(1) or ""),
-    )
-    # metadata 필드는 존재할 때만 갱신 (.sh yq -e 가드 등가)
-    set_yml_field(r"^(\s+last_updated:\s*).*$", lambda m: f'{m.group(1)}"{timestamp}"')
-    set_yml_field(r"^(\s+last_updated_by:\s*).*$", lambda m: f'{m.group(1)}"{user}"')
-
-    cfg.current_version = new_version
-    log_success(f"version.yml 업데이트 완료: {new_version}")
-
-
-# ── sync (.sh sync_versions 등가) ────────────────────────────────────
-def sync_versions(cfg: Config) -> str:
-    yml_version = cfg.current_version
-    project_version = get_project_file_version(cfg)
-
-    log_info("버전 동기화 검사")
-    log_info(f"  version.yml: {yml_version}")
-    log_info(f"  프로젝트 파일: {project_version}")
-
-    if yml_version != project_version:
-        if VERSION_RE.match(yml_version) and VERSION_RE.match(project_version):
-            higher = higher_version(yml_version, project_version)
-            log_info(f"버전 불일치 감지, 높은 버전으로 동기화: {higher}")
-            if higher != yml_version:
-                update_version_yml(cfg, higher)
-            if higher != project_version:
-                sync_all_project_files(cfg, higher)
-            return higher
-        log_warning("버전 형식 오류로 동기화 불가")
-        return yml_version
-
-    # primary는 일치 — 멀티타입이면 비-primary 파일 정합화
-    if cfg.types:
-        log_info(f"멀티타입 — 전 타입 파일을 version.yml 버전으로 정합화: {yml_version}")
-        sync_all_project_files(cfg, yml_version)
-    log_success(f"버전이 이미 동기화되어 있음: {yml_version}")
-    return yml_version
-
-
-def update_all_versions(cfg: Config, new_version: str):
-    log_info(f"모든 버전 파일 업데이트: {new_version}")
-    update_version_yml(cfg, new_version)
-    sync_all_project_files(cfg, new_version)
-    log_success(f"모든 버전 파일 업데이트 완료: {new_version}")
-
-
-USAGE = """사용법: version_manager.py {get|get-code|increment|increment-code|set|sync|validate} [version]
-
-Commands:
-  get            - 현재 버전 가져오기 (동기화 포함)
-  get-code       - 현재 VERSION_CODE 가져오기
-  increment      - 버전 증가 + VERSION_CODE 증가
-                   [--bump major|minor|patch] (기본 patch — 미지정 시 기존 동작)
-  increment-code - VERSION_CODE만 증가
-  set            - 특정 버전으로 설정
-  sync           - 버전 파일 간 동기화
-  validate       - 버전 형식 검증
-"""
-
-
-def parse_bump_flag(argv) -> str | None:
-    """`increment --bump <level>` 파싱. 플래그가 없으면 'patch'(기존 동작), 값이 잘못되면 None.
-
-    argparse를 쓰지 않는 이유: 이 CLI는 위치인자 기반 계약(`set 1.2.3` 등)을 그대로
-    유지해야 하고, .sh shim이 인자를 그대로 통과시키므로 파싱을 단순하게 둔다.
-    """
-    if "--bump" not in argv:
-        return "patch"
-    idx = argv.index("--bump")
-    if idx + 1 >= len(argv):
-        return None
-    value = argv[idx + 1]
-    return value if value in ("major", "minor", "patch") else None
-
-
-def main(argv):
-    command = argv[1] if len(argv) > 1 else "get"
-
-    if command not in ("get", "get-code", "increment", "increment-code", "set", "sync", "validate"):
-        print(USAGE, file=sys.stderr)
-        return 1
-
-    cfg = Config()
-
-    if command == "get":
-        version = sync_versions(cfg)
-        log_success(f"현재 버전: {version}")
-        print(version)
-    elif command == "get-code":
-        code = get_version_code()
-        log_success(f"현재 VERSION_CODE: {code}")
-        print(code)
-    elif command == "increment-code":
-        print(increment_version_code())
-    elif command == "increment":
-        bump = parse_bump_flag(argv)
-        if bump is None:
-            log_error("--bump 값은 major|minor|patch 중 하나여야 합니다")
+def compare_versions(v1, v2):
+    """Return 1 if v1>v2, -1 if v1<v2, 0 if equal."""
+    p1 = [int(x) for x in v1.split(".")]
+    p2 = [int(x) for x in v2.split(".")]
+    for a, b in zip(p1, p2):
+        if a > b:
             return 1
-        log_info("버전 동기화 확인")
-        current = sync_versions(cfg)
-        if not validate_version(current):
-            return 1
-        new_version = increment_version(current, bump)
-        log_info(f"버전 업데이트({bump}): {current} → {new_version}")
-        update_all_versions(cfg, new_version)
-        increment_version_code()
-        log_success(f"버전 업데이트 완료: {new_version}")
-        print(new_version)
-    elif command == "set":
-        new_version = argv[2] if len(argv) > 2 else ""
-        if not new_version:
-            log_error("새 버전을 지정해주세요: version_manager.py set 1.2.3")
-            return 1
-        if not validate_version(new_version):
-            return 1
-        log_info(f"버전 설정: {new_version}")
-        update_all_versions(cfg, new_version)
-        log_success(f"버전 설정 완료: {new_version}")
-        print(new_version)
-    elif command == "sync":
-        synced = sync_versions(cfg)
-        log_success(f"버전 동기화 완료: {synced}")
-        print(synced)
-    elif command == "validate":
-        version = argv[2] if len(argv) > 2 else cfg.current_version
-        if not version:
-            version = get_project_file_version(cfg)
-        if validate_version(version):
-            log_success(f"유효한 버전 형식: {version}")
-            print(version)
-            return 0
-        return 1
+        if a < b:
+            return -1
     return 0
 
 
-if __name__ == "__main__":
+def get_higher_version(v1, v2):
+    return v1 if compare_versions(v1, v2) >= 0 else v2
+
+
+def update_version_yml(new_version):
+    write_scalar_key("version", new_version)
+    today = datetime.date.today().isoformat()
+    user = os.environ.get("GITHUB_ACTOR", "")
+    if not user:
+        try:
+            import getpass
+            user = getpass.getuser()
+        except Exception:
+            user = "unknown"
+    if re.search(r'^\s+last_updated:', read_text(), re.MULTILINE):
+        _write_nested_scalar("last_updated", today)
+    if re.search(r'^\s+last_updated_by:', read_text(), re.MULTILINE):
+        _write_nested_scalar("last_updated_by", user)
+
+
+def _write_nested_scalar(key, value):
+    """Replace an indented `  key: "value"` line anywhere in the file
+    (used for metadata.* fields), preserving indentation and comments."""
+    text = read_text()
+    pattern = re.compile(r'^([ \t]+' + re.escape(key) + r':)[ \t]*.*$', re.MULTILINE)
+    if not pattern.search(text):
+        return False
+    escaped = value.replace('\\', '\\\\').replace('"', '\\"')
+    replacement = r'\1 "' + escaped + '"'
+    new_text = pattern.sub(replacement, text, count=1)
+    write_text(new_text)
+    return True
+
+
+# ===================================================================
+# Project file sync (type-specific)
+# ===================================================================
+
+def sync_spring(path_dir, new_version):
+    """Look for build.gradle or build.gradle.kts under path_dir (root of that dir, like bash's maxdepth 2)."""
+    candidates = []
+    for name in ("build.gradle", "build.gradle.kts"):
+        for p in [Path(path_dir) / name] + list(Path(path_dir).glob("*/" + name)):
+            if p.is_file():
+                candidates.append(p)
+    if not candidates:
+        log(f"WARNING: spring: no build.gradle(.kts) found under {path_dir} — skipping")
+        return
+    for gradle_file in candidates:
+        text = read_file(gradle_file)
+        new_text = re.sub(r"version\s*=\s*'[^']*'", f"version = '{new_version}'", text)
+        new_text = re.sub(r'version\s*=\s*"[^"]*"', f'version = "{new_version}"', new_text)
+        write_file(gradle_file, new_text)
+        log(f"updated: {gradle_file}")
+
+
+def sync_flutter(path_dir, new_version, version_code):
+    target = Path(path_dir) / "pubspec.yaml"
+    if not target.is_file():
+        log(f"WARNING: flutter: {target} not found — skipping")
+        return
+    text = read_file(target)
+    full_version = f"{new_version}+{version_code}"
+    pattern = re.compile(r'^(version:)[ \t]*.*$', re.MULTILINE)
+    if pattern.search(text):
+        new_text = pattern.sub(r'\1 ' + full_version, text, count=1)
+    else:
+        new_text = text.rstrip("\n") + f"\nversion: {full_version}\n"
+    write_file(target, new_text)
+    log(f"updated: {target}")
+
+
+def sync_json_version(target, new_version, key_path):
+    if not target.is_file():
+        log(f"WARNING: {target} not found — skipping")
+        return
     try:
-        sys.stdout.reconfigure(encoding="utf-8")
-        sys.stderr.reconfigure(encoding="utf-8")
-    except AttributeError:
+        data = json.loads(read_file(target))
+    except json.JSONDecodeError as e:
+        log(f"WARNING: {target} invalid JSON ({e}) — skipping")
+        return
+    node = data
+    for k in key_path[:-1]:
+        node = node.setdefault(k, {})
+    node[key_path[-1]] = new_version
+    write_file(target, json.dumps(data, indent=2, ensure_ascii=False) + "\n")
+    log(f"updated: {target}")
+
+
+def sync_python(path_dir, new_version):
+    target = Path(path_dir) / "pyproject.toml"
+    if not target.is_file():
+        log(f"WARNING: python: {target} not found — skipping")
+        return
+    text = read_file(target)
+    new_text = re.sub(r'^version\s*=\s*"[^"]*"', f'version = "{new_version}"', text, count=1, flags=re.MULTILINE)
+    write_file(target, new_text)
+    log(f"updated: {target}")
+
+
+def sync_react_native(path_dir, new_version):
+    ios_dir = Path(path_dir) / "ios"
+    found_plist = False
+    if ios_dir.is_dir():
+        for plist_file in ios_dir.rglob("Info.plist"):
+            text = read_file(plist_file)
+            if "CFBundleShortVersionString" in text:
+                new_text = re.sub(
+                    r'(<key>CFBundleShortVersionString</key>\s*<string>)[^<]*(</string>)',
+                    r'\g<1>' + new_version + r'\g<2>',
+                    text,
+                )
+                write_file(plist_file, new_text)
+                log(f"updated: {plist_file}")
+                found_plist = True
+    else:
+        log(f"WARNING: react-native: {ios_dir} not found — skipping")
+
+    gradle_file = Path(path_dir) / "android" / "app" / "build.gradle"
+    if gradle_file.is_file():
+        text = read_file(gradle_file)
+        new_text = re.sub(r'versionName\s+"[^"]*"', f'versionName "{new_version}"', text)
+        write_file(gradle_file, new_text)
+        log(f"updated: {gradle_file}")
+    else:
+        log(f"WARNING: react-native: {gradle_file} not found — skipping")
+
+    if not found_plist and not gradle_file.is_file():
+        log(f"WARNING: react-native: no target files found under {path_dir}")
+
+
+def sync_for_type(project_type, new_version, version_code_getter):
+    path_dir = get_type_path(project_type)
+    if project_type == "spring":
+        sync_spring(path_dir, new_version)
+    elif project_type == "flutter":
+        sync_flutter(path_dir, new_version, version_code_getter())
+    elif project_type in ("react", "next", "node"):
+        sync_json_version(Path(path_dir) / "package.json", new_version, ["version"])
+    elif project_type == "python":
+        sync_python(path_dir, new_version)
+    elif project_type == "react-native":
+        sync_react_native(path_dir, new_version)
+    elif project_type == "react-native-expo":
+        sync_json_version(Path(path_dir) / "app.json", new_version, ["expo", "version"])
+    elif project_type == "basic":
         pass
-    sys.exit(main(sys.argv))
+    else:
+        log(f"WARNING: unknown project type: {project_type} — skipping")
+
+
+def sync_all_project_files(new_version):
+    types = get_project_types_csv()
+    if not types:
+        # No silent fallback: an unreadable project_types used to degrade to
+        # "basic" and skip every sync without a word (issue #62).
+        raise SystemExit("ERROR: version.yml has no readable project_types — cannot sync project files")
+    for t in types:
+        sync_for_type(t, new_version, get_version_code)
+
+
+def update_all_versions(new_version):
+    update_version_yml(new_version)
+    sync_all_project_files(new_version)
+
+
+# ===================================================================
+# Project file -> version read-back (for sync comparison)
+# ===================================================================
+
+def get_project_file_version(project_type):
+    path_dir = get_type_path(project_type)
+    version = None
+    try:
+        if project_type == "spring":
+            for name in ("build.gradle", "build.gradle.kts"):
+                p = Path(path_dir) / name
+                if p.is_file():
+                    text = p.read_text(encoding="utf-8")
+                    m = re.search(r"^\s*version\s*=\s*['\"](\d+\.\d+\.\d+)['\"]", text, re.MULTILINE)
+                    if m:
+                        version = m.group(1)
+                    break
+        elif project_type == "flutter":
+            p = Path(path_dir) / "pubspec.yaml"
+            if p.is_file():
+                text = p.read_text(encoding="utf-8")
+                m = re.search(r'^version:\s*([^\s#]+)', text, re.MULTILINE)
+                if m:
+                    version = m.group(1).split("+")[0]
+        elif project_type in ("react", "next", "node"):
+            p = Path(path_dir) / "package.json"
+            if p.is_file():
+                data = json.loads(p.read_text(encoding="utf-8"))
+                version = data.get("version")
+        elif project_type == "react-native":
+            ios_dir = Path(path_dir) / "ios"
+            plist = None
+            if ios_dir.is_dir():
+                plists = list(ios_dir.rglob("Info.plist"))
+                plist = plists[0] if plists else None
+            if plist is not None:
+                text = plist.read_text(encoding="utf-8")
+                m = re.search(r'<key>CFBundleShortVersionString</key>\s*<string>([^<]*)</string>', text)
+                if m:
+                    version = m.group(1)
+            else:
+                gradle_file = Path(path_dir) / "android" / "app" / "build.gradle"
+                if gradle_file.is_file():
+                    text = gradle_file.read_text(encoding="utf-8")
+                    m = re.search(r'versionName\s+"([^"]+)"', text)
+                    if m:
+                        version = m.group(1)
+        elif project_type == "react-native-expo":
+            p = Path(path_dir) / "app.json"
+            if p.is_file():
+                data = json.loads(p.read_text(encoding="utf-8"))
+                version = (data.get("expo") or {}).get("version")
+        elif project_type == "python":
+            p = Path(path_dir) / "pyproject.toml"
+            if p.is_file():
+                text = p.read_text(encoding="utf-8")
+                m = re.search(r'^version\s*=\s*"(\d+\.\d+\.\d+)"', text, re.MULTILINE)
+                if m:
+                    version = m.group(1)
+    except Exception as e:
+        log(f"WARNING: failed reading project file for {project_type}: {e}")
+        version = None
+
+    if not version:
+        version = get_current_version()
+    return version
+
+
+def sync_versions():
+    yml_version = get_current_version()
+    types = get_project_types_csv()
+    if not types:
+        raise SystemExit("ERROR: version.yml has no readable project_types — cannot sync versions")
+    primary_type = types[0]
+    project_version = get_project_file_version(primary_type)
+
+    log("Version sync check")
+    log(f"  version.yml: {yml_version}")
+    log(f"  project file: {project_version}")
+
+    if yml_version != project_version:
+        if validate_version(yml_version) and validate_version(project_version):
+            higher = get_higher_version(yml_version, project_version)
+            log(f"Version mismatch detected, syncing to higher version: {higher}")
+            if higher != yml_version:
+                update_version_yml(higher)
+            if higher != project_version:
+                sync_all_project_files(higher)
+            return higher
+        else:
+            log("WARNING: version format invalid, cannot sync")
+            return yml_version
+    else:
+        types = get_project_types_csv()
+        if types:
+            log(f"Multi-type — reconciling all type files to version.yml version: {yml_version}")
+            sync_all_project_files(yml_version)
+        log(f"Version already in sync: {yml_version}")
+        return yml_version
+
+
+# ===================================================================
+# Commands
+# ===================================================================
+
+def cmd_get(args):
+    require_version_yml()
+    version = sync_versions()
+    print(version)
+    return 0
+
+
+def cmd_get_code(args):
+    require_version_yml()
+    code = get_version_code()
+    print(code)
+    return 0
+
+
+def cmd_increment_code(args):
+    require_version_yml()
+    current = int(get_version_code())
+    new_code = current + 1
+    set_version_code(new_code)
+    print(new_code)
+    return 0
+
+
+def cmd_increment(args):
+    require_version_yml()
+    current_version = sync_versions()
+    if not validate_version(current_version):
+        log(f"ERROR: invalid version format: {current_version}")
+        return 1
+    bump = getattr(args, "bump", None) or "patch"
+    new_version = increment_version(current_version, bump)
+    update_all_versions(new_version)
+
+    current_code = int(get_version_code())
+    set_version_code(current_code + 1)
+
+    print(new_version)
+    return 0
+
+
+def cmd_set(args):
+    require_version_yml()
+    new_version = args.version
+    if not validate_version(new_version):
+        log(f"ERROR: invalid version format: {new_version} (must be x.y.z)")
+        return 1
+    update_all_versions(new_version)
+    print(new_version)
+    return 0
+
+
+def cmd_sync(args):
+    require_version_yml()
+    synced = sync_versions()
+    print(synced)
+    return 0
+
+
+def build_parser():
+    parser = argparse.ArgumentParser(prog="version_manager.py")
+    sub = parser.add_subparsers(dest="command", required=True)
+
+    sub.add_parser("get")
+    sub.add_parser("get-code")
+    p_increment = sub.add_parser("increment")
+    p_increment.add_argument("--bump", choices=["major", "minor", "patch"], default="patch",
+                              help="승격 폭 (기본 patch — 지정 안 하면 기존 동작과 동일)")
+    sub.add_parser("increment-code")
+    sub.add_parser("sync")
+
+    p_set = sub.add_parser("set")
+    p_set.add_argument("version")
+
+    return parser
+
+
+def main(argv=None):
+    parser = build_parser()
+    args = parser.parse_args(argv)
+
+    handlers = {
+        "get": cmd_get,
+        "get-code": cmd_get_code,
+        "increment": cmd_increment,
+        "increment-code": cmd_increment_code,
+        "set": cmd_set,
+        "sync": cmd_sync,
+    }
+    handler = handlers[args.command]
+    return handler(args)
+
+
+if __name__ == "__main__":
+    sys.exit(main())
