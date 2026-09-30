@@ -1,4 +1,5 @@
 import 'package:flutter/services.dart';
+import '../../../core/platform/channel_names.dart';
 
 /// 현재 위치 1회 조회 (이슈 #98)
 ///
@@ -16,9 +17,7 @@ abstract interface class CurrentLocationService {
 class CurrentLocationChannel implements CurrentLocationService {
   const CurrentLocationChannel();
 
-  static const _channel = MethodChannel(
-    'kr.suhsaechan.ear_loc_alert/current_location',
-  );
+  static const _channel = MethodChannel(ChannelNames.currentLocation);
 
   @override
   Future<({double latitude, double longitude})?> current() async {

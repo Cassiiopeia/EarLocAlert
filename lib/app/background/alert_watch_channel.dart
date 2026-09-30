@@ -1,6 +1,7 @@
 import 'package:flutter/services.dart';
 
 import 'alert_watch_service.dart';
+import '../../core/platform/channel_names.dart';
 
 /// [AlertWatchService] 의 네이티브 구현 (이슈 #74)
 ///
@@ -10,9 +11,7 @@ import 'alert_watch_service.dart';
 class AlertWatchChannel implements AlertWatchService {
   const AlertWatchChannel();
 
-  static const _channel = MethodChannel(
-    'kr.suhsaechan.ear_loc_alert/alert_window',
-  );
+  static const _channel = MethodChannel(ChannelNames.alertWindow);
 
   @override
   Future<void> startWatching() => _invoke('startWatch');

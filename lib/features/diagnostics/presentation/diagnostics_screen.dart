@@ -12,6 +12,7 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/text/keep_all.dart';
 import '../../../core/widgets/app_feedback.dart';
+import '../../../core/text/two_digits.dart';
 
 /// 진단 로그 화면 (이슈 #95)
 ///
@@ -320,8 +321,7 @@ class _LogLine extends StatelessWidget {
     final parsed = DateTime.tryParse(iso);
     if (parsed == null) return iso;
     final local = parsed.toLocal();
-    String two(int n) => n.toString().padLeft(2, '0');
-    return '${two(local.month)}/${two(local.day)} '
-        '${two(local.hour)}:${two(local.minute)}:${two(local.second)}';
+    return '${twoDigits(local.month)}/${twoDigits(local.day)} '
+        '${twoDigits(local.hour)}:${twoDigits(local.minute)}:${twoDigits(local.second)}';
   }
 }

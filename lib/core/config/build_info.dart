@@ -1,4 +1,5 @@
 import 'package:flutter/services.dart';
+import '../platform/channel_names.dart';
 
 /// 실행 중인 빌드가 무엇인지 (이슈 #127)
 ///
@@ -10,9 +11,7 @@ import 'package:flutter/services.dart';
 /// 얹는다. 의존성 하나가 앱 크기와 유지보수를 늘리는데, gradle 이
 /// `BuildConfig` 에 넣어둔 값을 읽으면 되는 일이다.
 abstract final class BuildInfo {
-  static const _channel = MethodChannel(
-    'kr.suhsaechan.ear_loc_alert/app_config',
-  );
+  static const _channel = MethodChannel(ChannelNames.appConfig);
 
   /// 못 읽었을 때의 표기. **빈 문자열이 아니라 물음표다** —
   /// 로그에서 "버전 칸이 비었다"와 "버전을 못 읽었다"가 달라야 한다.

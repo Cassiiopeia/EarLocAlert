@@ -16,6 +16,7 @@ import '../../../core/theme/map_style.dart';
 import '../../../core/text/keep_all.dart';
 import '../domain/alert_session.dart';
 import '../domain/audio_route.dart';
+import '../../../core/text/two_digits.dart';
 
 /// 지도 카드 높이 (이슈 #142)
 const double _mapCardHeight = 400;
@@ -186,7 +187,7 @@ class _AlertInfo extends StatelessWidget {
     final local = utc.toLocal();
     final hour = local.hour;
     final displayHour = hour % 12 == 0 ? 12 : hour % 12;
-    final minute = local.minute.toString().padLeft(2, '0');
+    final minute = twoDigits(local.minute);
     // 오전/오후 위치가 언어마다 달라 문구 통째로 번역한다
     final l10n = context.l10n;
     return hour < 12

@@ -5,6 +5,7 @@ import 'package:path_provider/path_provider.dart';
 
 import 'diagnostic_log_file.dart';
 import 'log_archive.dart';
+import '../text/two_digits.dart';
 
 /// 진단 기록 읽기 결과 (이슈 #106)
 ///
@@ -113,9 +114,8 @@ abstract final class DiagnosticLogReader {
   /// 여러 번 내보낸 파일이 섞이지 않게 한다. UTC 가 아닌 이유는 이 값이
   /// 저장용이 아니라 **사람이 보고 고르는 이름**이기 때문이다.
   static String _stamp(DateTime now) {
-    String two(int v) => v.toString().padLeft(2, '0');
-    return '${now.year}${two(now.month)}${two(now.day)}'
-        '-${two(now.hour)}${two(now.minute)}';
+    return '${now.year}${twoDigits(now.month)}${twoDigits(now.day)}'
+        '-${twoDigits(now.hour)}${twoDigits(now.minute)}';
   }
 
   /// 표시할 줄 목록. **최근 것이 위로 온다.**
