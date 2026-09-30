@@ -24,6 +24,7 @@ import 'place_card.dart';
 import 'place_empty_state.dart';
 import 'place_list_controller.dart';
 import '../../../core/widgets/app_feedback.dart';
+import '../../../core/map/marker_hue.dart';
 
 /// 메인 화면 (docs/06-UX.md "메인 화면")
 ///
@@ -323,12 +324,7 @@ class _PlaceMapHomeScreenState extends ConsumerState<PlaceMapHomeScreen>
       ? semantic.alertExit
       : semantic.alertEnter;
 
-  /// 기본 마커는 색을 자유롭게 줄 수 없고 hue 만 지정된다.
-  /// 팔레트의 두 주색에 가장 가까운 값을 쓴다 — 커스텀 아이콘을 그리는
-  /// 것보다 유지비가 싸고, 방향 구분은 마커 옆 원 색이 함께 해준다.
-  double _markerHue(AlertPlace place) => place.direction == AlertDirection.exit
-      ? BitmapDescriptor.hueOrange
-      : BitmapDescriptor.hueCyan;
+  double _markerHue(AlertPlace place) => markerHueFor(place.direction);
 
   /// 마커를 누르면 그 장소를 지목하고 시트를 연다.
   ///

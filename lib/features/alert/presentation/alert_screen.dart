@@ -17,6 +17,7 @@ import '../../../core/text/keep_all.dart';
 import '../domain/alert_session.dart';
 import '../domain/audio_route.dart';
 import '../../../core/text/two_digits.dart';
+import '../../../core/map/marker_hue.dart';
 
 /// 지도 카드 높이 (이슈 #142)
 const double _mapCardHeight = 400;
@@ -85,9 +86,7 @@ class AlertScreen extends StatelessWidget {
                 accent: accent,
                 // 기본 마커는 빨간색이라 이 화면의 색과 부딪힌다.
                 // 진입·이탈 색과 결이 맞는 것으로 고른다
-                markerHue: _isExit
-                    ? BitmapDescriptor.hueOrange
-                    : BitmapDescriptor.hueCyan,
+                markerHue: markerHueFor(session.direction),
               ),
             // **지도가 없으면 버튼이 원래 크기로 돌아간다.** 카드가 빠진
             // 자리에 회색 사각형이나 오류 문구를 두지 않는다 — 알림
