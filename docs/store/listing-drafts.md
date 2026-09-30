@@ -15,7 +15,7 @@ Play Console 에서 2026-09-29 읽은 한국어 원문(기본 언어 ko-KR)을 �
 | 언어 | 제안 | 비고 |
 |---|---|---|
 | ko-KR | 이어폰 위치 알림 | 현재 그대로 |
-| en-US | Earphone Location Alert | "이어폰 위치 알림"을 그대로 옮긴다(23자) — 2026-09-30 변경 |
+| en-US | EarLocAlert | 브랜드명 그대로(11자). 길이가 짧아 런처에서 잘리지 않는다 — 2026-09-30 변경 |
 | ja-JP | イヤホン位置通知 | 8자 — 2026-09-30 변경 |
 | zh-CN | 耳机位置提醒 | 6자 — 2026-09-30 변경 |
 
@@ -36,7 +36,7 @@ Play Console 에서 2026-09-29 읽은 한국어 원문(기본 언어 ko-KR)을 �
 >
 > You doze off on the bus and miss it, get lost in thought on the subway and ride past your station, or drive right by the exit you needed.
 >
-> Earphone Location Alert tells you when you arrive at or leave a place you registered. You don't have to keep the app open or look at the screen.
+> EarLocAlert tells you when you arrive at or leave a place you registered. You don't have to keep the app open or look at the screen.
 
 **ja-JP**
 > 降りる場所を通り過ぎてしまったことはありませんか？

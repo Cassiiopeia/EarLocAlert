@@ -7,7 +7,7 @@
   앱 표시 이름(app_name)은 "이어폰 위치 알림"을 언어별로 옮긴 것이다 (이슈 #170).
 -->
 <resources>
-    <string name="app_name">Earphone Location Alert</string>
+    <string name="app_name">EarLocAlert</string>
     <string name="watch_channel_name">Location watching</string>
     <string name="watch_channel_description">Shows that your registered places are being watched in the background</string>
     <string name="watch_notification_title">Watching your locations</string>

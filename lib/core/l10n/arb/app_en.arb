@@ -1,6 +1,6 @@
 {
   "@@locale": "en",
-  "appName": "Earphone Location Alert",
+  "appName": "EarLocAlert",
   "settingsLanguageTitle": "Language",
   "languageSheetHint": "Applies immediately",
   "languageFollowDevice": "Follow device settings",
