@@ -61,6 +61,7 @@ class FakeStore implements AdFrequencyStore {
   int shownToday;
   bool isFirstLaunch;
   bool failOnRead = false;
+  bool failOnMark = false;
   int recordCount = 0;
 
   @override
@@ -82,6 +83,7 @@ class FakeStore implements AdFrequencyStore {
 
   @override
   Future<void> markLaunched() async {
+    if (failOnMark) throw Exception('표시 저장 실패');
     isFirstLaunch = false;
   }
 }
@@ -97,6 +99,39 @@ void main() {
     ads = FakeAds();
     store = FakeStore();
     coordinator = AlertAdCoordinator(ads: ads, store: store);
+  });
+
+  group('첫 실행 (이슈 #175)', () {
+    test('첫 해제에서는 광고를 내지 않고 첫 실행 표시를 남긴다', () async {
+      store = FakeStore(isFirstLaunch: true);
+      coordinator = AlertAdCoordinator(ads: ads, store: store);
+
+      final shown = await coordinator.onAlertDismissed(now: now);
+
+      expect(shown, isFalse);
+      expect(ads.showCount, 0);
+      expect(store.isFirstLaunch, isFalse);
+    });
+
+    test('두 번째 해제부터는 광고가 나온다 — 예전에는 영원히 나오지 않았다', () async {
+      store = FakeStore(isFirstLaunch: true);
+      coordinator = AlertAdCoordinator(ads: ads, store: store);
+
+      await coordinator.onAlertDismissed(now: now);
+      final shown = await coordinator.onAlertDismissed(
+        now: now.add(const Duration(minutes: 10)),
+      );
+
+      expect(shown, isTrue);
+      expect(ads.showCount, 1);
+    });
+
+    test('표시를 남기지 못해도 예외가 위로 나가지 않는다 — 해제에 영향이 없다', () async {
+      store = FakeStore(isFirstLaunch: true)..failOnMark = true;
+      coordinator = AlertAdCoordinator(ads: ads, store: store);
+
+      expect(await coordinator.onAlertDismissed(now: now), isFalse);
+    });
   });
 
   group('노출 판정 (docs/07-MONETIZATION.md)', () {
