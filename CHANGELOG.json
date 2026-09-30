@@ -1,14 +1,39 @@
 {
   "metadata": {
-    "lastUpdated": "2026-09-30T08:56:01Z",
-    "currentVersion": "1.20.2",
+    "lastUpdated": "2026-09-30T15:55:00Z",
+    "currentVersion": "1.20.3",
     "projectType": "flutter",
-    "totalReleases": 71,
+    "totalReleases": 72,
     "projectTypes": [
       "flutter"
     ]
   },
   "releases": [
+    {
+      "version": "1.20.3",
+      "project_types": [
+        "flutter"
+      ],
+      "date": "2026-09-30",
+      "pr_number": 178,
+      "raw_summary": "## [1.20.3]\n\n### 🐛 수정\n- 번역 검수 지적을 반영해 용어를 통일한다 — 일본어 권한 설명의 구어체 ないと 를 오프 상태를 밝히는 문장으로 고친다\n\n### 📝 문서\n- 번역 검수 지적을 반영해 용어를 통일한다 — 1.20.3 릴리스 노트를 네 언어로 남긴다\n- 번역 검수 지적을 반영해 용어를 통일한다 — 이슈 #172 상세 기록과 #175 보고서를 남긴다",
+      "parsed_changes": {
+        "수정": {
+          "title": "🐛 수정",
+          "items": [
+            "번역 검수 지적을 반영해 용어를 통일한다 — 일본어 권한 설명의 구어체 ないと 를 오프 상태를 밝히는 문장으로 고친다"
+          ]
+        },
+        "문서": {
+          "title": "📝 문서",
+          "items": [
+            "번역 검수 지적을 반영해 용어를 통일한다 — 1.20.3 릴리스 노트를 네 언어로 남긴다",
+            "번역 검수 지적을 반영해 용어를 통일한다 — 이슈 #172 상세 기록과 #175 보고서를 남긴다"
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "1.20.2",
       "project_types": [
