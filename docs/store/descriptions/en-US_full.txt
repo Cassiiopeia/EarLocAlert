@@ -1,0 +1,78 @@
+Ever missed your stop?
+
+You doze off on the bus and miss it, get lost in thought on the subway and ride past your station, or drive right by the exit you needed.
+
+EarLocAlert tells you when you arrive at or leave a place you registered. You don't have to keep the app open or look at the screen.
+
+
+■ It alerts you without opening the app
+
+It works even after you fully close the app. When you get close to a place you registered, it wakes up on its own and alerts you with vibration and a notification. Even with the screen off, even while you're using another app.
+
+
+■ No one else can hear it
+
+Sound plays only when earphones are connected.
+Wired earphones, USB-C earphones and Bluetooth earphones all count.
+
+Without earphones, it alerts you by vibration only.
+In a library, in a meeting, on a quiet bus, only you know.
+
+Sound never goes out through car audio or an external speaker.
+
+
+■ Tell places apart by sound
+
+Choose a different alert sound for each place.
+Pick from Default, Bell, Electronic, Siren and Chime, or add a sound from your own phone.
+
+Arriving home sounds different from arriving at work.
+You know where you are without looking at the screen.
+
+
+■ See where you are on the alert screen
+
+When an alert goes off, the place you arrived at is shown on a map.
+Your set radius and your current position appear together, so you can confirm at a glance that you really arrived.
+
+
+■ Your location never leaves your phone
+
+Arrival is decided entirely on your phone.
+Where you go and which places you registered are never sent to any server.
+No sign-up, no login.
+
+
+■ Made for people who
+
+· often miss their stop on the bus or subway
+· can't find the stop in an unfamiliar neighborhood
+· need an alert for their child's pickup time
+· have something to do when they arrive somewhere
+· wear earphones but hate sound leaking to others
+
+
+■ Main features
+
+· Drop a pin on the map and set a radius (50 m to 2 km)
+· Alert on arrival, on leaving, or both
+· Set days and times, such as the same setup on weekday mornings only
+· Choose a sound per place and add your own sound
+· 3 vibration strengths
+· Adjustable alert volume
+· Watch several places at once
+
+
+■ Permissions
+
+· Location (Always allow): needed to detect your arrival without opening the app
+· Notifications: shows the arrival alert
+· Exempt from battery optimization (optional): alerts you on time even in power saving mode
+· Display over other apps (optional): shows the alert screen while you use other apps
+
+If you decline the optional permissions, alerts and vibration still work normally.
+
+
+■ Battery
+
+Normally it uses Android's built-in location monitoring, so it barely uses any battery. It checks precisely only when you get near a registered place.

@@ -9,7 +9,7 @@ class AppLocalizationsJa extends AppLocalizations {
   AppLocalizationsJa([String locale = 'ja']) : super(locale);
 
   @override
-  String get appName => 'EarLocAlert';
+  String get appName => 'イヤホン位置通知';
 
   @override
   String get settingsLanguageTitle => '言語';
@@ -725,4 +725,10 @@ class AppLocalizationsJa extends AppLocalizations {
   String scheduleMore(String first, int count) {
     return '$first ほか$count件';
   }
+
+  @override
+  String get appUpdateReady => '新しいバージョンを受け取りました';
+
+  @override
+  String get appUpdateRestart => '再起動';
 }

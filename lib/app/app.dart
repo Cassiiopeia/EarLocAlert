@@ -16,6 +16,8 @@ import '../features/ads/domain/ad_consent.dart';
 import '../features/ads/presentation/ads_providers.dart';
 import '../features/alert/data/alert_notifier_impl.dart';
 import '../features/alert/presentation/alert_controller_provider.dart';
+import '../features/app_update/domain/app_updater.dart';
+import '../features/app_update/presentation/app_update_providers.dart';
 import 'background/background_alert_notifier.dart';
 import 'geofence_providers.dart';
 import 'pending_alert_resumer.dart';
@@ -35,6 +37,9 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
   // 라우터는 앱 수명 동안 하나만 존재해야 한다 —
   // build 마다 새로 만들면 화면 전환 이력이 초기화된다.
   late final _router = createRouter();
+
+  /// 앱 내 업데이트 안내(이슈 #170)를 화면 위치와 무관하게 띄우는 데 쓴다
+  final _messengerKey = GlobalKey<ScaffoldMessengerState>();
 
   @override
   void initState() {
@@ -124,6 +129,7 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
     await _resumePendingAlert('start');
     // 광고 동의 (이슈 #166) — 알림이 울리는 중이 아닐 때만, 기다리지 않고 받는다
     unawaited(_gatherAdConsent());
+    unawaited(_checkAppUpdate());
     // 첫 실행에는 resumed 생명주기 콜백이 오지 않는다 — 여기서 건다
     _startPendingAlertPoll();
   }
@@ -137,6 +143,7 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
     // 백그라운드 알림 뒤 앱을 열면(탭이든 직접이든) 풀 세션으로 잇는다
     if (state == AppLifecycleState.resumed) {
       unawaited(_resumePendingAlert('resumed'));
+      unawaited(_checkAppUpdate());
       _startPendingAlertPoll();
     } else {
       _stopPendingAlertPoll();
@@ -228,6 +235,38 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
     }
   }
 
+  /// 앱 내 업데이트 (이슈 #170) — 알림이 울리는 중이 아닐 때만, 기다리지 않고 받는다.
+  ///
+  /// Play 밖에서 설치한 빌드는 확인이 실패하는데 정상이다. 실패해도 흐름을 막지
+  /// 않는다 (docs/02-ARCHITECTURE.md 규칙 4).
+  Future<void> _checkAppUpdate() async {
+    try {
+      final gate = ref.read(appUpdateGateProvider);
+      final outcome = await gate.checkWhenIdle(
+        alertActive: () => ref.read(activeAlertProvider) != null,
+      );
+      if (outcome != AppUpdateOutcome.downloaded || !mounted) return;
+      // 화면 문자열 접근은 MaterialApp 위라 컨텍스트가 없다 — 알림과 같은 경로로 찾는다
+      final locale = resolveAppLocale(
+        ref.read(appLanguageControllerProvider),
+        WidgetsBinding.instance.platformDispatcher.locales,
+      );
+      final strings = AppStrings.forLocale(locale);
+      _messengerKey.currentState?.showSnackBar(
+        SnackBar(
+          content: Text(strings.appUpdateReady),
+          duration: const Duration(seconds: 15),
+          action: SnackBarAction(
+            label: strings.appUpdateRestart,
+            onPressed: () => unawaited(gate.install()),
+          ),
+        ),
+      );
+    } on Object catch (error) {
+      Diagnostics.log('update', 'check flow failed $error');
+    }
+  }
+
   Future<void> _preloadAd() async {
     try {
       final coordinator = await ref.read(alertAdCoordinatorProvider.future);
@@ -252,6 +291,7 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
       theme: AppTheme.dark(),
       debugShowCheckedModeBanner: false,
       routerConfig: _router,
+      scaffoldMessengerKey: _messengerKey,
       // 네이티브 스플래시가 걷히는 순간을 잇는다 (이슈 #150).
       // `builder` 에 두는 것은 라우터보다 위에 깔려야 화면 전환과
       // 무관하게 한 장으로 걷히기 때문이다.

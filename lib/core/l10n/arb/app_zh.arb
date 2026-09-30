@@ -1,6 +1,6 @@
 {
   "@@locale": "zh",
-  "appName": "EarLocAlert",
+  "appName": "耳机位置提醒",
   "settingsLanguageTitle": "语言",
   "languageSheetHint": "选择后立即生效",
   "languageFollowDevice": "跟随设备设置",
@@ -217,5 +217,7 @@
   "scheduleWindowNextDay": "{days} {start} ~ {end}（次日）",
   "scheduleTimeRange": "{start} ~ {end}",
   "scheduleTimeRangeNextDay": "{start} ~ {end}（次日）",
-  "scheduleMore": "{first} 等另外 {count} 项"
+  "scheduleMore": "{first} 等另外 {count} 项",
+  "appUpdateReady": "已下载新版本",
+  "appUpdateRestart": "重启"
 }
