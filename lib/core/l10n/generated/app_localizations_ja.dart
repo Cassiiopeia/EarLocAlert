@@ -725,4 +725,10 @@ class AppLocalizationsJa extends AppLocalizations {
   String scheduleMore(String first, int count) {
     return '$first ほか$count件';
   }
+
+  @override
+  String get appUpdateReady => '新しいバージョンを受け取りました';
+
+  @override
+  String get appUpdateRestart => '再起動';
 }

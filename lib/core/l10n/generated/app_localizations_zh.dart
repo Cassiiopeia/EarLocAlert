@@ -719,4 +719,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String scheduleMore(String first, int count) {
     return '$first 等另外 $count 项';
   }
+
+  @override
+  String get appUpdateReady => '已下载新版本';
+
+  @override
+  String get appUpdateRestart => '重启';
 }

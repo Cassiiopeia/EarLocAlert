@@ -750,4 +750,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String scheduleMore(String first, int count) {
     return '$first +$count more';
   }
+
+  @override
+  String get appUpdateReady => 'A new version is ready';
+
+  @override
+  String get appUpdateRestart => 'Restart';
 }

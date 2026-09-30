@@ -217,5 +217,7 @@
   "scheduleWindowNextDay": "{days} {start} ~ {end}（翌日）",
   "scheduleTimeRange": "{start} ~ {end}",
   "scheduleTimeRangeNextDay": "{start} ~ {end}（翌日）",
-  "scheduleMore": "{first} ほか{count}件"
+  "scheduleMore": "{first} ほか{count}件",
+  "appUpdateReady": "新しいバージョンを受け取りました",
+  "appUpdateRestart": "再起動"
 }

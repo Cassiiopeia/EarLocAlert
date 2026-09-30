@@ -1409,6 +1409,18 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'{first} 외 {count}개'**
   String scheduleMore(String first, int count);
+
+  /// No description provided for @appUpdateReady.
+  ///
+  /// In ko, this message translates to:
+  /// **'새 버전을 받았어요'**
+  String get appUpdateReady;
+
+  /// No description provided for @appUpdateRestart.
+  ///
+  /// In ko, this message translates to:
+  /// **'다시 시작'**
+  String get appUpdateRestart;
 }
 
 class _AppLocalizationsDelegate

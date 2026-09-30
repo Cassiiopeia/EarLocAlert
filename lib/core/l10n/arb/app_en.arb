@@ -217,5 +217,7 @@
   "scheduleWindowNextDay": "{days} {start} ~ {end} (next day)",
   "scheduleTimeRange": "{start} ~ {end}",
   "scheduleTimeRangeNextDay": "{start} ~ {end} (next day)",
-  "scheduleMore": "{first} +{count} more"
+  "scheduleMore": "{first} +{count} more",
+  "appUpdateReady": "A new version is ready",
+  "appUpdateRestart": "Restart"
 }
