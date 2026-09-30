@@ -37,9 +37,6 @@ abstract final class AppControlSize {
 
   /// 주 동작(장소 추가)의 보이는 지름 — 보조보다 한 단계 크다
   static const double primary = 56;
-
-  /// 눌리는 최소 범위 — 안드로이드 최소 터치 타깃
-  static const double minTouch = 48;
 }
 
 /// 모서리 토큰 (docs/06-UX.md)

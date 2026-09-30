@@ -33,20 +33,7 @@ enum PermissionKind {
   /// Android 14+ 는 매니페스트 선언만으로 부여되지 않는다. 알람·통화
   /// 계열이 아닌 앱은 설정 화면에서 사용자가 직접 켜야 한다
   /// (docs/10-DECISIONS.md 006 재검토).
-  fullScreenIntent;
-
-  /// 이것이 없으면 앱의 존재 이유가 사라지는 권한인가.
-  ///
-  /// 나머지(신뢰성 권한)는 **얹는 것이지 전제가 아니다** — 거부돼도
-  /// 고중요도 알림 + 반복 진동으로 앱이 성립해야 한다.
-  bool get isEssential => switch (this) {
-    PermissionKind.location ||
-    PermissionKind.backgroundLocation ||
-    PermissionKind.notification => true,
-    PermissionKind.batteryOptimization ||
-    PermissionKind.overlay ||
-    PermissionKind.fullScreenIntent => false,
-  };
+  fullScreenIntent,
 }
 
 /// 권한 상태 (docs/04-CONVENTIONS.md)

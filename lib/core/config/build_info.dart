@@ -33,7 +33,4 @@ abstract final class BuildInfo {
 
   /// `1.13.1(95)` 형태
   static String get label => _label;
-
-  /// 테스트에서 갈아끼운다
-  static void overrideLabel(String value) => _label = value;
 }

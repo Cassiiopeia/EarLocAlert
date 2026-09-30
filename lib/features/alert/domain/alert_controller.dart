@@ -353,8 +353,5 @@ class AlertController {
     }
   }
 
-  /// 대기열을 비운다. 앱 종료·설정 변경 시 사용
-  void clearQueue() => _queue.clear();
-
   void dispose() => _sessionChanges.close();
 }

@@ -23,6 +23,7 @@ import '../domain/alert_place.dart';
 import 'place_card.dart';
 import 'place_empty_state.dart';
 import 'place_list_controller.dart';
+import '../../../core/widgets/app_feedback.dart';
 
 /// 메인 화면 (docs/06-UX.md "메인 화면")
 ///
@@ -263,13 +264,7 @@ class _PlaceMapHomeScreenState extends ConsumerState<PlaceMapHomeScreen>
     if (!mounted) return;
 
     if (location == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            context.keepAllText(context.l10n.placeHomeLocationUnavailable),
-          ),
-        ),
-      );
+      context.showToast(context.l10n.placeHomeLocationUnavailable);
       return;
     }
 
