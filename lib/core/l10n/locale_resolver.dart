@@ -3,34 +3,15 @@ import 'package:flutter/widgets.dart';
 import 'app_language.dart';
 
 /// 앱이 지원하는 언어 (이슈 #163). 이 목록 밖의 기기 언어는 영어로 보인다.
-const supportedAppLocales = <Locale>[
-  Locale('ko'),
-  Locale('en'),
-  Locale('zh'),
-  Locale('ja'),
+final supportedAppLocales = <Locale>[
+  for (final language in AppLanguage.supported) Locale(language.storageValue),
 ];
 
 const fallbackAppLocale = Locale('en');
 
-/// 기기 언어 하나가 지원 대상인가.
-///
-/// **번체 중국어(대만, 홍콩, 마카오)는 지원하지 않는다.** 간체를 번체 기기에
-/// 보이면 잘못된 자형이 오독으로 이어진다 — 영어로 보이게 둔다 (명세 4-A).
-bool isSupportedDeviceLocale(Locale locale) {
-  switch (locale.languageCode) {
-    case 'ko':
-    case 'en':
-    case 'ja':
-      return true;
-    case 'zh':
-      final traditionalScript = locale.scriptCode == 'Hant';
-      const traditionalRegions = {'TW', 'HK', 'MO'};
-      return !traditionalScript &&
-          !traditionalRegions.contains(locale.countryCode);
-    default:
-      return false;
-  }
-}
+/// 기기 언어 하나가 지원 대상인가 (번체 중국어 제외 규칙은 [AppLanguage.zh])
+bool isSupportedDeviceLocale(Locale locale) =>
+    AppLanguage.supported.any((language) => language.matchesDevice(locale));
 
 /// 실제로 쓸 로케일을 정한다.
 ///

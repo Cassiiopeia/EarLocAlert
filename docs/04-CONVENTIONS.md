@@ -136,13 +136,21 @@ Text(context.l10n.placeFormTitle)
 Text('장소 추가')
 ```
 
-- 번역 파일: `lib/core/l10n/arb/app_{ko,en,ja,zh}.arb`. **한국어가 원문**이고 나머지는 번역이다. 키가 하나라도 빠지면 `test/core/l10n/l10n_test.dart` 가 실패한다.
+- 번역 파일: `lib/core/l10n/arb/app_<언어>.arb`. **한국어가 원문**이고 나머지는 번역이다. 키가 하나라도 빠지면 `test/core/l10n/l10n_test.dart` 가 실패한다.
 - **BuildContext 가 없는 곳**(백그라운드 알림 문구)은 `AppStrings.forLocale(locale)` 로 같은 번역 파일에서 찾는다. 언어는 `AppLanguageStore().readFresh()` 와 `resolveAppLocale` 로 구한다(백그라운드 isolate 는 저장소를 다시 읽어야 최신 값을 본다). **문구를 못 구해도 알림은 반드시 나간다** — 실패 시 영어로 떨어진다.
 - **한국어 낱말 보호(`keepAll`)는 한국어에서만 쓴다.** `context.keepAllText(...)` 를 거친다. 중국어와 일본어에는 절대 적용하지 않는다(띄어쓰기가 없어 줄이 안 바뀌어 넘친다).
 - **로그는 번역하지 않는다.** 영어로 쓴다(결정 040).
 - 사용자가 입력한 값(장소 이름)은 번역하지 않는다.
 - **테스트가 지킨다**: `test/core/l10n/no_hardcoded_korean_test.dart` 가 `lib/` 의 한글 문자열 리터럴을 잡는다. `test/design_system_test.dart` 의 규칙(보조 낱말, 금지 용어, 낱말 보호)은 소스의 한글이 아니라 **번역 파일의 한국어 값**을 검사한다.
-- 새 문구를 추가할 때는 네 언어를 함께 쓴다. 번역은 기계 번역 초안이므로 **원어민 검수 전에는 영어를 우선 신뢰**한다.
+- 새 문구를 추가할 때는 지원하는 모든 언어를 함께 쓴다. 번역은 LLM 번역을 언어별 독립 검수한 것이라 **원어민 검수 전에는 영어를 우선 신뢰**한다.
+- **언어를 추가하는 절차** (이슈 #173). 지원 언어 목록의 단일 출처는 `AppLanguage` enum 이다. 아래를 하고 `flutter test test/core/l10n` 을 돌리면, **빠뜨린 자리는 `language_sync_test.dart` 가 실패로 알려준다.**
+  1. `lib/core/l10n/app_language.dart` 의 enum 에 한 줄을 더한다(지원하지 않는 자형·지역이 있으면 `excluded*`)
+  2. `lib/core/l10n/arb/app_<언어>.arb` — 한국어와 같은 키를 다 번역한다
+  3. 안드로이드 `res/values-<언어>/strings.xml` 과 `AppLocale.kt` 의 언어 매핑 한 줄
+  4. iOS `Runner/<언어>.lproj/InfoPlist.strings`, `Info.plist` 의 `CFBundleLocalizations`, Xcode 프로젝트의 variant group
+  5. `release-notes/<Play 언어코드>/` 폴더(배포 스크립트가 폴더를 보고 언어를 정한다)와 `docs/store/descriptions/<Play 언어코드>_full.txt`
+  6. `test/core/l10n/language_sync_test.dart` 의 `_places` 표에 그 언어의 행을 더한다
+  7. Play Console 에서 스토어 언어를 추가한다(사용자 작업)
 
 ## 치수 — screenutil
 
