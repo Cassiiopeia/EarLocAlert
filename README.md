@@ -12,6 +12,8 @@
 
 목적지에 도착하거나 특정 장소를 떠날 때, 주변을 방해하지 않으면서 확실하게 알립니다.
 
+**English**: [README.en.md](README.en.md)
+
 ---
 
 ## 이런 경험 있으신가요
@@ -118,6 +120,8 @@ flutter run          # 실행
 `version.yml` 이 단일 출처입니다. **`pubspec.yaml` 의 버전을 직접 수정하지 마세요** — 워크플로우가 덮어씁니다.
 
 변경 이력은 [CHANGELOG.md](CHANGELOG.md) 에 자동 기록됩니다.
+
+기여하기 전에 [CONTRIBUTING.md](CONTRIBUTING.md) 를 읽어 주세요. 취약점은 공개 이슈 대신 [SECURITY.md](SECURITY.md) 로 알려 주세요.
 
 ---
 
