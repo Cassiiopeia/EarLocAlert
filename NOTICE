@@ -1,0 +1,19 @@
+Required Notice: Copyright (c) 2026 Saechan Suh (https://github.com/Cassiiopeia/EarLocAlert)
+
+이어폰위치알림 (EarLocAlert)
+
+이 저장소는 PolyForm Noncommercial License 1.0.0 (LICENSE) 으로 공개됩니다.
+읽기, 학습, 수정, 포크는 비상업 목적에 한해 허용되며 상업적 이용은 허용되지 않습니다.
+이 라이선스는 OSI 가 인증한 오픈소스 라이선스가 아닙니다 (소스 공개, source-available).
+
+이 저장소를 공개하는 이유는 이 앱이 사용자의 위치 정보를 외부로 전송하지 않는다는 점을
+누구나 검증할 수 있게 하기 위해서입니다.
+
+This repository is source-available under the PolyForm Noncommercial License 1.0.0
+(see LICENSE). Reading, studying, modifying and forking are allowed for noncommercial
+purposes only. It is not an OSI-approved open source license.
+
+The source is public so that anyone can verify that this app does not transmit user
+location data off the device.
+
+Contact: chan4760@gmail.com

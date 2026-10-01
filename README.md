@@ -6,7 +6,7 @@
 
 [![Flutter](https://img.shields.io/badge/Flutter-3.35.5-02569B?logo=flutter)](https://flutter.dev)
 [![Platform](https://img.shields.io/badge/platform-Android%20%7C%20iOS-lightgrey)](https://flutter.dev/multi-platform)
-[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![License](https://img.shields.io/badge/license-PolyForm%20Noncommercial%201.0.0-blue.svg)](LICENSE)
 
 **이어폰위치알림 — 조용한 위치 기반 알림 앱**
 
@@ -133,7 +133,11 @@ flutter run          # 실행
 
 ## 라이선스
 
-MIT — [LICENSE](LICENSE)
+**소스 공개(source-available)** 입니다. OSI 가 인증한 오픈소스 라이선스는 아닙니다.
+
+[PolyForm Noncommercial 1.0.0](LICENSE) — 읽기 · 학습 · 수정 · 포크는 **비상업 목적**에 한해 허용되고, 상업적 이용(스토어 배포, 유료 서비스, 광고 수익화 등)은 허용되지 않습니다.
+
+이 저장소를 공개한 이유는 이 앱이 위치 정보를 외부로 전송하지 않는다는 점을 누구나 확인할 수 있게 하기 위해서입니다 → [NOTICE](NOTICE)
 
 ## 문의
 
