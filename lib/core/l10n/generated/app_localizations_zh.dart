@@ -726,4 +726,13 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get appUpdateRestart => '重启';
+
+  @override
+  String get settingsVersionTitle => '应用版本';
+
+  @override
+  String get settingsVersionCheck => '检查更新';
+
+  @override
+  String get appUpdateNone => '目前没有可用的更新';
 }

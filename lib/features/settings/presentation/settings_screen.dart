@@ -54,6 +54,8 @@ class SettingsScreen extends StatelessWidget {
     required this.onOpenDiagnostics,
     required this.language,
     required this.onLanguageChanged,
+    required this.appVersion,
+    required this.onCheckUpdate,
     this.permissions = const [],
     this.onPreviewAlert,
     super.key,
@@ -68,6 +70,11 @@ class SettingsScreen extends StatelessWidget {
   /// 지금 고른 앱 언어와 바꾸는 방법 (이슈 #163). app 계층이 값을 내려준다
   final AppLanguage language;
   final ValueChanged<AppLanguage> onLanguageChanged;
+
+  /// 설치된 앱 버전과 업데이트 확인 (이슈 #179). app 계층이 값과 동작을 내려준다.
+  /// 버전은 읽기 전에도 `-` 로 자리를 지킨다 — 줄이 깜빡이며 생기지 않게 한다
+  final String appVersion;
+  final VoidCallback onCheckUpdate;
 
   /// 알림이 확실히 도달하는 데 필요한 권한들 (이슈 #102)
   final List<SettingsPermissionRow> permissions;
@@ -169,6 +176,17 @@ class SettingsScreen extends StatelessWidget {
               title: context.l10n.settingsLanguageTitle,
               subtitle: _languageSubtitle(context),
               onTap: () => _openLanguage(context),
+            ),
+
+            // 맨 끝의 읽기 전용 줄 (이슈 #179). 눌러서 업데이트를 바로 확인한다
+            ListTile(
+              leading: const Icon(Icons.info_outlined),
+              title: Text(context.l10n.settingsVersionTitle),
+              subtitle: Text(appVersion),
+              trailing: TextButton(
+                onPressed: onCheckUpdate,
+                child: Text(context.l10n.settingsVersionCheck),
+              ),
             ),
           ],
         ),

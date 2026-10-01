@@ -1,14 +1,90 @@
 {
   "metadata": {
-    "lastUpdated": "2026-09-30T08:56:01Z",
-    "currentVersion": "1.20.2",
+    "lastUpdated": "2026-09-30T16:43:51Z",
+    "currentVersion": "1.21.1",
     "projectType": "flutter",
-    "totalReleases": 71,
+    "totalReleases": 74,
     "projectTypes": [
       "flutter"
     ]
   },
   "releases": [
+    {
+      "version": "1.21.1",
+      "project_type": "flutter",
+      "project_types": [
+        "flutter"
+      ],
+      "date": "2026-09-30",
+      "pr_number": 181,
+      "raw_summary": "## Summary by CodeRabbit\n\n## 릴리스 노트\n\n* **개선**\n  * 내부 배포 구성을 정리했습니다. 앱 동작에는 변화가 없습니다",
+      "parsed_changes": {
+        "개선": {
+          "title": "개선",
+          "items": [
+            "내부 배포 구성을 정리했습니다. 앱 동작에는 변화가 없습니다"
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
+    {
+      "version": "1.21.0",
+      "project_types": [
+        "flutter"
+      ],
+      "date": "2026-09-30",
+      "pr_number": 180,
+      "raw_summary": "## [1.21.0]\n\n### ✨ 기능\n- 설정 화면에서 앱 버전을 볼 수 있게 한다 — 설정 맨 아래에 앱 버전(버전·빌드 번호)과 업데이트 확인을 더한다. 직접 누른 확인은 6시간 간격을 건너뛰고 알림 중에는 하지 않는다\n\n### 📝 문서\n- 설정 화면에서 앱 버전을 볼 수 있게 한다 — 1.20.4 릴리스 노트를 네 언어로 남긴다\n\n### 🔧 변경사항\n- projectops 최신 버전(v4.27.0)으로 재통합 — 옛 워크플로우가 호출하는 ai-summary 가 새 changelog_manager 에 없어 전환 배포가 실패했다. 이번 배포만 옛 스크립트로 되돌린다\n- projectops 최신 버전(v4.27.0)으로 재통합 — 새 릴리스 워크플로우가 main 에 오르기 전 첫 배포를 옛 방식으로 처리하도록 AUTO-CHANGELOG-CONTROL·VERSION-CONTROL 을 임시 복원한다. 다음 배포에서 지운다\n- projectops 최신 버전(v4.27.0)으로 재통합 — project-auto-wizard 템플릿 0.1.33 을 projectops 4.27.0 으로 올린다. 사용자 수정본 6개 워크플로우와 version_code 112 는 그대로 두고, 필요 없는 SELFHOSTED-CICD·PROJECTS-SYNC-MANAGER 는 설치하지 않는다",
+      "parsed_changes": {
+        "기능": {
+          "title": "✨ 기능",
+          "items": [
+            "설정 화면에서 앱 버전을 볼 수 있게 한다 — 설정 맨 아래에 앱 버전(버전·빌드 번호)과 업데이트 확인을 더한다. 직접 누른 확인은 6시간 간격을 건너뛰고 알림 중에는 하지 않는다"
+          ]
+        },
+        "문서": {
+          "title": "📝 문서",
+          "items": [
+            "설정 화면에서 앱 버전을 볼 수 있게 한다 — 1.20.4 릴리스 노트를 네 언어로 남긴다"
+          ]
+        },
+        "변경사항": {
+          "title": "🔧 변경사항",
+          "items": [
+            "projectops 최신 버전(v4.27.0)으로 재통합 — 옛 워크플로우가 호출하는 ai-summary 가 새 changelog_manager 에 없어 전환 배포가 실패했다. 이번 배포만 옛 스크립트로 되돌린다",
+            "projectops 최신 버전(v4.27.0)으로 재통합 — 새 릴리스 워크플로우가 main 에 오르기 전 첫 배포를 옛 방식으로 처리하도록 AUTO-CHANGELOG-CONTROL·VERSION-CONTROL 을 임시 복원한다. 다음 배포에서 지운다",
+            "projectops 최신 버전(v4.27.0)으로 재통합 — project-auto-wizard 템플릿 0.1.33 을 projectops 4.27.0 으로 올린다. 사용자 수정본 6개 워크플로우와 version_code 112 는 그대로 두고, 필요 없는 SELFHOSTED-CICD·PROJECTS-SYNC-MANAGER 는 설치하지 않는다"
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
+    {
+      "version": "1.20.3",
+      "project_types": [
+        "flutter"
+      ],
+      "date": "2026-09-30",
+      "pr_number": 178,
+      "raw_summary": "## [1.20.3]\n\n### 🐛 수정\n- 번역 검수 지적을 반영해 용어를 통일한다 — 일본어 권한 설명의 구어체 ないと 를 오프 상태를 밝히는 문장으로 고친다\n\n### 📝 문서\n- 번역 검수 지적을 반영해 용어를 통일한다 — 1.20.3 릴리스 노트를 네 언어로 남긴다\n- 번역 검수 지적을 반영해 용어를 통일한다 — 이슈 #172 상세 기록과 #175 보고서를 남긴다",
+      "parsed_changes": {
+        "수정": {
+          "title": "🐛 수정",
+          "items": [
+            "번역 검수 지적을 반영해 용어를 통일한다 — 일본어 권한 설명의 구어체 ないと 를 오프 상태를 밝히는 문장으로 고친다"
+          ]
+        },
+        "문서": {
+          "title": "📝 문서",
+          "items": [
+            "번역 검수 지적을 반영해 용어를 통일한다 — 1.20.3 릴리스 노트를 네 언어로 남긴다",
+            "번역 검수 지적을 반영해 용어를 통일한다 — 이슈 #172 상세 기록과 #175 보고서를 남긴다"
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "1.20.2",
       "project_types": [

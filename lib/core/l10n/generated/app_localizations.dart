@@ -1421,6 +1421,24 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'다시 시작'**
   String get appUpdateRestart;
+
+  /// No description provided for @settingsVersionTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'앱 버전'**
+  String get settingsVersionTitle;
+
+  /// No description provided for @settingsVersionCheck.
+  ///
+  /// In ko, this message translates to:
+  /// **'업데이트 확인'**
+  String get settingsVersionCheck;
+
+  /// No description provided for @appUpdateNone.
+  ///
+  /// In ko, this message translates to:
+  /// **'지금 받을 수 있는 업데이트가 없어요'**
+  String get appUpdateNone;
 }
 
 class _AppLocalizationsDelegate

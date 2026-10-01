@@ -219,5 +219,8 @@
   "scheduleTimeRangeNextDay": "{start} ~ {end}（次日）",
   "scheduleMore": "{first} 等 {count} 项",
   "appUpdateReady": "已下载新版本",
-  "appUpdateRestart": "重启"
+  "appUpdateRestart": "重启",
+  "settingsVersionTitle": "应用版本",
+  "settingsVersionCheck": "检查更新",
+  "appUpdateNone": "目前没有可用的更新"
 }

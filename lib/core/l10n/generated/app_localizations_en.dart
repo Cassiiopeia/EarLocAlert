@@ -758,4 +758,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get appUpdateRestart => 'Restart';
+
+  @override
+  String get settingsVersionTitle => 'App version';
+
+  @override
+  String get settingsVersionCheck => 'Check for updates';
+
+  @override
+  String get appUpdateNone => 'No update is available right now';
 }
