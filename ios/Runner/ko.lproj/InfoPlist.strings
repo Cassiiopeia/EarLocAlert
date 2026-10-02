@@ -5,3 +5,5 @@
 "NSLocationAlwaysUsageDescription" = "앱을 열지 않아도 등록한 장소에 도착·출발할 때 알려드리기 위해 백그라운드에서도 위치를 확인합니다. 위치 정보는 기기에만 저장되며 외부로 전송되지 않습니다.";
 "NSUserTrackingUsageDescription" = "사용자에게 더 관련성 높은 광고를 표시하기 위해 사용합니다. 허용하지 않아도 앱의 모든 기능을 그대로 이용할 수 있습니다.";
 "CFBundleDisplayName" = "이어폰위치알림";
+"NSPhotoLibraryUsageDescription" = "알림음으로 쓸 내 음원 파일을 고를 때만 사용합니다. 앱은 사진을 읽지 않습니다.";
+"NSMicrophoneUsageDescription" = "이 앱은 소리를 녹음하지 않습니다. 마이크는 사용하지 않습니다.";
