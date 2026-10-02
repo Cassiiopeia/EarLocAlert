@@ -83,6 +83,7 @@
 |---|---|
 | 앱 ID | `AndroidManifest.xml` 메타데이터. **없으면 앱이 시작 시 크래시**하므로 `.env` 로 빼지 않는다 |
 | 전면 단위 ID | `AdUnitIds._prodInterstitialAndroid` |
+| 배너 단위 ID (`banner_bottom`, 2026-10-02) | `AdUnitIds._prodBannerAndroid` |
 | iOS | 미등록 (#51 로 서명이 막혀 있다). 비어 있으면 테스트 ID 로 떨어진다 |
 
 **예전에는 `--dart-define` 으로 받았는데 CI 가 그것을 넘기지 않아 릴리스 빌드도 테스트 광고로 나가고 있었다.** 그 워크플로우는 템플릿이 관리해서 고쳐도 다음 갱신에 덮인다.

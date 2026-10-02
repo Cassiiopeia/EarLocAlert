@@ -38,12 +38,12 @@ abstract final class AdUnitIds {
   /// 비어 있으면 테스트 ID 로 떨어진다.
   static const _prodInterstitialIos = '';
 
-  /// 배너 광고 단위 (이슈 #186, #187 에서 콘솔에 만든 뒤 채운다).
+  /// 배너 광고 단위 `banner_bottom` (이슈 #186, #187 — 2026-10-02 콘솔에서 생성).
   ///
   /// **비어 있으면 릴리스 빌드도 테스트 배너다.** 콘솔에 없는 단위로 실제
   /// 요청을 보내면 노출 없이 요청만 쌓이고, 이름 없는 단위가 섞여 집계가
   /// 어지러워진다. 광고가 안 나가는 쪽이 안전하다.
-  static const _prodBannerAndroid = '';
+  static const _prodBannerAndroid = 'ca-app-pub-2025665624324395/5000175615';
   static const _prodBannerIos = '';
 
   /// 지금 빌드에서 써야 할 전면광고 ID
