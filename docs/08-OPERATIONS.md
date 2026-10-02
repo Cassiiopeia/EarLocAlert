@@ -258,6 +258,10 @@ merge-pr {owner} {repo} {PR} --method merge --title "chore(release): v1.7.0 (PR 
 
 인증서와 프로비저닝 프로필은 **만료된다.** 만료 시점을 알기 어려운데, 빌드가 갑자기 실패하면 여기를 먼저 본다.
 
+> **2026-10-02 복구했다 (#189).** App Store Connect API 로 새 배포 인증서(`Apple Distribution`, 2027-10-02 만료)와 새 프로필 `EarLocAlert Distribution CI`(2027-10-02 만료)를 만들어 시크릿 4개(`APPLE_CERTIFICATE_BASE64`·`APPLE_CERTIFICATE_PASSWORD`·`APPLE_PROVISIONING_PROFILE_BASE64`·`IOS_PROVISIONING_PROFILE_NAME`)를 교체했다. `ios/ExportOptions.plist` 의 프로필 이름도 같은 값이다. **다음 만료는 2027-10-02 다. 그 전에 같은 방식으로 갈아끼운다.**
+>
+> **로컬 Mac(Xcode 16)로는 App Store Connect 에 올릴 수 없다.** Apple 이 iOS 26 SDK(Xcode 26 이상)로 빌드한 앱만 받는다. 업로드는 `macos-26` 러너의 TestFlight 워크플로우가 한다. 그 워크플로우는 **수동 실행해도 `main` 을 체크아웃해 빌드한다** — 코드가 main 에 있어야 한다.
+>
 > **2026-08-03 현재 만료 상태다.** 프로비저닝 프로필이 **2026-07-21 에 만료**되었고, `iOS Distribution` 인증서도 팀 ID `CUK22HY6YC` 로 매칭되지 않는다. iOS 빌드가 아카이브 단계에서 실패한다 (#46).
 >
 > ```

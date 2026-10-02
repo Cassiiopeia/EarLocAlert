@@ -9,7 +9,7 @@
     <key>provisioningProfiles</key>
     <dict>
         <key>kr.suhsaechan.earlocAlert</key>
-        <string>EarLocAlert Distribution</string>
+        <string>EarLocAlert Distribution CI</string>
     </dict>
     <key>signingStyle</key>
     <string>manual</string>
