@@ -10,6 +10,12 @@
 
 When you reach a destination or leave a place, it lets you know without disturbing the people around you.
 
+<p align="center">
+  <img src="docs/images/home-en.webp" alt="Map home: saved places and monitoring status" width="260">
+  &nbsp;&nbsp;
+  <img src="docs/images/add-place-en.webp" alt="Add place: sound only when earphones are connected" width="260">
+</p>
+
 ---
 
 ## Sound familiar?

@@ -14,6 +14,12 @@
 
 **English**: [README.en.md](README.en.md)
 
+<p align="center">
+  <img src="docs/images/home-ko.webp" alt="지도 홈: 등록한 장소와 감시 상태" width="260">
+  &nbsp;&nbsp;
+  <img src="docs/images/add-place-ko.webp" alt="장소 등록: 이어폰이 연결된 경우에만 소리가 납니다" width="260">
+</p>
+
 ---
 
 ## 이런 경험 있으신가요
