@@ -3,7 +3,6 @@
 "NSLocationWhenInUseUsageDescription" = "Used to pick a place on the map and show roughly where you are. Your location stays on this device and is never sent elsewhere.";
 "NSLocationAlwaysAndWhenInUseUsageDescription" = "Checks your location in the background so we can alert you when you arrive at or leave a registered place, even if the app is closed. Your location stays on this device and is never sent elsewhere.";
 "NSLocationAlwaysUsageDescription" = "Checks your location in the background so we can alert you when you arrive at or leave a registered place, even if the app is closed. Your location stays on this device and is never sent elsewhere.";
-"NSUserTrackingUsageDescription" = "Used to show ads that are more relevant to you. All features work the same even if you don't allow it.";
 "CFBundleDisplayName" = "EarLocAlert";
 "NSPhotoLibraryUsageDescription" = "Only used when you pick your own sound file for an alert. The app does not read your photos.";
 "NSMicrophoneUsageDescription" = "The app never records audio. Microphone access is not used.";

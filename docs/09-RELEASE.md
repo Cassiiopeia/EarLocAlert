@@ -136,7 +136,7 @@ Play 에서 말하는 "수집"은 **데이터가 기기 밖으로 나가는 것*
 | `NSLocationWhenInUseUsageDescription` | 사용 중 위치 사유 | **작성 완료** |
 | `NSLocationAlwaysAndWhenInUseUsageDescription` | **항상 허용 사유 — 심사 대상** | **작성 완료** |
 | `UIBackgroundModes: location` | 백그라운드 위치 선언 | **작성 완료** |
-| `NSUserTrackingUsageDescription` | ATT — 개인 맞춤 광고 시 | 작성 완료 (채택 여부 미결) |
+| `NSUserTrackingUsageDescription` | ATT — 개인 맞춤 광고 시 | **일부러 뺐다** (#196). 키가 있으면 추적 선언이 강제된다 |
 | `GADApplicationIdentifier` | AdMob 앱 ID | **테스트 ID. 발급 후 교체** |
 | `PrivacyInfo.xcprivacy` | **Privacy Manifest. 없으면 업로드 거부** | 미작성 |
 | SKAdNetwork 식별자 | 광고 어트리뷰션 | 미작성 |

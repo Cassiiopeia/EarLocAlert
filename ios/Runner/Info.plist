@@ -32,18 +32,15 @@
 			<string>location</string>
 			<string>audio</string>
 		</array>
-		<!-- ATT — 개인 맞춤 광고 사용 시 필요.
-	     권한 요청이 이미 세 개(위치·항상 위치·알림)라 온보딩 이탈이
-	     늘어날 수 있다. 최종 채택 여부는 미결이다
-	     (docs/10-DECISIONS.md 미결 표). -->
 		<!-- 아래 두 키는 앱이 직접 쓰지 않는다. 포함된 라이브러리(file_picker, audio_session)가
 	     해당 API 를 참조해 App Store Connect 가 문구를 요구한다 (ITMS-90683, 이슈 #194) -->
 		<key>NSPhotoLibraryUsageDescription</key>
 		<string>Only used when you pick your own sound file for an alert. The app does not read your photos.</string>
 		<key>NSMicrophoneUsageDescription</key>
 		<string>The app never records audio. Microphone access is not used.</string>
-		<key>NSUserTrackingUsageDescription</key>
-		<string>Used to show ads that are more relevant to you. All features work the same even if you don't allow it.</string>
+		<!-- NSUserTrackingUsageDescription 은 일부러 두지 않는다 (이슈 #196). 이 앱은 ATT 를 요청하지
+	     않고 추적하지 않는다. 키가 있으면 App Store Connect 가 "추적 선언"을 요구해 심사 제출이 막힌다.
+	     ATT 를 도입하면 App Privacy 의 추적 응답과 함께 되살린다 (docs/10-DECISIONS.md). -->
 		<!-- AdMob 앱 ID — 공개 정보다. 실제 발급 후 교체한다.
 	     현재는 Google 공개 테스트 ID (docs/07-MONETIZATION.md). -->
 		<key>GADApplicationIdentifier</key>
