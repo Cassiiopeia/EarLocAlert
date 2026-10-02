@@ -19,7 +19,7 @@
 #   - RELEASE_NOTES: 릴리즈 노트 (한국어/영어 동시 적용)
 #
 # 사용법 (CI):
-#   fastlane upload_testflight
+#   fastlane deploy   (워크플로우 진입점, upload_testflight 를 부른다)
 #
 # 사용법 (로컬):
 #   bundle exec fastlane upload_testflight
@@ -71,6 +71,18 @@ platform :ios do
     )
 
     UI.success("✅ TestFlight 업로드 완료!")
+  end
+
+  desc "워크플로우 진입점 — DEPLOY_MODE 와 무관하게 TestFlight 까지만 올린다 (이슈 #189)"
+  lane :deploy do
+    # TestFlight 워크플로우가 `fastlane deploy` 를 부르는데 이 레포의 Fastfile 에는 그 레인이
+    # 없어 업로드 단계가 "Could not find lane" 으로 실패했다. 심사 제출은 App Store
+    # Connect 에서 직접 하므로 store_prepare·store_submit 도 업로드까지만 한다.
+    mode = ENV["DEPLOY_MODE"] || "store_only"
+    unless mode == "store_only"
+      UI.important("DEPLOY_MODE=#{mode}: 이 Fastfile 은 TestFlight 업로드까지만 한다. 심사 제출은 App Store Connect 에서 한다")
+    end
+    upload_testflight
   end
 
   desc "로컬에서 IPA 빌드 및 TestFlight 업로드 (개발용)"
