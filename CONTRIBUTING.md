@@ -1,29 +1,31 @@
-# 기여 가이드
+**English** · [한국어](CONTRIBUTING.ko.md)
 
-관심 가져 주셔서 고맙습니다. 시작하기 전에 두 가지를 알아 두세요.
+# Contributing
 
-1. 이 저장소는 **소스 공개(source-available)** 이며 [PolyForm Noncommercial 1.0.0](LICENSE) 을 따릅니다. 비상업 목적의 수정·포크는 가능하지만 상업적 이용은 불가합니다.
-2. PR 을 보내면 그 기여물에도 같은 라이선스가 적용되는 것에 동의한 것으로 봅니다.
+Thanks for your interest. Two things to know before you start.
 
-## 먼저 이슈로 이야기해 주세요
+1. This repository is **source-available** under [PolyForm Noncommercial 1.0.0](LICENSE). You may modify and fork it for noncommercial purposes, but commercial use is not allowed.
+2. By sending a pull request, you agree that your contribution is covered by the same license.
 
-코드를 쓰기 전에 [이슈](https://github.com/Cassiiopeia/EarLocAlert/issues) 를 열어 무엇을 왜 바꾸려는지 알려 주세요. 방향이 맞지 않으면 작업이 낭비될 수 있습니다. 버그는 앱 버전, 플랫폼·기기, 재현 절차를 적어 주세요. 설정 → 진단 기록을 내보낸 파일이 있으면 가장 빨리 원인을 찾을 수 있습니다.
+## Open an issue first
 
-## 지켜야 하는 핵심 원칙
+Before writing code, please open an [issue](https://github.com/Cassiiopeia/EarLocAlert/issues) describing what you want to change and why. If the direction does not fit, the work can be wasted. For bugs, include the app version, platform and device, and reproduction steps. An exported diagnostics log (Settings, Diagnostics) helps us find the cause fastest.
 
-이 앱의 존재 이유와 직결되어 **예외가 없습니다.** 자세한 이유는 [CLAUDE.md](CLAUDE.md) 와 `docs/` 에 있습니다.
+## Principles that must be kept
 
-- 이어폰 연결을 확인하지 않고 **소리를 재생하지 않습니다.** 확인에 실패하면 진동으로 떨어집니다
-- 알림 해제는 광고를 기다리지 않습니다. 알림 화면에 광고를 겹치지 않습니다
-- 로그는 `print` 가 아니라 `Diagnostics` 로 남깁니다
-- 화면 문자열은 하드코딩하지 않고 네 언어 l10n 을 씁니다 (`context.l10n.키`)
-- 상태 관리는 `@riverpod` code generation 만 씁니다
+These are tied directly to why the app exists and have **no exceptions**. The reasoning is in [CLAUDE.md](CLAUDE.md) and `docs/` (written in Korean).
 
-## 개발 환경
+- **Never play sound without confirming that earphones are connected.** If the check fails, fall back to vibration
+- Dismissing an alert never waits for an ad. Never overlay an ad on the alert screen
+- Log through `Diagnostics`, not `print`
+- Do not hardcode UI strings. Use the four-language l10n (`context.l10n.key`)
+- State management uses `@riverpod` code generation only
 
-- Flutter 3.35.5 (Dart 3.9+) — 더 높은 버전은 code generation 이 동작하지 않을 수 있습니다
-- 지도를 보려면 `.env.example` 을 `.env` 로 복사해 `MAPS_API_KEY` 를 채웁니다. 없어도 빌드는 되고 지도만 회색으로 보입니다
-- 실기기 테스트에 **실제 광고 ID 를 쓰지 마세요.** 디버그 빌드는 테스트 광고 ID 로 자동 분기됩니다
+## Development environment
+
+- Flutter 3.35.5 (Dart 3.9+). Newer versions may break code generation
+- To see the map, copy `.env.example` to `.env` and fill in `MAPS_API_KEY`. The build works without it and the map is simply gray
+- **Do not use real ad IDs for device testing.** Debug builds switch to test ad IDs automatically
 
 ```bash
 flutter pub get
@@ -32,13 +34,13 @@ flutter analyze
 flutter test
 ```
 
-## PR 보내기
+## Sending a pull request
 
-- 변경은 작게, 한 PR 에 한 가지 목적만 담아 주세요
-- 설계 판단을 바꿨다면 [10-DECISIONS](docs/10-DECISIONS.md) 에 항목을 추가해 주세요
-- `pubspec.yaml` 의 version 은 수정하지 마세요. `version.yml` 이 단일 출처입니다
-- 실기기에서만 확인되는 변경(백그라운드, 오디오 경로)은 어떤 기기에서 확인했는지 적어 주세요
+- Keep changes small, with one purpose per pull request
+- If you change a design decision, add an entry to [10-DECISIONS](docs/10-DECISIONS.md)
+- Do not edit the version in `pubspec.yaml`. `version.yml` is the single source
+- For changes that can only be verified on a real device (background behavior, audio routing), say which device you verified on
 
-## 보안 문제
+## Security issues
 
-취약점은 공개 이슈로 올리지 말고 [SECURITY.md](SECURITY.md) 의 방법으로 알려 주세요.
+Do not report vulnerabilities in a public issue. Follow [SECURITY.md](SECURITY.md).

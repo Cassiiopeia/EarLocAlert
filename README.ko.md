@@ -114,7 +114,7 @@ flutter run          # 실행
 
 변경 이력은 [CHANGELOG.md](CHANGELOG.md) 에 자동 기록됩니다.
 
-기여하기 전에 [CONTRIBUTING.md](CONTRIBUTING.md) 를 읽어 주세요. 취약점은 공개 이슈 대신 [SECURITY.md](SECURITY.md) 로 알려 주세요.
+기여하기 전에 [CONTRIBUTING.ko.md](CONTRIBUTING.ko.md) 를 읽어 주세요. 취약점은 공개 이슈 대신 [SECURITY.md](SECURITY.md) 로 알려 주세요.
 
 ---
 
