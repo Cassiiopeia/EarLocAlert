@@ -41,12 +41,18 @@ class GoogleInterstitialAdService implements InterstitialAdService {
         request: const AdRequest(),
         adLoadCallback: InterstitialAdLoadCallback(
           onAdLoaded: (ad) {
+            Diagnostics.log('ads', 'interstitial loaded');
             _ad = ad;
             _loading = false;
           },
           onAdFailedToLoad: (error) {
             // 로딩 실패는 정상적으로 일어난다 — 네트워크 없음, 재고 없음 등.
-            // 조용히 넘어간다. 다음 알림에서 다시 시도된다.
+            // 넘어가되 사유는 남긴다 — 광고가 안 뜨는 이유의 유일한 단서다.
+            // 다음 알림에서 다시 시도된다.
+            Diagnostics.log(
+              'ads',
+              'interstitial load failed code=${error.code} message=${error.message}',
+            );
             _ad = null;
             _loading = false;
           },

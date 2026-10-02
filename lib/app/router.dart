@@ -35,6 +35,7 @@ import '../features/sounds/presentation/sound_picker_sheet.dart';
 import '../features/app_update/domain/app_updater.dart';
 import '../features/app_update/presentation/app_update_providers.dart';
 import 'app_version_provider.dart';
+import 'ad_banner_frame.dart';
 import 'home_status_provider.dart';
 
 /// 앱 라우팅 (docs/02-ARCHITECTURE.md)
@@ -68,16 +69,18 @@ GoRouter createRouter() {
       ),
       GoRoute(
         path: AppRoutes.home,
-        builder: (context, state) => const _HomeRoute(),
+        builder: (context, state) => const AdBannerFrame(child: _HomeRoute()),
       ),
       GoRoute(
         path: AppRoutes.placeNew,
-        builder: (context, state) => const _PlaceFormRoute(),
+        builder: (context, state) =>
+            const AdBannerFrame(child: _PlaceFormRoute()),
       ),
       GoRoute(
         path: AppRoutes.placeEdit,
-        builder: (context, state) =>
-            _PlaceFormRoute(existing: state.extra as AlertPlace?),
+        builder: (context, state) => AdBannerFrame(
+          child: _PlaceFormRoute(existing: state.extra as AlertPlace?),
+        ),
       ),
       GoRoute(
         path: AppRoutes.placeMap,
@@ -90,7 +93,8 @@ GoRouter createRouter() {
       ),
       GoRoute(
         path: AppRoutes.settings,
-        builder: (context, state) => const _SettingsRoute(),
+        builder: (context, state) =>
+            const AdBannerFrame(child: _SettingsRoute()),
       ),
       GoRoute(
         path: AppRoutes.alert,
