@@ -67,4 +67,37 @@ class GoogleAdConsent implements AdConsent {
       return false;
     }
   }
+
+  @override
+  Future<bool> isPrivacyOptionsRequired() async {
+    try {
+      final status = await ConsentInformation.instance
+          .getPrivacyOptionsRequirementStatus();
+      return status == PrivacyOptionsRequirementStatus.required;
+    } on Object catch (error) {
+      Diagnostics.log('ads', 'privacy options status failed $error');
+      return false;
+    }
+  }
+
+  @override
+  Future<void> showPrivacyOptions() async {
+    final done = Completer<void>();
+    try {
+      await ConsentForm.showPrivacyOptionsForm((formError) {
+        if (formError != null) {
+          Diagnostics.log(
+            'ads',
+            'privacy options form failed code=${formError.errorCode} '
+                'message=${formError.message}',
+          );
+        }
+        if (!done.isCompleted) done.complete();
+      });
+    } on Object catch (error) {
+      Diagnostics.log('ads', 'privacy options form threw $error');
+      if (!done.isCompleted) done.complete();
+    }
+    await done.future;
+  }
 }

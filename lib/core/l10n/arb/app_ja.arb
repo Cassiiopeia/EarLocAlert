@@ -219,5 +219,12 @@
   "scheduleTimeRangeNextDay": "{start} ~ {end}（翌日）",
   "scheduleMore": "{first} ほか{count}件",
   "appUpdateReady": "新しいバージョンをダウンロードしました",
-  "appUpdateRestart": "再起動"
+  "appUpdateRestart": "再起動",
+  "settingsSectionAbout": "情報",
+  "settingsTermsTitle": "利用規約",
+  "settingsPrivacyTitle": "プライバシーポリシー",
+  "settingsLicensesTitle": "オープンソースライセンス",
+  "settingsAdPrivacyTitle": "広告のプライバシー設定",
+  "settingsAdPrivacySubtitle": "広告に関する同意の選択を確認または変更します",
+  "settingsOpenLinkFailed": "リンクを開けませんでした。ブラウザがインストールされているか確認してください"
 }

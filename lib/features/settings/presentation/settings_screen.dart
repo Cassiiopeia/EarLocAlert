@@ -54,6 +54,9 @@ class SettingsScreen extends StatelessWidget {
     required this.onOpenDiagnostics,
     required this.language,
     required this.onLanguageChanged,
+    required this.onOpenTerms,
+    required this.onOpenPrivacy,
+    this.onOpenAdPrivacy,
     this.permissions = const [],
     this.onPreviewAlert,
     super.key,
@@ -68,6 +71,13 @@ class SettingsScreen extends StatelessWidget {
   /// 지금 고른 앱 언어와 바꾸는 방법 (이슈 #163). app 계층이 값을 내려준다
   final AppLanguage language;
   final ValueChanged<AppLanguage> onLanguageChanged;
+
+  /// 이용약관·개인정보처리방침 (이슈 #188). 링크를 여는 일은 app 계층이 맡는다
+  final VoidCallback onOpenTerms;
+  final VoidCallback onOpenPrivacy;
+
+  /// 광고 동의 선택을 다시 여는 방법. **해당 지역이 아니면 null** 이고 항목을 숨긴다
+  final VoidCallback? onOpenAdPrivacy;
 
   /// 알림이 확실히 도달하는 데 필요한 권한들 (이슈 #102)
   final List<SettingsPermissionRow> permissions;
@@ -170,6 +180,34 @@ class SettingsScreen extends StatelessWidget {
               subtitle: _languageSubtitle(context),
               onTap: () => _openLanguage(context),
             ),
+
+            // 약관과 방침은 스토어 심사 항목이고, 사용자가 찾는 자리다 (이슈 #188)
+            _SectionLabel(context.l10n.settingsSectionAbout),
+            _SettingTile(
+              icon: Icons.description_outlined,
+              title: context.l10n.settingsTermsTitle,
+              onTap: onOpenTerms,
+            ),
+            _SettingTile(
+              icon: Icons.privacy_tip_outlined,
+              title: context.l10n.settingsPrivacyTitle,
+              onTap: onOpenPrivacy,
+            ),
+            if (onOpenAdPrivacy != null)
+              _SettingTile(
+                icon: Icons.ads_click_outlined,
+                title: context.l10n.settingsAdPrivacyTitle,
+                subtitle: context.l10n.settingsAdPrivacySubtitle,
+                onTap: onOpenAdPrivacy!,
+              ),
+            _SettingTile(
+              icon: Icons.gavel_outlined,
+              title: context.l10n.settingsLicensesTitle,
+              onTap: () => showLicensePage(
+                context: context,
+                applicationName: context.l10n.appName,
+              ),
+            ),
           ],
         ),
       ),
@@ -235,13 +273,13 @@ class _SettingTile extends StatelessWidget {
   const _SettingTile({
     required this.icon,
     required this.title,
-    required this.subtitle,
+    this.subtitle,
     required this.onTap,
   });
 
   final IconData icon;
   final String title;
-  final String subtitle;
+  final String? subtitle;
   final VoidCallback onTap;
 
   @override
@@ -249,10 +287,9 @@ class _SettingTile extends StatelessWidget {
     return ListTile(
       leading: Icon(icon, color: AppColors.textSecondary),
       title: Text(title, style: AppTypography.body),
-      subtitle: Text(
-        context.keepAllText(subtitle),
-        style: AppTypography.caption,
-      ),
+      subtitle: subtitle == null
+          ? null
+          : Text(context.keepAllText(subtitle!), style: AppTypography.caption),
       trailing: const Icon(Icons.chevron_right_outlined),
       onTap: onTap,
     );

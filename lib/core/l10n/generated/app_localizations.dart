@@ -1421,6 +1421,48 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'다시 시작'**
   String get appUpdateRestart;
+
+  /// No description provided for @settingsSectionAbout.
+  ///
+  /// In ko, this message translates to:
+  /// **'정보'**
+  String get settingsSectionAbout;
+
+  /// No description provided for @settingsTermsTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'이용약관'**
+  String get settingsTermsTitle;
+
+  /// No description provided for @settingsPrivacyTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'개인정보처리방침'**
+  String get settingsPrivacyTitle;
+
+  /// No description provided for @settingsLicensesTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'오픈소스 라이선스'**
+  String get settingsLicensesTitle;
+
+  /// No description provided for @settingsAdPrivacyTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'광고 개인정보 설정'**
+  String get settingsAdPrivacyTitle;
+
+  /// No description provided for @settingsAdPrivacySubtitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'광고 동의 선택을 다시 확인하거나 바꿉니다'**
+  String get settingsAdPrivacySubtitle;
+
+  /// No description provided for @settingsOpenLinkFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'링크를 열 수 없어요. 브라우저가 설치되어 있는지 확인해 주세요'**
+  String get settingsOpenLinkFailed;
 }
 
 class _AppLocalizationsDelegate

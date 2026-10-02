@@ -219,5 +219,12 @@
   "scheduleTimeRangeNextDay": "{start} ~ {end} (next day)",
   "scheduleMore": "{first} +{count} more",
   "appUpdateReady": "A new version is ready",
-  "appUpdateRestart": "Restart"
+  "appUpdateRestart": "Restart",
+  "settingsSectionAbout": "About",
+  "settingsTermsTitle": "Terms of Service",
+  "settingsPrivacyTitle": "Privacy Policy",
+  "settingsLicensesTitle": "Open-source licenses",
+  "settingsAdPrivacyTitle": "Ad privacy settings",
+  "settingsAdPrivacySubtitle": "Review or change your ad consent choices",
+  "settingsOpenLinkFailed": "Couldn't open the link. Please check that a browser is installed."
 }

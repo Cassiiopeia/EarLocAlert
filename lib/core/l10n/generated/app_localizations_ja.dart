@@ -731,4 +731,25 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get appUpdateRestart => '再起動';
+
+  @override
+  String get settingsSectionAbout => '情報';
+
+  @override
+  String get settingsTermsTitle => '利用規約';
+
+  @override
+  String get settingsPrivacyTitle => 'プライバシーポリシー';
+
+  @override
+  String get settingsLicensesTitle => 'オープンソースライセンス';
+
+  @override
+  String get settingsAdPrivacyTitle => '広告のプライバシー設定';
+
+  @override
+  String get settingsAdPrivacySubtitle => '広告に関する同意の選択を確認または変更します';
+
+  @override
+  String get settingsOpenLinkFailed => 'リンクを開けませんでした。ブラウザがインストールされているか確認してください';
 }

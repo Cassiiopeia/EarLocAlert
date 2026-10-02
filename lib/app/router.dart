@@ -4,8 +4,12 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../core/di/providers.dart';
+import '../core/diagnostics/diagnostics.dart';
+import '../core/legal/legal_links.dart';
+import '../core/widgets/app_feedback.dart';
 import '../core/domain/sound_preset_label.dart';
 import '../core/l10n/app_language_controller.dart';
 import 'geofence_providers.dart';
@@ -308,10 +312,35 @@ class _SettingsRoute extends ConsumerStatefulWidget {
 
 class _SettingsRouteState extends ConsumerState<_SettingsRoute>
     with WidgetsBindingObserver {
+  /// 광고 동의 선택을 다시 열어야 하는 지역인가 (이슈 #188). 모르면 false 라 항목이 없다
+  bool _adPrivacyRequired = false;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    unawaited(_loadAdPrivacyRequirement());
+  }
+
+  Future<void> _loadAdPrivacyRequirement() async {
+    final required = await ref
+        .read(adConsentProvider)
+        .isPrivacyOptionsRequired();
+    if (mounted && required) setState(() => _adPrivacyRequired = true);
+  }
+
+  /// 외부 브라우저로 연다. 열지 못하면 알려준다 — 아무 반응이 없으면 고장으로 읽는다
+  Future<void> _openLink(Uri uri) async {
+    var opened = false;
+    try {
+      opened = await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } on Object catch (error) {
+      Diagnostics.log('settings', 'open link threw uri=$uri error=$error');
+    }
+    if (!opened) {
+      Diagnostics.log('settings', 'open link failed uri=$uri');
+      if (mounted) context.showToast(context.l10n.settingsOpenLinkFailed);
+    }
   }
 
   @override
@@ -340,6 +369,16 @@ class _SettingsRouteState extends ConsumerState<_SettingsRoute>
       // 진동 세기 (이슈 #103) — 이어폰이 없을 때 유일한 알림 수단이다
       onOpenVibrationSettings: () => showVibrationIntensitySheet(context),
       onOpenDiagnostics: () => context.push(AppRoutes.diagnostics),
+      // 약관·방침 (이슈 #188) — 한국어는 한국어 문서, 나머지는 영어 문서
+      onOpenTerms: () => _openLink(
+        LegalLinks.terms(Localizations.localeOf(context).languageCode),
+      ),
+      onOpenPrivacy: () => _openLink(
+        LegalLinks.privacy(Localizations.localeOf(context).languageCode),
+      ),
+      onOpenAdPrivacy: _adPrivacyRequired
+          ? () => unawaited(ref.read(adConsentProvider).showPrivacyOptions())
+          : null,
       // 앱 언어 (이슈 #163) — 고르면 바로 적용되고 저장된다
       language: ref.watch(appLanguageControllerProvider),
       onLanguageChanged: (next) async {
