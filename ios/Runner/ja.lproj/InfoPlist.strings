@@ -3,7 +3,6 @@
 "NSLocationWhenInUseUsageDescription" = "地図で通知したい場所を選び、現在地を表示するために使用します。位置情報は端末内にのみ保存され、外部に送信されません。";
 "NSLocationAlwaysAndWhenInUseUsageDescription" = "アプリを開いていなくても、登録した場所への到着・出発をお知らせするため、バックグラウンドでも位置情報を確認します。位置情報は端末内にのみ保存され、外部に送信されません。";
 "NSLocationAlwaysUsageDescription" = "アプリを開いていなくても、登録した場所への到着・出発をお知らせするため、バックグラウンドでも位置情報を確認します。位置情報は端末内にのみ保存され、外部に送信されません。";
-"NSUserTrackingUsageDescription" = "より関連性の高い広告を表示するために使用します。許可しなくてもアプリのすべての機能をそのままご利用いただけます。";
 "CFBundleDisplayName" = "イヤホン位置通知";
 "NSPhotoLibraryUsageDescription" = "アラート音に使う自分の音源ファイルを選ぶときにのみ使用します。アプリは写真を読み取りません。";
 "NSMicrophoneUsageDescription" = "このアプリは音声を録音しません。マイクは使用しません。";
