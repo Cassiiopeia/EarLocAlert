@@ -767,4 +767,27 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get appUpdateNone => 'No update is available right now';
+
+  @override
+  String get settingsSectionAbout => 'About';
+
+  @override
+  String get settingsTermsTitle => 'Terms of Service';
+
+  @override
+  String get settingsPrivacyTitle => 'Privacy Policy';
+
+  @override
+  String get settingsLicensesTitle => 'Open-source licenses';
+
+  @override
+  String get settingsAdPrivacyTitle => 'Ad privacy settings';
+
+  @override
+  String get settingsAdPrivacySubtitle =>
+      'Review or change your ad consent choices';
+
+  @override
+  String get settingsOpenLinkFailed =>
+      'Couldn\'t open the link. Please check that a browser is installed.';
 }

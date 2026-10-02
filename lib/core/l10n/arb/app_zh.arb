@@ -222,5 +222,12 @@
   "appUpdateRestart": "重启",
   "settingsVersionTitle": "应用版本",
   "settingsVersionCheck": "检查更新",
-  "appUpdateNone": "目前没有可用的更新"
+  "appUpdateNone": "目前没有可用的更新",
+  "settingsSectionAbout": "关于",
+  "settingsTermsTitle": "服务条款",
+  "settingsPrivacyTitle": "隐私政策",
+  "settingsLicensesTitle": "开源许可",
+  "settingsAdPrivacyTitle": "广告隐私设置",
+  "settingsAdPrivacySubtitle": "查看或更改你的广告同意选择",
+  "settingsOpenLinkFailed": "无法打开链接，请确认已安装浏览器"
 }

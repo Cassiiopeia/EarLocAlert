@@ -742,4 +742,25 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get appUpdateNone => '지금 받을 수 있는 업데이트가 없어요';
+
+  @override
+  String get settingsSectionAbout => '정보';
+
+  @override
+  String get settingsTermsTitle => '이용약관';
+
+  @override
+  String get settingsPrivacyTitle => '개인정보처리방침';
+
+  @override
+  String get settingsLicensesTitle => '오픈소스 라이선스';
+
+  @override
+  String get settingsAdPrivacyTitle => '광고 개인정보 설정';
+
+  @override
+  String get settingsAdPrivacySubtitle => '광고 동의 선택을 다시 확인하거나 바꿉니다';
+
+  @override
+  String get settingsOpenLinkFailed => '링크를 열 수 없어요. 브라우저가 설치되어 있는지 확인해 주세요';
 }

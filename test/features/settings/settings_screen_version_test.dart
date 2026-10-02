@@ -20,6 +20,8 @@ Widget _screen({required String version, required VoidCallback onCheck}) {
       onLanguageChanged: (_) {},
       appVersion: version,
       onCheckUpdate: onCheck,
+      onOpenTerms: () {},
+      onOpenPrivacy: () {},
     ),
   );
 }

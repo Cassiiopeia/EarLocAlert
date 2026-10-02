@@ -735,4 +735,25 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get appUpdateNone => '目前没有可用的更新';
+
+  @override
+  String get settingsSectionAbout => '关于';
+
+  @override
+  String get settingsTermsTitle => '服务条款';
+
+  @override
+  String get settingsPrivacyTitle => '隐私政策';
+
+  @override
+  String get settingsLicensesTitle => '开源许可';
+
+  @override
+  String get settingsAdPrivacyTitle => '广告隐私设置';
+
+  @override
+  String get settingsAdPrivacySubtitle => '查看或更改你的广告同意选择';
+
+  @override
+  String get settingsOpenLinkFailed => '无法打开链接，请确认已安装浏览器';
 }

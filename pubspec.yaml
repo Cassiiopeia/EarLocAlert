@@ -41,6 +41,8 @@ dependencies:
   just_audio: ^0.9.42
   # 광고 — 1차 심사부터 포함한다 (docs/10-DECISIONS.md 009)
   google_mobile_ads: ^5.2.0
+  # 이용약관·개인정보처리방침을 외부 브라우저로 연다 (이슈 #188)
+  url_launcher: ^6.3.1
   # 단일 설정값 저장 (docs/03-DOMAIN.md 저장소 경계)
   shared_preferences: ^2.5.2
   # 백그라운드 지오펜스 — S-1 선정: OS 네이티브 API 위임 (docs/10-DECISIONS.md 014)

@@ -222,5 +222,12 @@
   "appUpdateRestart": "再起動",
   "settingsVersionTitle": "アプリのバージョン",
   "settingsVersionCheck": "アップデートを確認",
-  "appUpdateNone": "今のところ利用できるアップデートはありません"
+  "appUpdateNone": "今のところ利用できるアップデートはありません",
+  "settingsSectionAbout": "情報",
+  "settingsTermsTitle": "利用規約",
+  "settingsPrivacyTitle": "プライバシーポリシー",
+  "settingsLicensesTitle": "オープンソースライセンス",
+  "settingsAdPrivacyTitle": "広告のプライバシー設定",
+  "settingsAdPrivacySubtitle": "広告に関する同意の選択を確認または変更します",
+  "settingsOpenLinkFailed": "リンクを開けませんでした。ブラウザがインストールされているか確認してください"
 }

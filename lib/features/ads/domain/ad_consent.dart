@@ -21,6 +21,15 @@ abstract interface class AdConsent {
   /// 동의를 받았거나 필요 없는 지역이면 `true`. 동의 정보를 아직 못 읽었으면
   /// `false` 다 — **모르면 요청하지 않는다.**
   Future<bool> canRequestAds();
+
+  /// 사용자가 동의 선택을 다시 열 수 있어야 하는 지역인가 (이슈 #188).
+  ///
+  /// 유럽 경제 지역과 영국에서 동의 화면을 거친 사용자는 언제든 선택을
+  /// 바꿀 수 있어야 한다. **모르면 `false`** — 없는 항목을 보여주는 것보다 낫다.
+  Future<bool> isPrivacyOptionsRequired();
+
+  /// 동의 선택을 다시 여는 화면을 띄운다. 실패해도 예외를 던지지 않는다.
+  Future<void> showPrivacyOptions();
 }
 
 /// 동의 화면을 띄울 수 있을 때만 띄운다 (이슈 #166)

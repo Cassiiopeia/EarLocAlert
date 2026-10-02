@@ -11,6 +11,12 @@ class _FakeConsent implements AdConsent {
 
   @override
   Future<bool> canRequestAds() async => true;
+
+  @override
+  Future<bool> isPrivacyOptionsRequired() async => false;
+
+  @override
+  Future<void> showPrivacyOptions() async {}
 }
 
 void main() {
