@@ -41,7 +41,7 @@
 		<!-- AdMob 앱 ID — 공개 정보다. 실제 발급 후 교체한다.
 	     현재는 Google 공개 테스트 ID (docs/07-MONETIZATION.md). -->
 		<key>GADApplicationIdentifier</key>
-		<string>ca-app-pub-3940256099942544~1458002511</string>
+		<string>ca-app-pub-2025665624324395~6848618910</string>
 		<key>CFBundleDisplayName</key>
 		<string>EarLocAlert</string>
 		<key>CFBundleExecutable</key>

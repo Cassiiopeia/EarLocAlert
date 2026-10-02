@@ -34,9 +34,9 @@ abstract final class AdUnitIds {
   static const _prodInterstitialAndroid =
       'ca-app-pub-2025665624324395/6789282892';
 
-  /// iOS 는 AdMob 앱 미등록 (#51 로 서명이 막혀 있다).
+  /// iOS 앱은 2026-10-02 AdMob 에 등록했다 (앱 ID 는 `Info.plist`).
   /// 비어 있으면 테스트 ID 로 떨어진다.
-  static const _prodInterstitialIos = '';
+  static const _prodInterstitialIos = 'ca-app-pub-2025665624324395/4358097652';
 
   /// 배너 광고 단위 `banner_bottom` (이슈 #186, #187 — 2026-10-02 콘솔에서 생성).
   ///
@@ -44,7 +44,7 @@ abstract final class AdUnitIds {
   /// 요청을 보내면 노출 없이 요청만 쌓이고, 이름 없는 단위가 섞여 집계가
   /// 어지러워진다. 광고가 안 나가는 쪽이 안전하다.
   static const _prodBannerAndroid = 'ca-app-pub-2025665624324395/5000175615';
-  static const _prodBannerIos = '';
+  static const _prodBannerIos = 'ca-app-pub-2025665624324395/6065845275';
 
   /// 지금 빌드에서 써야 할 전면광고 ID
   ///
