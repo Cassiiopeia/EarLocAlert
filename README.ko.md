@@ -12,9 +12,11 @@
 
 
 <p align="center">
-  <img src="docs/images/home-ko.webp" alt="지도 홈: 등록한 장소와 감시 상태" width="260">
-  &nbsp;&nbsp;
-  <img src="docs/images/add-place-ko.webp" alt="장소 등록: 이어폰이 연결된 경우에만 소리가 납니다" width="260">
+  <img src="docs/images/home-ko.webp" alt="지도 홈: 등록한 장소와 감시 상태" width="220">
+  &nbsp;
+  <img src="docs/images/add-place-ko.webp" alt="장소 등록: 이어폰이 연결된 경우에만 소리가 납니다" width="220">
+  &nbsp;
+  <img src="docs/images/alert-ko.webp" alt="도착 알림: 큰 버튼 하나로 끕니다" width="220">
 </p>
 
 ---

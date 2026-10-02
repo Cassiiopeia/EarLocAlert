@@ -11,9 +11,11 @@
 到达目的地或离开某个地点时，不打扰身边的人，也能确保你收到提醒。
 
 <p align="center">
-  <img src="docs/images/home-en.webp" alt="地图主页: 已保存的地点和监控状态 (英文界面)" width="260">
-  &nbsp;&nbsp;
-  <img src="docs/images/add-place-en.webp" alt="添加地点: 仅在连接耳机时发出声音 (英文界面)" width="260">
+  <img src="docs/images/home-en.webp" alt="地图主页: 已保存的地点和监控状态 (英文界面)" width="220">
+  &nbsp;
+  <img src="docs/images/add-place-en.webp" alt="添加地点: 仅在连接耳机时发出声音 (英文界面)" width="220">
+  &nbsp;
+  <img src="docs/images/alert-en.webp" alt="到达提醒: 一个大按钮即可关闭 (英文界面)" width="220">
 </p>
 
 ---

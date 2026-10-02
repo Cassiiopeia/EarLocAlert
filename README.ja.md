@@ -11,9 +11,11 @@
 目的地に着いたとき、またはある場所を離れたとき、周りの人の迷惑にならずに、確実にお知らせします。
 
 <p align="center">
-  <img src="docs/images/home-en.webp" alt="マップのホーム画面: 登録した場所と監視状態 (英語表示)" width="260">
-  &nbsp;&nbsp;
-  <img src="docs/images/add-place-en.webp" alt="場所の登録: イヤホン接続時のみ音が鳴る (英語表示)" width="260">
+  <img src="docs/images/home-en.webp" alt="マップのホーム画面: 登録した場所と監視状態 (英語表示)" width="220">
+  &nbsp;
+  <img src="docs/images/add-place-en.webp" alt="場所の登録: イヤホン接続時のみ音が鳴る (英語表示)" width="220">
+  &nbsp;
+  <img src="docs/images/alert-en.webp" alt="到着の通知: 大きなボタン1つで解除 (英語表示)" width="220">
 </p>
 
 ---
