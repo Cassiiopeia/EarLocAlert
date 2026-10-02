@@ -36,6 +36,12 @@
 	     권한 요청이 이미 세 개(위치·항상 위치·알림)라 온보딩 이탈이
 	     늘어날 수 있다. 최종 채택 여부는 미결이다
 	     (docs/10-DECISIONS.md 미결 표). -->
+		<!-- 아래 두 키는 앱이 직접 쓰지 않는다. 포함된 라이브러리(file_picker, audio_session)가
+	     해당 API 를 참조해 App Store Connect 가 문구를 요구한다 (ITMS-90683, 이슈 #194) -->
+		<key>NSPhotoLibraryUsageDescription</key>
+		<string>Only used when you pick your own sound file for an alert. The app does not read your photos.</string>
+		<key>NSMicrophoneUsageDescription</key>
+		<string>The app never records audio. Microphone access is not used.</string>
 		<key>NSUserTrackingUsageDescription</key>
 		<string>Used to show ads that are more relevant to you. All features work the same even if you don't allow it.</string>
 		<!-- AdMob 앱 ID — 공개 정보다. 실제 발급 후 교체한다.
