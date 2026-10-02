@@ -112,7 +112,9 @@ class _PlaceMapHomeScreenState extends ConsumerState<PlaceMapHomeScreen>
   final DefaultMapView _fallback = currentDefaultMapView();
 
   static const _sheetMin = 0.14;
-  static const _sheetInitial = 0.3;
+  // 0.3 에서 올렸다 (이슈 #191). 하단 배너가 시트가 쓸 높이를 줄여서, 빈 목록의
+  // "장소 등록" 버튼 아래쪽이 잘렸다
+  static const _sheetInitial = 0.34;
 
   GoogleMapController? _map;
   final _sheet = DraggableScrollableController();

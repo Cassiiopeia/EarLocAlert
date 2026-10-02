@@ -287,6 +287,25 @@ jobs:
             echo "✅ ${{ env.ENV_FILE_PATH }} file created (fallback)"
           fi
 
+      # iOS 는 .env 의 MAPS_API_KEY 가 xcconfig → Info.plist 로 들어가야 한다 (이슈 #191).
+      # 이 단계가 없으면 키가 빈 채로 빌드되고, 홈의 지도 뷰를 만드는 순간 SDK 가
+      # 예외를 던져 앱이 종료된다. 심사에서 실행 직후 종료로 반려되므로 빈 키는 빌드를 막는다.
+      - name: Inject Maps API key (iOS)
+        env:
+          MAPS_API_KEY_SECRET: ${{ secrets.MAPS_API_KEY }}
+        run: |
+          ENV_PATH="${{ env.ENV_FILE_PATH }}"
+          if ! grep -qE '^[[:space:]]*MAPS_API_KEY[[:space:]]*=[[:space:]]*[^[:space:]]' "$ENV_PATH"; then
+            if [ -n "$MAPS_API_KEY_SECRET" ]; then
+              printf '\nMAPS_API_KEY=%s\n' "$MAPS_API_KEY_SECRET" >> "$ENV_PATH"
+            fi
+          fi
+          bash tool/sync_env.sh
+          if ! grep -qE '^MAPS_API_KEY=.+' ios/Flutter/MapsKey.xcconfig; then
+            echo "::error::MAPS_API_KEY 가 비어 있다. 이 빌드는 지도 화면에서 종료된다. ENV_FILE 이나 MAPS_API_KEY 시크릿을 확인한다."
+            exit 1
+          fi
+
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:

@@ -11,7 +11,7 @@
 #   ./tool/sync_env.sh          # 레포 루트에서
 #
 # iOS 빌드 전에 한 번 돌린다. .env 가 없거나 키가 비어 있어도 실패하지 않는다 —
-# 지도만 회색으로 뜨고 나머지는 정상 동작한다.
+# Android 는 지도만 회색으로 뜬다. iOS 는 키가 비면 지도 진입 시 SDK 예외로 앱이 종료된다 (#191).
 
 set -euo pipefail
 
@@ -34,7 +34,7 @@ MAPS_API_KEY=$key
 EOF
 
 if [[ -z "$key" ]]; then
-  echo "MAPS_API_KEY 가 비어 있다 — 지도는 회색으로 뜬다."
+  echo "MAPS_API_KEY 가 비어 있다 — Android 는 지도가 회색, iOS 는 빈 지도다. 배포 빌드에서는 안 된다." >&2
 else
   echo "MapsKey.xcconfig 생성 완료 (키 끝 4자리: ${key: -4})"
 fi

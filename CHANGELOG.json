@@ -1,14 +1,33 @@
 {
   "metadata": {
-    "lastUpdated": "2026-10-02T12:26:30Z",
-    "currentVersion": "1.22.0",
+    "lastUpdated": "2026-10-02T12:48:36Z",
+    "currentVersion": "1.22.1",
     "projectType": "flutter",
-    "totalReleases": 76,
+    "totalReleases": 77,
     "projectTypes": [
       "flutter"
     ]
   },
   "releases": [
+    {
+      "version": "1.22.1",
+      "project_type": "flutter",
+      "project_types": [
+        "flutter"
+      ],
+      "date": "2026-10-02",
+      "pr_number": 192,
+      "raw_summary": "## Summary by CodeRabbit\n\n## 릴리스 노트\n\n* **개선**\n  * 광고 배너가 있어도 홈 화면 아래 버튼이 가려지지 않습니다",
+      "parsed_changes": {
+        "개선": {
+          "title": "개선",
+          "items": [
+            "광고 배너가 있어도 홈 화면 아래 버튼이 가려지지 않습니다"
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "1.22.0",
       "project_type": "flutter",

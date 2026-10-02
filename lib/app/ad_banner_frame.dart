@@ -43,7 +43,22 @@ class _AdBannerFrameState extends State<AdBannerFrame> {
           child: MediaQuery.removePadding(
             context: context,
             removeBottom: bannerShown,
-            child: widget.child,
+            // 화면 높이를 **배너를 뺀 실제 높이**로 알려준다. 홈의 시트와 지도 여백은
+            // `MediaQuery` 높이에 비율을 곱해 계산하는데, 전체 높이를 그대로 주면
+            // 시트는 줄어든 영역 기준, 지도 여백은 전체 기준이라 서로 어긋난다
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final media = MediaQuery.of(context);
+                return MediaQuery(
+                  data: bannerShown
+                      ? media.copyWith(
+                          size: Size(media.size.width, constraints.maxHeight),
+                        )
+                      : media,
+                  child: widget.child,
+                );
+              },
+            ),
           ),
         ),
         // Offstage 로 두는 이유: 키보드가 닫혔을 때 광고를 다시 요청하지 않는다

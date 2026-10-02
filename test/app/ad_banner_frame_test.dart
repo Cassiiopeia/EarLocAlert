@@ -65,6 +65,37 @@ void main() {
     );
   });
 
+  testWidgets('배너가 보이면 화면은 배너를 뺀 높이를 안다', (tester) async {
+    late double seen;
+    await tester.pumpWidget(
+      MediaQuery(
+        data: const MediaQueryData(size: Size(400, 800)),
+        child: Directionality(
+          textDirection: TextDirection.ltr,
+          child: AdBannerFrame(
+            slotBuilder: (onLoadedChanged) {
+              report = onLoadedChanged;
+              return const SizedBox(height: 50);
+            },
+            child: Builder(
+              builder: (context) {
+                seen = MediaQuery.sizeOf(context).height;
+                return const SizedBox.expand();
+              },
+            ),
+          ),
+        ),
+      ),
+    );
+    final before = seen;
+
+    report(true);
+    await tester.pump();
+
+    // 홈의 시트·지도 여백이 비율로 계산되므로 전체 높이를 그대로 주면 어긋난다
+    expect(seen, lessThan(before));
+  });
+
   testWidgets('키보드가 올라오면 배너를 숨기고 안전 영역을 돌려준다', (tester) async {
     await tester.pumpWidget(app());
     report(true);

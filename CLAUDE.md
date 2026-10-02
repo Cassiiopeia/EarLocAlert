@@ -32,7 +32,7 @@
 
 **감시 방식이 플랫폼마다 다르다 (#93, 결정 024).** Android 는 앱이 지오펜스를 직접 등록하고 감시 서비스가 Flutter 엔진을 상시 보유해 판정한다 — `native_geofence` 의 Android 경로가 이벤트를 WorkManager 에 가둬 도착 알림이 통째로 유실됐기 때문이다. iOS 는 그 결함이 없어 `native_geofence` 를 그대로 쓴다. **Kotlin 계층은 자동 테스트가 없다 — 실기기 검증으로만 닫힌다.**
 
-**Maps 키는 `.env` 의 `MAPS_API_KEY` 한 줄이 단일 소스다.** Android 는 gradle 이, iOS 는 `tool/sync_env.sh` 가 읽어 네이티브에 주입한다. 키가 없어도 빌드는 성공하고 지도만 회색으로 뜬다 → `docs/08-OPERATIONS.md`
+**Maps 키는 `.env` 의 `MAPS_API_KEY` 한 줄이 단일 소스다.** Android 는 gradle 이, iOS 는 `tool/sync_env.sh` 가 읽어 네이티브에 주입한다. 키가 없어도 빌드는 성공하지만 **iOS 는 키가 비면 지도 진입 시 앱이 종료된다** (#191) — 배포 CI 가 빈 키를 막는다 → `docs/08-OPERATIONS.md`
 
 **막혀 있는 것과 이유:**
 
