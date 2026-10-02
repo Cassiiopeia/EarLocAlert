@@ -57,4 +57,24 @@ void main() {
     expect(DevFlag.isDevBuild, isFalse);
     expect(DevFlag.isReleaseBuildConfirmed, isFalse);
   });
+
+  group('배너 (이슈 #186)', () {
+    test('빌드 성격을 읽지 못하면 테스트 배너다', () {
+      DevFlag.overrideValue(null);
+
+      expect(AdUnitIds.banner, contains('3940256099942544'));
+    });
+
+    test('실제 배너 단위가 비어 있으면 배포 빌드여도 테스트 배너다', () {
+      DevFlag.overrideValue(false);
+
+      // 콘솔에 단위를 만들기 전(#187)에 실제 요청이 나가면 안 된다.
+      // 테스트 러너는 debug 모드라 어느 쪽이든 테스트 ID 다
+      expect(AdUnitIds.banner, contains('3940256099942544'));
+    });
+
+    test('전면광고와 배너는 서로 다른 단위다', () {
+      expect(AdUnitIds.banner, isNot(AdUnitIds.interstitial));
+    });
+  });
 }
