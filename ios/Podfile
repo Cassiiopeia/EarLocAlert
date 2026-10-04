@@ -1,6 +1,6 @@
 # Uncomment this line to define a global platform for your project
-# native_geofence 최소 요구 (이슈 #63)
-platform :ios, '14.0'
+# 2027년 4월 Apple 제출 요건에 맞춰 앱과 Pods의 최소 버전을 통일한다 (이슈 #198).
+platform :ios, '15.0'
 
 # CocoaPods analytics sends network stats synchronously affecting flutter build latency.
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'

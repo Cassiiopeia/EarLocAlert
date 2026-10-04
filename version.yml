@@ -41,27 +41,22 @@
 # ===================================================================
 
 version: "1.22.4"
-version_code: 121 # app build number
+version_code: 121  # app build number
 project_types: ["flutter"]   # 멀티타입 배열 — 첫 항목이 primary, 직접 편집 가능
 project_paths:                # 타입별 프로젝트 폴더 (레포 루트 기준 상대경로)
   flutter: "."   # pubspec.yaml
 metadata:
-  last_updated: "2026-10-02 14:34:40"
-  last_updated_by: "Cassiiopeia"
+  last_updated: "2026-10-04 06:44:26"
+  last_updated_by: "template_integrator"
   default_branch: "main"
   integrated_from: "projectops"
-  integration_date: "2026-09-30"
-
-deploy:                          # 마법사가 기억하는 배포 설정 (비민감 / 직접 수정 가능)
-  flutter:
-    APP_ARTIFACT_NAME: "EarLocAlert"
-    JAVA_VERSION: "17"
+  integration_date: "2026-10-04"
   template:
     source: "projectops"
-    version: "4.27.0"
+    version: "4.31.5"
     mode: "full"   # 통합 범위(full/version/workflows) — 업데이트 모드 재실행 기준
-    integrated_date: "2026-09-30"
-    last_update_date: "2026-09-30"
+    integrated_date: "2026-10-04"
+    last_update_date: "2026-10-04"
     options:
       intent: "none"   # 프로젝트 성격(app/library/both/none/manual) — 배포 질문 유도 기준
       deploy: "none"
@@ -74,3 +69,8 @@ deploy:                          # 마법사가 기억하는 배포 설정 (비�
       changelog:
         provider: "commit"
         base_url: ""
+
+deploy:                          # 마법사가 기억하는 배포 설정 (비민감 / 직접 수정 가능)
+  flutter:
+    APP_ARTIFACT_NAME: "EarLocAlert"
+    JAVA_VERSION: "17"
