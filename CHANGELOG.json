@@ -1,14 +1,33 @@
 {
   "metadata": {
-    "lastUpdated": "2026-10-02T14:34:41Z",
-    "currentVersion": "1.22.4",
+    "lastUpdated": "2026-10-04T07:05:53Z",
+    "currentVersion": "1.22.5",
     "projectType": "flutter",
-    "totalReleases": 80,
+    "totalReleases": 81,
     "projectTypes": [
       "flutter"
     ]
   },
   "releases": [
+    {
+      "version": "1.22.5",
+      "project_type": "flutter",
+      "project_types": [
+        "flutter"
+      ],
+      "date": "2026-10-04",
+      "pr_number": 200,
+      "raw_summary": "## Summary by CodeRabbit\n\n## 릴리스 노트\n\n* **개선**\n  * 최소 지원 버전이 iOS 15로 변경되었습니다.",
+      "parsed_changes": {
+        "개선": {
+          "title": "개선",
+          "items": [
+            "최소 지원 버전이 iOS 15로 변경되었습니다."
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "1.22.4",
       "project_type": "flutter",
