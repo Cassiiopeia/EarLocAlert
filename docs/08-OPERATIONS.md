@@ -271,6 +271,14 @@ merge-pr {owner} {repo} {PR} --method merge --title "chore(release): v1.7.0 (PR 
 >
 > **코드로 해결할 수 없다.** Apple Developer 계정에서 갱신한 뒤 `APPLE_CERTIFICATE_BASE64` · `APPLE_PROVISIONING_PROFILE_BASE64` · `IOS_PROVISIONING_PROFILE_NAME` 시크릿을 교체해야 한다.
 
+### iOS 최소 지원 버전과 업로드 경고 (#198)
+
+최소 지원 OS는 **iOS 15.0**이다. `ios/Podfile`, Runner의 세 빌드 구성, `ios/Flutter/AppFrameworkInfo.plist`를 함께 유지한다. Xcode SDK 버전과 다른 값이며 projectops 템플릿 최신화만으로 자동 변경되지 않는다.
+
+1.22.4(121)는 iOS 14.0이라 ITMS-90068 경고를 받았으나 업로드는 성공했다. Apple은 2027년 4월부터 iOS 15.0 이상을 요구한다고 안내했다. 새 바이너리의 Warnings를 확인하기 전에는 경고 해소 완료로 기록하지 않는다.
+
+projectops 4.31.5 갱신 시 iOS 릴리스 워크플로우의 준비 커밋 SHA 고정과 아카이브·업로드 통합을 적용했다. Flutter 3.35.5, `tool/sync_env.sh`와 빈 지도 키 검사, `IOS_AUTO_DEPLOY` 조건은 프로젝트 설정으로 보존한다. 다른 사용자 수정 워크플로우는 기존 동작을 유지한다.
+
 ### 만료를 미리 알 수 있게 한다
 
 이번에도 "빌드가 갑자기 깨져서" 알았다. 프로필은 보통 1년이라 잊고 지내다 배포 직전에 막힌다.

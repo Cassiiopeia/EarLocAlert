@@ -9,9 +9,12 @@
      - PROJECT-FLUTTER-IOS-TEST-TESTFLIGHT.yaml   : 동일
      - PROJECT-FLUTTER-PROJECTOPS-APP-BUILD-TRIGGER.yaml : /#(\\d+)/
      - scripts/common/issue_number.py             : \\d{8}_(\\d+)_ (worktree)
-  2. 댓글 본문의 `Guide by SUH-LAB` 문구 + `### 브랜치` 제목 + 코드블록
+  2. 댓글 본문의 `### 브랜치` 제목 + 코드블록, 그리고 서명 문구
      - PROJECT-FLUTTER-PROJECTOPS-APP-BUILD-TRIGGER.yaml
        : /### 브랜치\\s*```\\s*([\\s\\S]*?)\\s*```/ (구버전이 사용자 레포에서 계속 실행됨)
+     - 서명 문구는 설정(guide_signature, 기본 `Guide by ProjectOps`)으로 바뀐다.
+       구버전 소비자가 옛 문구 `Guide by SUH-LAB`를 includes로 찾으므로,
+       눈에 보이지 않는 HTML 주석으로 옛 표식을 항상 한 줄 남긴다 (LEGACY_SIGNATURE).
 
 설정: version.yml metadata.template.options.issue_helper (없으면 전부 기본값).
 """
@@ -34,8 +37,13 @@ DEFAULT_CONFIG = {
     "commit_template": "${issueTitle} : ${commitType} : {변경 사항에 대한 설명} ${issueUrl}",
     "commit_type_map": {},
     "comment_marker": "<!-- SUH-ISSUE-HELPER -->",
+    "guide_signature": "Guide by ProjectOps",
     "show_guide": True,
 }
+
+# 옛 서명. 구버전 소비자 워크플로우(앱 빌드 트리거, PR 프리뷰)가 댓글에서 이 문구를 찾는다.
+# 화면에는 보이지 않게 HTML 주석으로만 남겨 브랜딩과 호환을 함께 지킨다.
+LEGACY_SIGNATURE = "Guide by SUH-LAB"
 
 # 제목 태그 → 커밋 타입 (이슈 템플릿 4종의 제목 태그 기준). 설정 commit_type_map이 병합됨.
 DEFAULT_COMMIT_TYPE_MAP = {
@@ -49,7 +57,9 @@ DEFAULT_COMMIT_TYPE_MAP = {
 }
 
 _TAG = re.compile(r"\[([^\]]*)\]")
-_KEEP = re.compile(r"[^가-힣a-zA-Z0-9]")   # 한글/영문/숫자 외 → _
+# 유니코드 글자·숫자(가나·한자·악센트 라틴 포함)를 보존하고 그 외(공백·기호)만 _ 로 바꾼다.
+# \w 는 `_` 도 포함하지만 어차피 구분자와 같아 무해하다.
+_KEEP = re.compile(r"[^\w]")
 _MULTI_UNDERSCORE = re.compile(r"_+")
 
 
@@ -99,9 +109,12 @@ def create_branch_name(
     max_branch_length: int = 100,
 ) -> str:
     """불변 계약 1: 코어 `YYYYMMDD_#번호_제목` 고정. 길이 제한은 코어부에만 적용(구 TS 패리티)."""
-    base = f"{date_yyyymmdd}_#{issue_number}_{normalize_title(title)}"
+    # 제목이 이모지·기호뿐이면 정규화 결과가 비므로 번호 기반 대체 문구로 제목 자리를 채운다
+    slug = normalize_title(title) or f"issue-{issue_number}"
+    base = f"{date_yyyymmdd}_#{issue_number}_{slug}"
     if max_branch_length > 0:
-        base = base[:max_branch_length]
+        # 자르다 구분자에서 끊기면 `_` 로 끝나므로 끝의 `_` 를 정리한다
+        base = base[:max_branch_length].rstrip("_")
     return f"{branch_prefix}{base}"
 
 
@@ -115,6 +128,16 @@ def render_commit_message(template: str, ctx: dict) -> str:
 
 
 # ── 설정 로드 (version.yml — pyyaml 없이 이 섹션만 파싱) ────────────────────
+def _strip_comment(raw: str) -> str:
+    """값 뒤 줄 끝 주석 제거. 따옴표로 시작하면 닫는 따옴표까지를 값으로 읽어 안의 ` #`는 보존한다."""
+    raw = raw.strip()
+    if raw[:1] in ("'", '"'):
+        end = raw.find(raw[0], 1)
+        if end != -1:
+            return raw[: end + 1]
+    return re.sub(r"\s+#.*$", "", raw)
+
+
 def _unquote(value: str) -> str:
     value = value.strip()
     if len(value) >= 2 and value[0] == value[-1] and value[0] in ("'", '"'):
@@ -155,7 +178,7 @@ def load_config(repo_root: str = ".") -> dict:
         m = re.match(r"""^["']?([^"':]+)["']?\s*:\s*(.*?)\s*$""", stripped)
         if not m:
             continue
-        key, raw = m.group(1).strip(), re.sub(r"\s+#.*$", "", m.group(2))
+        key, raw = m.group(1).strip(), _strip_comment(m.group(2))
 
         if in_type_map and indent > type_map_indent:
             cfg["commit_type_map"][key] = _unquote(raw)
@@ -172,7 +195,7 @@ def load_config(repo_root: str = ".") -> dict:
                 pass  # 잘못된 값은 기본값 유지
         elif key == "show_guide":
             cfg[key] = _unquote(raw).lower() != "false"
-        elif key in ("branch_prefix", "timezone", "commit_template", "comment_marker"):
+        elif key in ("branch_prefix", "timezone", "commit_template", "comment_marker", "guide_signature"):
             cfg[key] = _unquote(raw)
     return cfg
 
@@ -209,12 +232,17 @@ def build_guide(workflows_dir: Path) -> str:
 
 
 def build_comment_body(cfg: dict, branch_name: str, commit_message: str, guide: str) -> str:
-    """불변 계약 2: Guide by SUH-LAB + ### 브랜치 코드블록 구조 유지 (구 파서 하위호환)."""
+    """불변 계약 2: ### 브랜치 코드블록 구조 유지 + 서명 문구(설정 가능, 옛 서명은 숨김 주석으로 보존)."""
     marker = cfg["comment_marker"]
+    signature = cfg.get("guide_signature") or DEFAULT_CONFIG["guide_signature"]
     guide_block = f"\n{guide}\n" if (cfg.get("show_guide", True) and guide) else ""
+    # 서명을 바꿨어도 구버전 소비자가 찾는 옛 문구는 보이지 않게 한 줄 남긴다
+    # ⚠️ 서명 바로 아래 줄에 주석을 끼우면 `서명\n---`(제목 렌더링)이 깨지므로 서명 위에 둔다
+    legacy = "" if LEGACY_SIGNATURE in signature else f"<!-- {LEGACY_SIGNATURE} (구버전 워크플로우 호환용 표식) -->\n\n"
     return (
         f"{marker}\n\n"
-        "Guide by SUH-LAB\n"
+        f"{legacy}"
+        f"{signature}\n"
         "---\n\n"
         "### 브랜치\n"
         f"```\n{branch_name}\n```\n\n"

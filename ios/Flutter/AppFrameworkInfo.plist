@@ -20,7 +20,8 @@
   <string>????</string>
   <key>CFBundleVersion</key>
   <string>1.0</string>
+  <!-- 앱과 Flutter 프레임워크의 최소 버전이 어긋나지 않게 유지한다 (이슈 #198). -->
   <key>MinimumOSVersion</key>
-  <string>13.0</string>
+  <string>15.0</string>
 </dict>
 </plist>
