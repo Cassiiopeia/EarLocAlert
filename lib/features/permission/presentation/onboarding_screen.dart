@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/di/providers.dart';
+import '../../../core/diagnostics/diagnostics.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
@@ -38,6 +39,29 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
   /// 의미가 있으므로 그대로 보여준다.
   bool _sawIncompleteStep = false;
   bool _autoFinished = false;
+
+  /// 이번 화면에서 시스템 권한 요청까지 간 단계 (이슈 #211).
+  ///
+  /// 안내 화면에서 시스템 요청을 미룰 수 있으면 App Store 가 반려한다
+  /// (5.1.1(iv)). 그래서 시스템 창을 띄우는 단계는 **한 번 요청한 뒤에만**
+  /// 나가기를 보인다. 아예 없애지 않는 이유는 iOS 가 거부 뒤 창을 다시
+  /// 띄우지 않을 때 사용자가 화면에 갇히기 때문이다 (#90, A-12).
+  /// 화면 재빌드는 요청 결과로 권한 상태가 바뀌며 일어나므로 setState 가 필요 없다.
+  final Set<OnboardingStep> _requestedSteps = {};
+
+  static bool _asksSystem(OnboardingStep step) => switch (step) {
+    OnboardingStep.requestLocation ||
+    OnboardingStep.requestBackgroundLocation ||
+    OnboardingStep.requestNotification => true,
+    OnboardingStep.requestAlertReliability ||
+    OnboardingStep.openSettings ||
+    OnboardingStep.done => false,
+  };
+
+  bool _canSkip(OnboardingStep step) {
+    if (step == OnboardingStep.done) return false;
+    return !_asksSystem(step) || _requestedSteps.contains(step);
+  }
 
   @override
   void initState() {
@@ -128,18 +152,21 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
               step: step,
               snapshot: snapshot,
               onAction: () async {
+                Diagnostics.log(
+                  'permission',
+                  'onboarding tap step=${step.name}',
+                );
                 if (step == OnboardingStep.done) {
                   widget.onFinished?.call();
                   return;
                 }
+                _requestedSteps.add(step);
                 await ref.read(permissionControllerProvider.notifier).proceed();
               },
-              // **어느 단계에서든 나갈 수 있다** (A-12, 이슈 #90).
-              //
-              // 권한을 거부해도 앱 기본 화면에는 닿아야 한다. 무엇이
-              // 안 되는지는 홈에서 상시 표시하고 켜러 갈 길을 준다.
-              // 완료 화면에만 두지 않는다 — 건너뛸 것이 없기 때문이다.
-              onSkip: step != OnboardingStep.done ? () => _skip(step) : null,
+              // **나갈 길은 남긴다** (A-12, 이슈 #90) — 단 시스템 권한 단계는
+              // 요청을 한 번 거친 뒤에만 (이슈 #211, [_requestedSteps]).
+              // 무엇이 안 되는지는 홈에서 상시 표시하고 켜러 갈 길을 준다.
+              onSkip: _canSkip(step) ? () => _skip(step) : null,
             );
           },
         ),

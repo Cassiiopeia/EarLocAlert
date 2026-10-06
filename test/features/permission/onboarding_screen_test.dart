@@ -29,6 +29,17 @@ class FakePermissionService implements PermissionService {
   Future<void> openAppSettings() async {}
 }
 
+/// 무엇을 요청했는지 남기는 가짜 — 계속 버튼이 요청까지 가는지 본다 (이슈 #211)
+class RecordingPermissionService extends FakePermissionService {
+  final List<PermissionKind> requested = [];
+
+  @override
+  Future<PermissionSnapshot> request(PermissionKind kind) async {
+    requested.add(kind);
+    return snapshot;
+  }
+}
+
 /// 저장값 읽기가 **권한 조회보다 늦게** 끝나는 저장소 (이슈 #90).
 ///
 /// 실기기에서 `SharedPreferences` 첫 로드는 디스크를 읽으므로 권한 조회보다
@@ -185,8 +196,8 @@ void main() {
     });
   });
 
-  group('가두지 않는다 — 어느 단계에서든 나갈 수 있다 (A-12)', () {
-    testWidgets('첫 권한 단계에도 나중에 하기가 있다', (tester) async {
+  group('시스템 요청은 미룰 수 없다 — App Store 5.1.1(iv) (이슈 #211)', () {
+    testWidgets('첫 권한 단계에는 나중에 하기가 없다', (tester) async {
       final store = PendingPromptStore();
 
       await pumpOnboarding(
@@ -199,14 +210,45 @@ void main() {
       await settleFrames(tester);
 
       expect(find.text('위치 권한이 필요합니다'.keepAll), findsOneWidget);
+      expect(find.text('계속'), findsOneWidget);
       expect(
         find.text('나중에 하기'),
-        findsOneWidget,
-        reason: '권한을 거부해도 앱 기본 화면에는 도달할 수 있어야 한다',
+        findsNothing,
+        reason: '안내 화면에서 시스템 권한 요청을 미루게 하면 심사에서 반려된다',
       );
     });
 
-    testWidgets('거부한 상태에서 나중에 하기를 누르면 홈으로 간다', (tester) async {
+    testWidgets('계속을 누르면 실제로 권한을 요청한다', (tester) async {
+      final service = RecordingPermissionService();
+      final store = PendingPromptStore();
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            permissionServiceProvider.overrideWithValue(service),
+            reliabilityPromptStoreProvider.overrideWithValue(store),
+          ],
+          child: MaterialApp(
+            locale: const Locale('ko'),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            theme: AppTheme.dark(),
+            home: OnboardingScreen(onFinished: () {}),
+          ),
+        ),
+      );
+      store.completeRead();
+      await settleFrames(tester);
+
+      await tester.tap(find.text('계속'));
+      await settleFrames(tester);
+
+      expect(service.requested, [PermissionKind.location]);
+    });
+  });
+
+  group('가두지 않는다 — 요청을 거친 뒤에는 나갈 수 있다 (A-12)', () {
+    testWidgets('거부한 뒤에는 나중에 하기로 홈으로 간다', (tester) async {
       const denied = PermissionSnapshot(location: PermissionStatus.denied);
       final store = PendingPromptStore();
       var finished = false;
@@ -218,6 +260,10 @@ void main() {
         onFinished: () => finished = true,
       );
       store.completeRead();
+      await settleFrames(tester);
+
+      // 시스템 요청을 한 번 거친다 — 가짜 서비스는 여전히 거부를 돌려준다
+      await tester.tap(find.text('계속'));
       await settleFrames(tester);
 
       await tester.tap(find.text('나중에 하기'));

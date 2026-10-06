@@ -19,11 +19,11 @@
 	     "위치 정보가 필요합니다" 같은 문구는 반려된다.
 	     ========================================================== -->
 		<key>NSLocationWhenInUseUsageDescription</key>
-		<string>Used to pick a place on the map and show roughly where you are. Your location stays on this device and is never sent elsewhere.</string>
+		<string>Shows your current position on the map when you add a place to be alerted about. For example, when you save the bus stop near your home, the map opens where you are so you can tap the stop right away. Your location stays on this device and is never sent elsewhere.</string>
 		<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-		<string>Checks your location in the background so we can alert you when you arrive at or leave a registered place, even if the app is closed. Your location stays on this device and is never sent elsewhere.</string>
+		<string>Checks your location in the background so the app can alert you when you arrive at or leave a saved place, even while it is closed. For example, if you save the stop where you get off on the way home, your phone vibrates or your earphones play a sound when you reach it, even while you are watching a video. Your location stays on this device and is never sent elsewhere.</string>
 		<key>NSLocationAlwaysUsageDescription</key>
-		<string>Checks your location in the background so we can alert you when you arrive at or leave a registered place, even if the app is closed. Your location stays on this device and is never sent elsewhere.</string>
+		<string>Checks your location in the background so the app can alert you when you arrive at or leave a saved place, even while it is closed. For example, if you save the stop where you get off on the way home, your phone vibrates or your earphones play a sound when you reach it, even while you are watching a video. Your location stays on this device and is never sent elsewhere.</string>
 		<!-- 백그라운드 위치 — Apple 은 "정말 필요한가"를 심사한다.
 	     이 앱은 앱을 보고 있지 않을 때 알리는 것이 목적이므로
 	     백그라운드 없이는 기능이 성립하지 않는다 (docs/09-RELEASE.md). -->

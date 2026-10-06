@@ -1,8 +1,8 @@
 /* 사용자에게 보이는 iOS 권한 안내와 앱 이름 (이슈 #164).
    OS 가 기기 언어로 고른다 — 앱 안에서 고른 언어를 따르게 할 수 없다. */
-"NSLocationWhenInUseUsageDescription" = "Used to pick a place on the map and show roughly where you are. Your location stays on this device and is never sent elsewhere.";
-"NSLocationAlwaysAndWhenInUseUsageDescription" = "Checks your location in the background so we can alert you when you arrive at or leave a registered place, even if the app is closed. Your location stays on this device and is never sent elsewhere.";
-"NSLocationAlwaysUsageDescription" = "Checks your location in the background so we can alert you when you arrive at or leave a registered place, even if the app is closed. Your location stays on this device and is never sent elsewhere.";
+"NSLocationWhenInUseUsageDescription" = "Shows your current position on the map when you add a place to be alerted about. For example, when you save the bus stop near your home, the map opens where you are so you can tap the stop right away. Your location stays on this device and is never sent elsewhere.";
+"NSLocationAlwaysAndWhenInUseUsageDescription" = "Checks your location in the background so the app can alert you when you arrive at or leave a saved place, even while it is closed. For example, if you save the stop where you get off on the way home, your phone vibrates or your earphones play a sound when you reach it, even while you are watching a video. Your location stays on this device and is never sent elsewhere.";
+"NSLocationAlwaysUsageDescription" = "Checks your location in the background so the app can alert you when you arrive at or leave a saved place, even while it is closed. For example, if you save the stop where you get off on the way home, your phone vibrates or your earphones play a sound when you reach it, even while you are watching a video. Your location stays on this device and is never sent elsewhere.";
 "CFBundleDisplayName" = "EarLocAlert";
 "NSPhotoLibraryUsageDescription" = "Only used when you pick your own sound file for an alert. The app does not read your photos.";
 "NSMicrophoneUsageDescription" = "The app never records audio. Microphone access is not used.";
