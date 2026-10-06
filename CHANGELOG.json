@@ -1,14 +1,33 @@
 {
   "metadata": {
-    "lastUpdated": "2026-10-06T13:10:46Z",
-    "currentVersion": "1.24.0",
+    "lastUpdated": "2026-10-06T14:22:20Z",
+    "currentVersion": "1.24.1",
     "projectType": "flutter",
-    "totalReleases": 83,
+    "totalReleases": 84,
     "projectTypes": [
       "flutter"
     ]
   },
   "releases": [
+    {
+      "version": "1.24.1",
+      "project_type": "flutter",
+      "project_types": [
+        "flutter"
+      ],
+      "date": "2026-10-06",
+      "pr_number": 210,
+      "raw_summary": "## Summary by CodeRabbit\n\n## 릴리스 노트\n\n* **기타**\n  * 안정성 개선",
+      "parsed_changes": {
+        "기타": {
+          "title": "기타",
+          "items": [
+            "안정성 개선"
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "1.24.0",
       "project_type": "flutter",
