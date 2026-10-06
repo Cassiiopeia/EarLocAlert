@@ -78,13 +78,22 @@ class PermissionController extends _$PermissionController {
   /// 알 필요가 없다.
   Future<void> proceed() async {
     final snapshot = state.valueOrNull;
-    if (snapshot == null) return;
+    if (snapshot == null) {
+      // 버튼이 눌렸는데 아무 일도 없던 원인이 여기일 수 있다 — 사유를 남긴다 (이슈 #211)
+      Diagnostics.log(
+        'permission',
+        'onboarding proceed skipped reason=no_snapshot state=${state.runtimeType}',
+      );
+      return;
+    }
 
     final service = ref.read(permissionServiceProvider);
     final gate = ref.read(permissionGateProvider);
     final promptSeen = ref.read(reliabilityPromptProvider).valueOrNull ?? false;
 
     final step = gate.nextStep(snapshot, reliabilityPromptSeen: promptSeen);
+    // 요청 전후 상태가 남아야 "눌렀는데 아무 일도 없었다"를 가릴 수 있다 (이슈 #211)
+    Diagnostics.log('permission', 'onboarding proceed step=${step.name}');
 
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {

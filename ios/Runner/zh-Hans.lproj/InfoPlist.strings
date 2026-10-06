@@ -1,8 +1,8 @@
 /* 사용자에게 보이는 iOS 권한 안내와 앱 이름 (이슈 #164).
    OS 가 기기 언어로 고른다 — 앱 안에서 고른 언어를 따르게 할 수 없다. */
-"NSLocationWhenInUseUsageDescription" = "用于在地图上选择要提醒的地点并显示您当前的大致位置。位置信息仅保存在设备上，不会发送到外部。";
-"NSLocationAlwaysAndWhenInUseUsageDescription" = "为了在您到达或离开已登记的地点时，即使不打开应用也能提醒您，应用会在后台检查位置。位置信息仅保存在设备上，不会发送到外部。";
-"NSLocationAlwaysUsageDescription" = "为了在您到达或离开已登记的地点时，即使不打开应用也能提醒您，应用会在后台检查位置。位置信息仅保存在设备上，不会发送到外部。";
+"NSLocationWhenInUseUsageDescription" = "在登记要提醒的地点时，用于在地图上显示您的当前位置。例如登记家附近的公交站时，地图会从您当前的位置打开，方便您直接选择附近的站点。位置信息仅保存在设备上，不会发送到外部。";
+"NSLocationAlwaysAndWhenInUseUsageDescription" = "即使应用已关闭，也会在后台检查位置，以便在您到达或离开已登记的地点时提醒您。例如登记回家路上要下车的公交站后，即使您正在看视频，到达该站时也会通过振动或耳机声音提醒您。位置信息仅保存在设备上，不会发送到外部。";
+"NSLocationAlwaysUsageDescription" = "即使应用已关闭，也会在后台检查位置，以便在您到达或离开已登记的地点时提醒您。例如登记回家路上要下车的公交站后，即使您正在看视频，到达该站时也会通过振动或耳机声音提醒您。位置信息仅保存在设备上，不会发送到外部。";
 "CFBundleDisplayName" = "耳机位置提醒";
 "NSPhotoLibraryUsageDescription" = "仅在您为提醒选择自己的音频文件时使用。应用不会读取您的照片。";
 "NSMicrophoneUsageDescription" = "本应用不会录音，也不使用麦克风。";
