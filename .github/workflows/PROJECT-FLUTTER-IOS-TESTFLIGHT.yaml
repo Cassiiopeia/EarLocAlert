@@ -161,9 +161,7 @@ jobs:
       - name: Install dependencies
         run: |
           flutter pub get
-          if grep -q "build_runner" pubspec.yaml; then
-            dart run build_runner build --delete-conflicting-outputs
-          fi
+          dart run build_runner build --delete-conflicting-outputs
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
@@ -303,9 +301,7 @@ jobs:
       - name: Install dependencies
         run: |
           flutter pub get
-          if grep -q "build_runner" pubspec.yaml; then
-            dart run build_runner build --delete-conflicting-outputs
-          fi
+          dart run build_runner build --delete-conflicting-outputs
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
