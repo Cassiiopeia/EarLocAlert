@@ -84,6 +84,22 @@ abstract final class AppTheme {
       ),
 
       // 아이콘은 Material outlined 변형만 쓴다 (docs/06-UX.md)
+      // 스낵바 (이슈 #205). 지정하지 않으면 다크 스킴이 밝은 막대로 칠해
+      // 어두운 화면에서 혼자 튄다 — 한 층 위(bgElevated)로 맞춘다.
+      // 되돌리기 같은 액션은 주색으로 눈에 띄게 한다
+      snackBarTheme: SnackBarThemeData(
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: AppColors.bgElevated,
+        contentTextStyle: AppTypography.body.copyWith(
+          color: AppColors.textPrimary,
+        ),
+        actionTextColor: AppColors.primary,
+        elevation: 0,
+        insetPadding: const EdgeInsets.all(AppSpacing.sm),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadius.small),
+        ),
+      ),
       iconTheme: const IconThemeData(color: AppColors.textPrimary),
       dividerTheme: const DividerThemeData(color: AppColors.bgElevated),
     );
