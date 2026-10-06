@@ -1,14 +1,41 @@
 {
   "metadata": {
-    "lastUpdated": "2026-10-06T14:22:20Z",
-    "currentVersion": "1.24.1",
+    "lastUpdated": "2026-10-06T15:21:18Z",
+    "currentVersion": "1.24.2",
     "projectType": "flutter",
-    "totalReleases": 84,
+    "totalReleases": 85,
     "projectTypes": [
       "flutter"
     ]
   },
   "releases": [
+    {
+      "version": "1.24.2",
+      "project_type": "flutter",
+      "project_types": [
+        "flutter"
+      ],
+      "date": "2026-10-06",
+      "pr_number": 212,
+      "raw_summary": "## Summary by CodeRabbit\n\n## 릴리스 노트\n\n* **버그 수정**\n  * iPhone·iPad에서 권한 안내의 계속 버튼이 반응하지 않던 문제 해결\n  * 장소 삭제 후 되돌리기 안내가 화면과 어울리지 않던 문제 해결\n\n* **개선**\n  * 권한 안내 다음에 바로 권한 요청 창이 뜨도록 순서 정리\n  * 위치 권한을 어디에 쓰는지 예시와 함께 더 자세히 안내",
+      "parsed_changes": {
+        "버그_수정": {
+          "title": "버그 수정",
+          "items": [
+            "iPhone·iPad에서 권한 안내의 계속 버튼이 반응하지 않던 문제 해결",
+            "장소 삭제 후 되돌리기 안내가 화면과 어울리지 않던 문제 해결"
+          ]
+        },
+        "개선": {
+          "title": "개선",
+          "items": [
+            "권한 안내 다음에 바로 권한 요청 창이 뜨도록 순서 정리",
+            "위치 권한을 어디에 쓰는지 예시와 함께 더 자세히 안내"
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "1.24.1",
       "project_type": "flutter",
