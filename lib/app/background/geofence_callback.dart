@@ -2,6 +2,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:native_geofence/native_geofence.dart' as ng;
 
 import '../../core/database/app_database.dart';
+import '../../core/diagnostics/diagnostics.dart';
 import '../../core/domain/id_generator.dart';
 import '../../features/geofence/data/drift_geofence_event_repository.dart';
 import '../../features/geofence/data/drift_geofence_state_repository.dart';
@@ -27,6 +28,14 @@ Future<void> geofenceBackgroundCallback(
 ) async {
   // isolate 마다 DB 를 새로 열고 반드시 닫는다 — 짧은 콜백 수명에
   // 연결을 남기면 다음 콜백이 잠금에 걸릴 수 있다
+  // 이 isolate 는 앱 부트스트랩을 거치지 않는다 — 여기서 켜지 않으면 판정 로그가 전부 버려진다 (이슈 #213)
+  await Diagnostics.init();
+  Diagnostics.log(
+    'geofence',
+    'ios callback received event=${params.event.name} '
+        'ids=${params.geofences.map((g) => g.id).join(",")} '
+        'lat=${params.location?.latitude} lng=${params.location?.longitude}',
+  );
   final db = AppDatabase();
   try {
     // 이 isolate 는 앱 부트스트랩을 거치지 않았다 — 플러그인을 직접
@@ -70,13 +79,17 @@ Future<void> geofenceBackgroundCallback(
           latitude: params.location?.latitude,
           longitude: params.location?.longitude,
         );
-      } on Object {
-        // 한 장소의 실패가 다른 장소 처리를 막으면 안 된다.
-        // 좌표가 담길 수 있으므로 로그도 남기지 않는다 (docs/04 규칙)
+      } on Object catch (error) {
+        // 한 장소의 실패가 다른 장소 처리를 막으면 안 된다 — 삼키되 사유는 남긴다
+        Diagnostics.log(
+          'geofence',
+          'ios callback handle failed place=${geofence.id} error=$error',
+        );
       }
     }
-  } on Object {
+  } on Object catch (error) {
     // 조립 실패까지 삼킨다 — 위 주석과 같은 이유
+    Diagnostics.log('geofence', 'ios callback setup failed error=$error');
   } finally {
     await db.close();
   }
