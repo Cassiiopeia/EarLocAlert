@@ -405,7 +405,9 @@ jobs:
           restore-keys: ${{ runner.os }}-flutter-pub-
 
       - name: Install dependencies
-        run: flutter pub get
+        run: |
+          flutter pub get
+          dart run build_runner build --delete-conflicting-outputs
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
