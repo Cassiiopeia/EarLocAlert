@@ -459,6 +459,23 @@ class AppLocalizationsZh extends AppLocalizations {
   String get placeUndo => '撤销';
 
   @override
+  String get placeSwipeDeleteLabel => '删除';
+
+  @override
+  String get placeFormDelete => '删除此地点';
+
+  @override
+  String get placeFormDeleteTitle => '要删除此地点吗？';
+
+  @override
+  String placeFormDeleteBody(String name) {
+    return '“$name”将从列表中移除。删除后可立即撤销。';
+  }
+
+  @override
+  String get placeDeleteCancel => '取消';
+
+  @override
   String get placeFormLeaveTitle => '不保存就离开吗？';
 
   @override

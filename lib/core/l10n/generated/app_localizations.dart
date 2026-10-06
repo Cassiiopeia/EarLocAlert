@@ -930,6 +930,36 @@ abstract class AppLocalizations {
   /// **'되돌리기'**
   String get placeUndo;
 
+  /// No description provided for @placeSwipeDeleteLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'삭제'**
+  String get placeSwipeDeleteLabel;
+
+  /// No description provided for @placeFormDelete.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 장소 삭제'**
+  String get placeFormDelete;
+
+  /// No description provided for @placeFormDeleteTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 장소를 삭제할까요?'**
+  String get placeFormDeleteTitle;
+
+  /// No description provided for @placeFormDeleteBody.
+  ///
+  /// In ko, this message translates to:
+  /// **'\'{name}\' 장소가 목록에서 사라집니다. 삭제한 직후에는 되돌릴 수 있습니다.'**
+  String placeFormDeleteBody(String name);
+
+  /// No description provided for @placeDeleteCancel.
+  ///
+  /// In ko, this message translates to:
+  /// **'취소'**
+  String get placeDeleteCancel;
+
   /// No description provided for @placeFormLeaveTitle.
   ///
   /// In ko, this message translates to:

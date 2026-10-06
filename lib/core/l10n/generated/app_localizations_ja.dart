@@ -464,6 +464,23 @@ class AppLocalizationsJa extends AppLocalizations {
   String get placeUndo => '元に戻す';
 
   @override
+  String get placeSwipeDeleteLabel => '削除';
+
+  @override
+  String get placeFormDelete => 'この場所を削除';
+
+  @override
+  String get placeFormDeleteTitle => 'この場所を削除しますか？';
+
+  @override
+  String placeFormDeleteBody(String name) {
+    return '「$name」をリストから削除します。削除した直後なら元に戻せます。';
+  }
+
+  @override
+  String get placeDeleteCancel => 'キャンセル';
+
+  @override
   String get placeFormLeaveTitle => '保存せずに戻りますか？';
 
   @override

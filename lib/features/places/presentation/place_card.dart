@@ -1,4 +1,6 @@
+import 'package:flutter/foundation.dart' show ValueListenable;
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart' show CustomSemanticsAction;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/domain/alert_direction.dart';
@@ -63,7 +65,7 @@ class PlaceCard extends StatelessWidget {
     // 토글 전환을 부드럽게 — 기존에 정의된 모션(지도 홈 시트의
     // 200ms easeOut)을 그대로 쓴다. 잉크 리플이 색 위에 그려지도록
     // Material 은 투명으로 두고 색은 AnimatedContainer 가 든다.
-    return AnimatedContainer(
+    final card = AnimatedContainer(
       duration: const Duration(milliseconds: 200),
       curve: Curves.easeOut,
       decoration: BoxDecoration(
@@ -75,7 +77,6 @@ class PlaceCard extends StatelessWidget {
         type: MaterialType.transparency,
         child: InkWell(
           onTap: onTap,
-          onLongPress: onDelete,
           borderRadius: BorderRadius.circular(AppRadius.card),
           child: Padding(
             padding: const EdgeInsets.all(AppSpacing.sm),
@@ -134,6 +135,134 @@ class PlaceCard extends StatelessWidget {
         ),
       ),
     );
+
+    return _SwipeToDelete(
+      semanticLabel: context.l10n.placeSwipeDeleteLabel,
+      onDelete: onDelete,
+      child: card,
+    );
+  }
+}
+
+/// 카드를 왼쪽으로 밀어 삭제한다 (이슈 #205).
+///
+/// 예전에는 길게 눌러야만 지워졌다. 눈에 보이는 단서가 없어 모르면 찾을 수
+/// 없었고, 움직임도 없어 투박했다. 밀면 뒤에서 삭제가 드러나는 방식은
+/// 목록 앱에서 이미 익숙한 문법이다.
+///
+/// **확인 창을 띄우지 않는다.** 삭제 직후 "되돌리기"가 있어 실수는 복구된다.
+/// 지울 때마다 한 번 더 묻는 것은 부드러움을 해친다.
+///
+/// 되돌릴 수 없는 삭제(알림음·진단 기록)는 확인 창을 그대로 유지한다.
+class _SwipeToDelete extends StatefulWidget {
+  const _SwipeToDelete({
+    required this.child,
+    required this.onDelete,
+    required this.semanticLabel,
+  });
+
+  final Widget child;
+  final VoidCallback onDelete;
+  final String semanticLabel;
+
+  @override
+  State<_SwipeToDelete> createState() => _SwipeToDeleteState();
+}
+
+class _SwipeToDeleteState extends State<_SwipeToDelete> {
+  /// 미는 정도 0~1. 배경 농도와 아이콘 크기가 이것을 따라간다.
+  final _progress = ValueNotifier<double>(0);
+
+  /// 놓은 직후 true. [Dismissible] 은 `onDismissed` 뒤에 **같은 프레임
+  /// 안에 트리에서 빠져야** 한다 — 저장소에서 지워진 목록이 다시 흘러오기
+  /// 전에 다음 프레임이 그려지면 "dismissed widget is still part of the
+  /// tree" 로 죽는다. 그래서 목록 갱신을 기다리지 않고 스스로 접는다.
+  bool _dismissed = false;
+
+  /// 삭제로 확정되는 거리 (카드 폭 대비). 절반이면 한 손 엄지로 닿는다
+  static const _threshold = 0.4;
+
+  @override
+  void dispose() {
+    _progress.dispose();
+    super.dispose();
+  }
+
+  void _onDismissed(DismissDirection _) {
+    setState(() => _dismissed = true);
+    widget.onDelete();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_dismissed) return const SizedBox.shrink();
+
+    // 스와이프는 스크린리더로 할 수 없다 — 같은 동작을 접근성 액션으로도 연다
+    //
+    // `container` 가 없으면 액션이 부모 노드로 합쳐져 카드 한 장의 동작이
+    // 아니라 화면 전체의 동작이 된다
+    return Semantics(
+      container: true,
+      customSemanticsActions: {
+        CustomSemanticsAction(label: widget.semanticLabel): widget.onDelete,
+      },
+      child: Dismissible(
+        // 자식이 하나뿐이라 유일성은 필요 없다. 다만 위젯이 다시 만들어질 때
+        // 바뀌는 키(ObjectKey 등)를 쓰면 미는 도중 상태가 초기화된다
+        key: const ValueKey('swipe-delete'),
+        direction: DismissDirection.endToStart,
+        dismissThresholds: const {DismissDirection.endToStart: _threshold},
+        // 놓았을 때 확정·복귀가 끊기지 않도록 기본보다 약간 느긋하게
+        movementDuration: const Duration(milliseconds: 260),
+        resizeDuration: const Duration(milliseconds: 220),
+        onUpdate: (details) => _progress.value = details.progress,
+        onDismissed: _onDismissed,
+        background: _DeleteBackground(progress: _progress),
+        child: widget.child,
+      ),
+    );
+  }
+}
+
+/// 밀었을 때 카드 뒤에 드러나는 삭제 배경.
+///
+/// 처음에는 은은하다가 확정 거리에 가까워질수록 진해지고 아이콘이 커진다 —
+/// "여기까지 밀면 지워진다"가 손끝에서 읽힌다.
+class _DeleteBackground extends StatelessWidget {
+  const _DeleteBackground({required this.progress});
+
+  final ValueListenable<double> progress;
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder<double>(
+      valueListenable: progress,
+      builder: (context, value, _) {
+        // 확정 거리에서 1 이 되도록 정규화한다
+        final t = (value / _SwipeToDeleteState._threshold).clamp(0.0, 1.0);
+        return DecoratedBox(
+          decoration: BoxDecoration(
+            color: AppColors.danger.withValues(alpha: 0.14 + 0.5 * t),
+            borderRadius: BorderRadius.circular(AppRadius.card),
+          ),
+          child: Align(
+            alignment: Alignment.centerRight,
+            child: Padding(
+              padding: const EdgeInsets.only(right: AppSpacing.md),
+              child: Transform.scale(
+                scale: 0.85 + 0.3 * t,
+                child: Icon(
+                  Icons.delete_outlined,
+                  size: AppIconSize.standard,
+                  // 진해진 배경 위에서는 아이콘이 배경색과 섞이므로 밝게 바꾼다
+                  color: Color.lerp(AppColors.danger, AppColors.textPrimary, t),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
   }
 }
 
@@ -171,18 +300,36 @@ Future<void> deletePlaceWithUndo(
   WidgetRef ref,
   AlertPlace place,
 ) async {
-  final actions = ref.read(placeActionsProvider.notifier);
-  final deleted = await actions.delete(place.id);
-  if (deleted == null || !context.mounted) return;
+  // await 뒤에는 context 를 믿을 수 없다 — 먼저 잡아둔다
+  final messenger = ScaffoldMessenger.of(context);
   final l10n = context.l10n;
+  final actions = ref.read(placeActionsProvider.notifier);
 
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(
-      content: Text(l10n.placeDeleted(deleted.name)),
-      action: SnackBarAction(
-        label: l10n.placeUndo,
-        onPressed: () => actions.restore(deleted),
+  final deleted = await actions.delete(place.id);
+  if (deleted == null) return;
+  showPlaceDeletedSnack(messenger, l10n, actions, deleted);
+}
+
+/// "삭제됨 · 되돌리기" 안내.
+///
+/// 편집 화면에서 지울 때는 화면이 먼저 닫히므로 `BuildContext` 를 쓸 수
+/// 없다. 그래서 messenger 를 받는 형태로 분리했다 — 앱 최상단의
+/// `ScaffoldMessenger` 는 화면이 닫혀도 남아 안내가 이전 화면 위에 뜬다.
+void showPlaceDeletedSnack(
+  ScaffoldMessengerState messenger,
+  AppLocalizations l10n,
+  PlaceActions actions,
+  AlertPlace deleted,
+) {
+  messenger
+    ..hideCurrentSnackBar()
+    ..showSnackBar(
+      SnackBar(
+        content: Text(l10n.placeDeleted(deleted.name)),
+        action: SnackBarAction(
+          label: l10n.placeUndo,
+          onPressed: () => actions.restore(deleted),
+        ),
       ),
-    ),
-  );
+    );
 }

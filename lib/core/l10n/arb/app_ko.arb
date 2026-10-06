@@ -280,6 +280,18 @@
     }
   },
   "placeUndo": "되돌리기",
+  "placeSwipeDeleteLabel": "삭제",
+  "placeFormDelete": "이 장소 삭제",
+  "placeFormDeleteTitle": "이 장소를 삭제할까요?",
+  "placeFormDeleteBody": "'{name}' 장소가 목록에서 사라집니다. 삭제한 직후에는 되돌릴 수 있습니다.",
+  "@placeFormDeleteBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "placeDeleteCancel": "취소",
   "placeFormLeaveTitle": "저장하지 않고 나갈까요?",
   "placeFormLeaveBody": "지금까지 바꾼 내용은 사라집니다.",
   "placeFormKeepEditing": "계속 편집",

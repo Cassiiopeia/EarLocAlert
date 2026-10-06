@@ -485,6 +485,23 @@ class AppLocalizationsEn extends AppLocalizations {
   String get placeUndo => 'Undo';
 
   @override
+  String get placeSwipeDeleteLabel => 'Delete';
+
+  @override
+  String get placeFormDelete => 'Delete this place';
+
+  @override
+  String get placeFormDeleteTitle => 'Delete this place?';
+
+  @override
+  String placeFormDeleteBody(String name) {
+    return '\'$name\' will be removed from your list. You can undo right after deleting.';
+  }
+
+  @override
+  String get placeDeleteCancel => 'Cancel';
+
+  @override
   String get placeFormLeaveTitle => 'Leave without saving?';
 
   @override

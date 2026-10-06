@@ -22,6 +22,7 @@ import '../../../core/text/keep_all.dart';
 import '../domain/alert_place.dart';
 import '../domain/place_validator.dart';
 import 'alert_schedule_editor.dart';
+import 'place_card.dart' show showPlaceDeletedSnack;
 import 'place_list_controller.dart';
 import 'place_empty_state.dart' show placeErrorMessage;
 import 'place_map_picker_screen.dart';
@@ -36,6 +37,7 @@ class PlaceFormScreen extends ConsumerStatefulWidget {
   const PlaceFormScreen({
     this.existing,
     this.onSaved,
+    this.onDeleted,
     this.onPickOnMap,
     this.onPickSound,
     this.onDescribeSound,
@@ -45,6 +47,10 @@ class PlaceFormScreen extends ConsumerStatefulWidget {
   /// null 이면 신규 등록
   final AlertPlace? existing;
   final VoidCallback? onSaved;
+
+  /// 삭제가 끝났을 때 (이슈 #205). 화면 전환은 라우터가 한다 — `onSaved` 와
+  /// 같은 방식이다.
+  final VoidCallback? onDeleted;
 
   /// 지도 화면을 열고 선택 결과를 돌려준다.
   ///
@@ -447,6 +453,24 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
                 isNew ? l10n.placeFormSubmitNew : l10n.placeFormSubmitSave,
               ),
             ),
+
+            // 삭제는 편집 중인 장소에만 있다. 저장 버튼 **아래**에 옅게 둔다 —
+            // 주 동작과 같은 무게로 놓으면 저장하려다 누른다 (이슈 #205).
+            // 스와이프를 모르는 사용자도 여기서 찾을 수 있다
+            if (!isNew) ...[
+              const SizedBox(height: AppSpacing.xs),
+              // 주 동작(저장)이 FilledButton 한 자리뿐이어야 위계가 갈리지 않는다
+              // (design_system_test) — 삭제는 TextButton 에 옅은 색을 입힌다
+              TextButton.icon(
+                onPressed: _saving ? null : _delete,
+                icon: const Icon(Icons.delete_outlined),
+                label: Text(l10n.placeFormDelete),
+                style: TextButton.styleFrom(
+                  backgroundColor: AppColors.danger.withValues(alpha: 0.12),
+                  foregroundColor: AppColors.danger,
+                ),
+              ),
+            ],
           ],
         ),
       ),
@@ -491,6 +515,42 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
       // 반경도 지도에서 원을 보며 정한다 — 돌아온 값이 최신이다
       _radius = picked.radiusMeters.toDouble();
     });
+  }
+
+  /// 편집 화면에서 삭제한다 (이슈 #205).
+  ///
+  /// 스와이프와 달리 **확인을 한 번 받는다** — 저장하지 않은 편집 내용과
+  /// 같은 화면에 있어 버튼이 오탭되기 쉽고, 지운 뒤에는 화면이 닫혀 맥락이
+  /// 사라진다. 지운 직후에는 목록에서 "되돌리기"를 준다.
+  Future<void> _delete() async {
+    final place = widget.existing;
+    if (place == null) return;
+    final l10n = context.l10n;
+
+    final confirmed = await showConfirmDialog(
+      context,
+      title: l10n.placeFormDeleteTitle,
+      body: l10n.placeFormDeleteBody(place.name),
+      cancelLabel: l10n.placeDeleteCancel,
+      confirmLabel: l10n.placeSwipeDeleteLabel,
+    );
+    if (!confirmed || !mounted) return;
+
+    // 화면이 닫힌 뒤에 안내를 띄워야 하므로 지금 잡아둔다
+    final messenger = ScaffoldMessenger.of(context);
+    final actions = ref.read(placeActionsProvider.notifier);
+
+    setState(() => _saving = true);
+    final deleted = await actions.delete(place.id);
+    if (!mounted) return;
+    setState(() => _saving = false);
+
+    // 지운 장소의 편집 내용은 의미가 없다 — 나갈 때 묻지 않는다
+    _leavingAfterSave = true;
+    widget.onDeleted?.call();
+    if (deleted != null) {
+      showPlaceDeletedSnack(messenger, l10n, actions, deleted);
+    }
   }
 
   Future<void> _save() async {

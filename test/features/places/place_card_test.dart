@@ -5,6 +5,7 @@ import 'package:ear_loc_alert/core/theme/app_theme.dart';
 import 'package:ear_loc_alert/features/places/domain/alert_place.dart';
 import 'package:ear_loc_alert/features/places/presentation/place_card.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 AlertPlace makePlace({
@@ -80,7 +81,67 @@ void main() {
       expect(toggled, isFalse); // 켜져 있던 것을 껐다
     });
 
-    testWidgets('길게 누르면 삭제 — 실수로 닿기 어려운 동작에 둔다', (tester) async {
+    testWidgets('왼쪽으로 끝까지 밀면 삭제 — 확인 없이 지우고 되돌리기로 복구한다 (#205)', (tester) async {
+      var deleted = 0;
+      await tester.pumpWidget(
+        wrap(
+          PlaceCard(
+            place: makePlace(),
+            onTap: () {},
+            onToggle: (_) {},
+            onDelete: () => deleted++,
+          ),
+        ),
+      );
+
+      await tester.fling(find.text('회사'), const Offset(-500, 0), 2000);
+      await tester.pumpAndSettle();
+
+      expect(deleted, 1);
+      // 놓은 즉시 트리에서 빠져야 한다 — 저장소 갱신을 기다리면 Dismissible 이 죽는다
+      expect(find.text('회사'), findsNothing);
+    });
+
+    testWidgets('조금만 밀고 놓으면 제자리로 돌아온다 — 실수로 지워지지 않는다', (tester) async {
+      var deleted = false;
+      await tester.pumpWidget(
+        wrap(
+          PlaceCard(
+            place: makePlace(),
+            onTap: () {},
+            onToggle: (_) {},
+            onDelete: () => deleted = true,
+          ),
+        ),
+      );
+
+      await tester.drag(find.text('회사'), const Offset(-60, 0));
+      await tester.pumpAndSettle();
+
+      expect(deleted, isFalse);
+      expect(find.text('회사'), findsOneWidget);
+    });
+
+    testWidgets('오른쪽으로 밀어도 지워지지 않는다 — 한 방향만 쓴다', (tester) async {
+      var deleted = false;
+      await tester.pumpWidget(
+        wrap(
+          PlaceCard(
+            place: makePlace(),
+            onTap: () {},
+            onToggle: (_) {},
+            onDelete: () => deleted = true,
+          ),
+        ),
+      );
+
+      await tester.fling(find.text('회사'), const Offset(500, 0), 2000);
+      await tester.pumpAndSettle();
+
+      expect(deleted, isFalse);
+    });
+
+    testWidgets('길게 눌러도 지워지지 않는다 — 예전 방식은 없앴다 (#205)', (tester) async {
       var deleted = false;
       await tester.pumpWidget(
         wrap(
@@ -94,7 +155,38 @@ void main() {
       );
 
       await tester.longPress(find.text('회사'));
+      expect(deleted, isFalse);
+    });
+
+    testWidgets('스크린리더에는 삭제 동작이 따로 열린다 — 스와이프는 못 하므로', (tester) async {
+      var deleted = false;
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        wrap(
+          PlaceCard(
+            place: makePlace(),
+            onTap: () {},
+            onToggle: (_) {},
+            onDelete: () => deleted = true,
+          ),
+        ),
+      );
+
+      final node = tester.getSemantics(find.byType(PlaceCard));
+      final ids = node.getSemanticsData().customSemanticsActionIds;
+      expect(ids, isNotNull);
+      expect(ids, isNotEmpty);
+      expect(CustomSemanticsAction.getAction(ids!.first)!.label, '삭제');
+
+      // 실제 스크린리더와 같은 경로로 실행한다
+      tester.semantics.performAction(
+        find.semantics.byAction(SemanticsAction.customAction),
+        SemanticsAction.customAction,
+        args: ids.first,
+      );
+      await tester.pump();
       expect(deleted, isTrue);
+      handle.dispose();
     });
 
     testWidgets('지도에서 지목되면 테두리가 생긴다 — 활성 여부와 다른 축', (tester) async {

@@ -151,6 +151,7 @@ class _PlaceFormRoute extends ConsumerWidget {
     return PlaceFormScreen(
       existing: existing,
       onSaved: () => _leaveForm(context),
+      onDeleted: () => _leaveForm(context),
       onPickOnMap: (args) => _pickOnMap(context, args),
       onPickSound: (current) => showSoundPickerSheet(context, current: current),
       onDescribeSound: (sound) => _describeSound(ref, sound, context.l10n),

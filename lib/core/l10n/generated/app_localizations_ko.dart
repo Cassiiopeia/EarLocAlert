@@ -465,6 +465,23 @@ class AppLocalizationsKo extends AppLocalizations {
   String get placeUndo => '되돌리기';
 
   @override
+  String get placeSwipeDeleteLabel => '삭제';
+
+  @override
+  String get placeFormDelete => '이 장소 삭제';
+
+  @override
+  String get placeFormDeleteTitle => '이 장소를 삭제할까요?';
+
+  @override
+  String placeFormDeleteBody(String name) {
+    return '\'$name\' 장소가 목록에서 사라집니다. 삭제한 직후에는 되돌릴 수 있습니다.';
+  }
+
+  @override
+  String get placeDeleteCancel => '취소';
+
+  @override
   String get placeFormLeaveTitle => '저장하지 않고 나갈까요?';
 
   @override

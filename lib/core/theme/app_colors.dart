@@ -18,6 +18,14 @@ abstract final class AppColors {
   static const Color primary = Color(0xFFE5B65C);
   static const Color secondary = Color(0xFF7FE8D8);
 
+  /// 삭제처럼 **되돌리기 어려운 동작**의 색 (이슈 #205).
+  ///
+  /// 주색 두 개에서 파생되지 않는 유일한 색이다. 금색·민트 어느 쪽도
+  /// "지운다"를 말하지 못해, 삭제만 별도로 둔다. 쓰는 곳은 삭제 동작
+  /// 하나로 한정한다 — 다른 의미로 번지면 이 색의 뜻이 흐려진다.
+  /// (디자이너 확정 전 잠정값 — 이슈 #205 질문)
+  static const Color danger = Color(0xFFFF6B6B);
+
   /// 주색 위에 올라가는 텍스트 (버튼 라벨 등)
   static const Color textOnPrimary = Color(0xFF0D0D0D);
 }
