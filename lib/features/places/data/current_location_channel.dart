@@ -1,4 +1,5 @@
 import 'package:flutter/services.dart';
+import '../../../core/diagnostics/diagnostics.dart';
 import '../../../core/platform/channel_names.dart';
 
 /// 현재 위치 1회 조회 (이슈 #98)
@@ -8,7 +9,7 @@ import '../../../core/platform/channel_names.dart';
 /// 잘려 보였고 사용자가 존재 자체를 몰랐다.
 ///
 /// **플랫폼 API 를 인터페이스 뒤에 둔다** (docs/02-ARCHITECTURE.md 규칙 3).
-/// iOS 에는 채널이 없어 조용히 null 이 되고, 화면은 SDK 버튼으로 물러난다.
+/// Android 는 `CurrentLocationProvider.kt`, iOS 는 `AppDelegate.swift` 가 처리한다 (이슈 #213).
 abstract interface class CurrentLocationService {
   /// 현재 위치. 권한이 없거나 측정에 실패하면 null.
   Future<({double latitude, double longitude})?> current();
@@ -32,9 +33,25 @@ class CurrentLocationChannel implements CurrentLocationService {
       if (lat == null || lng == null) return null;
 
       return (latitude: lat, longitude: lng);
-    } on Object {
-      // 채널이 없는 플랫폼(iOS)·권한 거부·측정 실패 전부 여기로 온다.
-      // 위치를 못 얻는 것은 정상적으로 일어나는 상태다 — 예외로 다루지 않는다.
+    } on PlatformException catch (e) {
+      // 권한 거부·측정 실패·시간 초과 — 정상적으로 일어나는 상태라 예외로 다루지 않되 사유는 남긴다
+      Diagnostics.log(
+        'location',
+        'current location lookup failed reason=${e.code} detail=${e.message}',
+      );
+      return null;
+    } on MissingPluginException {
+      // 네이티브 처리기가 없다 — iOS 에서 이게 조용히 삼켜져 권한 문제로 오인됐다 (이슈 #213)
+      Diagnostics.log(
+        'location',
+        'current location lookup failed reason=no_channel',
+      );
+      return null;
+    } on Object catch (e) {
+      Diagnostics.log(
+        'location',
+        'current location lookup failed reason=unexpected error=$e',
+      );
       return null;
     }
   }
