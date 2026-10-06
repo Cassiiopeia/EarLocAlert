@@ -1,14 +1,35 @@
 {
   "metadata": {
-    "lastUpdated": "2026-10-06T02:16:27Z",
-    "currentVersion": "1.23.0",
+    "lastUpdated": "2026-10-06T13:10:46Z",
+    "currentVersion": "1.24.0",
     "projectType": "flutter",
-    "totalReleases": 82,
+    "totalReleases": 83,
     "projectTypes": [
       "flutter"
     ]
   },
   "releases": [
+    {
+      "version": "1.24.0",
+      "project_type": "flutter",
+      "project_types": [
+        "flutter"
+      ],
+      "date": "2026-10-06",
+      "pr_number": 206,
+      "raw_summary": "## Summary by CodeRabbit\n\n## 릴리스 노트\n\n* **개선**\n  * 장소 카드를 왼쪽으로 밀어 바로 삭제할 수 있어요\n  * 장소 편집 화면에서도 삭제할 수 있어요\n  * 길게 눌러 삭제하던 방식은 없어졌어요",
+      "parsed_changes": {
+        "개선": {
+          "title": "개선",
+          "items": [
+            "장소 카드를 왼쪽으로 밀어 바로 삭제할 수 있어요",
+            "장소 편집 화면에서도 삭제할 수 있어요",
+            "길게 눌러 삭제하던 방식은 없어졌어요"
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "1.23.0",
       "project_type": "flutter",
