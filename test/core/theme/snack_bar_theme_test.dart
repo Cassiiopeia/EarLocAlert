@@ -14,6 +14,8 @@ void main() {
     expect(theme.backgroundColor, AppColors.bgElevated);
     expect(theme.actionTextColor, AppColors.primary);
     expect(theme.behavior, SnackBarBehavior.floating);
+    // 스타일을 덮어써도 앱 글꼴(Pretendard)이 빠지면 안 된다
+    expect(theme.contentTextStyle?.fontFamily, 'Pretendard');
   });
 
   testWidgets('띄운 스낵바가 실제로 어두운 배경이다', (tester) async {

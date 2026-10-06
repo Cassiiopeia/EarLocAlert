@@ -10,6 +10,10 @@ import 'app_typography.dart';
 /// 다크가 기본이다 — 주 사용 환경이 버스·지하철·밤이다.
 /// 그림자(elevation)를 쓰지 않는다 — 층은 배경 명도 차이로 구분한다.
 abstract final class AppTheme {
+  /// 앱 글꼴. 테마 한 곳에서만 정한다 — 스타일을 통째로 덮어쓰는 테마
+  /// (스낵바 등)는 이 값을 직접 받아야 글꼴이 빠지지 않는다
+  static const _fontFamily = 'Pretendard';
+
   static ThemeData dark() {
     const colorScheme = ColorScheme.dark(
       primary: AppColors.primary,
@@ -33,7 +37,7 @@ abstract final class AppTheme {
       // **여기서 한 번만 지정한다** — AppTypography 의 개별 스타일에
       // fontFamily 를 적으면 한 곳을 빠뜨렸을 때 그 화면만 다른 글꼴이
       // 되고, 눈에 잘 띄지 않는다.
-      fontFamily: 'Pretendard',
+      fontFamily: _fontFamily,
       scaffoldBackgroundColor: AppColors.bgBase,
       extensions: const [AppSemanticColors.dark],
 
@@ -90,7 +94,9 @@ abstract final class AppTheme {
       snackBarTheme: SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
         backgroundColor: AppColors.bgElevated,
+        // 스타일을 통째로 지정하면 테마의 fontFamily 가 적용되지 않는다
         contentTextStyle: AppTypography.body.copyWith(
+          fontFamily: _fontFamily,
           color: AppColors.textPrimary,
         ),
         actionTextColor: AppColors.primary,
