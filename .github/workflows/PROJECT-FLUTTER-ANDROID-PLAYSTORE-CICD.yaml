@@ -1,10 +1,11 @@
 # project-auto-wizard:managed-workflow
 # ===================================================================
-# Flutter Android Play Store 비공개 테스트 배포 워크플로우
+# Flutter Android Play Store 배포 워크플로우
 # ===================================================================
 #
-# main 브랜치 푸시 시 Android AAB를 빌드하고
-# Play Store 비공개 테스트(alpha)에 자동 배포합니다 — 게시까지 자동입니다 (이슈 #139).
+# main 브랜치 푸시 시 Android AAB를 빌드하고 내부 테스트에 올린 뒤,
+# DEPLOY_MODE 에 따라 프로덕션으로 승급합니다 (이슈 #201, 기본 store_submit = 심사 자동 등록).
+# 이전에는 비공개 테스트(alpha)까지만 올렸습니다 (이슈 #139).
 #
 # ===================================================================
 # 🔑 필수 GitHub Secrets
@@ -28,7 +29,7 @@ on:
       deploy_mode:
         description: "배포 모드 (store_only=internal까지 / store_prepare=production draft / store_submit=심사 자동등록)"
         required: false
-        default: "store_only"
+        default: "store_submit"
         type: choice
         options:
           - store_only
@@ -58,8 +59,12 @@ env:
   # 에 내보내 값을 덮어쓴다. 그러면 산출물 경로가 SDK 안을 가리켜, 빌드는
   # 성공하는데 업로드가 비고 다음 잡이 죽는다 (마법사 이슈 #50).
   FLUTTER_PROJECT_DIR: "."
-  # 배포 모드 (store_only | store_prepare | store_submit)
-  DEPLOY_MODE: ${{ github.event.inputs.deploy_mode || vars.ANDROID_DEPLOY_MODE || 'store_only' }}
+  # 배포 모드 (store_only | store_prepare | store_submit) — 이슈 #201
+  # 우선순위: 수동 실행 입력 > 레포 변수 ANDROID_DEPLOY_MODE(있을 때만) > 아래 기본값.
+  # 기본값을 코드에 둔다 — 레포 변수는 git 이력이 남지 않고 포크하면 따라오지 않는다.
+  # store_submit = internal 업로드 후 production 심사 자동 등록. 되돌리려면 store_only 로.
+  # ⚠️ 프로덕션 최초 출시 1회는 Play Console 에서 수동으로 해야 승급이 동작한다.
+  DEPLOY_MODE: ${{ github.event.inputs.deploy_mode || vars.ANDROID_DEPLOY_MODE || 'store_submit' }}
 
 jobs:
   prepare-build:
@@ -507,7 +512,7 @@ jobs:
           if-no-files-found: error
 
   deploy-playstore:
-    name: Play Store 비공개 테스트 배포
+    name: Play Store 배포
     runs-on: ubuntu-latest
     needs: [prepare-build, build-android]
     defaults:
@@ -568,7 +573,7 @@ jobs:
           cat android/fastlane/Fastfile
 
       # Play Store에 업로드
-      - name: Upload to Play Store Closed Testing
+      - name: Upload to Play Store
         env:
           DEPLOY_MODE: ${{ env.DEPLOY_MODE }}
         run: |
@@ -690,15 +695,15 @@ jobs:
       - name: Notify Play Store Upload Success
         if: success()
         run: |
-          echo "✅ Play Store 비공개 테스트 배포 성공!"
+          echo "✅ Play Store 배포 성공! (모드: ${{ env.DEPLOY_MODE }})"
           echo "버전: ${{ needs.prepare-build.outputs.version }} (${{ needs.prepare-build.outputs.version_code }})"
           echo "커밋: ${{ github.sha }}"
           echo ""
-          echo "📱 테스터에게 자동 배포됩니다 (이슈 #139)"
-          echo "   Console 에서 게시를 누를 필요가 없습니다 — release_status=completed"
-          echo "   Google 검토를 거친 뒤 테스터의 Play 스토어에 업데이트가 뜹니다."
+          echo "📱 store_submit 이면 프로덕션 심사가 자동 등록됩니다 (이슈 #201)"
+          echo "   Google 심사를 통과하면 전체 사용자에게 출시됩니다."
+          echo "   store_prepare 면 Console 에서 '출시 시작' 을 눌러야 합니다."
           echo ""
-          echo "   확인: Play Console → 테스트 및 출시 → 비공개 테스트 → Alpha"
+          echo "   확인: Play Console → 테스트 및 출시 → 프로덕션"
 
       - name: Notify on Failure
         if: failure()

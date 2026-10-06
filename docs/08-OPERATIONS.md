@@ -13,7 +13,7 @@ develop 브랜치 (기본 작업 브랜치)
         ├─ PR CI               빌드·분석·테스트
         └─ merge → main push
              ├─ 버전 자동 증가   version.yml → pubspec.yaml 동기화
-             ├─ Play Store 내부 테스트 배포
+             ├─ Play Store 배포 (내부 테스트 → 프로덕션 심사 자동 등록)
              ├─ Synology 자체 배포
              └─ TestFlight 배포
 ```
@@ -41,7 +41,7 @@ develop 브랜치 (기본 작업 브랜치)
 | `PROJECT-COMMON-AI-PR-SUMMARY` | PR 요약 생성 |
 | `PROJECT-COMMON-SECRET-FILE-UPLOAD` | 시크릿 파일을 서버로 백업 |
 | `PROJECT-FLUTTER-CI` | PR·develop push 빌드 검증 (analyze·test·Android 빌드) |
-| `PROJECT-FLUTTER-ANDROID-PLAYSTORE-CICD` | Play Store 내부 테스트 배포 |
+| `PROJECT-FLUTTER-ANDROID-PLAYSTORE-CICD` | Play Store 배포 — `DEPLOY_MODE` 로 범위 결정 (기본 `store_submit`, 결정 048) |
 | `PROJECT-FLUTTER-ANDROID-SYNOLOGY-CICD` | APK 를 NAS 로 배포 + **GitHub Release 에 APK 첨부** |
 | `PROJECT-FLUTTER-IOS-TESTFLIGHT` | TestFlight 배포 |
 | `PROJECT-FLUTTER-ANDROID-FIREBASE-CICD` | Firebase 배포 — **자동 트리거 없음** (시크릿 미등록) |
