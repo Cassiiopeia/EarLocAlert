@@ -7,6 +7,7 @@ import '../../../core/l10n/l10n.dart';
 import '../../../core/text/keep_all.dart';
 import 'alert_schedule_sheet.dart';
 import 'alert_schedule_summary.dart';
+import 'place_section_label.dart';
 
 /// 장소의 알림 시간대 목록 편집 (이슈 #81)
 ///
@@ -30,8 +31,8 @@ class AlertScheduleEditor extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(context.l10n.scheduleTitle, style: AppTypography.caption),
-        const SizedBox(height: AppSpacing.xs),
+        // 폼의 다른 칸과 같은 제목 줄 (이슈 #228)
+        PlaceSectionLabel(context.l10n.scheduleTitle),
 
         if (schedules.isEmpty)
           Text(

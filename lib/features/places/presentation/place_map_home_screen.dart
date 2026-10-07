@@ -177,7 +177,7 @@ class _PlaceMapHomeScreenState extends ConsumerState<PlaceMapHomeScreen>
                 zoom: places.isEmpty ? _fallback.zoom : 14,
               ),
               style: MapStyle.dark,
-              markers: _markers(places, semantic),
+              markers: _markers(places),
               circles: _circles(places, semantic),
               onMapCreated: (controller) {
                 _map = controller;
@@ -327,7 +327,7 @@ class _PlaceMapHomeScreenState extends ConsumerState<PlaceMapHomeScreen>
     );
   }
 
-  Set<Marker> _markers(List<AlertPlace> places, AppSemanticColors semantic) {
+  Set<Marker> _markers(List<AlertPlace> places) {
     return {
       for (final place in places)
         Marker(
@@ -336,14 +336,9 @@ class _PlaceMapHomeScreenState extends ConsumerState<PlaceMapHomeScreen>
           // 비활성 장소는 흐리게 — 지도에서 지워버리면 "왜 안 보이지"가 된다
           alpha: place.enabled ? 1 : 0.45,
           icon: BitmapDescriptor.defaultMarkerWithHue(_markerHue(place)),
-          infoWindow: InfoWindow(
-            title: place.name,
-            // 카드와 같은 문구를 쓴다 — 지도와 목록이 다른 말을 하면 안 된다
-            snippet: context.l10n.placeRadiusInfo(
-              describeDirection(place.direction, semantic, context.l10n).$2,
-              place.radiusMeters,
-            ),
-          ),
+          // **정보 말풍선을 띄우지 않는다** (이슈 #228). SDK 말풍선은 흰 바탕
+          // 고정이라 다크 지도 위에서 혼자 튀었다. 마커를 누르면 시트의 카드가
+          // 강조되고 원이 굵어져 같은 정보(이름·방향·반경)를 이미 보여준다
           onTap: () => _onMarkerTapped(place),
         ),
     };
@@ -910,9 +905,18 @@ class _PlaceSheet extends ConsumerWidget {
   }
 
   Widget _body(BuildContext context, WidgetRef ref) {
+    // **여백을 직접 정한다** (이슈 #228). `ListView` 는 padding 이 없으면
+    // 화면의 안전 영역(상태바 높이)을 위 여백으로 넣는다 — 이 목록은 화면
+    // 맨 아래 시트 안이라 상태바와 무관한데, 빈 화면 문구가 손잡이 아래로
+    // 50pt 넘게 밀려 내려갔다. 아래쪽만 홈 인디케이터만큼 비운다
+    final messagePadding = EdgeInsets.only(
+      bottom: MediaQuery.paddingOf(context).bottom,
+    );
+
     if (failed) {
       return ListView(
         controller: scrollController,
+        padding: messagePadding,
         children: [
           Padding(
             padding: const EdgeInsets.all(AppSpacing.md),
@@ -929,6 +933,7 @@ class _PlaceSheet extends ConsumerWidget {
     if (loading && places.isEmpty) {
       return ListView(
         controller: scrollController,
+        padding: messagePadding,
         children: const [
           Padding(
             padding: EdgeInsets.all(AppSpacing.md),
@@ -942,6 +947,7 @@ class _PlaceSheet extends ConsumerWidget {
       // 스크롤 가능해야 시트를 끌어내릴 수 있다
       return ListView(
         controller: scrollController,
+        padding: messagePadding,
         children: [PlaceEmptyState(onAddPlace: onAddPlace, compact: true)],
       );
     }

@@ -135,7 +135,6 @@
   "placeMyLocation": "我的位置",
   "placeSearchHint": "搜索地点或地址",
   "placeSearchUnavailable": "无法使用搜索——请移动地图来确定位置",
-  "placePickerRadius": "提醒半径 {meters} 米",
   "placePickerPinHint": "移动地图来放置图钉",
   "placePickerConfirm": "选择此位置",
   "placeDirectionEnter": "到达提醒",

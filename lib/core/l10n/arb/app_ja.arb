@@ -135,7 +135,6 @@
   "placeMyLocation": "現在地",
   "placeSearchHint": "場所・住所を検索",
   "placeSearchUnavailable": "検索を利用できません — 地図を動かして位置を合わせてください",
-  "placePickerRadius": "アラート半径 {meters} m",
   "placePickerPinHint": "地図を動かしてピンを合わせてください",
   "placePickerConfirm": "この場所に決定",
   "placeDirectionEnter": "到着アラート",

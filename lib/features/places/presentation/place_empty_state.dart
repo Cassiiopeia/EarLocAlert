@@ -25,7 +25,16 @@ class PlaceEmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(AppSpacing.md),
+      // 시트 안에서는 손잡이 바로 아래에서 시작한다 (이슈 #228) — 손잡이가
+      // 이미 위 여백을 갖고 있어 한 칸 더 띄우면 내용이 가라앉아 보인다
+      padding: compact
+          ? const EdgeInsets.fromLTRB(
+              AppSpacing.md,
+              AppSpacing.sm,
+              AppSpacing.md,
+              AppSpacing.md,
+            )
+          : const EdgeInsets.all(AppSpacing.md),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
@@ -41,7 +50,11 @@ class PlaceEmptyState extends StatelessWidget {
           ],
           Text(
             context.l10n.placeEmptyTitle,
-            style: compact ? AppTypography.body : AppTypography.screenTitle,
+            // 시트 안에서는 다른 시트 제목과 같은 굵은 본문 — 아래 회색 설명과
+            // 크기가 비슷해 굵기로 위계를 세운다 (docs/06-UX.md 타이포)
+            style: compact
+                ? AppTypography.body.copyWith(fontWeight: FontWeight.w600)
+                : AppTypography.screenTitle,
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: AppSpacing.xs),

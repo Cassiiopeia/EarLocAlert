@@ -106,6 +106,17 @@ abstract final class AppTheme {
           borderRadius: BorderRadius.circular(AppRadius.small),
         ),
       ),
+      // 바텀시트 모서리를 카드·홈 시트와 같은 24 로 (이슈 #228). 지정하지
+      // 않으면 머티리얼 기본 28 이라 시간대·알림음 시트만 더 둥글었다
+      bottomSheetTheme: const BottomSheetThemeData(
+        backgroundColor: AppColors.bgSurface,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(AppRadius.card),
+          ),
+        ),
+      ),
       iconTheme: const IconThemeData(color: AppColors.textPrimary),
       dividerTheme: const DividerThemeData(color: AppColors.bgElevated),
     );

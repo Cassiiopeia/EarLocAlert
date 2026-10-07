@@ -7,6 +7,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../../core/domain/alert_direction.dart';
 import '../../../core/domain/alert_schedule.dart';
 import '../../../core/domain/alert_sound.dart';
+import '../../../core/diagnostics/diagnostics.dart';
 import '../../../core/map/map_corner_mask.dart';
 import '../../../core/map/map_reveal_cover.dart';
 import '../../../core/map/map_style_guard.dart';
@@ -26,6 +27,7 @@ import 'place_card.dart' show showPlaceDeletedSnack;
 import 'place_list_controller.dart';
 import 'place_empty_state.dart' show placeErrorMessage;
 import 'place_map_picker_screen.dart';
+import 'place_section_label.dart';
 import '../../../core/widgets/app_feedback.dart';
 
 /// 장소 등록/편집 폼 (docs/06-UX.md)
@@ -77,12 +79,35 @@ class PlaceFormScreen extends ConsumerStatefulWidget {
 
 class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
   late final _name = TextEditingController(text: widget.existing?.name ?? '');
+  // 좌표 칸은 소수 6자리로 보여준다 (이슈 #228). 지도에서 고른 값이
+  // `37.49789989126091` 처럼 그대로 들어가 칸을 넘쳤다. 6자리면 약 10cm 라
+  // 지오펜스 판정에 차이가 없다
   late final _latitude = TextEditingController(
-    text: widget.existing?.latitude.toString() ?? '',
+    text: _formatCoordinate(widget.existing?.latitude),
   );
   late final _longitude = TextEditingController(
-    text: widget.existing?.longitude.toString() ?? '',
+    text: _formatCoordinate(widget.existing?.longitude),
   );
+
+  /// 칸에 줄여 보여준 좌표의 원래 값.
+  ///
+  /// **사용자가 칸을 고치지 않았으면 원래 정밀도로 저장한다** — 줄인 값을
+  /// 저장하면 편집 화면을 열기만 해도 좌표가 바뀐 것으로 잡혀 "저장하지 않고
+  /// 나갈까요?" 가 떴다.
+  late double? _preciseLatitude = widget.existing?.latitude;
+  late double? _preciseLongitude = widget.existing?.longitude;
+
+  /// 이름 칸 포커스 — 저장이 거절되면 그 칸으로 올라가 키보드를 띄운다 (이슈 #228)
+  final _nameFocus = FocusNode();
+
+  /// 폼 스크롤 — 거절된 칸까지 되돌아갈 때 쓴다
+  final _scroll = ScrollController();
+
+  /// 위치 칸 — 좌표가 없어 거절되면 여기로 스크롤한다
+  final _locationKey = GlobalKey();
+
+  /// 이름 칸 아래에 붙는 오류. 토스트만으로는 어느 칸이 문제인지 몰랐다
+  String? _nameError;
 
   late double _radius = (widget.existing?.radiusMeters ?? 100).toDouble();
   late AlertDirection _direction =
@@ -165,6 +190,8 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
       controller.removeListener(_onFieldChanged);
     }
     _name.dispose();
+    _nameFocus.dispose();
+    _scroll.dispose();
     _latitude.dispose();
     _longitude.dispose();
     super.dispose();
@@ -191,8 +218,8 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
 
     // 좌표는 문자열로 비교하면 `37.4` 와 `37.40` 이 다르게 잡힌다.
     // 숫자로 바꿔서 본다
-    final latitude = double.tryParse(_latitude.text.trim());
-    final longitude = double.tryParse(_longitude.text.trim());
+    final latitude = _latitudeValue;
+    final longitude = _longitudeValue;
 
     return _name.text.trim() != existing.name ||
         latitude != existing.latitude ||
@@ -256,20 +283,31 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
       ),
       body: SafeArea(
         child: ListView(
+          controller: _scroll,
           padding: const EdgeInsets.all(AppSpacing.md),
+          // 폼을 훑어 내리면 키보드가 비켜준다 (이슈 #228). iOS 숫자 자판에는
+          // 닫기 키가 없어 좌표를 입력하면 키보드를 내릴 방법이 없었다
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           children: [
             TextField(
               controller: _name,
+              focusNode: _nameFocus,
               decoration: InputDecoration(
                 labelText: l10n.placeFormNameLabel,
                 hintText: l10n.placeFormNameHint,
+                errorText: _nameError,
               ),
-              textInputAction: TextInputAction.next,
+              textInputAction: TextInputAction.done,
+              onTapOutside: _dismissKeyboard,
+              onChanged: (_) {
+                // 고치기 시작하면 오류를 거둔다 — 다 쓸 때까지 빨간 글씨가
+                // 남아 있으면 아직 틀린 것처럼 보인다
+                if (_nameError != null) setState(() => _nameError = null);
+              },
             ),
             const SizedBox(height: AppSpacing.md),
 
-            Text(l10n.placeFormLocationLabel, style: AppTypography.caption),
-            const SizedBox(height: AppSpacing.xs),
+            PlaceSectionLabel(l10n.placeFormLocationLabel, key: _locationKey),
             OutlinedButton.icon(
               onPressed: widget.onPickOnMap == null ? null : _pickOnMap,
               icon: const Icon(Icons.map_outlined),
@@ -291,8 +329,8 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
             // 경우에도 폼은 동작해야 한다 (알림 화면과 같은 규칙).
             if (_hasCoordinates)
               _LocationPreview(
-                latitude: double.parse(_latitude.text.trim()),
-                longitude: double.parse(_longitude.text.trim()),
+                latitude: _latitudeValue!,
+                longitude: _longitudeValue!,
                 radiusMeters: _radius,
                 onTap: widget.onPickOnMap == null ? null : _pickOnMap,
               )
@@ -314,6 +352,10 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
                 style: AppTypography.caption,
               ),
               tilePadding: EdgeInsets.zero,
+              // 펼칠 때 머티리얼 기본 구분선이 위아래로 생겨 지도 카드 밑에
+              // 선이 붙었다 (이슈 #228). 폼의 다른 칸에는 구분선이 없다
+              shape: const Border(),
+              collapsedShape: const Border(),
               childrenPadding: const EdgeInsets.only(bottom: AppSpacing.xs),
               children: [
                 Row(
@@ -328,6 +370,7 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
                           decimal: true,
                           signed: true,
                         ),
+                        onTapOutside: _dismissKeyboard,
                         onChanged: (_) => setState(() {}),
                       ),
                     ),
@@ -342,6 +385,7 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
                           decimal: true,
                           signed: true,
                         ),
+                        onTapOutside: _dismissKeyboard,
                         onChanged: (_) => setState(() {}),
                       ),
                     ),
@@ -357,17 +401,9 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
             // 제목은 다른 칸(위치·알림 시점)과 같은 작은 회색, 값만 오른쪽에
             // 굵게 둔다 — 예전엔 이 제목만 굵은 흰 글자라 위계가 섞였다
             // (디자인 리뷰 #155). 알림음 크기 시트와 같은 배치다
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(l10n.placeFormRadiusLabel, style: AppTypography.caption),
-                Text(
-                  l10n.placeFormRadiusValue(_radius.round()),
-                  style: AppTypography.body.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
+            PlaceSectionLabel(
+              l10n.placeFormRadiusLabel,
+              trailing: l10n.placeFormRadiusValue(_radius.round()),
             ),
             Slider(
               value: _radius,
@@ -378,8 +414,7 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
             ),
             const SizedBox(height: AppSpacing.md),
 
-            Text(l10n.placeFormTimingLabel, style: AppTypography.caption),
-            const SizedBox(height: AppSpacing.xs),
+            PlaceSectionLabel(l10n.placeFormTimingLabel),
             SegmentedButton<AlertDirection>(
               segments: [
                 ButtonSegment(
@@ -412,9 +447,12 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
             ),
             const SizedBox(height: AppSpacing.md),
 
+            // 소리 칸도 다른 칸과 같은 제목 줄을 쓴다 (이슈 #228). 예전엔 이
+            // 칸만 굵은 흰 제목이라 폼 안에서 위계가 갈렸다 — 제목은 회색
+            // 칸 제목, 스위치 줄에는 무엇이 켜지는지를 적는다
+            PlaceSectionLabel(l10n.placeFormSoundTitle),
             SwitchListTile(
-              title: Text(l10n.placeFormSoundTitle, style: AppTypography.body),
-              subtitle: Text(
+              title: Text(
                 context.keepAllText(l10n.placeFormSoundDescription),
                 style: AppTypography.caption,
               ),
@@ -477,15 +515,35 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
     );
   }
 
-  bool get _hasCoordinates =>
-      double.tryParse(_latitude.text.trim()) != null &&
-      double.tryParse(_longitude.text.trim()) != null;
+  /// 칸에 보이는 좌표를 숫자로 읽는다. 줄여 보여준 값 그대로면 원래 값을 쓴다
+  double? get _latitudeValue => _readCoordinate(_latitude, _preciseLatitude);
+  double? get _longitudeValue => _readCoordinate(_longitude, _preciseLongitude);
+
+  static double? _readCoordinate(
+    TextEditingController controller,
+    double? precise,
+  ) {
+    final text = controller.text.trim();
+    if (precise != null && text == _formatCoordinate(precise)) return precise;
+    return double.tryParse(text);
+  }
+
+  /// 칸에 넣을 좌표 문자열 — 소수 6자리 (이슈 #228)
+  static String _formatCoordinate(double? value) =>
+      value == null ? '' : value.toStringAsFixed(6);
+
+  /// 칸 바깥을 누르면 키보드를 내린다 (이슈 #228). iOS 는 기본으로 내려주지
+  /// 않아 키보드가 저장 버튼을 덮은 채 남았다
+  void _dismissKeyboard(PointerDownEvent _) =>
+      FocusManager.instance.primaryFocus?.unfocus();
+
+  bool get _hasCoordinates => _latitudeValue != null && _longitudeValue != null;
 
   /// 좌표를 화면에 보여줄 때만 만든다 — 로그에는 남기지 않는다
   /// (docs/04-CONVENTIONS.md)
   String get _coordinateSummary {
-    final latitude = double.tryParse(_latitude.text.trim());
-    final longitude = double.tryParse(_longitude.text.trim());
+    final latitude = _latitudeValue;
+    final longitude = _longitudeValue;
     if (latitude == null || longitude == null) return '';
     return '${latitude.toStringAsFixed(5)}, ${longitude.toStringAsFixed(5)}';
   }
@@ -502,19 +560,36 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
     FocusManager.instance.primaryFocus?.unfocus();
     final picked = await widget.onPickOnMap!(
       MapPickArgs(
-        latitude: double.tryParse(_latitude.text.trim()),
-        longitude: double.tryParse(_longitude.text.trim()),
+        latitude: _latitudeValue,
+        longitude: _longitudeValue,
         radiusMeters: _radius.round(),
       ),
     );
     if (picked == null || !mounted) return;
 
+    // 검색으로 고른 장소 이름을 제안한다 (이슈 #228). **비어 있을 때만** —
+    // 사용자가 쓴 이름("회사 앞 정류장")을 검색 결과("강남역")로 덮으면 안 된다
+    final suggestedName = picked.placeName?.trim() ?? '';
+    final prefillName = suggestedName.isNotEmpty && _name.text.trim().isEmpty;
+
     setState(() {
-      _latitude.text = picked.latitude.toString();
-      _longitude.text = picked.longitude.toString();
+      _preciseLatitude = picked.latitude;
+      _preciseLongitude = picked.longitude;
+      _latitude.text = _formatCoordinate(picked.latitude);
+      _longitude.text = _formatCoordinate(picked.longitude);
       // 반경도 지도에서 원을 보며 정한다 — 돌아온 값이 최신이다
       _radius = picked.radiusMeters.toDouble();
+      if (prefillName) {
+        _name.text = suggestedName;
+        _nameError = null;
+      }
     });
+    Diagnostics.log(
+      'place',
+      'form location picked ${picked.latitude},${picked.longitude} '
+          'radius=${picked.radiusMeters} '
+          'namePrefilled=$prefillName suggestedName=${suggestedName.isEmpty ? "none" : suggestedName}',
+    );
   }
 
   /// 편집 화면에서 삭제한다 (이슈 #205).
@@ -556,11 +631,13 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
   Future<void> _save() async {
     setState(() => _saving = true);
 
-    final latitude = double.tryParse(_latitude.text.trim());
-    final longitude = double.tryParse(_longitude.text.trim());
+    final latitude = _latitudeValue;
+    final longitude = _longitudeValue;
 
+    // 좌표가 없으면 저장소까지 가지 않는다. 이름도 함께 비었으면 같이
+    // 알린다 — 하나 고치고 다시 눌러야 다음 오류를 보는 일이 없게 한다
     final errors = latitude == null || longitude == null
-        ? [PlaceValidationError.invalidCoordinates]
+        ? _rejectWithoutCoordinates()
         : await ref
               .read(placeActionsProvider.notifier)
               .save(
@@ -585,7 +662,62 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
       return;
     }
 
+    unawaited(_revealFirstError(errors));
     context.showToast(placeErrorMessage(context.l10n, errors.first));
+  }
+
+  List<PlaceValidationError> _rejectWithoutCoordinates() {
+    final errors = [
+      if (_name.text.trim().isEmpty) PlaceValidationError.emptyName,
+      PlaceValidationError.invalidCoordinates,
+    ];
+    // 저장소를 거치지 않는 거절이라 여기서 남긴다 — 컨트롤러 로그와 같은 형식
+    Diagnostics.log(
+      'place',
+      'place save rejected name=${_name.text} '
+          'reason=${errors.map((e) => e.name).join(",")}',
+    );
+    return errors;
+  }
+
+  /// 틀린 칸을 보여준다 (이슈 #228).
+  ///
+  /// 토스트만 뜨고 칸에는 아무 표시가 없어, 폼을 내려 둔 상태에서는 무엇을
+  /// 고쳐야 하는지 찾아 올라가야 했다. 이름 칸에 오류를 붙이고, 화면에서
+  /// 첫 번째로 틀린 칸까지 스크롤한다.
+  Future<void> _revealFirstError(List<PlaceValidationError> errors) async {
+    final nameMissing = errors.contains(PlaceValidationError.emptyName);
+    setState(() {
+      _nameError = nameMissing
+          ? placeErrorMessage(context.l10n, PlaceValidationError.emptyName)
+          : null;
+    });
+
+    const duration = Duration(milliseconds: 250);
+    if (nameMissing) {
+      // 이름 칸은 맨 위다. `ensureVisible` 을 쓰지 않는 이유 — 목록이 게으르게
+      // 그려져, 저장 버튼까지 내려온 상태에서는 이름 칸이 이미 사라져 찾을 수 없다
+      if (_scroll.hasClients) {
+        await _scroll.animateTo(0, duration: duration, curve: Curves.easeOut);
+      }
+      // 돌아온 칸에 바로 쓸 수 있게 키보드를 올린다
+      if (mounted) _nameFocus.requestFocus();
+      return;
+    }
+
+    if (errors.contains(PlaceValidationError.invalidCoordinates)) {
+      final location = _locationKey.currentContext;
+      if (location != null) {
+        await Scrollable.ensureVisible(
+          location,
+          duration: duration,
+          curve: Curves.easeOut,
+        );
+      } else if (_scroll.hasClients) {
+        // 위치 칸도 맨 위 근처라 꼭대기로 올리면 보인다
+        await _scroll.animateTo(0, duration: duration, curve: Curves.easeOut);
+      }
+    }
   }
 }
 
@@ -661,67 +793,83 @@ class _LocationPreviewState extends State<_LocationPreview> {
       // 열리지 않았다 (이슈 #155 QA)
       behavior: HitTestBehavior.opaque,
       onTap: widget.onTap,
-      child: SizedBox(
-        height: _height,
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            // 지도는 조작을 받지 않는다 — 탭은 위의 GestureDetector 가 받는다
-            IgnorePointer(
-              child: MapRevealCover(
-                screen: 'form',
-                builder: (attach) => GoogleMap(
-                  onMapCreated: (controller) {
-                    _map = controller;
-                    // 다크 스타일이 조용히 사라지는 일이 있다 (이슈 #143)
-                    unawaited(ensureDarkMapStyle(controller, 'form'));
-                    // 다크 타일이 그려질 때까지 밝은 바탕을 가린다 (이슈 #143)
-                    attach(controller);
-                  },
-                  initialCameraPosition: CameraPosition(
-                    target: target,
-                    zoom: zoomForRadiusWider(widget.radiusMeters),
-                  ),
-                  style: MapStyle.dark,
-                  markers: {
-                    Marker(
-                      markerId: const MarkerId('picked'),
-                      position: target,
-                      icon: BitmapDescriptor.defaultMarkerWithHue(
-                        BitmapDescriptor.hueCyan,
+      // 카드와 같은 모서리 (이슈 #228). iOS 는 네이티브 지도도 클립이 먹고,
+      // 안 먹는 Android 는 아래 마스크가 덮는다 — 둘 다 같은 반경이어야 한다
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(AppRadius.card),
+        child: SizedBox(
+          height: _height,
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              // 지도는 조작을 받지 않는다 — 탭은 위의 GestureDetector 가 받는다
+              IgnorePointer(
+                child: MapRevealCover(
+                  screen: 'form',
+                  builder: (attach) => GoogleMap(
+                    onMapCreated: (controller) {
+                      _map = controller;
+                      // 다크 스타일이 조용히 사라지는 일이 있다 (이슈 #143)
+                      unawaited(ensureDarkMapStyle(controller, 'form'));
+                      // 다크 타일이 그려질 때까지 밝은 바탕을 가린다 (이슈 #143)
+                      attach(controller);
+                    },
+                    initialCameraPosition: CameraPosition(
+                      target: target,
+                      zoom: zoomForRadiusWider(widget.radiusMeters),
+                    ),
+                    style: MapStyle.dark,
+                    markers: {
+                      Marker(
+                        markerId: const MarkerId('picked'),
+                        position: target,
+                        icon: BitmapDescriptor.defaultMarkerWithHue(
+                          BitmapDescriptor.hueCyan,
+                        ),
                       ),
-                    ),
-                  },
-                  circles: {
-                    Circle(
-                      circleId: const CircleId('radius'),
-                      center: target,
-                      radius: widget.radiusMeters,
-                      strokeWidth: 2,
-                      strokeColor: semantic.alertEnter,
-                      fillColor: semantic.alertEnter.withValues(alpha: 0.12),
-                    ),
-                  },
-                  zoomControlsEnabled: false,
-                  mapToolbarEnabled: false,
-                  myLocationButtonEnabled: false,
-                  scrollGesturesEnabled: false,
-                  zoomGesturesEnabled: false,
-                  rotateGesturesEnabled: false,
-                  tiltGesturesEnabled: false,
+                    },
+                    circles: {
+                      Circle(
+                        circleId: const CircleId('radius'),
+                        center: target,
+                        radius: widget.radiusMeters,
+                        strokeWidth: 2,
+                        strokeColor: semantic.alertEnter,
+                        fillColor: semantic.alertEnter.withValues(alpha: 0.12),
+                      ),
+                    },
+                    zoomControlsEnabled: false,
+                    mapToolbarEnabled: false,
+                    myLocationButtonEnabled: false,
+                    scrollGesturesEnabled: false,
+                    zoomGesturesEnabled: false,
+                    rotateGesturesEnabled: false,
+                    tiltGesturesEnabled: false,
+                  ),
                 ),
               ),
-            ),
-            // `ClipRRect` 가 네이티브 지도 뷰를 자르지 못한다 (이슈 #142)
-            IgnorePointer(
-              child: CustomPaint(
-                painter: const MapCornerMask(
-                  color: AppColors.bgBase,
-                  radius: AppRadius.small,
+              // `ClipRRect` 가 네이티브 지도 뷰를 자르지 못한다 (이슈 #142)
+              IgnorePointer(
+                child: CustomPaint(
+                  painter: const MapCornerMask(
+                    color: AppColors.bgBase,
+                    radius: AppRadius.card,
+                  ),
                 ),
               ),
-            ),
-          ],
+              // 카드 윤곽선 (이슈 #228). 다크 지도의 땅 색이 화면 배경과 거의
+              // 같아 둥글게 잘라도 모서리가 보이지 않았다 — 도로만 가장자리까지
+              // 뻗어 각진 판처럼 읽혔다. 한 층 밝은 선으로 카드 경계를 그린다
+              IgnorePointer(
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: AppColors.bgElevated),
+                    borderRadius: BorderRadius.circular(AppRadius.card),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -135,7 +135,6 @@
   "placeMyLocation": "My location",
   "placeSearchHint": "Search places or addresses",
   "placeSearchUnavailable": "Search is unavailable — move the map to set the location",
-  "placePickerRadius": "Alert radius {meters} m",
   "placePickerPinHint": "Move the map to place the pin",
   "placePickerConfirm": "Use this location",
   "placeDirectionEnter": "Arrival alert",

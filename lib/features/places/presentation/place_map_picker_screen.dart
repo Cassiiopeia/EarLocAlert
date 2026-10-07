@@ -21,6 +21,7 @@ import '../data/current_location_channel.dart';
 import '../domain/place_search.dart';
 import '../domain/place_validator.dart';
 import 'current_location_message.dart';
+import 'place_section_label.dart';
 
 /// 지도에서 고른 결과 — 위치와 반경을 함께 돌려준다.
 ///
@@ -31,11 +32,19 @@ class MapPickResult {
     required this.latitude,
     required this.longitude,
     required this.radiusMeters,
+    this.placeName,
   });
 
   final double latitude;
   final double longitude;
   final int radiusMeters;
+
+  /// 검색 결과를 골랐다면 그 이름 (이슈 #228).
+  ///
+  /// 폼이 이름 칸이 비어 있을 때만 제안으로 채운다 — 좌표는 핀이 정하지만
+  /// "강남역"을 검색해 골랐으면 그 이름을 다시 타자할 이유가 없다.
+  /// 고른 뒤 핀을 조금 옮겨도 대개 같은 장소라 그대로 넘긴다.
+  final String? placeName;
 }
 
 /// 지도 화면에 넘기는 초기값
@@ -111,6 +120,9 @@ class _PlaceMapPickerScreenState extends State<PlaceMapPickerScreen> {
   List<PlaceSearchResult> _results = const [];
   bool _searching = false;
   bool _searchUnavailable = false;
+
+  /// 마지막으로 고른 검색 결과의 이름 — 확정 시 폼에 제안으로 넘긴다 (이슈 #228)
+  String? _pickedResultName;
 
   @override
   void dispose() {
@@ -188,13 +200,27 @@ class _PlaceMapPickerScreenState extends State<PlaceMapPickerScreen> {
   /// 검색 좌표가 출입구 반대편일 수 있고, 최종 판단은 사용자의 눈이다.
   void _onResultTapped(PlaceSearchResult result) {
     _searchFocus.unfocus();
-    setState(() => _results = const []);
+    final name = result.name.trim();
+    setState(() {
+      _results = const [];
+      // 이름 없는 결과는 제안하지 않는다 — 앞서 고른 이름도 지금 위치와 무관해진다
+      _pickedResultName = name.isEmpty ? null : name;
+    });
+    Diagnostics.log(
+      'picker',
+      'search result picked name=$name '
+          '${result.latitude},${result.longitude}',
+    );
     _map?.animateCamera(
       CameraUpdate.newLatLngZoom(
         LatLng(result.latitude, result.longitude),
         _fitZoom(LatLng(result.latitude, result.longitude)),
       ),
     );
+  }
+
+  void _dismissKeyboard() {
+    if (_searchFocus.hasFocus) _searchFocus.unfocus();
   }
 
   /// 원 지름이 화면 폭의 70% 가 되는 줌 (이슈 #152 QA)
@@ -273,6 +299,22 @@ class _PlaceMapPickerScreenState extends State<PlaceMapPickerScreen> {
     );
   }
 
+  void _confirm() {
+    Diagnostics.log(
+      'picker',
+      'location confirmed ${_center.latitude},${_center.longitude} '
+          'radius=${_radius.round()} suggestedName=${_pickedResultName ?? "none"}',
+    );
+    widget.onPicked?.call(
+      MapPickResult(
+        latitude: _center.latitude,
+        longitude: _center.longitude,
+        radiusMeters: _radius.round(),
+        placeName: _pickedResultName,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final semantic = Theme.of(context).extension<AppSemanticColors>()!;
@@ -312,6 +354,10 @@ class _PlaceMapPickerScreenState extends State<PlaceMapPickerScreen> {
               },
               onCameraMove: (position) =>
                   setState(() => _center = position.target),
+              // 지도를 만지면 검색 키보드를 내린다 (이슈 #228) — 키보드가
+              // 지도 아래쪽 절반과 확정 버튼을 덮은 채로 남아 있었다
+              onTap: (_) => _dismissKeyboard(),
+              onCameraMoveStarted: _dismissKeyboard,
               myLocationEnabled: true,
               // **SDK 기본 버튼을 끈다** (이슈 #152). 홈 화면과 같은 판단이다
               // (#98) — 그 버튼은 우상단 고정이라 검색창과 부딪힌다.
@@ -390,13 +436,7 @@ class _PlaceMapPickerScreenState extends State<PlaceMapPickerScreen> {
                   radius: _radius,
                   onRadiusChanged: _onRadiusChanged,
                   onRadiusChangeEnd: _onRadiusChangeEnd,
-                  onConfirm: () => widget.onPicked?.call(
-                    MapPickResult(
-                      latitude: _center.latitude,
-                      longitude: _center.longitude,
-                      radiusMeters: _radius.round(),
-                    ),
-                  ),
+                  onConfirm: _confirm,
                 ),
               ],
             ),
@@ -462,6 +502,9 @@ class _SearchOverlay extends StatelessWidget {
                   controller: controller,
                   focusNode: focusNode,
                   onChanged: onChanged,
+                  // 바깥(지도·결과 목록·패널)을 누르면 키보드를 내린다 (이슈 #228).
+                  // iOS 는 기본으로 내려주지 않는다
+                  onTapOutside: (_) => focusNode.unfocus(),
                   textInputAction: TextInputAction.search,
                   style: AppTypography.body,
                   decoration: InputDecoration(
@@ -479,8 +522,8 @@ class _SearchOverlay extends StatelessWidget {
                         ? const Padding(
                             padding: EdgeInsets.all(AppSpacing.xs),
                             child: SizedBox(
-                              width: 18,
-                              height: 18,
+                              width: AppIconSize.inline,
+                              height: AppIconSize.inline,
                               child: CircularProgressIndicator(strokeWidth: 2),
                             ),
                           )
@@ -516,6 +559,9 @@ class _SearchOverlay extends StatelessWidget {
                 ),
                 child: ListView.separated(
                   shrinkWrap: true,
+                  // 결과를 훑어 내리면 키보드가 비켜준다 (이슈 #228)
+                  keyboardDismissBehavior:
+                      ScrollViewKeyboardDismissBehavior.onDrag,
                   padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
                   itemCount: results.length,
                   separatorBuilder: (_, _) =>
@@ -601,9 +647,11 @@ class _PickerPanel extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(
-              context.l10n.placePickerRadius(radius.round()),
-              style: AppTypography.body.copyWith(fontWeight: FontWeight.w600),
+            // 폼의 반경 칸과 같은 제목 줄 — 같은 값을 두 화면이 다른 모양으로
+            // 보여주고 있었다 (이슈 #228)
+            PlaceSectionLabel(
+              context.l10n.placeFormRadiusLabel,
+              trailing: context.l10n.placeFormRadiusValue(radius.round()),
             ),
             Slider(
               value: radius,
@@ -619,12 +667,9 @@ class _PickerPanel extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: AppSpacing.xs),
+            // 색·모양은 테마가 정한다 — 화면에서 다시 칠하지 않는다
             FilledButton(
               onPressed: onConfirm,
-              style: FilledButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: AppColors.textOnPrimary,
-              ),
               child: Text(context.l10n.placePickerConfirm),
             ),
           ],
