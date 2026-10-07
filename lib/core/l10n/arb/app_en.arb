@@ -187,6 +187,7 @@
   "placeEmptyBody": "Your stop, a meeting spot, home —\nwe'll quietly let you know when you arrive or leave.",
   "placeEmptyAction": "Add place",
   "placeHomeLocationUnavailable": "Can't get your current location. Check the location permission",
+  "placeLocationSlow": "Finding your location is taking a while. Try again in a moment",
   "placeHomeStatusWatching": "Monitoring",
   "placeHomeStatusOff": "Monitoring off",
   "placeHomeStatusChecking": "Checking",

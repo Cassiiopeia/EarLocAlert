@@ -618,6 +618,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get placeHomeLocationUnavailable => '无法获取当前位置，请检查位置权限';
 
   @override
+  String get placeLocationSlow => '正在获取当前位置，需要一些时间。请稍后再试';
+
+  @override
   String get placeHomeStatusWatching => '监测中';
 
   @override
