@@ -79,14 +79,33 @@ class AppLocalizationsKo extends AppLocalizations {
       '설정 화면이 차례로 열립니다. 건너뛰면 알림 화면이 저절로 뜨지 않아, 진동을 끄려면 알림을 눌러 앱을 열어야 합니다.';
 
   @override
-  String get permissionOpenSettingsTitle => '설정에서 권한을 켜주세요';
+  String get permissionOpenSettingsTitle => '설정에서 직접 바꿔주세요';
 
   @override
   String get permissionOpenSettingsBody =>
-      '권한이 거부된 상태라 앱에서 다시 요청할 수 없습니다. 설정 화면에서 직접 허용해주세요.';
+      '앱 안에서는 다시 물을 수 없는 권한이에요. 설정을 열어 아래처럼 바꿔주세요.';
 
   @override
   String get permissionOpenSettingsAction => '설정 열기';
+
+  @override
+  String get permissionSettingsLocationRow => '위치 → 앱을 사용하는 동안 또는 항상';
+
+  @override
+  String get permissionSettingsBackgroundRowIos => '위치 → 항상';
+
+  @override
+  String get permissionSettingsBackgroundRowAndroid => '위치 → 항상 허용';
+
+  @override
+  String get permissionSettingsNotificationRow => '알림 → 알림 허용';
+
+  @override
+  String get permissionSettingsReturnHintIos =>
+      '바꾼 뒤 화면 왼쪽 위의 ◀ 앱 이름을 누르면 앱으로 돌아와요. 위치 권한을 바꾸면 앱이 다시 시작될 수 있어요.';
+
+  @override
+  String get permissionSettingsReturnHintAndroid => '바꾼 뒤 뒤로 가기로 앱에 돌아오세요.';
 
   @override
   String get permissionDoneTitle => '준비되었습니다';

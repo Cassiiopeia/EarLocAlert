@@ -78,14 +78,33 @@ class AppLocalizationsJa extends AppLocalizations {
       '設定画面が順番に開きます。スキップするとアラート画面が自動で表示されず、バイブレーションを止めるには通知をタップしてアプリを開く必要があります。';
 
   @override
-  String get permissionOpenSettingsTitle => '設定で権限をオンにしてください';
+  String get permissionOpenSettingsTitle => '設定で変更してください';
 
   @override
   String get permissionOpenSettingsBody =>
-      '権限が拒否されているため、アプリから再度リクエストできません。設定画面で直接許可してください。';
+      'この権限はアプリ内から再度リクエストできません。設定を開いて、次のように変更してください。';
 
   @override
   String get permissionOpenSettingsAction => '設定を開く';
+
+  @override
+  String get permissionSettingsLocationRow => '位置情報 → このAppの使用中、または常に';
+
+  @override
+  String get permissionSettingsBackgroundRowIos => '位置情報 → 常に';
+
+  @override
+  String get permissionSettingsBackgroundRowAndroid => '位置情報 → 常に許可';
+
+  @override
+  String get permissionSettingsNotificationRow => '通知 → 通知を許可';
+
+  @override
+  String get permissionSettingsReturnHintIos =>
+      '変更したら、画面左上の「◀ アプリ名」をタップするとアプリに戻れます。位置情報の権限を変えると、アプリが再起動することがあります。';
+
+  @override
+  String get permissionSettingsReturnHintAndroid => '変更したら、戻るボタンでアプリに戻ってください。';
 
   @override
   String get permissionDoneTitle => '準備ができました';
