@@ -10,6 +10,10 @@ import '../../../core/diagnostics/diagnostics.dart';
 /// Play 밖에서 설치한 빌드(개발 빌드·직접 받은 APK)에서는 확인이 실패하는 것이
 /// 정상이다 (docs/02-ARCHITECTURE.md 규칙 4).
 abstract interface class AppUpdater {
+  /// 이 플랫폼에서 앱 내 업데이트가 되는가 (이슈 #229).
+  /// iOS 는 앱 내 업데이트가 없어 `false` — 화면이 확인 버튼을 숨기는 근거다
+  bool get isSupported;
+
   /// 새 버전을 받을 수 있는가. 모르면(확인 실패) `false`.
   Future<bool> updateAvailable();
 
@@ -52,6 +56,10 @@ class AppUpdateGate {
   final DateTime Function() _now;
 
   DateTime? _lastCheck;
+
+  /// 이 플랫폼에서 확인할 수 있는가 (이슈 #229). 아니면 확인 버튼을 두지 않는다 —
+  /// 눌러도 아무 반응이 없는 버튼은 고장으로 읽힌다
+  bool get isSupported => _updater.isSupported;
 
   /// [force] 는 사용자가 설정에서 직접 눌렀을 때다 — 간격 제한만 건너뛴다.
   /// 알림이 울리는 중에는 누른 경우에도 확인하지 않는다 (안내가 해제 버튼을 가린다).

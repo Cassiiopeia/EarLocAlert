@@ -3,11 +3,16 @@ import 'package:flutter/material.dart';
 import '../text/keep_all.dart';
 
 /// 화면 하단에 문구만 띄우는 스낵바 (되돌리기 같은 액션이 있으면 직접 만든다)
+///
+/// **앞의 토스트를 걷고 바로 띄운다** (이슈 #229). `ScaffoldMessenger` 는 기본이
+/// 줄 세우기라, 등록을 연달아 누르면 새 문구가 앞 문구의 4초가 끝날 때까지
+/// 화면에 나오지 않는다 — 방금 누른 것에 대한 답이 늦게 오면 반응이 없는
+/// 것으로 읽힌다. 지금 누른 동작의 결과가 지금 보여야 한다.
 extension AppToast on BuildContext {
   void showToast(String message) {
-    ScaffoldMessenger.of(
-      this,
-    ).showSnackBar(SnackBar(content: Text(keepAllText(message))));
+    ScaffoldMessenger.of(this)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(keepAllText(message))));
   }
 }
 

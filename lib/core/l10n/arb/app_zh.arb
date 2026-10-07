@@ -46,6 +46,7 @@
   "settingsPreviewTitle": "预览提醒",
   "settingsPreviewSubtitle": "立即查看提醒界面和振动效果",
   "settingsSectionReach": "确保提醒送达的权限",
+  "settingsSectionGeneral": "通用",
   "settingsSectionTroubleshoot": "问题排查",
   "settingsDiagnosticsTitle": "运行日志",
   "settingsDiagnosticsSubtitle": "查看并导出提醒何时、为何触发的记录",

@@ -46,6 +46,7 @@
   "settingsPreviewTitle": "Preview alert",
   "settingsPreviewSubtitle": "Check the alert screen and vibration now",
   "settingsSectionReach": "Permissions for reliable alerts",
+  "settingsSectionGeneral": "General",
   "settingsSectionTroubleshoot": "Troubleshooting",
   "settingsDiagnosticsTitle": "Activity log",
   "settingsDiagnosticsSubtitle": "View and export a record of when and why alerts fired",

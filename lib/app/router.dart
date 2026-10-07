@@ -106,10 +106,15 @@ GoRouter createRouter() {
       ),
       GoRoute(
         path: AppRoutes.alertDismissed,
-        builder: (context, state) => AlertDismissedScreen(
-          placeName: state.extra as String? ?? '',
-          onContinue: () => context.go(AppRoutes.home),
-        ),
+        builder: (context, state) {
+          final args = state.extra is DismissedRouteArgs
+              ? state.extra! as DismissedRouteArgs
+              : const DismissedRouteArgs(placeName: '');
+          return AlertDismissedScreen(
+            placeName: args.placeName,
+            onContinue: () => _leaveDismissed(context, args),
+          );
+        },
       ),
     ],
   );
@@ -200,6 +205,41 @@ void _leaveForm(BuildContext context) {
   }
 }
 
+/// 설정의 알림 미리보기가 쓰는 장소 id. 실제 장소 id 는 uuid 라 겹치지 않는다
+@visibleForTesting
+const previewPlaceId = 'preview';
+
+/// 해제 완료 화면에 넘기는 값 (이슈 #229)
+@visibleForTesting
+class DismissedRouteArgs {
+  const DismissedRouteArgs({
+    required this.placeName,
+    this.returnToSettings = false,
+  });
+
+  final String placeName;
+
+  /// 설정의 미리보기에서 시작했는가. 그렇다면 확인 후 설정으로 돌아간다
+  final bool returnToSettings;
+}
+
+/// 해제 완료 화면을 떠난다 (이슈 #229).
+///
+/// 알림 화면은 `go` 로 들어와 스택이 비어 있으므로 늘 홈부터 다시 세운다.
+/// **미리보기는 설정에서 시작했으니 설정으로 돌려보낸다** — 홈에 떨어지면
+/// 사용자가 설정을 다시 찾아 들어가야 했다. `go` 로 설정만 띄우면 뒤로 갈
+/// 곳이 없어지므로 홈 위에 `push` 한다. 홈이 실제로 세워진 뒤(다음 프레임)에
+/// push 해야 스택이 [홈, 설정] 으로 잡힌다.
+void _leaveDismissed(BuildContext context, DismissedRouteArgs args) {
+  final router = GoRouter.of(context);
+  router.go(AppRoutes.home);
+  if (!args.returnToSettings) return;
+  Diagnostics.log('alert', 'preview dismissed return=settings');
+  WidgetsBinding.instance.addPostFrameCallback(
+    (_) => unawaited(router.push(AppRoutes.settings)),
+  );
+}
+
 /// 세션 없는 알림 화면에서 홈으로 돌릴지 (이슈 #222).
 ///
 /// 아직 알림 화면에 머물러 있을 때만 돌린다. 해제 후 해제 완료 화면으로 이미
@@ -259,7 +299,13 @@ class _AlertRoute extends ConsumerWidget {
 
         // 2) 그 다음에 광고를 시도한다 (docs/02-ARCHITECTURE.md 규칙 4).
         //    실패·지연은 조율자가 삼키므로 여기서 처리할 것이 없다.
-        context.go(AppRoutes.alertDismissed, extra: placeName);
+        context.go(
+          AppRoutes.alertDismissed,
+          extra: DismissedRouteArgs(
+            placeName: placeName,
+            returnToSettings: session.placeId == previewPlaceId,
+          ),
+        );
         unawaited(_tryShowAd(ref));
       },
     );
@@ -454,7 +500,10 @@ class _SettingsRouteState extends ConsumerState<_SettingsRoute>
       permissions: _permissionRows(ref, snapshot, context.l10n),
       // 앱 버전과 업데이트 확인 (이슈 #179) — 읽기 실패는 `-` 로 보여준다
       appVersion: ref.watch(appVersionProvider).valueOrNull ?? '-',
-      onCheckUpdate: () => _checkUpdateNow(context),
+      // 앱 내 업데이트가 없는 플랫폼(iOS)은 버튼을 숨긴다 (이슈 #229)
+      onCheckUpdate: ref.read(appUpdateGateProvider).isSupported
+          ? () => _checkUpdateNow(context)
+          : null,
       // 백그라운드 감시 연결 전까지 알림 흐름을 확인하는 수단 (S-4·S-5).
       // 지오펜스 실기기 검증이 끝나면 제거한다.
       onPreviewAlert: () async {
@@ -462,7 +511,7 @@ class _SettingsRouteState extends ConsumerState<_SettingsRoute>
             .read(activeAlertProvider.notifier)
             .fire(
               AlertRequest(
-                placeId: 'preview',
+                placeId: previewPlaceId,
                 placeName: context.l10n.routePreviewPlaceName,
                 direction: AlertDirection.enter,
                 soundEnabled: true,

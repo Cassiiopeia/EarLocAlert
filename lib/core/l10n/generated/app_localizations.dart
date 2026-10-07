@@ -378,6 +378,12 @@ abstract class AppLocalizations {
   /// **'알림 도달 권한'**
   String get settingsSectionReach;
 
+  /// No description provided for @settingsSectionGeneral.
+  ///
+  /// In ko, this message translates to:
+  /// **'일반'**
+  String get settingsSectionGeneral;
+
   /// No description provided for @settingsSectionTroubleshoot.
   ///
   /// In ko, this message translates to:

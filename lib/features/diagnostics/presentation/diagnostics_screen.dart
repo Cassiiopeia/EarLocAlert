@@ -295,13 +295,14 @@ class _LogLine extends StatelessWidget {
             children: [
               if (tag.isNotEmpty)
                 Container(
+                  // 다른 화면의 칩(소리 상태·반경)과 같은 알약 모양으로 맞춘다 (#229)
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 6,
+                    horizontal: AppSpacing.xs,
                     vertical: 2,
                   ),
                   decoration: BoxDecoration(
                     color: AppColors.bgElevated,
-                    borderRadius: BorderRadius.circular(4),
+                    borderRadius: BorderRadius.circular(AppRadius.pill),
                   ),
                   child: Text(tag, style: AppTypography.caption),
                 ),

@@ -14,8 +14,11 @@ class PlayAppUpdater implements AppUpdater {
   const PlayAppUpdater();
 
   @override
+  bool get isSupported => Platform.isAndroid;
+
+  @override
   Future<bool> updateAvailable() async {
-    if (!Platform.isAndroid) return false;
+    if (!isSupported) return false;
     try {
       final info = await InAppUpdate.checkForUpdate();
       final available =

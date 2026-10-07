@@ -55,7 +55,7 @@ class SettingsScreen extends StatelessWidget {
     required this.language,
     required this.onLanguageChanged,
     required this.appVersion,
-    required this.onCheckUpdate,
+    this.onCheckUpdate,
     required this.onOpenTerms,
     required this.onOpenPrivacy,
     this.onOpenAdPrivacy,
@@ -77,7 +77,10 @@ class SettingsScreen extends StatelessWidget {
   /// 설치된 앱 버전과 업데이트 확인 (이슈 #179). app 계층이 값과 동작을 내려준다.
   /// 버전은 읽기 전에도 `-` 로 자리를 지킨다 — 줄이 깜빡이며 생기지 않게 한다
   final String appVersion;
-  final VoidCallback onCheckUpdate;
+
+  /// **null 이면 확인 버튼을 숨긴다** (이슈 #229). iOS 는 앱 내 업데이트가 없어
+  /// 눌러도 아무 반응이 없었다 — 버전 글자만 남긴다
+  final VoidCallback? onCheckUpdate;
 
   /// 이용약관·개인정보처리방침 (이슈 #188). 링크를 여는 일은 app 계층이 맡는다
   final VoidCallback onOpenTerms;
@@ -170,22 +173,23 @@ class SettingsScreen extends StatelessWidget {
               for (final row in permissions) _PermissionTile(row: row),
             ],
 
+            // 언어는 "문제 해결" 이 아니라 일반 설정이다 (이슈 #229). 자주 바꾸는 값이
+            // 아니라 알림 묶음 뒤에 둔다 (#163). 지구본 아이콘을 달아 문구를 못
+            // 읽는 언어가 되어도 알아볼 수 있게 하고, 바꾼 직후에는 되돌리기가 뜬다
+            _SectionLabel(context.l10n.settingsSectionGeneral),
+            _SettingTile(
+              icon: Icons.language_outlined,
+              title: context.l10n.settingsLanguageTitle,
+              subtitle: _languageSubtitle(context),
+              onTap: () => _openLanguage(context),
+            ),
+
             _SectionLabel(context.l10n.settingsSectionTroubleshoot),
             _SettingTile(
               icon: Icons.receipt_long_outlined,
               title: context.l10n.settingsDiagnosticsTitle,
               subtitle: context.l10n.settingsDiagnosticsSubtitle,
               onTap: onOpenDiagnostics,
-            ),
-
-            // 언어는 목록의 맨 끝에 둔다 (이슈 #163). 자주 바꾸는 값이 아니라
-            // 앞쪽을 차지할 이유가 없다. 지구본 아이콘을 달아 문구를 못 읽는
-            // 언어가 되어도 알아볼 수 있게 하고, 바꾼 직후에는 되돌리기가 뜬다
-            _SettingTile(
-              icon: Icons.language_outlined,
-              title: context.l10n.settingsLanguageTitle,
-              subtitle: _languageSubtitle(context),
-              onTap: () => _openLanguage(context),
             ),
 
             // 약관과 방침은 스토어 심사 항목이고, 사용자가 찾는 자리다 (이슈 #188)
@@ -217,14 +221,23 @@ class SettingsScreen extends StatelessWidget {
             ),
 
             // 맨 끝의 읽기 전용 줄 (이슈 #179). 눌러서 업데이트를 바로 확인한다
+            // 다른 줄과 같은 아이콘색·글자 스타일을 쓴다 — 이 줄만 밝게 튀었다
             ListTile(
-              leading: const Icon(Icons.info_outlined),
-              title: Text(context.l10n.settingsVersionTitle),
-              subtitle: Text(appVersion),
-              trailing: TextButton(
-                onPressed: onCheckUpdate,
-                child: Text(context.l10n.settingsVersionCheck),
+              leading: const Icon(
+                Icons.info_outlined,
+                color: AppColors.textSecondary,
               ),
+              title: Text(
+                context.l10n.settingsVersionTitle,
+                style: AppTypography.body,
+              ),
+              subtitle: Text(appVersion, style: AppTypography.caption),
+              trailing: onCheckUpdate == null
+                  ? null
+                  : TextButton(
+                      onPressed: onCheckUpdate,
+                      child: Text(context.l10n.settingsVersionCheck),
+                    ),
             ),
           ],
         ),

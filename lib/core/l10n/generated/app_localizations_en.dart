@@ -166,6 +166,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsSectionReach => 'Permissions for reliable alerts';
 
   @override
+  String get settingsSectionGeneral => 'General';
+
+  @override
   String get settingsSectionTroubleshoot => 'Troubleshooting';
 
   @override

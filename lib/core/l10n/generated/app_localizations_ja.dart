@@ -155,6 +155,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get settingsSectionReach => 'アラートを届けるための権限';
 
   @override
+  String get settingsSectionGeneral => '一般';
+
+  @override
   String get settingsSectionTroubleshoot => 'トラブルシューティング';
 
   @override

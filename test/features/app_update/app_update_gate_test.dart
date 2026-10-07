@@ -12,6 +12,9 @@ class _FakeUpdater implements AppUpdater {
   int downloaded = 0;
 
   @override
+  bool get isSupported => true;
+
+  @override
   Future<bool> updateAvailable() async {
     checks++;
     return available;
@@ -122,5 +125,9 @@ void main() {
 
     expect(outcome, AppUpdateOutcome.skippedAlertActive);
     expect(updater.checks, 0);
+  });
+
+  test('지원 여부는 업데이터를 그대로 따른다 (이슈 #229)', () {
+    expect(AppUpdateGate(_FakeUpdater()).isSupported, isTrue);
   });
 }
