@@ -918,12 +918,6 @@ abstract class AppLocalizations {
   /// **'검색을 사용할 수 없습니다 — 지도를 움직여 위치를 맞춰주세요'**
   String get placeSearchUnavailable;
 
-  /// No description provided for @placePickerRadius.
-  ///
-  /// In ko, this message translates to:
-  /// **'알림 반경 {meters}m'**
-  String placePickerRadius(int meters);
-
   /// No description provided for @placePickerPinHint.
   ///
   /// In ko, this message translates to:

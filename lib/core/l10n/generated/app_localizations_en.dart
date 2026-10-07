@@ -477,11 +477,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'Search is unavailable — move the map to set the location';
 
   @override
-  String placePickerRadius(int meters) {
-    return 'Alert radius $meters m';
-  }
-
-  @override
   String get placePickerPinHint => 'Move the map to place the pin';
 
   @override

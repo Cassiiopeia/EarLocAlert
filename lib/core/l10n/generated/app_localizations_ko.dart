@@ -454,11 +454,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get placeSearchUnavailable => '검색을 사용할 수 없습니다 — 지도를 움직여 위치를 맞춰주세요';
 
   @override
-  String placePickerRadius(int meters) {
-    return '알림 반경 ${meters}m';
-  }
-
-  @override
   String get placePickerPinHint => '지도를 움직여 핀을 맞추세요';
 
   @override

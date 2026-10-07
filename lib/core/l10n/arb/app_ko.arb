@@ -254,14 +254,6 @@
   "placeMyLocation": "내 위치",
   "placeSearchHint": "장소·주소 검색",
   "placeSearchUnavailable": "검색을 사용할 수 없습니다 — 지도를 움직여 위치를 맞춰주세요",
-  "placePickerRadius": "알림 반경 {meters}m",
-  "@placePickerRadius": {
-    "placeholders": {
-      "meters": {
-        "type": "int"
-      }
-    }
-  },
   "placePickerPinHint": "지도를 움직여 핀을 맞추세요",
   "placePickerConfirm": "이 위치로 선택",
   "placeDirectionEnter": "도착 알림",

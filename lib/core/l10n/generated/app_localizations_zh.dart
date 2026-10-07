@@ -448,11 +448,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get placeSearchUnavailable => '无法使用搜索——请移动地图来确定位置';
 
   @override
-  String placePickerRadius(int meters) {
-    return '提醒半径 $meters 米';
-  }
-
-  @override
   String get placePickerPinHint => '移动地图来放置图钉';
 
   @override

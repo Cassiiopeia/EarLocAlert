@@ -453,11 +453,6 @@ class AppLocalizationsJa extends AppLocalizations {
   String get placeSearchUnavailable => '検索を利用できません — 地図を動かして位置を合わせてください';
 
   @override
-  String placePickerRadius(int meters) {
-    return 'アラート半径 $meters m';
-  }
-
-  @override
   String get placePickerPinHint => '地図を動かしてピンを合わせてください';
 
   @override
