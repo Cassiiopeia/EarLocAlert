@@ -200,6 +200,14 @@ void _leaveForm(BuildContext context) {
   }
 }
 
+/// 세션 없는 알림 화면에서 홈으로 돌릴지 (이슈 #222).
+///
+/// 아직 알림 화면에 머물러 있을 때만 돌린다. 해제 후 해제 완료 화면으로 이미
+/// 이동했다면 그 화면을 지켜야 한다.
+@visibleForTesting
+bool shouldLeaveEmptyAlertRoute(String currentPath) =>
+    currentPath == AppRoutes.alert;
+
 /// 알림 화면 라우트.
 ///
 /// 해제 시 **광고를 기다리지 않고** 곧바로 화면을 전환한다
@@ -212,9 +220,19 @@ class _AlertRoute extends ConsumerWidget {
     final session = ref.watch(activeAlertProvider);
 
     if (session == null) {
-      // 세션이 없는 상태로 들어왔다 — 홈으로 돌린다
+      // 세션이 없는 상태로 들어왔다 — 홈으로 돌린다.
+      // 해제 직후에도 세션이 비어 여기로 온다. 그때는 이미 해제 완료 화면으로
+      // 떠났으므로 덮어쓰면 안 된다 (이슈 #222).
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (context.mounted) context.go(AppRoutes.home);
+        if (!context.mounted) return;
+        final path = GoRouter.of(
+          context,
+        ).routerDelegate.currentConfiguration.uri.path;
+        if (shouldLeaveEmptyAlertRoute(path)) {
+          context.go(AppRoutes.home);
+        } else {
+          Diagnostics.log('alert', 'empty alert redirect skipped path=$path');
+        }
       });
       return const Scaffold(body: SizedBox.shrink());
     }
