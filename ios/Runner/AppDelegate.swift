@@ -67,15 +67,31 @@ import native_geofence
 ///
 /// 스트림이 아니라 1회 조회다 — 버튼을 누른 순간만 필요하고, 계속 받으면 배터리를 먹는다.
 /// 실패는 사유 코드로 돌려준다. Dart 가 그 코드를 진단 로그에 남긴다.
+///
+/// **`requestLocation()` 을 쓰지 않는다** (이슈 #227). 최고 정확도 1회 요청은 그 정확도에
+/// 닿을 때까지 아무것도 주지 않아 실내·실기기에서 10초를 거의 매번 넘겼다. 대신
+/// 최근 캐시를 먼저 보고, 없으면 갱신을 켜서 "쓸 만한" 첫 값에서 멈춘다.
 final class CurrentLocationProvider: NSObject, CLLocationManagerDelegate {
+  /// 이 시간 안의 캐시는 지금 위치로 본다 — 지도를 내 주변으로 옮기는 용도라 충분하다
+  private static let cacheMaxAge: TimeInterval = 60
+  /// 캐시를 믿을 수 있는 정확도 상한 (미터)
+  private static let cacheMaxAccuracy: CLLocationAccuracy = 200
+  /// 갱신 중 이만큼 정확하면 더 기다리지 않고 바로 돌려준다 (미터)
+  private static let goodEnoughAccuracy: CLLocationAccuracy = 100
+  /// 버튼을 누르고 기다리는 시간이다 — 길면 눌렀는지 의심하게 된다
+  private static let timeoutSeconds: TimeInterval = 10
+
   private let manager = CLLocationManager()
   private var pending: [FlutterResult] = []
   private var timeout: DispatchWorkItem?
+  /// 시간 초과 시 빈손으로 끝내지 않도록 지금까지 받은 가장 정확한 값을 쥐고 있는다
+  private var best: CLLocation?
 
   override init() {
     super.init()
     manager.delegate = self
-    manager.desiredAccuracy = kCLLocationAccuracyBest
+    // 10m 급이면 GPS 를 끝까지 기다리지 않고 Wi-Fi·기지국 값으로도 빨리 닿는다
+    manager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
   }
 
   func fetch(_ result: @escaping FlutterResult) {
@@ -91,30 +107,69 @@ final class CurrentLocationProvider: NSObject, CLLocationManagerDelegate {
     pending.append(result)
     guard pending.count == 1 else { return }
 
-    // 버튼을 누르고 기다리는 시간이다 — 길면 눌렀는지 의심하게 된다
+    // 최근에 다른 경로(지도·지오펜스)가 얻어 둔 값이 있으면 기다릴 이유가 없다
+    if let cached = manager.location, Self.isUsableCache(cached) {
+      finish(Self.payload(cached))
+      return
+    }
+
+    best = nil
     let work = DispatchWorkItem { [weak self] in
-      self?.finish(FlutterError(code: "timeout", message: "no fix within 10s", details: nil))
+      guard let self else { return }
+      // 기준엔 못 미쳐도 받은 값이 있으면 그것이 서울시청보다 낫다
+      if let best = self.best {
+        self.finish(Self.payload(best))
+      } else {
+        self.finish(FlutterError(code: "timeout", message: "no fix within \(Int(Self.timeoutSeconds))s", details: nil))
+      }
     }
     timeout = work
-    DispatchQueue.main.asyncAfter(deadline: .now() + 10, execute: work)
-    manager.requestLocation()
+    DispatchQueue.main.asyncAfter(deadline: .now() + Self.timeoutSeconds, execute: work)
+    manager.startUpdatingLocation()
   }
 
   func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-    guard let location = locations.last else {
+    // 끝난 뒤 늦게 도착한 갱신은 버린다
+    guard !pending.isEmpty else { return }
+    guard !locations.isEmpty else {
       finish(FlutterError(code: "no_location", message: nil, details: nil))
       return
     }
-    finish(["latitude": location.coordinate.latitude, "longitude": location.coordinate.longitude])
+
+    for location in locations where location.horizontalAccuracy >= 0 {
+      if location.horizontalAccuracy < (best?.horizontalAccuracy ?? .greatestFiniteMagnitude) {
+        best = location
+      }
+    }
+    if let best, best.horizontalAccuracy <= Self.goodEnoughAccuracy {
+      finish(Self.payload(best))
+    }
   }
 
   func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+    // locationUnknown 은 "아직 모른다"는 일시 상태다 — Apple 문서대로 무시하고 계속 기다린다
+    if let clError = error as? CLError, clError.code == .locationUnknown { return }
+    guard !pending.isEmpty else { return }
     finish(FlutterError(code: "location_failed", message: error.localizedDescription, details: nil))
   }
 
+  private static func isUsableCache(_ location: CLLocation) -> Bool {
+    let age = -location.timestamp.timeIntervalSinceNow
+    return age <= cacheMaxAge
+      && location.horizontalAccuracy >= 0
+      && location.horizontalAccuracy <= cacheMaxAccuracy
+  }
+
+  private static func payload(_ location: CLLocation) -> [String: Double] {
+    ["latitude": location.coordinate.latitude, "longitude": location.coordinate.longitude]
+  }
+
   private func finish(_ value: Any) {
+    // 어떤 경로로 끝나든 갱신을 끈다 — 켜 둔 채 두면 배터리를 계속 먹는다
+    manager.stopUpdatingLocation()
     timeout?.cancel()
     timeout = nil
+    best = nil
     let waiting = pending
     pending.removeAll()
     waiting.forEach { $0(value) }

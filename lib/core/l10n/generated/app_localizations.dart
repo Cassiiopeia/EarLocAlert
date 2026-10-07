@@ -1224,6 +1224,12 @@ abstract class AppLocalizations {
   /// **'현재 위치를 확인할 수 없습니다. 위치 권한을 확인해주세요'**
   String get placeHomeLocationUnavailable;
 
+  /// No description provided for @placeLocationSlow.
+  ///
+  /// In ko, this message translates to:
+  /// **'현재 위치를 찾는 중 시간이 걸리고 있어요. 잠시 후 다시 눌러주세요'**
+  String get placeLocationSlow;
+
   /// No description provided for @placeHomeStatusWatching.
   ///
   /// In ko, this message translates to:

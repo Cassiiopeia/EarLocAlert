@@ -650,6 +650,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Can\'t get your current location. Check the location permission';
 
   @override
+  String get placeLocationSlow =>
+      'Finding your location is taking a while. Try again in a moment';
+
+  @override
   String get placeHomeStatusWatching => 'Monitoring';
 
   @override

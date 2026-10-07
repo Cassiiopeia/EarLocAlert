@@ -15,10 +15,12 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/map_style.dart';
 import '../../../core/text/keep_all.dart';
+import '../../../core/widgets/app_feedback.dart';
 import '../../../core/widgets/floating_circle_button.dart';
 import '../data/current_location_channel.dart';
 import '../domain/place_search.dart';
 import '../domain/place_validator.dart';
+import 'current_location_message.dart';
 
 /// 지도에서 고른 결과 — 위치와 반경을 함께 돌려준다.
 ///
@@ -219,8 +221,19 @@ class _PlaceMapPickerScreenState extends State<PlaceMapPickerScreen> {
   /// 못 얻으면 아무것도 하지 않는다. 위치를 못 얻는 것은 정상적으로
   /// 일어나는 상태다 — 오류 문구로 놀라게 할 일이 아니다.
   Future<void> _moveToCurrentLocation() async {
-    final here = await widget.locationService.current();
-    if (here == null || !mounted) return;
+    final result = await widget.locationService.current();
+    if (!mounted) return;
+    final here = result.location;
+    if (here == null) {
+      // 예전에는 아무 반응이 없어 버튼이 고장 난 것처럼 보였다 — 홈과 같은 안내를 띄운다 (이슈 #227)
+      context.showToast(
+        currentLocationFailureMessage(
+          context.l10n,
+          result.failure ?? CurrentLocationFailure.measurementFailed,
+        ),
+      );
+      return;
+    }
     Diagnostics.log(
       'picker',
       'moved to my location ${here.latitude},${here.longitude}',
@@ -239,7 +252,7 @@ class _PlaceMapPickerScreenState extends State<PlaceMapPickerScreen> {
   /// 보여주지 않기 위해서다 — 못 얻으면 고정 좌표에 그대로 머문다.
   Future<void> _startAtCurrentLocationIfNeeded() async {
     if (widget.args.latitude != null && widget.args.longitude != null) return;
-    final here = await widget.locationService.current();
+    final here = (await widget.locationService.current()).location;
     if (here == null || !mounted) {
       Diagnostics.log(
         'picker',

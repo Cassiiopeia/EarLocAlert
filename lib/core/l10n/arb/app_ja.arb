@@ -187,6 +187,7 @@
   "placeEmptyBody": "降りるバス停、待ち合わせ場所、自宅 —\n到着・出発のときに静かにお知らせします。",
   "placeEmptyAction": "場所を登録",
   "placeHomeLocationUnavailable": "現在地を取得できません。位置情報の権限を確認してください",
+  "placeLocationSlow": "現在地の取得に時間がかかっています。少ししてからもう一度押してください",
   "placeHomeStatusWatching": "監視中",
   "placeHomeStatusOff": "監視オフ",
   "placeHomeStatusChecking": "確認中",

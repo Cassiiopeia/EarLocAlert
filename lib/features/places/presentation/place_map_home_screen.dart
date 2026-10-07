@@ -22,6 +22,7 @@ import '../../../core/text/keep_all.dart';
 import '../../../core/widgets/floating_circle_button.dart';
 import '../data/current_location_channel.dart';
 import '../domain/alert_place.dart';
+import 'current_location_message.dart';
 import 'place_card.dart';
 import 'place_empty_state.dart';
 import 'place_list_controller.dart';
@@ -273,7 +274,7 @@ class _PlaceMapHomeScreenState extends ConsumerState<PlaceMapHomeScreen>
     if (_didTryStartAtCurrentLocation) return;
     _didTryStartAtCurrentLocation = true;
 
-    final location = await widget.locationService.current();
+    final location = (await widget.locationService.current()).location;
     if (!mounted || location == null) return;
 
     // 조회하는 사이 장소가 불러와졌거나 사용자가 이미 지도를 맞췄으면 그쪽이 우선이다
@@ -303,11 +304,18 @@ class _PlaceMapHomeScreenState extends ConsumerState<PlaceMapHomeScreen>
   Future<void> _moveToCurrentLocation() async {
     // 이미 그 위치라 지도가 움직이지 않아도 눌렸다는 걸 알려준다 (이슈 #218)
     unawaited(HapticFeedback.selectionClick());
-    final location = await widget.locationService.current();
+    final result = await widget.locationService.current();
     if (!mounted) return;
 
+    final location = result.location;
     if (location == null) {
-      context.showToast(context.l10n.placeHomeLocationUnavailable);
+      // 권한 문제인지 측정 지연인지에 따라 안내가 다르다 (이슈 #227)
+      context.showToast(
+        currentLocationFailureMessage(
+          context.l10n,
+          result.failure ?? CurrentLocationFailure.measurementFailed,
+        ),
+      );
       return;
     }
 

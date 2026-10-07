@@ -623,6 +623,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get placeHomeLocationUnavailable => '現在地を取得できません。位置情報の権限を確認してください';
 
   @override
+  String get placeLocationSlow => '現在地の取得に時間がかかっています。少ししてからもう一度押してください';
+
+  @override
   String get placeHomeStatusWatching => '監視中';
 
   @override
