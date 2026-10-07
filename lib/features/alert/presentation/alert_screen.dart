@@ -318,8 +318,14 @@ class _PlaceMapCard extends StatelessWidget {
     final target = LatLng(session.latitude!, session.longitude!);
     final radiusMeters = session.radiusMeters!;
 
+    // 위쪽 여백 — 소리 상태 칩이 카드 윗변에 붙어 한 덩어리처럼 보였다 (#229)
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.md,
+        AppSpacing.sm,
+        AppSpacing.md,
+        0,
+      ),
       child: SizedBox(
         height: _mapCardHeight,
         child: Stack(
@@ -387,6 +393,8 @@ class _PlaceMapCard extends StatelessWidget {
                   painter: MapCornerMask(
                     color: AppColors.bgBase,
                     radius: AppRadius.card,
+                    // 다크 지도와 배경이 같은 검정이라 윤곽선이 없으면 각져 보인다 (#229)
+                    borderColor: AppColors.bgElevated,
                   ),
                 ),
               ),

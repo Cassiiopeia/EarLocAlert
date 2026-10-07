@@ -154,6 +154,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsSectionReach => '确保提醒送达的权限';
 
   @override
+  String get settingsSectionGeneral => '通用';
+
+  @override
   String get settingsSectionTroubleshoot => '问题排查';
 
   @override

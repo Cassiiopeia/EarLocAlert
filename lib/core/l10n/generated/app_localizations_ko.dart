@@ -156,6 +156,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get settingsSectionReach => '알림 도달 권한';
 
   @override
+  String get settingsSectionGeneral => '일반';
+
+  @override
   String get settingsSectionTroubleshoot => '문제 해결';
 
   @override

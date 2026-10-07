@@ -46,6 +46,7 @@
   "settingsPreviewTitle": "アラートのプレビュー",
   "settingsPreviewSubtitle": "アラート画面とバイブレーションを今すぐ確認します",
   "settingsSectionReach": "アラートを届けるための権限",
+  "settingsSectionGeneral": "一般",
   "settingsSectionTroubleshoot": "トラブルシューティング",
   "settingsDiagnosticsTitle": "動作ログ",
   "settingsDiagnosticsSubtitle": "アラートがいつなぜ鳴ったかの記録を確認し、書き出します",

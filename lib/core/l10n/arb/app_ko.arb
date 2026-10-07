@@ -53,6 +53,7 @@
   "settingsPreviewTitle": "알림 미리보기",
   "settingsPreviewSubtitle": "알림 화면과 진동을 지금 확인합니다",
   "settingsSectionReach": "알림 도달 권한",
+  "settingsSectionGeneral": "일반",
   "settingsSectionTroubleshoot": "문제 해결",
   "settingsDiagnosticsTitle": "동작 기록",
   "settingsDiagnosticsSubtitle": "알림이 언제 왜 울렸는지 기록을 보고 내보냅니다",
