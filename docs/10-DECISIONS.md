@@ -312,6 +312,8 @@ S-1 조사(2026-08-04, pub.dev·GitHub 실측)에서 **native_geofence** 가 요
 
 > **재검토 결과 (2026-08-14, [이슈 #93](https://github.com/Cassiiopeia/EarLocAlert/issues/93))** — 조건이 발동했고, 지연이 아니라 **발화 자체가 없어** 조건을 초과했다. 원인은 감지 지연이 아니라 이 패키지의 Android 이벤트 전달이 WorkManager 에 갇히는 것이었다. **Android 는 [024](#024-android-는-하이브리드-감시로-전환한다-017-재검토-조건-발동) 로 대체했다.** iOS 는 이 결함이 없어 그대로 유지한다.
 
+> **iOS 도 보강됐다 (2026-10-08, [이슈 #231](https://github.com/Cassiiopeia/EarLocAlert/issues/231))** — 영역 감시만으로는 이벤트가 늦거나 오지 않았다. iOS 는 [054](#054-ios-는-적응형-백그라운드-위치-감시를-더한다-017-의-ios-부분-대체) 의 적응형 위치 감시를 주 경로로 쓰고, `native_geofence` 영역 감시는 안전망으로 남긴다.
+
 ---
 
 ## 018. 유선 이어폰도 블루투스와 동일하게 취급한다 (007 확장)
@@ -1314,6 +1316,61 @@ Play 자동 업데이트(029)만으로는 사용자가 새 버전을 받는 시�
 **검증** — 2026-10-07 TestFlight 1.25.1 실기기에서 앱을 닫은 채 도착했을 때 진동이 오고 소리는 나지 않았다.
 
 **다시 볼 조건** — 실기기에서 진동이 나지 않으면 진동 패턴이 있는 짧은 소리 대신 다중 알림 예약(05-PLATFORM "iOS 반복 진동")을 검토한다. Runner 에 Time Sensitive Notifications 권한이 없어 집중 모드에서 막힐 수 있다 — 필요하면 별도로 켠다.
+
+---
+
+## 054. iOS 는 적응형 백그라운드 위치 감시를 더한다 (017 의 iOS 부분 대체)
+
+**날짜** — 2026-10-08 (이슈 #231)
+
+**발견** — v1.26.0 실기기(iPhone 15) 진단 기록:
+
+1. 앱을 내리면 상태 막대의 위치 표시가 사라져 사용자는 감시 중인지 알 수 없었다. 300m 장소 "테"를 등록·수정한 뒤 안으로 걸어 들어갔는데 **iOS 콜백이 한 번도 오지 않았고** 아무것도 울리지 않았다.
+2. 등록 직후 첫 도착이 버려졌다. 진입 알림은 `outside` 가 확인돼야 나는데, 그 `outside` 를 iOS 의 첫 영역 이벤트에 기대고 있었다. 12:12:26 에 세 콜백이 동시에 왔고 그중 `exit` 하나는 `ios callback received` 뒤에 아무 기록 없이 사라졌다. 2분 뒤 진입은 `unknown → inside` 라 무알림이었다.
+3. 진단 기록에 잘린 줄(`ng=null` 로 시작하는 줄 등)이 섞였다.
+
+**원인**
+
+- (2) `native_geofence` 1.2.1 iOS 는 이벤트가 처리 중일 때 들어온 이벤트를 **즉시 동시 디스패치**하고, 먼저 끝난 콜백 뒤 큐가 비어 있으면 **헤드리스 엔진을 파괴한다** — 동시에 보낸 다른 콜백이 아직 돌고 있어도. 게다가 콜백마다 DB·판정기를 새로 만들어 판정기의 직렬화가 콜백 사이를 막지 못했다.
+- (3) Dart 의 `FileMode.append` 는 `O_APPEND` 가 아니라 "끝으로 이동 → 쓰기" 두 단계다. 두 isolate 가 같은 파일에 쓰면 같은 위치에 겹쳐 쓴다. 실측: 두 isolate 가 3000줄씩 쓰면 142줄이 사라지고 101줄이 깨졌다. fcntl 잠금은 프로세스 단위라 같은 프로세스의 isolate 끼리는 막지 못한다.
+
+**정한 것**
+
+1. **적응형 위치 감시** (`ios/Runner/AdaptiveLocationWatcher.swift` + `lib/app/background/ios_adaptive_watch.dart`). 활성 장소가 1개 이상이고 "항상" 권한일 때만 돈다. `allowsBackgroundLocationUpdates`·`showsBackgroundLocationIndicator`(위치 표시가 곧 감시 중이라는 증거)·`pausesLocationUpdatesAutomatically = false`. 장소가 0개면 멈추고 위치 표시도 사라진다.
+2. **정확도 단계는 Dart 한 곳(`WatchTierPolicy`)이 고른다.** 네이티브는 적용만 한다. 기준은 가장 가까운 장소의 근접 원(Android 와 같은 `max(반경×3, 500m)`)까지 남은 거리에서 측정 정확도를 뺀 값이다.
+
+   | 단계 | 조건 | 정확도 / distanceFilter |
+   |---|---|---|
+   | far | 근접 원까지 3km 초과 (내릴 때 3.3km) | `kCLLocationAccuracyKilometer` / 500m |
+   | mid | 3km 이내 | `kCLLocationAccuracyHundredMeters` / 100m |
+   | precise | 근접 원 안 (내릴 때 150m 더 벗어나야) | `kCLLocationAccuracyNearestTenMeters` / 10m |
+
+   precise 는 Android 와 같이 **30분 상한** — 넘으면 근접 원을 벗어날 때까지 mid 로 쉰다. 근접 원 안의 측정은 단계와 무관하게 `GeofenceBackgroundProcessor.handlePosition` 으로 판정한다(Android 감시 엔진과 같은 판정기).
+3. **판정은 앱 isolate 하나로 모은다.** iOS 는 백그라운드 위치 갱신 중 앱을 살려 두므로 앱 isolate 가 측정을 받는다. 영역 콜백(헤드리스 엔진)은 `IsolateNameServer` 로 앱 isolate 에 이벤트를 넘겨 **같은 판정기·같은 큐**로 판정한다 — 두 경로가 같은 도착을 봐도 뒤엣것은 `inside → inside` 라 무알림이다. 앱 isolate 가 없거나 10초 안에 답하지 않으면 콜백이 직접 판정한다.
+4. **영역 콜백 직렬화** — isolate 에 하나뿐인 큐로 줄 세우고, 모든 콜백이 **큐가 빌 때까지** 돌아가지 않는다(엔진 파괴 방지). 받은 장소마다 `ios callback handled …` 또는 `… handle failed …` 가 반드시 남는다.
+5. **재실행** — `startMonitoringSignificantLocationChanges` 로 OS 가 앱을 다시 띄운다. 뜨면 네이티브가 저장된 단계로 감시를 바로 재개하고(백그라운드 재실행은 첫 프레임이 없어 Dart 부트스트랩이 늦다), 앱 isolate 는 `initState` 에서 측정 처리기를 단다.
+6. **등록 순간 상태 초기값** — 장소를 추가·위치/반경 수정·활성화하면 현재 위치로 안팎을 정해 저장한다(`decideSeedState`). 밖: `거리 − 정확도 > 반경 + 이탈 마진`, 안: `거리 + 정확도 < 반경`. 정확도 150m 초과·경계 근처는 `unknown` 그대로 둔다. 위치·반경이 바뀐 장소는 옛 상태를 먼저 지운다. 안이면 즉시 알림은 없다(기존 설계). 양 플랫폼 공통이다.
+7. **진단 로그는 쓰는 주체마다 파일을 나눈다** — 앱 `diagnostic.app.log`, 백그라운드 isolate `diagnostic.bg.log`, Kotlin `diagnostic.log`(이름 유지), Swift `diagnostic.ios.log`. 진단 화면·내보내기가 시각순으로 합친다(시각이 없는 깨진 옛 줄은 같은 파일 앞 줄 자리에 둔다).
+
+**알림 전달** — 앱 화면이 떠 있으면 OS 알림 없이 대기 알림만 저장하고 곧장 알림 화면으로 승격한다. 화면이 없으면 영역 콜백과 같은 무음 햅틱 알림(053)을 낸다. 네이티브는 어떤 경우에도 소리를 내지 않는다.
+
+**고르지 않은 것**
+
+- 내비게이션급 상시 GPS — 배터리가 받아들일 수 없다.
+- 영역 감시만 유지하고 콜백만 고치기 — 이벤트가 아예 오지 않은 (1)을 못 고친다.
+- 로그 파일 잠금 — 같은 프로세스 isolate 끼리는 효과가 없다.
+- Time Sensitive 알림 권한(`com.apple.developer.usernotifications.time-sensitive`) 추가 — 코드는 이미 `timeSensitive` 수준을 요청하지만 Runner 에 entitlements 파일이 없다. 넣으면 프로비저닝 프로필 갱신이 필요해 서명(#51)과 엮인다. 이번에는 넣지 않았다.
+
+**한계**
+
+- **사용자가 앱을 위로 쓸어 강제 종료하면** iOS 는 중요 위치 변화로도 앱을 다시 띄우지 않는다. 그때는 영역 감시만 남는다.
+- "항상" 권한이 없으면 적응형 감시는 돌지 않는다(`ios watch not started reason=not_always`).
+- **배터리 실측 전이다.** 단계 경계(3km·150m·30분)는 추정치다.
+- App Store 심사 — 백그라운드 위치 상시 사용은 용도 설명·시연 영상을 요구받을 수 있다(09-RELEASE). 위치 표시를 켜 두는 것과 "도착 알림"이라는 용도가 근거다.
+
+**검증** — 2026-10-08 iPhone 16 시뮬레이터(iOS 18.3): 2km 밖에서 등록 → `state seeded state=outside` → 홈으로 내림 → 위치를 단계적으로 이동 → `tier changed tier=precise` → `outside -> inside` → `[pending] saved` → `[notify] background notification posted`. 같은 순간 온 영역 `enter` 는 앱 isolate 로 넘어가 `no_transition`(중복 없음). 다시 멀어지자 `mid` → `far`. 네 로그 파일에 형식이 깨진 줄 0건. **실기기는 미확인.**
+
+**다시 볼 조건** — 실기기 배터리 소모가 크면 far 단계를 중요 위치 변화 전용으로 바꾸거나 경계를 줄인다. 강제 종료 후 도착 누락이 잦으면 사용자 안내를 검토한다. `native_geofence` 가 동시 디스패치·엔진 파괴를 고치면 4번의 대기를 걷어낼 수 있다.
 
 ---
 

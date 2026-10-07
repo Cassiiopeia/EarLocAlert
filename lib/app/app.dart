@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io' show Platform;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -45,6 +46,9 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    // iOS 적응형 감시는 첫 프레임을 기다리지 않는다 (이슈 #231) — 위치 사유로
+    // 백그라운드에서 다시 뜨면 프레임이 오지 않아 아래 부트스트랩이 돌지 않는다
+    if (Platform.isIOS) unawaited(_attachIosWatch());
     // 첫 프레임 뒤에 시작한다 — 부트스트랩이 첫 화면을 늦추면 안 된다
     WidgetsBinding.instance.addPostFrameCallback((_) {
       unawaited(_bootstrap());
@@ -63,8 +67,30 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
   /// 도는 타이머라 이 간격이면 체감 지연이 없다.
   static const _pollInterval = Duration(seconds: 3);
 
+  /// 화면이 떠 있을 때 결정된 iOS 감시 알림 (이슈 #231)
+  StreamSubscription<void>? _iosAlerts;
+
+  /// 적응형 감시의 측정 처리기와 영역 이벤트 수신기를 단다 (이슈 #231).
+  ///
+  /// 로깅을 여기서 먼저 켠다 — 백그라운드 재실행에서는 부트스트랩이 돌지 않아
+  /// 그쪽 초기화를 기다리면 판정 기록이 전부 버려진다.
+  Future<void> _attachIosWatch() async {
+    await Diagnostics.init();
+    try {
+      final watch = ref.read(iosAdaptiveWatchProvider);
+      _iosAlerts = watch.foregroundAlerts.listen(
+        (_) => unawaited(_resumePendingAlert('ios_watch')),
+      );
+      await watch.attach();
+    } on Object catch (error) {
+      // 적응형 감시를 못 붙여도 영역 감시는 돈다
+      Diagnostics.log('app', 'ios watch attach failed $error');
+    }
+  }
+
   @override
   void dispose() {
+    unawaited(_iosAlerts?.cancel());
     _pendingAlertPoll?.cancel();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();

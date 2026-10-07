@@ -16,13 +16,15 @@ import java.util.zip.GZIPOutputStream
  * 사용자 기기에서 "왜 안 울렸는지"를 확인하려면 앱이 읽을 수 있는 곳에
  * 남아야 한다.
  *
- * **Dart 와 같은 파일에 쌓는다.** `filesDir` 는 path_provider 의
- * `getApplicationSupportDirectory()` 와 같은 곳이라, 한 화면에서
- * 네이티브와 Dart 기록이 시간순으로 섞여 읽힌다. 지오펜스 이벤트가
- * 네이티브까지 왔는데 Dart 판정이 안 돌았는지, 아예 안 왔는지를
- * 가르는 것이 이 로그의 핵심 용도다.
+ * **Dart 와 같은 디렉토리, 다른 파일에 쌓는다** (이슈 #231). `filesDir` 는
+ * path_provider 의 `getApplicationSupportDirectory()` 와 같은 곳이다. Dart
+ * isolate 들은 `diagnostic.app.log`·`diagnostic.bg.log` 에 따로 쓰고, 진단
+ * 화면이 이 파일과 함께 시각순으로 합쳐 읽는다 — 한 파일에 여럿이 쓰면
+ * Dart 의 append(끝으로 이동 → 쓰기)가 다른 쪽 줄을 덮어 깨뜨렸다.
+ * 지오펜스 이벤트가 네이티브까지 왔는데 Dart 판정이 안 돌았는지, 아예 안
+ * 왔는지를 가르는 것이 이 로그의 핵심 용도다.
  *
- * 파일명은 `DiagnosticLogFile.fileName` 과 계약이다 — 한쪽을 바꾸면
+ * 파일명은 Dart `DiagnosticLogSource.native` 와 계약이다 — 한쪽을 바꾸면
  * 반대쪽도 바꿔야 한다.
  *
  * **어떤 호출도 예외를 던지지 않는다.** 로깅이 감시를 죽이면 안 된다.

@@ -127,11 +127,24 @@ Android 14+ 부터 `USE_FULL_SCREEN_INTENT` 의 자동 부여가 알람·통화 
 
 ## iOS
 
-### 백그라운드 감시 — OS 에 위임
+### 백그라운드 감시 — 적응형 위치 감시 + 영역 감시 안전망 (#231, [10-DECISIONS](10-DECISIONS.md) 054)
 
-앱이 직접 폴링하지 않는다. **OS 지오펜스에 등록하고 이벤트를 기다린다.**
+영역 감시(region monitoring)만으로는 이벤트가 늦거나 아예 오지 않았다(실기기 v1.26.0). 그래서 Android 하이브리드 감시처럼 **앱이 위치를 직접 받되, 가장 가까운 장소까지 거리에 따라 정확도를 바꾼다.**
 
-앱이 완전히 종료된 상태에서도 OS 가 이벤트 발생 시 앱을 백그라운드로 깨운다. 이때 UI 는 없다 ([02-ARCHITECTURE](02-ARCHITECTURE.md) 규칙 5).
+| 구성 | 역할 |
+|---|---|
+| `AdaptiveLocationWatcher.swift` | 위치 갱신(`allowsBackgroundLocationUpdates`·`showsBackgroundLocationIndicator`·자동 일시정지 끔) + 중요 위치 변화. 단계(far/mid/precise)를 **적용만** 한다 |
+| `IosAdaptiveWatch` (Dart, 앱 isolate) | 단계 선택(`WatchTierPolicy`), 근접 원 안 측정의 정밀 판정, 영역 콜백이 넘긴 이벤트 판정 |
+| `native_geofence` 영역 감시 | 안전망. 콜백은 `IsolateNameServer` 로 앱 isolate 에 넘기고, 앱 isolate 가 없을 때만 직접 판정한다 |
+
+- **"항상" 권한 + 활성 장소 1개 이상일 때만 돈다.** 장소가 0개면 멈추고 상태 막대의 위치 표시도 사라진다. 위치 표시가 곧 "감시 중"의 증거다
+- 단계 기준: 근접 원(`max(반경×3, 500m)`)까지 3km 초과 → far(km 급/500m), 3km 이내 → mid(100m 급/100m), 근접 원 안 → precise(10m 급/10m, 30분 상한)
+- 앱이 종료돼도 중요 위치 변화·영역 이벤트가 앱을 다시 띄우고, 네이티브가 저장된 단계로 감시를 재개한다. **백그라운드 재실행은 Flutter 첫 프레임이 없다** — 그래서 측정 처리기는 부트스트랩(첫 프레임 뒤)이 아니라 `initState` 에서 단다
+- **사용자가 강제 종료하면** iOS 는 중요 위치 변화로 다시 띄우지 않는다. 영역 감시만 남는다
+- `native_geofence` 1.2.1 iOS 는 이벤트를 동시 디스패치하고, 먼저 끝난 콜백 뒤 큐가 비면 헤드리스 엔진을 파괴한다. 콜백은 isolate 하나의 큐로 줄 세우고 **큐가 빌 때까지 돌아가지 않는다**
+- 장소를 등록·수정·활성화하는 순간 현재 위치로 안팎을 정한다(`[sync] state seeded`). iOS 의 첫 영역 이벤트를 기다리지 않는다
+
+UI 없는 경로에서는 `BuildContext` 를 만지지 않는다 ([02-ARCHITECTURE](02-ARCHITECTURE.md) 규칙 5).
 
 ### 감시 지점 20개 제한
 

@@ -106,7 +106,12 @@ class MainActivity : FlutterActivity() {
                         result.success(null)
                     } else {
                         result.success(
-                            mapOf("latitude" to location.first, "longitude" to location.second),
+                            // accuracy 는 등록 순간 안팎 판정(이슈 #231)이 쓴다
+                            mapOf(
+                                "latitude" to location.latitude,
+                                "longitude" to location.longitude,
+                                "accuracy" to location.accuracy.toDouble(),
+                            ),
                         )
                     }
                 }

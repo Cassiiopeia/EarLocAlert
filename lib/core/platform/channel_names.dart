@@ -14,4 +14,7 @@ abstract final class ChannelNames {
   static const mapsApiKey = '$_prefix/maps_api_key';
   static const currentLocation = '$_prefix/current_location';
   static const alertReliability = '$_prefix/alert_reliability';
+
+  /// iOS 적응형 백그라운드 감시 (이슈 #231) — Swift `AdaptiveLocationWatcher`
+  static const iosWatch = '$_prefix/ios_watch';
 }

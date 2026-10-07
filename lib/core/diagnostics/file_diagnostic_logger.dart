@@ -16,6 +16,10 @@ import 'log_rotation.dart';
 /// 접근할 수 있는 유일한 공통분모다.
 ///
 /// 앱 전용 디렉토리에 두므로 다른 앱이 읽지 못한다.
+///
+/// **한 파일에는 한 isolate 만 쓴다** (이슈 #231). 아래 직렬화는 이
+/// isolate 안에서만 통한다 — 다른 isolate 와 같은 파일을 쓰면 줄이 겹쳐
+/// 깨진다. 주체별 파일은 `DiagnosticLogSource` 가 정한다.
 class FileDiagnosticLogger implements DiagnosticLogger {
   FileDiagnosticLogger({
     required this.file,

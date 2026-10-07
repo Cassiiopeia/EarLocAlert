@@ -29,7 +29,7 @@ class CurrentLocationProvider(private val context: Context) {
      * 날아가면 고장으로 보인다.
      */
     @SuppressLint("MissingPermission")
-    fun fetch(onResult: (Pair<Double, Double>?) -> Unit) {
+    fun fetch(onResult: (android.location.Location?) -> Unit) {
         val client = LocationServices.getFusedLocationProviderClient(context)
         val request = CurrentLocationRequest.Builder()
             .setPriority(Priority.PRIORITY_HIGH_ACCURACY)
@@ -45,7 +45,7 @@ class CurrentLocationProvider(private val context: Context) {
                         DiagnosticLog.write(context, "location", "current location lookup returned nothing")
                         onResult(null)
                     } else {
-                        onResult(location.latitude to location.longitude)
+                        onResult(location)
                     }
                 }
                 .addOnFailureListener { error ->

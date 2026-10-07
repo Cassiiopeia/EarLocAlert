@@ -30,7 +30,7 @@
 
 **백그라운드 알림은 네이티브가 만든다 (#102, 결정 025).** `AlertWatchService` 가 **알림 발행 → 진동 → 화면 승격** 순서로 발화한다. 뒤로 갈수록 실패 가능성이 높은 것을 뒤에 둔다. 한동안 첫 단계가 비어 있어서, 오버레이 권한이 없으면 진동 말고는 아무 흔적도 안 남았다 — #93 으로 경로를 바꾸며 Dart 쪽 알림 발행이 빠졌는데 네이티브가 그 자리를 채우지 않았다. **네이티브에서 알림을 만들되 소리는 여전히 내지 않는다** (채널을 무음으로).
 
-**감시 방식이 플랫폼마다 다르다 (#93, 결정 024).** Android 는 앱이 지오펜스를 직접 등록하고 감시 서비스가 Flutter 엔진을 상시 보유해 판정한다 — `native_geofence` 의 Android 경로가 이벤트를 WorkManager 에 가둬 도착 알림이 통째로 유실됐기 때문이다. iOS 는 그 결함이 없어 `native_geofence` 를 그대로 쓴다. **Kotlin 계층은 자동 테스트가 없다 — 실기기 검증으로만 닫힌다.**
+**감시 방식이 플랫폼마다 다르다 (#93, 결정 024).** Android 는 앱이 지오펜스를 직접 등록하고 감시 서비스가 Flutter 엔진을 상시 보유해 판정한다 — `native_geofence` 의 Android 경로가 이벤트를 WorkManager 에 가둬 도착 알림이 통째로 유실됐기 때문이다. iOS 는 **적응형 위치 감시**(거리별 정확도 3단계, 상태 막대 위치 표시)가 주 경로이고 `native_geofence` 영역 감시는 안전망이다 (#231, 결정 054) — 영역 이벤트가 늦거나 오지 않았다. 두 경로는 앱 isolate 의 판정기 하나로 모인다. **Kotlin·Swift 계층은 자동 테스트가 없다 — 실기기 검증으로만 닫힌다.**
 
 **Maps 키는 `.env` 의 `MAPS_API_KEY` 한 줄이 단일 소스다.** Android 는 gradle 이, iOS 는 `tool/sync_env.sh` 가 읽어 네이티브에 주입한다. 키가 없어도 빌드는 성공하지만 **iOS 는 키가 비면 지도 진입 시 앱이 종료된다** (#191) — 배포 CI 가 빈 키를 막는다 → `docs/08-OPERATIONS.md`
 
@@ -38,6 +38,7 @@
 
 | 작업 | 막힌 이유 |
 |---|---|
+| **#231 iOS 적응형 백그라운드 감시 실기기 검증** | 실기기 필요 — **시뮬레이터 검증만 됐다.** 앱을 내려도 상태 막대 위치 표시가 남는지, 밖에서 등록 후 걸어 들어가면 울리는지(`[sync] state seeded` → `[watch] tier changed tier=precise` → `[notify] background notification posted`), 배터리, 강제 종료 후 동작. Swift 계층은 자동 테스트가 없다 |
 | **#227 iOS 현재 위치 실기기 검증** | 실기기 필요 — 시뮬레이터는 좌표를 즉시 줘서 원래 증상(10초 시간 초과)이 거의 안 난다. iPhone 에서 첫 실행·지도 선택이 내 위치에서 시작하는지, 실패하면 진단 기록 `reason=` 을 본다 |
 | **#93 하이브리드 감시 실기기 검증** | 실기기 필요 — **Kotlin 계층은 자동 테스트가 없다.** 빌드 통과까지만 확인됐다. 가장 먼저 |
 | **#74 백그라운드 알림 지속 발화 검증** | 실기기 필요 — **코드는 들어갔으나 하나도 확인되지 않았다.** #93 과 함께 확인한다 |
@@ -136,7 +137,7 @@ play();
 
 ### 7. 로그는 `Diagnostics` 로만 남긴다 — `print` 금지
 
-`print` 는 릴리스에서 아무 데도 안 남고, `android.util.Log` 는 앱이 자기 로그를 못 읽는다. `core/diagnostics` 의 `Diagnostics.log(tag, message)` 를 쓴다 (Kotlin 은 `DiagnosticLog.write`).
+`print` 는 릴리스에서 아무 데도 안 남고, `android.util.Log` 는 앱이 자기 로그를 못 읽는다. `core/diagnostics` 의 `Diagnostics.log(tag, message)` 를 쓴다 (Kotlin 은 `DiagnosticLog.write`, Swift 는 `NativeDiagnosticLog.write`). **쓰는 주체마다 파일이 다르다** (#231) — 같은 파일에 여러 isolate 가 쓰면 줄이 겹쳐 깨진다. 백그라운드 진입점은 `Diagnostics.init(source: DiagnosticLogSource.background)` 로 켠다.
 
 **좌표를 남긴다** (2026-08-14 변경, 이슈 #95). 예전 규칙은 "릴리스에 좌표 금지"였으나, 로그가 앱 전용 디렉토리에만 있고 전송되지 않으며 내보내기가 사용자 행위라 그 목적이 유지된다. 좌표 없이는 "왜 이 장소가 판정되지 않았는가"를 추적할 수 없다.
 
