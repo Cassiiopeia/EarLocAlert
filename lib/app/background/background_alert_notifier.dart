@@ -80,10 +80,18 @@ class BackgroundAlertNotifier implements BackgroundAlertPort {
       ongoing: true,
     );
 
+    // **iOS 는 소리 없는 알림에 진동도 붙이지 않는다** (이슈 #221).
+    // 무음으로 보냈더니 주머니 속 기기에서는 배너만 조용히 떠서, 앱을 연
+    // 순간에야 알림 화면이 진동했다. 그래서 무음 파일을 소리로 지정해
+    // 시스템 진동만 나게 한다 — 들리는 소리는 없다 (CLAUDE.md 규칙 2).
+    //
+    // **파일은 앱 번들에 있어야 한다.** 지정한 이름을 못 찾으면 iOS 가
+    // 기본 알림음을 스피커로 낸다. 런타임에 복사하는 방식은 쓰지 않는다.
     const iosDetails = DarwinNotificationDetails(
       presentAlert: true,
       presentBadge: false,
-      presentSound: false,
+      presentSound: true,
+      sound: iosSilentHapticSound,
       interruptionLevel: InterruptionLevel.timeSensitive,
     );
 
@@ -95,8 +103,20 @@ class BackgroundAlertNotifier implements BackgroundAlertPort {
           : strings.notificationArrived,
       NotificationDetails(android: androidDetails, iOS: iosDetails),
     );
+    // 실기기에서 "알림은 떴는데 진동이 없었다"를 가르는 단서다 (이슈 #221)
+    Diagnostics.log(
+      'notify',
+      'background notification posted place=${alert.placeName} '
+          'direction=${alert.direction.name} ios_sound=$iosSilentHapticSound',
+    );
   }
 }
+
+/// iOS 백그라운드 알림의 소리 파일 — 1초 무음 (이슈 #221).
+///
+/// `ios/Runner/silent_haptic.caf` 로 번들에 들어 있다. 이름을 바꾸면
+/// Xcode 프로젝트의 리소스 항목도 함께 바꿔야 한다.
+const iosSilentHapticSound = 'silent_haptic.caf';
 
 /// 알림 문구의 언어를 구한다 (이슈 #163).
 ///

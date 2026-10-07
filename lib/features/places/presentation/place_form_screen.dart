@@ -385,17 +385,17 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
                 ButtonSegment(
                   value: AlertDirection.enter,
                   icon: const Icon(Icons.login_outlined),
-                  label: Text(l10n.placeFormTimingEnter),
+                  label: _SegmentLabel(l10n.placeFormTimingEnter),
                 ),
                 ButtonSegment(
                   value: AlertDirection.exit,
                   icon: const Icon(Icons.logout_outlined),
-                  label: Text(l10n.placeFormTimingExit),
+                  label: _SegmentLabel(l10n.placeFormTimingExit),
                 ),
                 ButtonSegment(
                   value: AlertDirection.both,
                   icon: const Icon(Icons.sync_alt_outlined),
-                  label: Text(l10n.placeFormTimingBoth),
+                  label: _SegmentLabel(l10n.placeFormTimingBoth),
                 ),
               ],
               selected: {_direction},
@@ -724,6 +724,24 @@ class _LocationPreviewState extends State<_LocationPreview> {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// 방향 버튼 라벨 — 한 줄을 지킨다 (이슈 #224)
+///
+/// 세 칸으로 나눈 폭이 좁아 영어 "Departure" 가 "Departur / e" 로 단어
+/// 중간에서 쪼개졌다. 줄을 바꾸지 않고, 넘치면 글자를 조금 줄인다.
+class _SegmentLabel extends StatelessWidget {
+  const _SegmentLabel(this.text);
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      child: Text(text, maxLines: 1, softWrap: false),
     );
   }
 }

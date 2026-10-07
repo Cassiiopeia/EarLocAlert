@@ -162,7 +162,11 @@ class _PlaceMapPickerScreenState extends State<PlaceMapPickerScreen> {
     _inFlightQuery = query;
 
     try {
-      final results = await service.search(query);
+      // 결과 이름·주소를 화면 언어로 받는다 (이슈 #223)
+      final results = await service.search(
+        query,
+        languageCode: Localizations.localeOf(context).languageCode,
+      );
       if (!mounted || _inFlightQuery != query) return;
       setState(() {
         _results = results;

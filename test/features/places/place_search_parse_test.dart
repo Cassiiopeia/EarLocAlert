@@ -92,4 +92,28 @@ void main() {
       expect(results.single.longitude, 127.0);
     });
   });
+
+  // 이슈 #223 — 결과 언어가 화면 언어를 따른다
+  group('requestBody', () {
+    Map<String, dynamic> body(String code) =>
+        jsonDecode(
+              GooglePlaceSearchService.requestBody('Seoul', languageCode: code),
+            )
+            as Map<String, dynamic>;
+
+    test('화면 언어를 그대로 보낸다', () {
+      expect(body('en')['languageCode'], 'en');
+      expect(body('ko')['languageCode'], 'ko');
+      expect(body('ja')['languageCode'], 'ja');
+    });
+
+    test('중국어는 간체로 보낸다', () {
+      expect(body('zh')['languageCode'], 'zh-CN');
+    });
+
+    test('검색어와 개수 제한은 유지한다', () {
+      expect(body('en')['textQuery'], 'Seoul');
+      expect(body('en')['pageSize'], 8);
+    });
+  });
 }
