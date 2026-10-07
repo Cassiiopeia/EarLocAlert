@@ -25,8 +25,24 @@ class GooglePlaceSearchService implements PlaceSearchService {
   /// null 은 "아직 안 읽음"과 구분되지 않으므로 키 없음은 '' 로 캐시한다
   String? _cachedKey;
 
+  /// 요청 본문 — 순수 함수라 실기기 없이 테스트한다.
+  ///
+  /// 예전에는 언어가 `'ko'` 로 고정돼 영어 화면에서도 결과가 한국어로 나왔다
+  /// (이슈 #223). 앱이 지원하는 중국어는 간체라 `zh-CN` 으로 보낸다.
+  static String requestBody(String query, {required String languageCode}) {
+    final language = languageCode == 'zh' ? 'zh-CN' : languageCode;
+    return jsonEncode({
+      'textQuery': query,
+      'languageCode': language,
+      'pageSize': 8,
+    });
+  }
+
   @override
-  Future<List<PlaceSearchResult>> search(String query) async {
+  Future<List<PlaceSearchResult>> search(
+    String query, {
+    required String languageCode,
+  }) async {
     final trimmed = query.trim();
     if (trimmed.isEmpty) return const [];
 
@@ -46,9 +62,7 @@ class GooglePlaceSearchService implements PlaceSearchService {
           'X-Goog-FieldMask',
           'places.displayName,places.formattedAddress,places.location',
         );
-      request.write(
-        jsonEncode({'textQuery': trimmed, 'languageCode': 'ko', 'pageSize': 8}),
-      );
+      request.write(requestBody(trimmed, languageCode: languageCode));
 
       final response = await request.close();
       final body = await response.transform(utf8.decoder).join();

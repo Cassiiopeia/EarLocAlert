@@ -24,7 +24,11 @@ class PlaceSearchResult {
 /// 차단)는 [PlaceSearchUnavailable] 로 구분한다 — 화면이 "결과 없음"과
 /// "검색 불가"를 다르게 보여줘야 하기 때문이다.
 abstract interface class PlaceSearchService {
-  Future<List<PlaceSearchResult>> search(String query);
+  /// [languageCode] 는 결과 이름·주소의 언어다 — 화면 언어를 넘긴다 (이슈 #223)
+  Future<List<PlaceSearchResult>> search(
+    String query, {
+    required String languageCode,
+  });
 }
 
 class PlaceSearchUnavailable implements Exception {
