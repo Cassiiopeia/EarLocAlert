@@ -1,6 +1,10 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:permission_handler/permission_handler.dart' as ph;
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../../core/diagnostics/diagnostics.dart';
 
 import '../domain/full_screen_intent_gate.dart';
 import '../domain/permission_kind.dart';
@@ -19,11 +23,15 @@ class PermissionHandlerService implements PermissionService {
 
   final FullScreenIntentGate _fullScreenIntent;
 
+  /// iOS 에서 "항상" 허용을 시스템 창으로 이미 물었는지 (이슈 #216)
+  static const _iosAlwaysAskedKey = 'permission.ios_always_asked';
+
   @override
   Future<PermissionSnapshot> check() async {
+    final location = _map(await ph.Permission.locationWhenInUse.status);
     return PermissionSnapshot(
-      location: _map(await ph.Permission.locationWhenInUse.status),
-      backgroundLocation: _map(await ph.Permission.locationAlways.status),
+      location: location,
+      backgroundLocation: await _backgroundLocationStatus(location),
       notification: _map(await ph.Permission.notification.status),
       batteryOptimization: await _batteryOptimizationStatus(),
       overlay: await _overlayStatus(),
@@ -44,7 +52,15 @@ class PermissionHandlerService implements PermissionService {
         if (Platform.isAndroid) {
           await ph.openAppSettings();
         } else {
+          // 묻기 전에 "물었다"를 먼저 적는다. 창이 떠 있는 동안 앱이 종료돼도
+          // 다음 실행에서 같은 창을 또 요청하지 않는다 — iOS 는 이 창을 한 번만 보여준다
+          await _markIosAlwaysAsked();
           await ph.Permission.locationAlways.request();
+          Diagnostics.log(
+            'permission',
+            'ios always location requested result='
+                '${(await ph.Permission.locationAlways.status).name}',
+          );
         }
 
       case PermissionKind.notification:
@@ -71,6 +87,49 @@ class PermissionHandlerService implements PermissionService {
   @override
   Future<void> openAppSettings() => ph.openAppSettings();
 
+  /// "항상" 위치 상태.
+  ///
+  /// **iOS 는 "앱을 사용하는 동안" 허용 직후의 "항상"을 영구 거부로 보고한다**
+  /// (`permission_handler_apple` 의 `determinePermissionStatus`). 그대로 두면
+  /// 게이트가 이 단계를 건너뛰어 시스템 창이 한 번도 뜨지 않고 설정으로 보낸다 (이슈 #216).
+  Future<PermissionStatus> _backgroundLocationStatus(
+    PermissionStatus whenInUse,
+  ) async {
+    final reported = _map(await ph.Permission.locationAlways.status);
+    if (!Platform.isIOS) return reported;
+    return iosBackgroundLocationStatus(
+      reported: reported,
+      whenInUse: whenInUse,
+      alreadyAsked: await _wasIosAlwaysAsked(),
+    );
+  }
+
+  Future<bool> _wasIosAlwaysAsked() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      return prefs.getBool(_iosAlwaysAskedKey) ?? false;
+    } on Object catch (error) {
+      // 읽지 못하면 "아직 안 물었다"로 본다 — 한 번 더 묻는 쪽이 설정으로 곧장 보내는 쪽보다 낫다
+      Diagnostics.log(
+        'permission',
+        'ios always asked flag read failed error=$error',
+      );
+      return false;
+    }
+  }
+
+  Future<void> _markIosAlwaysAsked() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(_iosAlwaysAskedKey, true);
+    } on Object catch (error) {
+      Diagnostics.log(
+        'permission',
+        'ios always asked flag write failed error=$error',
+      );
+    }
+  }
+
   /// iOS 에는 Doze 도 배터리 최적화 목록도 없다 — 막고 있는 것이 없다.
   Future<PermissionStatus> _batteryOptimizationStatus() async {
     if (!Platform.isAndroid) return PermissionStatus.granted;
@@ -94,4 +153,21 @@ class PermissionHandlerService implements PermissionService {
       ph.PermissionStatus.restricted => PermissionStatus.restricted,
     };
   }
+}
+
+/// iOS 의 "항상" 위치 상태를 게이트가 읽을 수 있게 보정한다 (이슈 #216).
+///
+/// 플러그인은 "앱을 사용하는 동안"만 허용된 상태를 영구 거부로 돌려준다. 그 상태에서
+/// 아직 시스템 창을 한 번도 띄우지 않았다면 **요청 가능**으로 바꿔 줘야 단계가 나온다.
+/// 이미 물었다면 iOS 가 다시 묻지 않으므로 영구 거부 그대로 둬 설정 안내로 보낸다.
+@visibleForTesting
+PermissionStatus iosBackgroundLocationStatus({
+  required PermissionStatus reported,
+  required PermissionStatus whenInUse,
+  required bool alreadyAsked,
+}) {
+  if (reported != PermissionStatus.permanentlyDenied) return reported;
+  if (!whenInUse.isGranted) return reported;
+  if (alreadyAsked) return reported;
+  return PermissionStatus.denied;
 }
