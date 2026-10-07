@@ -1,6 +1,7 @@
+import 'dart:async';
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:permission_handler/permission_handler.dart' as ph;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -56,6 +57,9 @@ class PermissionHandlerService implements PermissionService {
           // 다음 실행에서 같은 창을 또 요청하지 않는다 — iOS 는 이 창을 한 번만 보여준다
           await _markIosAlwaysAsked();
           await ph.Permission.locationAlways.request();
+          // 플러그인은 창이 뜨자마자 돌아온다 — 그대로 진행하면 창 뒤에 다음 단계가
+          // 먼저 그려지고, 기록되는 결과도 사용자의 답이 아니다. 창이 닫힐 때까지 기다린다
+          await _waitForSystemDialogToClose();
           Diagnostics.log(
             'permission',
             'ios always location requested result='
@@ -102,6 +106,42 @@ class PermissionHandlerService implements PermissionService {
       whenInUse: whenInUse,
       alreadyAsked: await _wasIosAlwaysAsked(),
     );
+  }
+
+  /// 시스템 권한 창이 닫힐 때까지 기다린다 (이슈 #216).
+  ///
+  /// 창이 떠 있는 동안 앱은 `inactive` 이고, 닫히면 `resumed` 로 돌아온다.
+  /// 플러그인은 창이 뜨기도 전에 돌아오고, 창은 그 뒤 1초쯤 지나서 뜬다(시뮬레이터 실측).
+  /// 그래서 먼저 창이 뜨기를 잠깐 기다리고, 떴으면 닫힐 때까지 기다린다.
+  /// 창이 안 뜨면(이미 물었던 경우 등) 곧 돌아오고, 답하지 않고 두면 상한에서 끝낸다.
+  Future<void> _waitForSystemDialogToClose() async {
+    final shown = Completer<void>();
+    final closed = Completer<void>();
+    final listener = AppLifecycleListener(
+      onInactive: () {
+        if (!shown.isCompleted) shown.complete();
+      },
+      onResume: () {
+        if (shown.isCompleted && !closed.isCompleted) closed.complete();
+      },
+    );
+    try {
+      if (WidgetsBinding.instance.lifecycleState !=
+          AppLifecycleState.inactive) {
+        await shown.future.timeout(const Duration(seconds: 3));
+      } else if (!shown.isCompleted) {
+        shown.complete();
+      }
+      await closed.future.timeout(const Duration(minutes: 2));
+    } on TimeoutException {
+      // 창이 끝내 안 떴거나 오래 답하지 않았다 — 현재 상태로 진행한다
+      Diagnostics.log(
+        'permission',
+        'ios always dialog wait ended shown=${shown.isCompleted}',
+      );
+    } finally {
+      listener.dispose();
+    }
   }
 
   Future<bool> _wasIosAlwaysAsked() async {
