@@ -7,6 +7,7 @@ import 'package:ear_loc_alert/features/geofence/domain/geofence_monitor.dart';
 import 'package:ear_loc_alert/features/geofence/domain/geofence_state.dart';
 import 'package:ear_loc_alert/features/geofence/domain/geofence_state_repository.dart';
 import 'package:ear_loc_alert/features/geofence/domain/geofence_target.dart';
+import 'package:ear_loc_alert/features/geofence/domain/position_sample.dart';
 import 'package:ear_loc_alert/features/places/domain/alert_place.dart';
 import 'package:ear_loc_alert/features/places/domain/place_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -114,6 +115,137 @@ void main() {
     await Future<void>.delayed(Duration.zero);
 
     expect(synced, 2);
+  });
+
+  group('등록 순간 상태 초기값 (이슈 #231)', () {
+    // 장소는 (37.5, 127.0) 반경 100m — 위도 0.01° ≈ 1.1km
+    PositionSample fixAt(double latitude, {double accuracy = 15}) =>
+        PositionSample(
+          latitude: latitude,
+          longitude: 127.0,
+          accuracyMeters: accuracy,
+          timestamp: DateTime.utc(2026, 10, 8),
+        );
+
+    late List<PositionSample?> fixes;
+    late int fixCalls;
+
+    Future<void> settle() async {
+      for (var i = 0; i < 10; i++) {
+        await Future<void>.delayed(Duration.zero);
+      }
+    }
+
+    setUp(() {
+      fixes = [];
+      fixCalls = 0;
+      sync = GeofenceRegistrationSync(
+        places: places,
+        monitor: monitor,
+        states: states,
+        currentFix: () async {
+          fixCalls++;
+          return fixes.isEmpty ? null : fixes.removeAt(0);
+        },
+      );
+    });
+
+    test('밖에서 등록하면 outside 로 정한다 — 첫 도착이 알림이 된다', () async {
+      fixes = [fixAt(37.51)];
+      places.items = [place('a')];
+
+      await sync.start();
+      await settle();
+
+      // 예전에는 unknown 으로 남아 iOS 의 첫 영역 이벤트를 기다렸고,
+      // 그것이 유실되면 첫 도착이 unknown → inside 로 조용히 지나갔다
+      expect(states.states['a'], GeofenceState.outside);
+    });
+
+    test('안에서 등록하면 inside — 즉시 알림은 없다', () async {
+      fixes = [fixAt(37.5)];
+      places.items = [place('a')];
+
+      await sync.start();
+      await settle();
+
+      expect(states.states['a'], GeofenceState.inside);
+    });
+
+    test('정확도가 나쁘면 unknown 그대로 둔다', () async {
+      fixes = [fixAt(37.51, accuracy: 900)];
+      places.items = [place('a')];
+
+      await sync.start();
+      await settle();
+
+      expect(states.states.containsKey('a'), isFalse);
+    });
+
+    test('이미 판정된 장소는 다시 정하지 않는다', () async {
+      states.states['a'] = GeofenceState.inside;
+      fixes = [fixAt(37.51)];
+      places.items = [place('a')];
+
+      await sync.start();
+      await settle();
+
+      expect(states.states['a'], GeofenceState.inside);
+      expect(fixCalls, 0);
+    });
+
+    test('위치를 옮기면 옛 상태를 버리고 새 자리 기준으로 다시 정한다', () async {
+      fixes = [fixAt(37.5)];
+      places.items = [place('a')];
+      await sync.start();
+      await settle();
+      expect(states.states['a'], GeofenceState.inside);
+
+      // 옛 자리 안에 서서 장소를 1km 북쪽으로 옮겼다 — 옛 inside 가 남으면
+      // 새 자리의 첫 도착이 "이미 안"으로 걸러진다
+      fixes = [fixAt(37.5)];
+      final moved = place('a').copyWith(latitude: 37.51);
+      places.items = [moved];
+      places.controller.add(places.items);
+      await settle();
+
+      expect(states.states['a'], GeofenceState.outside);
+    });
+
+    test('위치를 재는 사이 실제 판정이 먼저 정하면 덮지 않는다', () async {
+      final pending = Completer<PositionSample?>();
+      sync = GeofenceRegistrationSync(
+        places: places,
+        monitor: monitor,
+        states: states,
+        currentFix: () => pending.future,
+      );
+      places.items = [place('a')];
+      await sync.start();
+
+      // OS 영역 이벤트가 먼저 inside 를 정했다
+      states.states['a'] = GeofenceState.inside;
+      pending.complete(fixAt(37.51));
+      await settle();
+
+      expect(states.states['a'], GeofenceState.inside);
+    });
+
+    test('바뀌지 않은 장소의 상태는 다른 장소 변경에 휩쓸리지 않는다', () async {
+      fixes = [fixAt(37.51)];
+      places.items = [place('a')];
+      await sync.start();
+      await settle();
+      states.states['a'] = GeofenceState.inside;
+
+      fixes = [fixAt(37.51)];
+      places.items = [place('a'), place('b', minute: 1)];
+      places.controller.add(places.items);
+      await settle();
+
+      expect(states.states['a'], GeofenceState.inside);
+      expect(states.states['b'], GeofenceState.outside);
+    });
   });
 
   group('상시 감시 서비스 (이슈 #74)', () {

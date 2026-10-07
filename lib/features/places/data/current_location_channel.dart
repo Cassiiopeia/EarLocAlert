@@ -17,14 +17,22 @@ enum CurrentLocationFailure {
 /// 현재 위치 1회 조회의 결과. [location] 과 [failure] 중 하나만 있다.
 final class CurrentLocationResult {
   const CurrentLocationResult.found(
-    ({double latitude, double longitude}) this.location,
-  ) : failure = null;
+    ({double latitude, double longitude}) this.location, {
+    this.accuracyMeters,
+  }) : failure = null;
 
   const CurrentLocationResult.failed(CurrentLocationFailure this.failure)
-    : location = null;
+    : location = null,
+      accuracyMeters = null;
 
   final ({double latitude, double longitude})? location;
   final CurrentLocationFailure? failure;
+
+  /// 수평 정확도(미터). 네이티브가 주지 않으면 null (이슈 #231).
+  ///
+  /// 지도 이동에는 필요 없지만, 등록 순간 안팎을 정하는 데는 필수다 —
+  /// 정확도를 모르는 좌표로 "밖"이라고 단정하면 가짜 알림이 난다.
+  final double? accuracyMeters;
 }
 
 /// 네이티브 실패 코드를 실패 이유로 옮긴다.
@@ -84,7 +92,10 @@ class CurrentLocationChannel implements CurrentLocationService {
         );
       }
 
-      return CurrentLocationResult.found((latitude: lat, longitude: lng));
+      return CurrentLocationResult.found((
+        latitude: lat,
+        longitude: lng,
+      ), accuracyMeters: (result['accuracy'] as num?)?.toDouble());
     } on PlatformException catch (e) {
       // 권한 거부·측정 실패·시간 초과 — 정상적으로 일어나는 상태라 예외로 다루지 않되 사유는 남긴다
       Diagnostics.log(

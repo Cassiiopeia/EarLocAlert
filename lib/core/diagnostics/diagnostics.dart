@@ -39,15 +39,21 @@ abstract final class Diagnostics {
 
   /// 실제 파일 로거로 교체한다. 앱·백그라운드 엔진 양쪽에서 부른다.
   ///
+  /// [source] 는 **이 isolate 가 쓸 파일**이다 (이슈 #231). isolate 끼리
+  /// 같은 파일에 쓰면 줄이 겹쳐 깨지므로, 백그라운드 진입점은 반드시
+  /// [DiagnosticLogSource.background] 로 부른다.
+  ///
   /// 초기화 전에 쌓인 줄을 먼저 흘려보낸 뒤 이어서 기록한다.
-  static Future<void> init() async {
+  static Future<void> init({
+    DiagnosticLogSource source = DiagnosticLogSource.app,
+  }) async {
     if (_initialized) return;
     _initialized = true;
     try {
       _logger = FileDiagnosticLogger(
-        file: await DiagnosticLogFile.resolve(),
+        file: await DiagnosticLogFile.resolve(source),
         // 회전할 때 버리지 않고 압축해 보관한다 (이슈 #127)
-        archive: await DiagnosticLogFile.resolveArchive(),
+        archive: await DiagnosticLogFile.resolveArchive(source),
       );
     } on Object {
       // 파일을 못 잡으면 Noop 인 채로 둔다

@@ -112,6 +112,43 @@ class BackgroundAlertNotifier implements BackgroundAlertPort {
   }
 }
 
+/// 알림 플러그인 초기화 설정 — 앱·백그라운드 isolate 가 같은 값을 쓴다.
+/// 권한 요청은 온보딩이 담당하므로 여기서는 요청하지 않는다.
+const notificationInitSettings = InitializationSettings(
+  android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+  iOS: DarwinInitializationSettings(
+    requestAlertPermission: false,
+    requestBadgePermission: false,
+    requestSoundPermission: false,
+  ),
+);
+
+final _initialized = Expando<Future<void>>('notifications initialized');
+
+/// 플러그인을 한 번만 초기화한다 (이슈 #231).
+///
+/// iOS 가 위치 사유로 앱을 백그라운드에서 다시 띄우면 첫 프레임이 오지 않아
+/// 앱 부트스트랩(여기서 초기화한다)이 돌지 않는다. 그 상태에서 도착 알림을
+/// 내려면 발행 직전에 초기화돼 있어야 한다. 실패하면 다음 호출에서 다시 시도한다.
+Future<void> ensureNotificationsInitialized(
+  FlutterLocalNotificationsPlugin plugin,
+) {
+  final existing = _initialized[plugin];
+  if (existing != null) return existing;
+  final attempt = plugin
+      .initialize(notificationInitSettings)
+      .then<void>(
+        (_) {},
+        onError: (Object error) {
+          // 실패한 시도를 기억하지 않는다 — 다음 알림에서 다시 초기화한다
+          _initialized[plugin] = null;
+          throw error;
+        },
+      );
+  _initialized[plugin] = attempt;
+  return attempt;
+}
+
 /// iOS 백그라운드 알림의 소리 파일 — 1초 무음 (이슈 #221).
 ///
 /// `ios/Runner/silent_haptic.caf` 로 번들에 들어 있다. 이름을 바꾸면

@@ -57,7 +57,16 @@ import native_geofence
         }
         self?.currentLocation.fetch(result)
       }
+
+      // 적응형 백그라운드 감시 (이슈 #231)
+      AdaptiveLocationWatcher.shared.register(messenger: controller.binaryMessenger)
     }
+
+    // 위치 사유로 다시 떴든(중요 위치 변화·영역 이벤트) 사용자가 열었든, 감시를 원하던
+    // 상태면 Dart 를 기다리지 않고 재개한다 — 백그라운드 재실행은 첫 프레임이 없어
+    // Dart 부트스트랩이 늦다 (이슈 #231)
+    let relaunchedForLocation = launchOptions?[.location] != nil
+    AdaptiveLocationWatcher.shared.restoreOnLaunch(reason: relaunchedForLocation ? "location" : "normal")
 
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
@@ -161,7 +170,12 @@ final class CurrentLocationProvider: NSObject, CLLocationManagerDelegate {
   }
 
   private static func payload(_ location: CLLocation) -> [String: Double] {
-    ["latitude": location.coordinate.latitude, "longitude": location.coordinate.longitude]
+    // accuracy 는 등록 순간 안팎 판정(이슈 #231)이 쓴다 — 지도 이동은 무시한다
+    [
+      "latitude": location.coordinate.latitude,
+      "longitude": location.coordinate.longitude,
+      "accuracy": location.horizontalAccuracy,
+    ]
   }
 
   private func finish(_ value: Any) {

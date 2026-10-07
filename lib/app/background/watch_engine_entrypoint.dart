@@ -5,6 +5,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 import '../../core/database/app_database.dart';
+import '../../core/diagnostics/diagnostic_log_file.dart';
 import '../../core/diagnostics/diagnostics.dart';
 import '../../core/domain/id_generator.dart';
 import '../../features/alert/data/prefs_vibration_intensity_store.dart';
@@ -35,9 +36,10 @@ void watchEngineMain() {
   WidgetsFlutterBinding.ensureInitialized();
 
   // 로깅을 먼저 켠다 (이슈 #95) — 이 엔진이 뜨는지 자체가 추적 대상이다.
-  // 앱 isolate 와 같은 파일에 쌓이므로 한 화면에서 시간순으로 읽힌다.
+  // 앱 isolate 와 파일을 나눈다 — 같은 파일에 쓰면 줄이 겹쳐 깨진다 (이슈 #231).
+  // 진단 화면이 시각순으로 합쳐 읽는다.
   unawaited(
-    Diagnostics.init().then((_) {
+    Diagnostics.init(source: DiagnosticLogSource.background).then((_) {
       Diagnostics.log('engine', 'watch engine started');
     }),
   );

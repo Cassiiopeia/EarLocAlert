@@ -24,27 +24,87 @@ typedef DiagnosticReadResult = ({String content, String error});
 /// 진단 화면이 진단 대상의 초기화 성공에 의존하면 안 된다 — 정확히
 /// 그것이 실패했을 때 열리는 화면이다.
 abstract final class DiagnosticLogReader {
+  /// 모든 주체의 기록을 읽어 시각순으로 합친다 (이슈 #231).
+  ///
+  /// 한 주체를 못 읽어도 나머지는 보여준다 — 오류는 하나라도 있으면
+  /// 함께 돌려줘 "기록 없음"과 구분되게 한다.
   static Future<DiagnosticReadResult> read() async {
-    try {
-      // **보관본을 먼저 이어 붙인다** (이슈 #127) — 회전으로 넘어간
-      // 기록도 화면에서 보여야 한다. 시간순이라 오래된 쪽이 앞이다
-      final older = await LogArchive.readArchive(
-        await DiagnosticLogFile.resolveArchive(),
-      );
-      final file = await DiagnosticLogFile.resolve();
-      if (!await file.exists()) return (content: older, error: '');
-      final current = decodeTolerant(await file.readAsBytes());
-      return (content: '$older$current', error: '');
-    } on Object catch (failure) {
-      return (content: '', error: '$failure');
+    final sources = <String>[];
+    final errors = <String>[];
+    for (final source in DiagnosticLogSource.values) {
+      try {
+        sources.add(await _readSource(source));
+      } on Object catch (failure) {
+        errors.add('${source.name}: $failure');
+      }
     }
+    return (content: mergeByTimestamp(sources), error: errors.join('; '));
+  }
+
+  /// 한 주체의 보관본 + 현재 파일. **보관본이 먼저다** (이슈 #127) —
+  /// 회전으로 넘어간 기록도 시간순으로 이어져야 한다.
+  static Future<String> _readSource(DiagnosticLogSource source) async {
+    final archive = await DiagnosticLogFile.resolveArchive(source);
+    final older = archive == null ? '' : await LogArchive.readArchive(archive);
+    final file = await DiagnosticLogFile.resolve(source);
+    if (!await file.exists()) return older;
+    return '$older${decodeTolerant(await file.readAsBytes())}';
+  }
+
+  /// 여러 파일의 기록을 시각순으로 합친다 (이슈 #231).
+  ///
+  /// 각 파일은 이미 시간순이다 — 한 주체가 순서대로 쓰기 때문이다. 줄 앞의
+  /// ISO-8601 시각으로 정렬하되, **시각을 읽을 수 없는 줄(예전에 깨진 줄)은
+  /// 같은 파일의 바로 앞 줄 시각을 물려받는다.** 그래야 깨진 줄이 맨 앞이나
+  /// 맨 뒤로 튀지 않고 원래 자리 근처에 남는다.
+  ///
+  /// 시각이 같으면 파일 순서 → 줄 순서로 정한다 — 결과가 결정적이어야
+  /// 같은 기록을 두 번 열었을 때 순서가 바뀌지 않는다.
+  ///
+  /// 문자열 비교가 아니라 시각으로 파싱해 비교한다. Dart 는 마이크로초
+  /// (`.123456Z`), Kotlin·Swift 는 밀리초(`.123Z`)로 써서 문자열로 비교하면
+  /// 같은 밀리초 안에서 순서가 뒤집힌다.
+  static String mergeByTimestamp(List<String> contents) {
+    final entries = <_MergeEntry>[];
+    for (var source = 0; source < contents.length; source++) {
+      final lines = contents[source].split('\n');
+      var carried = _epoch;
+      for (var index = 0; index < lines.length; index++) {
+        final line = lines[index];
+        if (line.trim().isEmpty) continue;
+        final at = _timestampOf(line);
+        if (at != null) carried = at;
+        entries.add(_MergeEntry(carried, source, index, line));
+      }
+    }
+    entries.sort((a, b) {
+      final byTime = a.at.compareTo(b.at);
+      if (byTime != 0) return byTime;
+      final bySource = a.source.compareTo(b.source);
+      if (bySource != 0) return bySource;
+      return a.index.compareTo(b.index);
+    });
+    if (entries.isEmpty) return '';
+    return '${entries.map((e) => e.line).join('\n')}\n';
+  }
+
+  static final _epoch = DateTime.utc(1970);
+
+  /// 줄 앞의 시각. 공백 앞까지가 시각이고 `Z` 로 끝나야 한다 — 깨진 줄
+  /// 조각이 우연히 숫자로 시작해도 시각으로 오인하지 않는다.
+  static DateTime? _timestampOf(String line) {
+    final space = line.indexOf(' ');
+    if (space < 20) return null;
+    final head = line.substring(0, space);
+    if (!head.endsWith('Z')) return null;
+    return DateTime.tryParse(head);
   }
 
   /// 깨진 바이트가 섞여 있어도 읽어낸다 (이슈 #106).
   ///
-  /// **이 파일은 두 프로세스가 함께 쓴다** — 앱 isolate·감시 서비스 엔진
-  /// (Dart)과 Kotlin 계층이 같은 파일에 append 한다. 쓰기가 겹치면 한글
-  /// 한 글자(UTF-8 3바이트)가 중간에서 잘릴 수 있다.
+  /// #231 이전에는 여러 주체가 한 파일에 append 해 쓰기가 겹치면 한글
+  /// 한 글자(UTF-8 3바이트)가 중간에서 잘렸다. 지금은 파일을 나눴지만
+  /// 그때 기록과 보관본이 남아 있으므로 계속 견뎌야 한다.
   ///
   /// `readAsString()` 은 그 순간 통째로 예외를 던지고, 예전 구현은 그것을
   /// 삼켜 **"기록 없음"으로 둔갑시켰다.** 파일에 수천 줄이 있어도 화면은
@@ -61,13 +121,15 @@ abstract final class DiagnosticLogReader {
   /// 로거의 `clear()` 와 별개로 필요하다 — 초기화되지 않은 로거는
   /// 지우기도 하지 않기 때문이다.
   static Future<void> clear() async {
-    try {
-      final file = await DiagnosticLogFile.resolve();
-      if (await file.exists()) await file.writeAsString('');
-      final archive = await DiagnosticLogFile.resolveArchive();
-      if (await archive.exists()) await archive.delete();
-    } on Object {
-      // 지우기 실패는 삼킨다 — 다시 읽으면 실제 상태가 보인다
+    for (final source in DiagnosticLogSource.values) {
+      try {
+        final file = await DiagnosticLogFile.resolve(source);
+        if (await file.exists()) await file.writeAsString('');
+        final archive = await DiagnosticLogFile.resolveArchive(source);
+        if (archive != null && await archive.exists()) await archive.delete();
+      } on Object {
+        // 지우기 실패는 삼킨다 — 다시 읽으면 실제 상태가 보인다
+      }
     }
   }
 
@@ -76,12 +138,16 @@ abstract final class DiagnosticLogReader {
   /// 화면에 보여준다 — **저장공간을 얼마나 쓰는지 사용자가 알아야**
   /// 지울지 말지 판단할 수 있다.
   static Future<int> sizeInBytes() async {
-    try {
-      final file = await DiagnosticLogFile.resolve();
-      return await file.exists() ? await file.length() : 0;
-    } on Object {
-      return 0;
+    var total = 0;
+    for (final source in DiagnosticLogSource.values) {
+      try {
+        final file = await DiagnosticLogFile.resolve(source);
+        if (await file.exists()) total += await file.length();
+      } on Object {
+        // 못 잰 파일은 0 으로 본다
+      }
     }
+    return total;
   }
 
   /// 내보내기용 스냅샷을 캐시에 만든다 (이슈 #110).
@@ -130,4 +196,14 @@ abstract final class DiagnosticLogReader {
         .reversed
         .toList();
   }
+}
+
+/// 합치기용 한 줄 — 정렬 키(시각·파일·줄 번호)와 원문
+class _MergeEntry {
+  _MergeEntry(this.at, this.source, this.index, this.line);
+
+  final DateTime at;
+  final int source;
+  final int index;
+  final String line;
 }
