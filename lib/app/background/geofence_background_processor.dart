@@ -160,6 +160,13 @@ class GeofenceBackgroundProcessor {
         // 진입이 "이미 안에 있음"으로 걸러진다
         return null;
       }
+    } else {
+      // iOS 전이는 좌표 없이 온다 — 위치 튐 판정을 할 수 없고 CoreLocation 의
+      // 영역 판정에 맡긴다. 건너뛴 사실을 남겨야 오알림을 추적할 수 있다 (이슈 #219)
+      Diagnostics.log(
+        'engine',
+        'jump check skipped place=$placeId reason=no_coordinates',
+      );
     }
 
     final current = await _states.stateOf(placeId);

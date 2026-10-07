@@ -78,13 +78,32 @@ class AppLocalizationsZh extends AppLocalizations {
       '设置页面会依次打开。如果跳过，提醒界面不会自动弹出，要停止振动就需要点击通知打开应用。';
 
   @override
-  String get permissionOpenSettingsTitle => '请在设置中开启权限';
+  String get permissionOpenSettingsTitle => '请在设置中修改';
 
   @override
-  String get permissionOpenSettingsBody => '权限已被拒绝，应用无法再次请求。请在设置页面中手动允许。';
+  String get permissionOpenSettingsBody => '应用内无法再次请求这项权限。请打开设置，按下面的方式修改。';
 
   @override
   String get permissionOpenSettingsAction => '打开设置';
+
+  @override
+  String get permissionSettingsLocationRow => '位置 → 使用App期间 或 始终';
+
+  @override
+  String get permissionSettingsBackgroundRowIos => '位置 → 始终';
+
+  @override
+  String get permissionSettingsBackgroundRowAndroid => '位置 → 始终允许';
+
+  @override
+  String get permissionSettingsNotificationRow => '通知 → 允许通知';
+
+  @override
+  String get permissionSettingsReturnHintIos =>
+      '修改后，点击屏幕左上角的“◀ 应用名称”即可返回应用。更改位置权限后，应用可能会重新启动。';
+
+  @override
+  String get permissionSettingsReturnHintAndroid => '修改后，请用返回键回到应用。';
 
   @override
   String get permissionDoneTitle => '准备就绪';

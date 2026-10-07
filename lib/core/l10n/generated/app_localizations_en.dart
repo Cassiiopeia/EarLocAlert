@@ -82,15 +82,37 @@ class AppLocalizationsEn extends AppLocalizations {
       'Settings screens will open one after another. If you skip, the alert screen will not appear on its own, so you would have to tap the notification to open the app and stop the vibration.';
 
   @override
-  String get permissionOpenSettingsTitle =>
-      'Turn on the permission in Settings';
+  String get permissionOpenSettingsTitle => 'Change it in Settings';
 
   @override
   String get permissionOpenSettingsBody =>
-      'The permission was denied, so the app can\'t ask again. Please allow it in Settings.';
+      'The app can\'t ask for this again. Open Settings and change it like this.';
 
   @override
   String get permissionOpenSettingsAction => 'Open Settings';
+
+  @override
+  String get permissionSettingsLocationRow =>
+      'Location → While Using the App or Always';
+
+  @override
+  String get permissionSettingsBackgroundRowIos => 'Location → Always';
+
+  @override
+  String get permissionSettingsBackgroundRowAndroid =>
+      'Location → Allow all the time';
+
+  @override
+  String get permissionSettingsNotificationRow =>
+      'Notifications → Allow Notifications';
+
+  @override
+  String get permissionSettingsReturnHintIos =>
+      'After changing it, tap ◀ with the app name at the top left to come back. Changing the location permission may restart the app.';
+
+  @override
+  String get permissionSettingsReturnHintAndroid =>
+      'After changing it, use the back button to return to the app.';
 
   @override
   String get permissionDoneTitle => 'All set';

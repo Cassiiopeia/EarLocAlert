@@ -1,3 +1,5 @@
+import 'dart:io' show Platform;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -9,6 +11,7 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/text/keep_all.dart';
 import '../domain/permission_gate.dart';
+import '../domain/permission_kind.dart';
 import '../domain/permission_snapshot.dart';
 import 'permission_controller.dart';
 import 'permission_copy.dart';
@@ -198,14 +201,22 @@ class _StepView extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: AppSpacing.lg),
-          _ProgressDots(snapshot: snapshot),
-          const SizedBox(height: AppSpacing.lg),
+          // 설정 단계에서는 점이 "무엇이 빠졌는지"를 말해주지 못한다 (이슈 #217).
+          // 점 세 개 중 어느 것이 왜 꺼져 있는지 알 수 없어서 점검 목록으로 바꾼다
+          if (step != OnboardingStep.openSettings) ...[
+            _ProgressDots(snapshot: snapshot),
+            const SizedBox(height: AppSpacing.lg),
+          ],
           Text(
             context.keepAllText(copy.title),
             style: AppTypography.screenTitle,
           ),
           const SizedBox(height: AppSpacing.sm),
           Text(context.keepAllText(copy.body), style: AppTypography.body),
+          if (step == OnboardingStep.openSettings) ...[
+            const SizedBox(height: AppSpacing.md),
+            _SettingsChecklist(snapshot: snapshot),
+          ],
           if (copy.footnote != null) ...[
             const SizedBox(height: AppSpacing.md),
             Row(
@@ -238,6 +249,83 @@ class _StepView extends StatelessWidget {
           const SizedBox(height: AppSpacing.sm),
         ],
       ),
+    );
+  }
+}
+
+/// 설정에서 바꿔야 할 것을 이름과 고를 값으로 나열한다 (이슈 #217)
+///
+/// "권한을 켜주세요"만으로는 어느 권한을 어떻게 바꾸라는 건지 알 수 없다.
+/// iOS 는 위치 권한을 바꾸면 앱이 종료될 수 있고, 설정 안의 뒤로 가기는 앱으로
+/// 돌아오는 버튼이 아니다 — 돌아오는 길도 함께 알려준다.
+class _SettingsChecklist extends StatelessWidget {
+  const _SettingsChecklist({required this.snapshot});
+
+  final PermissionSnapshot snapshot;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final rows = <String>[
+      for (final kind in const PermissionGate().missing(snapshot))
+        switch (kind) {
+          PermissionKind.location => l10n.permissionSettingsLocationRow,
+          PermissionKind.backgroundLocation =>
+            Platform.isAndroid
+                ? l10n.permissionSettingsBackgroundRowAndroid
+                : l10n.permissionSettingsBackgroundRowIos,
+          PermissionKind.notification => l10n.permissionSettingsNotificationRow,
+          _ => '',
+        },
+    ].where((row) => row.isNotEmpty).toList();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        for (final row in rows)
+          Padding(
+            padding: const EdgeInsets.only(bottom: AppSpacing.xs),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Icon(
+                  Icons.radio_button_unchecked_outlined,
+                  size: AppIconSize.inline,
+                  color: AppColors.primary,
+                ),
+                const SizedBox(width: AppSpacing.xs),
+                Expanded(
+                  child: Text(
+                    context.keepAllText(row),
+                    style: AppTypography.body,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        const SizedBox(height: AppSpacing.sm),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Icon(
+              Icons.info_outlined,
+              size: AppIconSize.inline,
+              color: AppColors.textSecondary,
+            ),
+            const SizedBox(width: AppSpacing.xs),
+            Expanded(
+              child: Text(
+                context.keepAllText(
+                  Platform.isAndroid
+                      ? l10n.permissionSettingsReturnHintAndroid
+                      : l10n.permissionSettingsReturnHintIos,
+                ),
+                style: AppTypography.caption,
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }

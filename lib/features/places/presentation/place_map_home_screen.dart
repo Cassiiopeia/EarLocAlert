@@ -2,9 +2,11 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
+import '../../../core/diagnostics/diagnostics.dart';
 import '../../../core/domain/alert_direction.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/map/default_map_view.dart';
@@ -128,6 +130,9 @@ class _PlaceMapHomeScreenState extends ConsumerState<PlaceMapHomeScreen>
   /// 카메라 맞추기는 처음 한 번만. 이후에는 사용자의 조작을 존중한다
   bool _didFitCamera = false;
 
+  /// 현재 위치로 시작하는 조회는 화면이 살아 있는 동안 한 번만 (이슈 #218)
+  bool _didTryStartAtCurrentLocation = false;
+
   @override
   void initState() {
     super.initState();
@@ -180,6 +185,8 @@ class _PlaceMapHomeScreenState extends ConsumerState<PlaceMapHomeScreen>
                 // 다크 타일이 그려질 때까지 밝은 바탕을 가린다 (이슈 #143)
                 attach(controller);
                 if (places.isNotEmpty) _fitCamera(places);
+                // 장소가 없으면 기기 지역 기본 위치가 아니라 내 위치에서 시작한다 (이슈 #218)
+                if (places.isEmpty) unawaited(_startAtCurrentLocation());
               },
               // 빈 곳을 누르면 선택을 푼다 — 강조가 계속 남아 있으면
               // 무엇을 보고 있는지 헷갈린다
@@ -257,11 +264,45 @@ class _PlaceMapHomeScreenState extends ConsumerState<PlaceMapHomeScreen>
     );
   }
 
+  /// 장소가 없을 때 지도를 내 위치에서 시작한다 (이슈 #218).
+  ///
+  /// 기본 위치(한국은 서울시청)는 위치를 모를 때의 자리표시일 뿐이다. 권한이 있으면
+  /// 사용자가 "내 위치" 버튼을 찾아 누르기 전에 지도가 내 주변을 보여줘야 한다.
+  /// 실패해도 안내하지 않는다 — 사용자가 요청한 동작이 아니다. 사유는 채널이 남긴다.
+  Future<void> _startAtCurrentLocation() async {
+    if (_didTryStartAtCurrentLocation) return;
+    _didTryStartAtCurrentLocation = true;
+
+    final location = await widget.locationService.current();
+    if (!mounted || location == null) return;
+
+    // 조회하는 사이 장소가 불러와졌거나 사용자가 이미 지도를 맞췄으면 그쪽이 우선이다
+    final hasPlaces =
+        (ref.read(placeListProvider).valueOrNull ?? const <AlertPlace>[])
+            .isNotEmpty;
+    if (!shouldStartAtCurrentLocation(
+      hasPlaces: hasPlaces,
+      didFitCamera: _didFitCamera,
+    )) {
+      return;
+    }
+
+    Diagnostics.log('location', 'home started at current location');
+    await _map?.animateCamera(
+      CameraUpdate.newLatLngZoom(
+        LatLng(location.latitude, location.longitude),
+        15,
+      ),
+    );
+  }
+
   /// 현재 위치로 지도를 옮긴다 (이슈 #98).
   ///
   /// 실패하면 **이유를 알려준다.** 아무 일도 일어나지 않으면 사용자는
   /// 버튼이 고장 났다고 생각하고 계속 누른다.
   Future<void> _moveToCurrentLocation() async {
+    // 이미 그 위치라 지도가 움직이지 않아도 눌렸다는 걸 알려준다 (이슈 #218)
+    unawaited(HapticFeedback.selectionClick());
     final location = await widget.locationService.current();
     if (!mounted) return;
 
@@ -935,3 +976,13 @@ class _SettingsButton extends StatelessWidget {
     );
   }
 }
+
+/// 내 위치에서 시작해도 되는가 (이슈 #218)
+///
+/// 장소가 있으면 장소가 보이는 것이 먼저다. 이미 카메라를 장소에 맞췄다면 늦게 도착한
+/// 위치 조회가 그것을 덮어쓰면 안 된다.
+@visibleForTesting
+bool shouldStartAtCurrentLocation({
+  required bool hasPlaces,
+  required bool didFitCamera,
+}) => !hasPlaces && !didFitCamera;

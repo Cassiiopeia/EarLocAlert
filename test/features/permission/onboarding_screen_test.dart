@@ -247,6 +247,79 @@ void main() {
     });
   });
 
+  group('설정 이동 단계는 무엇을 바꿀지 알려준다 (이슈 #217)', () {
+    // 위치와 알림은 허용됐고 "항상"만 영구 거부 — iOS 에서 흔한 상태
+    const onlyAlwaysMissing = PermissionSnapshot(
+      location: PermissionStatus.granted,
+      backgroundLocation: PermissionStatus.permanentlyDenied,
+      notification: PermissionStatus.granted,
+    );
+
+    testWidgets('빠진 권한만 이름과 고를 값으로 나열한다', (tester) async {
+      final store = PendingPromptStore(seen: true);
+
+      await pumpOnboarding(
+        tester,
+        permissions: onlyAlwaysMissing,
+        store: store,
+        onFinished: () {},
+      );
+      store.completeRead();
+      await settleFrames(tester);
+
+      expect(find.text('설정에서 직접 바꿔주세요'.keepAll), findsOneWidget);
+      expect(find.text('위치 → 항상'.keepAll), findsOneWidget);
+      expect(
+        find.text('알림 → 알림 허용'.keepAll),
+        findsNothing,
+        reason: '이미 허용된 권한까지 나열하면 무엇을 바꿔야 하는지 흐려진다',
+      );
+    });
+
+    testWidgets('앱으로 돌아오는 길과 재시작 가능성을 알려준다', (tester) async {
+      final store = PendingPromptStore(seen: true);
+
+      await pumpOnboarding(
+        tester,
+        permissions: onlyAlwaysMissing,
+        store: store,
+        onFinished: () {},
+      );
+      store.completeRead();
+      await settleFrames(tester);
+
+      expect(
+        find.text(
+          '바꾼 뒤 화면 왼쪽 위의 ◀ 앱 이름을 누르면 앱으로 돌아와요. '
+                  '위치 권한을 바꾸면 앱이 다시 시작될 수 있어요.'
+              .keepAll,
+        ),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('이 단계에서는 진행 점을 보이지 않는다', (tester) async {
+      final store = PendingPromptStore(seen: true);
+
+      await pumpOnboarding(
+        tester,
+        permissions: onlyAlwaysMissing,
+        store: store,
+        onFinished: () {},
+      );
+      store.completeRead();
+      await settleFrames(tester);
+
+      // 점은 Container 높이 4 로 그려진다 — 어느 것이 왜 꺼졌는지 말해주지 못해서 뺐다
+      expect(
+        find.byWidgetPredicate(
+          (w) => w is Container && w.constraints?.maxHeight == 4,
+        ),
+        findsNothing,
+      );
+    });
+  });
+
   group('가두지 않는다 — 요청을 거친 뒤에는 나갈 수 있다 (A-12)', () {
     testWidgets('거부한 뒤에는 나중에 하기로 홈으로 간다', (tester) async {
       const denied = PermissionSnapshot(location: PermissionStatus.denied);
