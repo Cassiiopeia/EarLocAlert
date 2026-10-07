@@ -625,19 +625,22 @@ class _StatusBar extends StatelessWidget {
                 //
                 // 설명이 필요한 말은 **빈 화면이 이미 하고 있다**
                 // ("첫 장소를 등록해보세요"). 같은 말을 두 곳에서 하지 않는다.
-                Flexible(
-                  child: Text(
-                    isMonitoring
-                        ? context.l10n.placeHomeStatusWatching
-                        : _isBroken
-                        ? context.l10n.placeHomeStatusOff
-                        : _isChecking
-                        ? context.l10n.placeHomeStatusChecking
-                        : context.l10n.placeHomeStatusIdle,
-                    style: AppTypography.body.copyWith(color: statusColor),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
+                //
+                // **감시 상태는 줄이지 않는다** (이슈 #224). 영어에서
+                // "Monitoring" 이 "Monit…" 로 잘려 감시 중인지 읽히지 않았다.
+                // 공간이 모자라면 오른쪽 오디오 문구가 대신 줄어든다 — 그쪽은
+                // 아이콘만으로도 뜻이 통한다.
+                Text(
+                  isMonitoring
+                      ? context.l10n.placeHomeStatusWatching
+                      : _isBroken
+                      ? context.l10n.placeHomeStatusOff
+                      : _isChecking
+                      ? context.l10n.placeHomeStatusChecking
+                      : context.l10n.placeHomeStatusIdle,
+                  style: AppTypography.body.copyWith(color: statusColor),
+                  maxLines: 1,
+                  softWrap: false,
                 ),
                 // 누를 수 있다는 것은 글자보다 모양이 빠르다 — '눌러서 확인'
                 // 대신 꺾쇠를 둔다
@@ -668,11 +671,15 @@ class _StatusBar extends StatelessWidget {
                       : AppColors.textSecondary,
                 ),
                 const SizedBox(width: AppSpacing.xs),
-                Text(
-                  isHeadphoneConnected
-                      ? context.l10n.placeHomeAudioHeadphones
-                      : context.l10n.placeHomeAudioVibrationOnly,
-                  style: AppTypography.body,
+                Flexible(
+                  child: Text(
+                    isHeadphoneConnected
+                        ? context.l10n.placeHomeAudioHeadphones
+                        : context.l10n.placeHomeAudioVibrationOnly,
+                    style: AppTypography.body,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
               ],
             ),
