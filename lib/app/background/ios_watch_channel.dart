@@ -18,6 +18,12 @@ abstract interface class IosWatchPlatform {
 
   Future<void> setTier(WatchTier tier);
 
+  /// 새 측정을 한 번 청한다 (이슈 #233). 감시 중이 아니면 아무 일도 없다.
+  ///
+  /// 움직이지 않는 사용자는 distanceFilter 에 막혀 측정이 오지 않는다 — 장소가
+  /// 바뀐 순간에는 지금 위치가 필요하다.
+  Future<void> requestFix(String reason);
+
   Future<void> stop();
 }
 
@@ -86,6 +92,10 @@ class IosWatchChannel implements IosWatchPlatform {
   @override
   Future<void> setTier(WatchTier tier) =>
       _invoke('setTier', {'tier': tier.name});
+
+  @override
+  Future<void> requestFix(String reason) =>
+      _invoke('requestFix', {'reason': reason});
 
   @override
   Future<void> stop() => _invoke('stop');

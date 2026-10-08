@@ -16,9 +16,13 @@ import '../domain/alert_effects.dart';
 /// 앱이 라우팅을 조작할 필요가 없다 — 해야 할 일은 반대로,
 /// **연결되어 있지 않으면 재생하지 않는 것**이다.
 class AlertSoundServiceImpl implements AlertSoundService {
-  AlertSoundServiceImpl({String? assetPath, HeadphoneDetector? detector})
-    : _defaultAssetPath = assetPath ?? 'assets/sounds/alert.wav',
-      _detector = detector ?? const AudioSessionHeadphoneDetector();
+  AlertSoundServiceImpl({
+    String? assetPath,
+    HeadphoneDetector? detector,
+    bool Function()? startsInBackground,
+  }) : _defaultAssetPath = assetPath ?? 'assets/sounds/alert.wav',
+       _detector = detector ?? const AudioSessionHeadphoneDetector(),
+       _startsInBackground = startsInBackground ?? (() => false);
 
   /// 이어폰 허용 목록 — **실제 정의는 `core/audio` 에 하나만 있다.**
   ///
@@ -63,6 +67,29 @@ class AlertSoundServiceImpl implements AlertSoundService {
     androidWillPauseWhenDucked: false,
   );
 
+  /// 화면 없이 시작하는 iOS 세션의 오디오 세션 (이슈 #233)
+  ///
+  /// **iOS 는 백그라운드에서 다른 앱을 끊는(nonmixable) 세션을 켤 수 없다**
+  /// (`AVAudioSessionErrorCodeCannotInterruptOthers`). 그대로 두면 활성화가 실패해
+  /// 이어폰이 있어도 진동으로만 떨어진다. 그래서 백그라운드 시작만 다른 앱 소리를
+  /// 줄이고(duck) 섞어 낸다 — 출력 경로는 같아 스피커로 새지 않는다.
+  ///
+  /// Android 는 이 설정을 쓰지 않는다 (`startsInBackground` 가 늘 false).
+  static const alertSessionConfigurationBackground = AudioSessionConfiguration(
+    avAudioSessionCategory: AVAudioSessionCategory.playback,
+    avAudioSessionCategoryOptions: AVAudioSessionCategoryOptions.duckOthers,
+    avAudioSessionMode: AVAudioSessionMode.defaultMode,
+    androidAudioAttributes: AndroidAudioAttributes(
+      contentType: AndroidAudioContentType.sonification,
+      usage: AndroidAudioUsage.media,
+    ),
+    androidAudioFocusGainType: AndroidAudioFocusGainType.gainTransient,
+    androidWillPauseWhenDucked: false,
+  );
+
+  /// 지금 재생을 화면 없이(백그라운드에서) 시작하는가 — iOS 에서만 true 가 된다
+  final bool Function() _startsInBackground;
+
   /// 장소가 음원을 지정하지 않았을 때 쓰는 소리
   final String _defaultAssetPath;
   final HeadphoneDetector _detector;
@@ -76,7 +103,19 @@ class AlertSoundServiceImpl implements AlertSoundService {
   Future<void> play({required double volume, AlertSoundSource? source}) async {
     try {
       final session = await AudioSession.instance;
-      await session.configure(alertSessionConfiguration);
+      final background = _startsInBackground();
+      await session.configure(
+        background
+            ? alertSessionConfigurationBackground
+            : alertSessionConfiguration,
+      );
+      // 백그라운드 시작이 실패하면 무엇으로 시도했는지가 첫 단서다 (이슈 #233)
+      Diagnostics.log(
+        'alert',
+        'audio session configured category=playback '
+            'options=${background ? "duck_others" : "none"} '
+            'context=${background ? "background" : "foreground"}',
+      );
 
       // **포커스 획득 결과를 확인한다** (이슈 #129). 예전에는 반환값을
       // 버려서, 다른 앱이 배타적으로 점유해 요청이 거부돼도 그냥 재생을
@@ -120,7 +159,8 @@ class AlertSoundServiceImpl implements AlertSoundService {
       // 이미 울리고 있고, 해제는 영향을 받지 않는다.
       unawaited(player.play().catchError((Object _) {}));
     } on Object catch (error) {
-      // 호출자는 이 예외를 받아 재시도 없이 진동으로 떨어진다
+      // 호출자는 이 예외를 받아 재시도 없이 진동으로 떨어진다. 사유 줄은
+      // 호출자(AlertController)가 남긴다
       throw AlertSoundException('$error');
     }
   }

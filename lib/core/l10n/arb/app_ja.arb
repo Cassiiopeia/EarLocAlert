@@ -90,7 +90,6 @@
   "alertNotificationChannelName": "アラート作動中",
   "alertNotificationChannelDescription": "アラート画面から離れたときに戻るための通知です",
   "alertDismissedTitle": "アラートを止めました",
-  "alertDismissedConfirm": "OK",
   "volumeTitle": "アラート音の大きさ",
   "volumeDescription": "アラートが鳴るときにシステム音量がこの値より低い場合はここまで上げ、解除すると元に戻します。",
   "volumePreviewStop": "試聴を停止",

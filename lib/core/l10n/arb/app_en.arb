@@ -90,7 +90,6 @@
   "alertNotificationChannelName": "Active alert",
   "alertNotificationChannelDescription": "A notification that brings you back to the alert screen",
   "alertDismissedTitle": "Alert dismissed",
-  "alertDismissedConfirm": "OK",
   "volumeTitle": "Alert sound volume",
   "volumeDescription": "If the system volume is lower than this when an alert rings, it is raised to this level and restored when you dismiss it.",
   "volumePreviewStop": "Stop preview",

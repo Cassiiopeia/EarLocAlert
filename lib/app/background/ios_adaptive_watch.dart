@@ -46,6 +46,7 @@ class IosAdaptiveWatch implements AlertWatchService {
     DateTime Function()? clock,
     this.heartbeatInterval = const Duration(minutes: 10),
     this.foregroundAlerts = const Stream.empty(),
+    this.backgroundAlerts = const Stream.empty(),
   }) : _platform = platform,
        _processor = processor,
        _places = places,
@@ -73,9 +74,17 @@ class IosAdaptiveWatch implements AlertWatchService {
   /// 알림 화면으로 승격한다 (3초 폴링을 기다리지 않는다)
   final Stream<void> foregroundAlerts;
 
+  /// 화면 없이 알림이 결정됐다는 신호 (이슈 #233) — 앱 루트가 받아 OS 알림과
+  /// 별개로 실제 알림 세션(소리·진동)을 곧바로 시작한다
+  final Stream<PendingAlert> backgroundAlerts;
+
   /// 측정을 하나씩 처리한다 — 단계 전환 순서가 측정 순서와 같아야 한다
   final _queue = SerialTaskQueue();
   DateTime? _lastHeartbeat;
+
+  /// 마지막 측정 (이슈 #233) — 장소가 바뀌면 이것으로 단계를 바로 다시 고른다.
+  /// 움직이지 않으면 다음 측정이 distanceFilter 에 막혀 오지 않기 때문이다
+  PositionSample? _lastFix;
   bool _attached = false;
   RegionEventReceiver? _receiver;
 
@@ -96,11 +105,13 @@ class IosAdaptiveWatch implements AlertWatchService {
     _receiver = null;
   }
 
+  /// 등록 동기화가 장소 목록을 반영할 때마다 부른다 — 추가·수정·켜기·끄기·삭제.
   @override
   Future<void> startWatching() async {
     final result = await _platform.start(_policy.tier);
     if (result.started) {
       Diagnostics.log('watch', 'ios watch start requested tier=${tier.name}');
+      await onPlacesChanged();
     } else {
       // "항상" 권한이 없으면 영역 감시만 남는다 — 왜 위치 표시가 없는지의 답이다
       Diagnostics.log(
@@ -127,38 +138,81 @@ class IosAdaptiveWatch implements AlertWatchService {
   @override
   Future<void> syncGeofences(List<Map<String, Object?>> geofences) async {}
 
+  /// 장소 목록이 바뀌었다 (이슈 #233).
+  ///
+  /// **마지막 측정으로 단계를 바로 다시 고르고, 새 측정을 한 번 청한다.** 사용자
+  /// 바로 옆에 장소를 만들었는데 단계가 mid 로 남아 정밀 측정이 한 번도 없었고,
+  /// 도착은 늦은 영역 이벤트로만 왔다 — 움직이지 않으면 다음 측정이 distanceFilter
+  /// 에 막혀 오지 않아 단계를 다시 고를 기회가 없었다.
+  ///
+  /// 마지막 측정은 판정에 넣지 않는다 — 새 장소의 안팎은 등록 순간 초기값이
+  /// 정하고(결정 054-6), 옛 측정으로 도착을 울리면 안 된다.
+  Future<void> onPlacesChanged() async {
+    await _queue.run(_reevaluateForPlaces);
+    await _platform.requestFix('places_changed');
+  }
+
+  Future<void> _reevaluateForPlaces() async {
+    final fix = _lastFix;
+    if (fix == null) {
+      Diagnostics.log(
+        'watch',
+        'tier reevaluation skipped reason=no_last_fix trigger=places_changed',
+      );
+      return;
+    }
+    final gap = nearestRingGapMeters(fix, await _targets());
+    // 시각은 지금으로 둔다 — 옛 측정의 시각을 쓰면 정밀 단계 체류 시간이
+    // 과거부터 잡혀 다음 측정에서 곧바로 30분 상한에 걸린다
+    await _applyTier(fix, gap, at: _clock(), reason: 'places_changed');
+  }
+
+  Future<List<GeofenceTarget>> _targets() async => [
+    for (final place in await _places.findAll())
+      if (place.enabled)
+        GeofenceTarget(
+          placeId: place.id,
+          latitude: place.latitude,
+          longitude: place.longitude,
+          radiusMeters: place.radiusMeters,
+          direction: place.direction,
+        ),
+  ];
+
+  /// 단계를 고르고 바뀌었으면 네이티브에 알린다 — 고른 단계를 돌려준다
+  Future<WatchTier> _applyTier(
+    PositionSample fix,
+    double? gap, {
+    required DateTime at,
+    String? reason,
+  }) async {
+    final before = _policy.tier;
+    final next = _policy.next(
+      gapMeters: gap,
+      accuracyMeters: fix.accuracyMeters,
+      at: at,
+    );
+    if (next != before) {
+      // 상한이 걸렸으면 그것이 진짜 사유다 — 트리거보다 앞선다
+      final why = _policy.preciseCapped ? 'precise_cap' : reason;
+      Diagnostics.log(
+        'watch',
+        'tier changed tier=${next.name} from=${before.name} '
+            'nearest=${meters(gap)} acc=${meters(fix.accuracyMeters)}'
+            '${why != null ? " reason=$why" : ""}',
+      );
+      await _platform.setTier(next);
+    }
+    return next;
+  }
+
   /// 네이티브 측정 하나 (이슈 #231)
   Future<void> onFix(PositionSample sample) => _queue.run(() => _onFix(sample));
 
   Future<void> _onFix(PositionSample sample) async {
-    final targets = [
-      for (final place in await _places.findAll())
-        if (place.enabled)
-          GeofenceTarget(
-            placeId: place.id,
-            latitude: place.latitude,
-            longitude: place.longitude,
-            radiusMeters: place.radiusMeters,
-            direction: place.direction,
-          ),
-    ];
-    final gap = nearestRingGapMeters(sample, targets);
-
-    final before = _policy.tier;
-    final next = _policy.next(
-      gapMeters: gap,
-      accuracyMeters: sample.accuracyMeters,
-      at: sample.timestamp,
-    );
-    if (next != before) {
-      Diagnostics.log(
-        'watch',
-        'tier changed tier=${next.name} from=${before.name} '
-            'nearest=${meters(gap)} acc=${meters(sample.accuracyMeters)}'
-            '${_policy.preciseCapped ? " reason=precise_cap" : ""}',
-      );
-      await _platform.setTier(next);
-    }
+    _lastFix = sample;
+    final gap = nearestRingGapMeters(sample, await _targets());
+    final next = await _applyTier(sample, gap, at: sample.timestamp);
 
     // 근접 원 안의 측정만 판정한다 — 밖이면 어느 장소에도 들어갈 수 없다.
     // 단계와 무관하게 본다: 상한에 걸린 중간 단계 측정도 판정 대상이다
@@ -215,18 +269,24 @@ class IosAdaptiveWatch implements AlertWatchService {
 /// 떴다가 바로 지워지는 것보다, 알림 화면이 바로 뜨는 쪽이 맞다. 대기 알림
 /// 저장은 같다 — 승격은 기존 경로(`PendingAlertResumer`)가 한다.
 ///
-/// 화면이 없으면 영역 콜백과 같은 백그라운드 알림(무음 햅틱, 결정 053)을 낸다.
+/// 화면이 없으면 영역 콜백과 같은 백그라운드 알림(무음 햅틱, 결정 053)을 내고,
+/// **이어서 앱 세션을 바로 시작하게 알린다** (이슈 #233, 결정 055). 이 포트가
+/// 불린다는 것 자체가 앱 isolate 가 살아 있다는 뜻이라, 사용자가 앱을 열 때까지
+/// 소리를 미룰 이유가 없다. 콜백만 도는 경로(앱 isolate 없음)는 이 포트를 쓰지
+/// 않으므로 예전 그대로다.
 class AppIsolateAlertPort implements BackgroundAlertPort {
   AppIsolateAlertPort({
     required BackgroundAlertPort background,
     required PendingAlertStore store,
     required bool Function() isForeground,
     required void Function() onForegroundAlert,
+    void Function(PendingAlert alert)? onBackgroundAlert,
     Future<void> Function()? ensureBackgroundReady,
   }) : _background = background,
        _store = store,
        _isForeground = isForeground,
        _onForegroundAlert = onForegroundAlert,
+       _onBackgroundAlert = onBackgroundAlert,
        _ensureBackgroundReady = ensureBackgroundReady;
 
   final BackgroundAlertPort _background;
@@ -234,6 +294,7 @@ class AppIsolateAlertPort implements BackgroundAlertPort {
   final PendingAlertStore _store;
   final bool Function() _isForeground;
   final void Function() _onForegroundAlert;
+  final void Function(PendingAlert alert)? _onBackgroundAlert;
 
   @override
   Future<void> notify(PendingAlert alert) async {
@@ -252,6 +313,12 @@ class AppIsolateAlertPort implements BackgroundAlertPort {
       // 초기화가 실패해도 발행은 시도한다 — 대기 알림 저장은 그 안에서 먼저 된다
       Diagnostics.log('notify', 'notification init before post failed $error');
     }
-    await _background.notify(alert);
+    try {
+      // 알림이 먼저다 — 저장과 진동이 여기서 된다. 세션 시작이 실패해도 남는다
+      await _background.notify(alert);
+    } finally {
+      // 발행이 실패해도 세션은 시작한다 — 대기 알림은 발행 전에 저장됐다
+      _onBackgroundAlert?.call(alert);
+    }
   }
 }

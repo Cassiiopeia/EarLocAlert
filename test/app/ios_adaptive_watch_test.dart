@@ -49,6 +49,7 @@ void main() {
   late _FakePlatform platform;
   late _FakeStates states;
   late _FakeAlertPort port;
+  late _FakePlaces places;
   late IosAdaptiveWatch watch;
 
   setUp(() {
@@ -59,7 +60,7 @@ void main() {
     platform = _FakePlatform();
     states = _FakeStates();
     port = _FakeAlertPort();
-    final places = _FakePlaces([place]);
+    places = _FakePlaces([place]);
     watch = IosAdaptiveWatch(
       platform: platform,
       processor: GeofenceBackgroundProcessor(
@@ -144,6 +145,102 @@ void main() {
     expect(logger.lines.last, contains('reason=not_always'));
   });
 
+  group('장소가 바뀌면 단계를 다시 고른다 (이슈 #233)', () {
+    test('사용자 옆으로 옮긴 장소는 움직이지 않아도 곧바로 정밀이 된다', () async {
+      await watch.onFix(fix(37.52)); // 근접 원까지 ≈1.3km — 중간
+      expect(watch.tier, WatchTier.mid);
+
+      // 실기기 재현: 반경 50m(근접 원 500m)로 사용자 바로 옆에 옮겼다
+      places.items[0] = place.copyWith(latitude: 37.5201, radiusMeters: 50);
+      await watch.startWatching();
+
+      expect(watch.tier, WatchTier.precise);
+      expect(platform.tiers.last, WatchTier.precise);
+      expect(
+        logger.lines.where((l) => l.contains('tier changed tier=precise')),
+        [contains('reason=places_changed')],
+      );
+      expect(platform.fixRequests, [
+        'places_changed',
+      ], reason: '옛 측정만 믿지 않고 지금 위치를 한 번 더 청한다');
+    });
+
+    test('옛 측정으로는 판정하지 않는다 — 단계만 바꾼다', () async {
+      states.states[place.id] = GeofenceState.outside;
+      await watch.onFix(fix(37.52));
+
+      // 장소를 마지막 측정 자리로 옮겨도 그 측정으로 도착을 울리지 않는다
+      places.items[0] = place.copyWith(latitude: 37.52);
+      await watch.startWatching();
+
+      expect(port.notified, isEmpty);
+      expect(states.states[place.id], GeofenceState.outside);
+    });
+
+    test('측정이 아직 없으면 사유를 남기고 새 측정만 청한다', () async {
+      await watch.startWatching();
+
+      expect(platform.tiers, isEmpty);
+      expect(
+        logger.lines,
+        contains(contains('tier reevaluation skipped reason=no_last_fix')),
+      );
+      expect(platform.fixRequests, ['places_changed']);
+    });
+
+    test('감시를 시작하지 못했으면 다시 고르지 않는다', () async {
+      await watch.onFix(fix(37.52));
+      platform.startResult = (started: false, reason: 'not_always');
+
+      await watch.startWatching();
+
+      expect(platform.fixRequests, isEmpty);
+    });
+
+    test('옛 측정 시각으로 정밀 체류를 재지 않는다 — 곧바로 상한에 걸리지 않는다', () async {
+      final now = DateTime.utc(2026, 10, 8, 18);
+      final timed = IosAdaptiveWatch(
+        platform: platform,
+        processor: GeofenceBackgroundProcessor(
+          places: places,
+          states: states,
+          events: _FakeEvents(),
+          evaluator: const GeofenceEvaluator(),
+          alertPort: port,
+          idGenerator: () => 'e',
+          clock: () => now,
+        ),
+        places: places,
+        alertPort: port,
+        clock: () => now,
+      );
+      // 여섯 시간 전 측정이 마지막이다
+      await timed.onFix(
+        PositionSample(
+          latitude: 37.52,
+          longitude: 127.0,
+          accuracyMeters: 10,
+          timestamp: now.subtract(const Duration(hours: 6)),
+        ),
+      );
+      places.items[0] = place.copyWith(latitude: 37.5201, radiusMeters: 50);
+      await timed.startWatching();
+      expect(timed.tier, WatchTier.precise);
+
+      // 청한 새 측정이 도착한다 — 여전히 근접 원 안이면 정밀이 유지돼야 한다
+      await timed.onFix(
+        PositionSample(
+          latitude: 37.52,
+          longitude: 127.0,
+          accuracyMeters: 10,
+          timestamp: now.add(const Duration(seconds: 5)),
+        ),
+      );
+      expect(timed.tier, WatchTier.precise);
+      expect(logger.lines, isNot(contains(contains('reason=precise_cap'))));
+    });
+  });
+
   group('AppIsolateAlertPort', () {
     final alert = PendingAlert(
       placeId: 'p',
@@ -188,6 +285,48 @@ void main() {
       expect(readied, 1);
       expect(background.notified.single.placeName, 'te');
     });
+
+    test('화면이 없으면 알림을 낸 뒤 앱 세션 시작을 부른다 (이슈 #233)', () async {
+      final order = <String>[];
+      final background = _FakeAlertPort(onNotify: () => order.add('notify'));
+      final appPort = AppIsolateAlertPort(
+        background: background,
+        store: PendingAlertStore(),
+        isForeground: () => false,
+        onForegroundAlert: () => fail('승격하면 안 된다'),
+        onBackgroundAlert: (a) => order.add('session ${a.placeName}'),
+      );
+
+      await appPort.notify(alert);
+
+      expect(order, ['notify', 'session te']);
+    });
+
+    test('알림 발행이 실패해도 앱 세션은 시작한다', () async {
+      var started = 0;
+      final appPort = AppIsolateAlertPort(
+        background: _FakeAlertPort(onNotify: () => throw StateError('post')),
+        store: PendingAlertStore(),
+        isForeground: () => false,
+        onForegroundAlert: () => fail('승격하면 안 된다'),
+        onBackgroundAlert: (_) => started++,
+      );
+
+      await expectLater(appPort.notify(alert), throwsStateError);
+      expect(started, 1);
+    });
+
+    test('화면이 떠 있으면 앱 세션 시작을 따로 부르지 않는다 — 승격이 한다', () async {
+      final appPort = AppIsolateAlertPort(
+        background: _FakeAlertPort(),
+        store: PendingAlertStore(),
+        isForeground: () => true,
+        onForegroundAlert: () {},
+        onBackgroundAlert: (_) => fail('두 번째 세션이 된다'),
+      );
+
+      await appPort.notify(alert);
+    });
   });
 }
 
@@ -205,6 +344,11 @@ class _FakePlatform implements IosWatchPlatform {
 
   @override
   Future<void> setTier(WatchTier tier) async => tiers.add(tier);
+
+  final List<String> fixRequests = [];
+
+  @override
+  Future<void> requestFix(String reason) async => fixRequests.add(reason);
 
   @override
   Future<void> stop() async => stopped = true;
@@ -292,8 +436,14 @@ class _FakeEvents implements GeofenceEventRepository {
 }
 
 class _FakeAlertPort implements BackgroundAlertPort {
+  _FakeAlertPort({this.onNotify});
+
+  final void Function()? onNotify;
   final List<PendingAlert> notified = [];
 
   @override
-  Future<void> notify(PendingAlert alert) async => notified.add(alert);
+  Future<void> notify(PendingAlert alert) async {
+    onNotify?.call();
+    notified.add(alert);
+  }
 }

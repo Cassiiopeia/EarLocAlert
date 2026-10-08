@@ -28,11 +28,6 @@
       "group": "alert"
     },
     {
-      "const": "alertDismissed",
-      "path": "/alert/dismissed",
-      "group": "alert"
-    },
-    {
       "const": "diagnostics",
       "path": "/diagnostics",
       "group": "diagnostics"
@@ -64,11 +59,6 @@
     }
   ],
   "screens": [
-    {
-      "file": "features/alert/presentation/alert_dismissed_screen.dart",
-      "group": "alert",
-      "name": "alert_dismissed"
-    },
     {
       "file": "features/alert/presentation/alert_screen.dart",
       "group": "alert",

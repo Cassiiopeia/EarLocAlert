@@ -90,7 +90,6 @@
   "alertNotificationChannelName": "提醒进行中",
   "alertNotificationChannelDescription": "离开提醒界面后用于返回的通知",
   "alertDismissedTitle": "提醒已关闭",
-  "alertDismissedConfirm": "确定",
   "volumeTitle": "提示音音量",
   "volumeDescription": "提醒响起时，若系统音量低于此值，会先调高到此音量，解除后恢复原状。",
   "volumePreviewStop": "停止试听",

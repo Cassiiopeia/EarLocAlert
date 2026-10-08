@@ -107,6 +107,13 @@ class AlertController {
   /// 해제를 기다리는 다른 장소의 알림 수
   int get queuedCount => _queue.length;
 
+  /// 지금 세션의 오디오 판정 결과 (이슈 #233).
+  ///
+  /// 앱이 화면 없이 세션을 시작했을 때 "이어폰으로 울렸는가"를 한 줄로 남기려고
+  /// 연다. 판정 전에 해제됐거나 세션이 없으면 null 이다. **실패하지 않는다.**
+  Future<AudioRoute?> get audioDecision => _audioDecision ?? Future.value();
+  Future<AudioRoute?>? _audioDecision;
+
   /// 알림을 발화한다.
   ///
   /// 규칙 4 — 이미 울리고 있으면:
@@ -207,8 +214,12 @@ class AlertController {
     _sessionChanges.add(session);
 
     // 오디오는 알림 전달을 막지 않는다. 결과가 늦게 와도
-    // 이미 해제됐으면 무시한다.
-    unawaited(_resolveAudio(request, token));
+    // 이미 해제됐으면 무시한다. 결과는 [audioDecision] 으로만 읽는다
+    _audioDecision = _resolveAudio(
+      request,
+      token,
+    ).catchError((Object _) => null);
+    unawaited(_audioDecision);
 
     return session;
   }
@@ -216,7 +227,9 @@ class AlertController {
   /// 규칙 5 — 오디오 경로는 **발화 시점에** 결정한다.
   ///
   /// 어떤 분기로도 스피커 출력이 없다 (F3.7).
-  Future<void> _resolveAudio(AlertRequest request, int token) async {
+  ///
+  /// 확정된 경로를 돌려준다. 판정 중에 해제됐으면 null 이다.
+  Future<AudioRoute?> _resolveAudio(AlertRequest request, int token) async {
     var connected = false;
     try {
       connected = await _sound.isHeadphoneConnected();
@@ -226,7 +239,7 @@ class AlertController {
       connected = false;
     }
 
-    if (_sessionToken != token) return; // 이미 해제됐다
+    if (_sessionToken != token) return null; // 이미 해제됐다
 
     final route = _routeDecider.decide(
       isHeadphoneConnected: connected,
@@ -242,7 +255,7 @@ class AlertController {
           'result=${route.name} source=${_describeSource(request.soundSource)}',
     );
 
-    if (route == AudioRoute.silent) return; // 세션은 이미 silent 다
+    if (route == AudioRoute.silent) return route; // 세션은 이미 silent 다
 
     try {
       // 설정 읽기 실패가 알림음을 없애면 안 된다 — 기본값으로 간다
@@ -261,21 +274,24 @@ class AlertController {
         // 올리는 사이 해제됐다 — 원복은 _silence() 가 이미 했을 수도,
         // 아직일 수도 있다. 한 번 더 되돌려도 해가 없다(원복은 멱등이다).
         await _systemVolume.restore();
-        return;
+        return null;
       }
 
       await _sound.play(volume: volume, source: request.soundSource);
-      if (_sessionToken != token) return;
+      if (_sessionToken != token) return null;
       _updateRoute(AudioRoute.headphones, soundFailed: false);
+      return AudioRoute.headphones;
     } on Object catch (error) {
       // 재시도하지 않는다 — 재시도 중 라우팅이 바뀌어 스피커로 새는 것이
       // 최악이다 (docs/10-DECISIONS.md 007)
-      if (_sessionToken != token) return;
+      if (_sessionToken != token) return null;
       Diagnostics.log(
         'alert',
         'alert tone playback failed, falling back to vibration $error',
       );
-      _updateRoute(_routeDecider.onPlaybackFailure(), soundFailed: true);
+      final fallback = _routeDecider.onPlaybackFailure();
+      _updateRoute(fallback, soundFailed: true);
+      return fallback;
     }
   }
 
@@ -318,6 +334,7 @@ class AlertController {
     // 뒤늦게 도착해도 해제된 세션을 되살리지 못한다
     _sessionToken++;
     _current = null;
+    _audioDecision = null;
 
     // 하나가 실패해도 나머지를 멈추지 않는다
     await _silence();

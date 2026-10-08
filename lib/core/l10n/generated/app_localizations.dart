@@ -642,12 +642,6 @@ abstract class AppLocalizations {
   /// **'알림을 껐습니다'**
   String get alertDismissedTitle;
 
-  /// No description provided for @alertDismissedConfirm.
-  ///
-  /// In ko, this message translates to:
-  /// **'확인'**
-  String get alertDismissedConfirm;
-
   /// No description provided for @volumeTitle.
   ///
   /// In ko, this message translates to:

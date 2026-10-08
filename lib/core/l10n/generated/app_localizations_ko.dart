@@ -297,9 +297,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get alertDismissedTitle => '알림을 껐습니다';
 
   @override
-  String get alertDismissedConfirm => '확인';
-
-  @override
   String get volumeTitle => '알림음 크기';
 
   @override

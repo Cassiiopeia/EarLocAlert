@@ -319,6 +319,36 @@ void main() {
     });
   });
 
+  group('오디오 판정 결과 (이슈 #233)', () {
+    test('이어폰으로 울렸으면 headphones 다', () async {
+      sound.connected = true;
+      await controller.fire(makeRequest(), vibrationInterval: interval);
+
+      expect(await controller.audioDecision, AudioRoute.headphones);
+    });
+
+    test('이어폰이 없으면 silent 다 — 진동으로만 울렸다', () async {
+      await controller.fire(makeRequest(), vibrationInterval: interval);
+
+      expect(await controller.audioDecision, AudioRoute.silent);
+    });
+
+    test('재생이 실패하면 떨어진 경로를 돌려준다', () async {
+      sound.connected = true;
+      sound.failOnPlay = true;
+      await controller.fire(makeRequest(), vibrationInterval: interval);
+
+      expect(await controller.audioDecision, AudioRoute.silent);
+    });
+
+    test('세션이 없으면 null 이다 — 기다리지 않는다', () async {
+      expect(await controller.audioDecision, isNull);
+      await controller.fire(makeRequest(), vibrationInterval: interval);
+      await controller.dismiss();
+      expect(await controller.audioDecision, isNull);
+    });
+  });
+
   group('알림음 볼륨 (이슈 #86)', () {
     test('설정한 볼륨으로 재생하고 시스템 볼륨을 그 수준까지 올린다', () async {
       sound.connected = true;
