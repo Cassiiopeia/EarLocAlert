@@ -1,14 +1,35 @@
 {
   "metadata": {
-    "lastUpdated": "2026-10-08T09:48:47Z",
-    "currentVersion": "1.26.3",
+    "lastUpdated": "2026-10-08T10:20:32Z",
+    "currentVersion": "1.27.0",
     "projectType": "flutter",
-    "totalReleases": 92,
+    "totalReleases": 93,
     "projectTypes": [
       "flutter"
     ]
   },
   "releases": [
+    {
+      "version": "1.27.0",
+      "project_type": "flutter",
+      "project_types": [
+        "flutter"
+      ],
+      "date": "2026-10-08",
+      "pr_number": 238,
+      "raw_summary": "## Summary by CodeRabbit\n\n## 릴리스 노트\n\n* **새 기능**\n  * 진동이 잘 느껴지는지 시험하고, 안 되면 iPhone 설정 방법을 안내합니다\n  * 알림이 꺼져 있거나 잠금화면에 안 보이게 설정돼 있으면 홈에서 알려 드립니다\n  * 알림을 길게 눌러 앱을 열지 않고 바로 끌 수 있습니다",
+      "parsed_changes": {
+        "새_기능": {
+          "title": "새 기능",
+          "items": [
+            "진동이 잘 느껴지는지 시험하고, 안 되면 iPhone 설정 방법을 안내합니다",
+            "알림이 꺼져 있거나 잠금화면에 안 보이게 설정돼 있으면 홈에서 알려 드립니다",
+            "알림을 길게 눌러 앱을 열지 않고 바로 끌 수 있습니다"
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "1.26.3",
       "project_type": "flutter",
