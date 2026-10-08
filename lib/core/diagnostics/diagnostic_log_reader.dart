@@ -113,8 +113,32 @@ abstract final class DiagnosticLogReader {
   /// `allowMalformed` 는 깨진 바이트를 대체 문자(U+FFFD)로 바꾼다.
   /// 그 줄 하나만 이상해 보이고 나머지는 그대로 읽힌다.
   static String decodeTolerant(List<int> bytes) {
-    return const Utf8Decoder(allowMalformed: true).convert(bytes);
+    final text = const Utf8Decoder(allowMalformed: true).convert(bytes);
+    return stripNulRuns(text);
   }
+
+  /// NUL(0x00) 덩어리를 표식 한 줄로 바꾼다 (이슈 #239).
+  ///
+  /// iOS 에서 앱이 기록을 쓰던 중 종료되면 파일 끝이 0 바이트로 채워질 수
+  /// 있다. 그 NUL 이 문자열에 남으면 **클립보드·붙여넣기가 거기서 문자열을
+  /// 끝낸다** — 실기기에서 복사한 기록이 매번 같은 줄 중간에서 끊기고, 시각순
+  /// 병합 때문에 그 뒤의 모든 기록(이후 실행 포함)이 통째로 사라졌다.
+  ///
+  /// 지우기만 하지 않고 표식을 남긴다 — "이 지점에서 앱이 기록 중 끝났다"는
+  /// 것 자체가 비정상 종료를 추적하는 단서다. 앞뒤를 줄바꿈으로 감싸서 뒤에
+  /// 이어 붙은 기록이 잘린 줄에 섞이지 않고 제 줄로 돌아온다.
+  static String stripNulRuns(String text) {
+    if (!text.contains('\u0000')) return text;
+    return text.replaceAllMapped(
+      _nulRun,
+      (match) => '\n$nulMarker bytes=${match.group(0)!.length}\n',
+    );
+  }
+
+  /// 기록이 끊긴 자리에 남기는 표식 — 영어 고정 토큰 (CLAUDE.md 로그 규칙)
+  static const nulMarker = '[diag] log write interrupted (null bytes removed)';
+
+  static final _nulRun = RegExp('\u0000+');
 
   /// 파일을 비운다. 없으면 아무것도 하지 않는다.
   ///
