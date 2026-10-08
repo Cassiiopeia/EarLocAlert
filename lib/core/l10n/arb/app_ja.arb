@@ -86,6 +86,7 @@
   "alertScreenRouteSoundFailed": "音を再生できず、バイブレーションでお知らせ中",
   "alertScreenRouteVibrationOnly": "バイブレーションのみでお知らせ中",
   "alertScreenDismiss": "アラートを止める",
+  "alertAlarmOpenApp": "アプリを開く",
   "alertScreenRadius": "半径 {meters} m",
   "alertNotificationChannelName": "アラート作動中",
   "alertNotificationChannelDescription": "アラート画面から離れたときに戻るための通知です",

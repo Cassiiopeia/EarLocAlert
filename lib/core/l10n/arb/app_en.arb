@@ -86,6 +86,7 @@
   "alertScreenRouteSoundFailed": "Couldn't play sound — alerting by vibration",
   "alertScreenRouteVibrationOnly": "Alerting by vibration only",
   "alertScreenDismiss": "Dismiss",
+  "alertAlarmOpenApp": "Open app",
   "alertScreenRadius": "Radius {meters} m",
   "alertNotificationChannelName": "Active alert",
   "alertNotificationChannelDescription": "A notification that brings you back to the alert screen",

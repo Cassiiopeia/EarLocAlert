@@ -618,6 +618,12 @@ abstract class AppLocalizations {
   /// **'알림 끄기'**
   String get alertScreenDismiss;
 
+  /// 잠금 화면 알람(iOS 26 AlarmKit)의 보조 버튼. 누르면 앱의 알림 화면이 열린다 (이슈 #241)
+  ///
+  /// In ko, this message translates to:
+  /// **'앱 열기'**
+  String get alertAlarmOpenApp;
+
   /// No description provided for @alertScreenRadius.
   ///
   /// In ko, this message translates to:

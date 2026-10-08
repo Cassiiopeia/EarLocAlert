@@ -126,6 +126,10 @@
   "alertScreenRouteSoundFailed": "소리를 재생하지 못해 진동으로 알림 중",
   "alertScreenRouteVibrationOnly": "진동으로만 알림 중",
   "alertScreenDismiss": "알림 끄기",
+  "alertAlarmOpenApp": "앱 열기",
+  "@alertAlarmOpenApp": {
+    "description": "잠금 화면 알람(iOS 26 AlarmKit)의 보조 버튼. 누르면 앱의 알림 화면이 열린다 (이슈 #241)"
+  },
   "alertScreenRadius": "반경 {meters}m",
   "@alertScreenRadius": {
     "placeholders": {

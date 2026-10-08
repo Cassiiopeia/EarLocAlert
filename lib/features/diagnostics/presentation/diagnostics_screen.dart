@@ -32,6 +32,9 @@ class DiagnosticsScreen extends ConsumerStatefulWidget {
 class _DiagnosticsScreenState extends ConsumerState<DiagnosticsScreen> {
   String _content = '';
 
+  /// 공유 시트 기준 위치를 재려고 내보내기 버튼에 단다 (이슈 #241)
+  final _exportKey = GlobalKey();
+
   /// 기록 파일을 읽지 못한 사유. 비어 있으면 정상적으로 읽은 것이다
   String _readError = '';
 
@@ -94,18 +97,48 @@ class _DiagnosticsScreenState extends ConsumerState<DiagnosticsScreen> {
     }
     // await 뒤에는 context 를 쓰지 않도록 제목을 미리 구해둔다
     final subject = context.l10n.diagnosticsExportSubject;
+    // **공유 시트의 기준 위치를 넘긴다** (이슈 #241). iOS 26 은 iPhone 에서도
+    // 공유 시트를 popover 로 띄워, 위치가 비면 share_plus 가 예외를 던진다.
+    // 그 예외를 기록 없이 복사로 삼켜서 "내보내기가 복사만 한다"가 됐다
+    final origin = _exportOrigin();
     try {
       final snapshot = await DiagnosticLogReader.createExportSnapshot();
-      await Share.shareXFiles(
+      final result = await Share.shareXFiles(
         // **MIME 을 명시한다.** 없으면 확장자로 추론되는데, 받는 앱이
         // 알 수 없는 형식으로 보고 열기를 거부할 수 있다
         [XFile(snapshot.path, mimeType: 'text/plain')],
         subject: subject,
+        sharePositionOrigin: origin,
       );
-    } on Object {
-      // 공유 시트를 못 띄우면 복사로 물러난다 — 꺼낼 길이 하나는 남아야 한다
+      Diagnostics.log(
+        'diag',
+        'export shared status=${result.status.name} '
+            'bytes=${await snapshot.length()}',
+      );
+    } on Object catch (error) {
+      // 공유 시트를 못 띄우면 복사로 물러난다 — 꺼낼 길이 하나는 남아야 한다.
+      // 사유를 남긴다: 삼키기만 하면 다음에도 왜 복사로 갔는지 모른다
+      Diagnostics.log(
+        'diag',
+        'export failed fallback=copy origin=$origin error=$error',
+      );
       await _copy();
     }
+  }
+
+  /// 내보내기 버튼의 화면 위치. 못 구하면 화면 가운데 작은 사각형 —
+  /// 비어 있는 것보다는 낫다 (빈 값이면 iOS 에서 공유 시트가 실패한다)
+  Rect _exportOrigin() {
+    final box = _exportKey.currentContext?.findRenderObject();
+    if (box is RenderBox && box.hasSize) {
+      return box.localToGlobal(Offset.zero) & box.size;
+    }
+    final size = MediaQuery.sizeOf(context);
+    return Rect.fromCenter(
+      center: size.center(Offset.zero),
+      width: 1,
+      height: 1,
+    );
   }
 
   Future<void> _copy() async {
@@ -176,6 +209,7 @@ class _DiagnosticsScreenState extends ConsumerState<DiagnosticsScreen> {
               ],
             ),
       floatingActionButton: FloatingActionButton.extended(
+        key: _exportKey,
         onPressed: _export,
         icon: const Icon(Icons.ios_share_outlined),
         label: Text(context.l10n.diagnosticsExport),

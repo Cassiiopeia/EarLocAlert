@@ -25,6 +25,9 @@ class RecordingSound implements AlertSoundService {
   }
 
   @override
+  Future<void> keepAliveSilently() async {}
+
+  @override
   Future<void> stop() async {}
 }
 

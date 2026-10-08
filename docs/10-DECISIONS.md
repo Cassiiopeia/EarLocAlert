@@ -1505,6 +1505,38 @@ Play 자동 업데이트(029)만으로는 사용자가 새 버전을 받는 시�
 
 ---
 
+## 059. iOS 소리 없는 백그라운드 세션은 무음 재생으로 오디오 세션을 붙들고, 알람에 "앱 열기" 버튼을 달고, 직전 종료 사유를 MetricKit 으로 남긴다
+
+**날짜** — 2026-10-09 (이슈 #241)
+
+**발견** — v1.27.x iPhone 15(iOS 26) 실기기, 이어폰 없이 도착. AlarmKit 알람은 잠금 화면을 덮었지만 **진동은 한 번도 없었다**(사용자 확인, 여러 번 재현). 진단 기록은 세션 시작 1초 뒤 줄 중간에서 끊겼고, 내보내기 버튼은 공유 시트 없이 복사만 했다. 알람 화면에서 우리 알림 화면(지도·해제 버튼)으로 갈 길도 없었다.
+
+**원인 (추정, 실기기 미확정)**
+
+- 057 은 `kSystemSoundID_Vibrate` 가 백그라운드에서도 진동한다고 전제했지만 확인한 적이 없다. iOS 는 **오디오를 재생하지 않는 백그라운드 앱의 진동 요청을 무시하는 것**으로 보인다. 이어폰이 없으면(`vibrate_only`) 앱이 아무것도 재생하지 않으니 진동 요청이 전부 버려졌다
+- AlarmKit 알람은 무음 파일이라 시스템 알람의 진동도 함께 빠진 것으로 보인다. 진동만 켜는 공개 설정은 찾지 못했다
+- 내보내기 — iOS 26 은 iPhone 에서도 공유 시트를 popover 로 띄워 `sharePositionOrigin` 이 비면 share_plus 가 예외를 던진다. 그 예외를 기록 없이 복사로 삼켰다
+
+**정한 것**
+
+1. **소리 없는 iOS 백그라운드 세션은 무음 재생(`assets/sounds/silence.wav`)으로 오디오 세션을 붙든다.** `AlertController` 가 오디오 판정이 `silent` 이고 앱이 전면이 아니면 `AlertSoundService.keepAliveSilently()` 를 부른다. 음원은 표본이 전부 0 이고 볼륨도 0, 세션은 `mixWithOthers` 라 다른 앱 소리도 건드리지 않는다. 해제하면 `stop()` 이 함께 멈춘다. 로그 `[alert] silent keepalive started|failed`
+2. **CLAUDE.md 규칙 2 의 예외가 아니다** — 들리는 소리는 여전히 이어폰일 때만 난다. 무음 파일이 정말 무음인지는 `silence_asset_test.dart` 가 지킨다. **이 파일에 들리는 표본을 넣는 순간 스피커로 샌다.**
+3. **잠금 화면 알람에 "앱 열기" 보조 버튼을 단다** (`OpenArrivalAlertIntent`, `openAppWhenRun`). 누르면 앱이 열리고 057 4번(전면 전환 → 알람 끔 → 알림 화면)이 그대로 돈다. 문구는 Dart 가 앱 언어로 넘긴다(`alertAlarmOpenApp`). 네이티브 로그 `[alarm] open app tapped id=`
+4. **직전 실행의 종료 사유를 남긴다** — Swift `ExitReasonReporter`(MetricKit). 크래시는 `[exit] crash reported ...` + `[exit] crash stack ...`(앞 3000자), 하루 단위 종료 집계는 `[exit] exit counts background=[...] foreground=[...]`. 같은 보고를 두 번 쓰지 않게 마지막 끝 시각을 기억한다. Android `getHistoricalProcessExitReasons`(#134)에 해당한다
+5. **내보내기** — 버튼 위치를 `sharePositionOrigin` 으로 넘긴다. 실패하면 `[diag] export failed fallback=copy ...`, 성공하면 `[diag] export shared status=...`
+6. **경계 로그 보강** — `[alarm] presenting place=`(Dart, 네이티브로 넘기기 직전), `[alarm] schedule requested id=`(Swift, 예약 직전)
+
+**고르지 않은 것**
+
+- AlarmKit 알람음을 들리는 소리로 — 스피커로 샌다 (규칙 2)
+- 무음 재생을 네이티브(Swift)에서 — 오디오 세션을 두 곳이 만지면 이어폰 재생과 부딪힌다. 재생은 한 서비스(`AlertSoundServiceImpl`)에만 둔다
+
+**다시 볼 조건** — 실기기에서 `silent keepalive started` 뒤에도 진동이 없으면 이 추정이 틀린 것이다. 그때는 AlarmKit 을 빼고(사용자 결정: 진동 없는 알람 화면은 의미가 없다) 알림 + 앱 화면 한 갈래로 간다.
+
+**한계** — AlarmKit·MetricKit 경로는 CI(Xcode 26)에서만 컴파일된다. "앱 열기" 버튼, 무음 재생 중 진동, MetricKit 보고 도착은 실기기로만 확인된다.
+
+---
+
 ## 미결 — 결정하지 않은 것들
 
 **결정하지 않았다는 사실을 기록한다.** 나중에 "왜 이건 안 정했지"를 헤매지 않기 위해서다.

@@ -87,6 +87,19 @@ class AlertSoundServiceImpl implements AlertSoundService {
     androidWillPauseWhenDucked: false,
   );
 
+  /// 진동을 살리려고 세션만 붙드는 무음 재생의 세션 (이슈 #241)
+  ///
+  /// **다른 앱 소리를 줄이지도 끊지도 않는다**(mixWithOthers) — 들리는 것이
+  /// 없으니 음악을 듣던 사람에게 아무 변화가 없어야 한다.
+  static const keepAliveSessionConfiguration = AudioSessionConfiguration(
+    avAudioSessionCategory: AVAudioSessionCategory.playback,
+    avAudioSessionCategoryOptions: AVAudioSessionCategoryOptions.mixWithOthers,
+    avAudioSessionMode: AVAudioSessionMode.defaultMode,
+  );
+
+  /// 무음 유지용 음원 — 표본이 전부 0 이다. 테스트가 그것을 확인한다
+  static const silenceAssetPath = 'assets/sounds/silence.wav';
+
   /// 지금 재생을 화면 없이(백그라운드에서) 시작하는가 — iOS 에서만 true 가 된다
   final bool Function() _startsInBackground;
 
@@ -161,6 +174,29 @@ class AlertSoundServiceImpl implements AlertSoundService {
     } on Object catch (error) {
       // 호출자는 이 예외를 받아 재시도 없이 진동으로 떨어진다. 사유 줄은
       // 호출자(AlertController)가 남긴다
+      throw AlertSoundException('$error');
+    }
+  }
+
+  @override
+  Future<void> keepAliveSilently() async {
+    try {
+      final session = await AudioSession.instance;
+      await session.configure(keepAliveSessionConfiguration);
+      final granted = await session.setActive(true);
+      _listenInterruptions(session);
+      final player = _player ??= AudioPlayer();
+      // 이중 안전장치 — 음원이 무음이고 볼륨도 0 이다
+      await player.setVolume(0);
+      await player.setAsset(silenceAssetPath);
+      await player.setLoopMode(LoopMode.one);
+      // play() 는 반복 재생이 끝날 때 완료된다 — 기다리지 않는다 (play 와 같은 이유)
+      unawaited(player.play().catchError((Object _) {}));
+      Diagnostics.log(
+        'alert',
+        'silent keepalive started session=${granted ? "active" : "inactive"}',
+      );
+    } on Object catch (error) {
       throw AlertSoundException('$error');
     }
   }

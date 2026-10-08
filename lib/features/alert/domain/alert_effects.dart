@@ -48,6 +48,15 @@ abstract interface class AlertSoundService {
   /// 경로에서도 소리는 나야 한다.
   Future<void> play({required double volume, AlertSoundSource? source});
 
+  /// **들리지 않는** 무음을 반복 재생해 오디오 세션만 살려 둔다 (이슈 #241).
+  ///
+  /// iOS 는 오디오를 재생하지 않는 백그라운드 앱의 진동 요청을 무시한다.
+  /// 이어폰이 없어 소리를 내지 않는 세션은 진동마저 사라졌다 — 화면 꺼진
+  /// 주머니 속에서 아무 느낌도 없었다. 음원은 전부 0 인 무음 파일이고 볼륨도
+  /// 0 이라 스피커로 새는 소리가 없다 (CLAUDE.md 규칙 2 와 충돌하지 않는다).
+  /// [stop] 으로 함께 멈춘다. 실패하면 [AlertSoundException] 을 던진다.
+  Future<void> keepAliveSilently();
+
   Future<void> stop();
 }
 

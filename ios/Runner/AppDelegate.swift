@@ -15,6 +15,10 @@ import native_geofence
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
+    // 직전 실행이 왜 끝났는지(크래시·메모리 초과 등)를 진단 기록에 남긴다 (이슈 #241).
+    // 가장 먼저 켠다 — 아래 단계 어디서 죽든 다음 실행에 보고가 남아야 한다
+    ExitReasonReporter.shared.start()
+
     // Google Maps (docs/08-OPERATIONS.md).
     //
     // 키는 Info.plist → MapsKey.xcconfig → .env 순으로 거슬러 올라간다.

@@ -282,6 +282,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get alertScreenDismiss => '알림 끄기';
 
   @override
+  String get alertAlarmOpenApp => '앱 열기';
+
+  @override
   String alertScreenRadius(int meters) {
     return '반경 ${meters}m';
   }

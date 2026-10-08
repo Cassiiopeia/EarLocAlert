@@ -61,6 +61,14 @@ class FakeSound implements AlertSoundService {
     if (failOnPlay) throw const AlertSoundException('재생 실패');
   }
 
+  /// 무음 유지 재생 호출 횟수 (이슈 #241)
+  int keepAliveCount = 0;
+
+  @override
+  Future<void> keepAliveSilently() async {
+    keepAliveCount++;
+  }
+
   @override
   Future<void> stop() async {
     stopCount++;
@@ -126,6 +134,9 @@ class HangingSound implements AlertSoundService {
       _never.future;
 
   @override
+  Future<void> keepAliveSilently() async {}
+
+  @override
   Future<void> stop() async {}
 }
 
@@ -141,6 +152,9 @@ class SlowSound implements AlertSoundService {
   @override
   Future<void> play({required double volume, AlertSoundSource? source}) =>
       _gate.future;
+
+  @override
+  Future<void> keepAliveSilently() async {}
 
   @override
   Future<void> stop() async {}
@@ -346,6 +360,56 @@ void main() {
       await controller.fire(makeRequest(), vibrationInterval: interval);
       await controller.dismiss();
       expect(await controller.audioDecision, isNull);
+    });
+  });
+
+  group('무음 유지 재생 (이슈 #241)', () {
+    AlertController withKeepAlive(bool needed) => AlertController(
+      vibration: vibration,
+      sound: sound,
+      notifier: notifier,
+      routeDecider: const AudioRouteDecider(),
+      volumeStore: volumeStore,
+      systemVolume: systemVolume,
+      vibrationStore: vibrationStore,
+      needsSilentKeepAlive: () => needed,
+    );
+
+    test('소리 없는 백그라운드 세션은 무음 재생을 건다 — 진동이 무시되지 않게', () async {
+      final c = withKeepAlive(true);
+      await c.fire(makeRequest(), vibrationInterval: interval);
+      expect(await c.audioDecision, AudioRoute.silent);
+
+      expect(sound.keepAliveCount, 1);
+      // 들리는 재생은 여전히 없다 (CLAUDE.md 규칙 2)
+      expect(sound.playCount, 0);
+    });
+
+    test('전면 세션은 무음 재생을 걸지 않는다', () async {
+      final c = withKeepAlive(false);
+      await c.fire(makeRequest(), vibrationInterval: interval);
+      await c.audioDecision;
+
+      expect(sound.keepAliveCount, 0);
+    });
+
+    test('이어폰으로 울리면 무음 재생이 필요 없다 — 이미 오디오가 돈다', () async {
+      sound.connected = true;
+      final c = withKeepAlive(true);
+      await c.fire(makeRequest(), vibrationInterval: interval);
+      await c.audioDecision;
+
+      expect(sound.keepAliveCount, 0);
+      expect(sound.playCount, 1);
+    });
+
+    test('해제하면 무음 재생도 멈춘다', () async {
+      final c = withKeepAlive(true);
+      await c.fire(makeRequest(), vibrationInterval: interval);
+      await c.audioDecision;
+      await c.dismiss();
+
+      expect(sound.stopCount, greaterThanOrEqualTo(1));
     });
   });
 

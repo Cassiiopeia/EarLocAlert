@@ -40,16 +40,21 @@ void main() {
     return c;
   }
 
-  Future<void> present(ArrivalAlarmCoordinator c) =>
-      c.present(placeName: '강남역', title: '강남역 · 도착', stopLabel: '알림 끄기');
+  Future<void> present(ArrivalAlarmCoordinator c) => c.present(
+    placeName: '강남역',
+    title: '강남역 · 도착',
+    stopLabel: '알림 끄기',
+    openLabel: '앱 열기',
+  );
 
   test('허용돼 있으면 장소 이름과 끄기 문구로 알람을 띄운다', () async {
     final c = coordinator();
 
     await present(c);
 
-    expect(platform.presented, [('강남역 · 도착', '알림 끄기')]);
+    expect(platform.presented, [('강남역 · 도착', '알림 끄기', '앱 열기')]);
     expect(c.presentedId, 'alarm-1');
+    expect(logger.lines, contains('[alarm] presenting place=강남역'));
     expect(logger.lines, contains('[alarm] presented place=강남역 id=alarm-1'));
   });
 
@@ -215,7 +220,7 @@ class _FakeAlarmPlatform implements ArrivalAlarmPlatform {
   );
   bool failPresent = false;
   Completer<void>? presentGate;
-  final presented = <(String, String)>[];
+  final presented = <(String, String, String)>[];
   final stops = <String>[];
   int authRequests = 0;
   Future<void> Function(String id)? _onStopped;
@@ -235,10 +240,11 @@ class _FakeAlarmPlatform implements ArrivalAlarmPlatform {
   Future<String> present({
     required String title,
     required String stopLabel,
+    required String openLabel,
   }) async {
     if (presentGate != null) await presentGate!.future;
     if (failPresent) throw StateError('schedule_failed');
-    presented.add((title, stopLabel));
+    presented.add((title, stopLabel, openLabel));
     return 'alarm-${presented.length}';
   }
 

@@ -5,6 +5,7 @@ import UIKit
 #if canImport(AlarmKit)
 import ActivityKit
 import AlarmKit
+import AppIntents
 import SwiftUI
 #endif
 
@@ -25,7 +26,8 @@ import SwiftUI
 /// - `status` → `{supported, authorization}` — authorization 은
 ///   `notDetermined|denied|authorized|unsupported`
 /// - `requestAuthorization` → 요청 뒤의 authorization 문자열
-/// - `present {title, stopLabel}` → 예약한 알람 id 문자열
+/// - `present {title, stopLabel, openLabel}` → 예약한 알람 id 문자열.
+///   openLabel 은 앱 알림 화면으로 들어가는 보조 버튼 문구다 (이슈 #241)
 /// - `stopAll` → 이 앱이 띄운 알람을 모두 끈다
 /// - `openSettings` → 앱 설정 화면을 연다 (거부된 뒤 다시 켜는 길)
 /// - 네이티브 → Dart `onAlarmStopped {id}` — 사용자가 잠금 화면에서 알람을 껐다
@@ -58,7 +60,8 @@ final class ArrivalAlarm {
         let args = call.arguments as? [String: Any]
         let title = args?["title"] as? String ?? ""
         let stopLabel = args?["stopLabel"] as? String ?? "Stop"
-        self.present(title: title, stopLabel: stopLabel, result: result)
+        let openLabel = args?["openLabel"] as? String ?? "Open"
+        self.present(title: title, stopLabel: stopLabel, openLabel: openLabel, result: result)
       case "stopAll":
         self.stopAll(reason: (call.arguments as? [String: Any])?["reason"] as? String ?? "dart")
         result(nil)
@@ -103,10 +106,15 @@ final class ArrivalAlarm {
     result("unsupported")
   }
 
-  private func present(title: String, stopLabel: String, result: @escaping FlutterResult) {
+  private func present(
+    title: String,
+    stopLabel: String,
+    openLabel: String,
+    result: @escaping FlutterResult
+  ) {
     #if canImport(AlarmKit)
     if #available(iOS 26.0, *), let bridge = bridge as? ArrivalAlarmKitBridge {
-      bridge.present(title: title, stopLabel: stopLabel) { outcome in
+      bridge.present(title: title, stopLabel: stopLabel, openLabel: openLabel) { outcome in
         switch outcome {
         case .success(let id):
           result(id.uuidString)
@@ -135,6 +143,35 @@ final class ArrivalAlarm {
 /// 알람에 붙는 부가 정보 — 지금은 쓸 것이 없지만 `AlarmAttributes` 가 타입을 요구한다
 @available(iOS 26.0, *)
 struct ArrivalAlarmMetadata: AlarmMetadata {}
+
+/// 잠금 화면 알람의 "앱 열기" 버튼 (이슈 #241)
+///
+/// **iOS 는 앱이 스스로 전면에 나올 수 없다.** 알람 화면은 시스템 UI 라 지도도
+/// 해제 버튼도 없어서, 사용자가 우리 알림 화면으로 들어올 문이 필요했다.
+/// 앱이 열리면 Dart 가 전면 전환을 받아 알람을 끄고 알림 화면을 띄운다(결정 057 4번).
+/// 여기서는 앱을 여는 것과 기록만 한다 — 세션 정리는 Dart 의 한 경로로 모은다.
+@available(iOS 26.0, *)
+struct OpenArrivalAlertIntent: LiveActivityIntent {
+  static var title: LocalizedStringResource = "Open arrival alert"
+  static var openAppWhenRun = true
+  static var isDiscoverable = false
+
+  @Parameter(title: "Alarm ID")
+  var alarmID: String
+
+  init() {
+    alarmID = ""
+  }
+
+  init(alarmID: UUID) {
+    self.alarmID = alarmID.uuidString
+  }
+
+  func perform() async throws -> some IntentResult {
+    NativeDiagnosticLog.write("alarm", "open app tapped id=\(alarmID)")
+    return .result()
+  }
+}
 
 /// AlarmKit 호출을 한곳에 모은다 (iOS 26+)
 ///
@@ -189,6 +226,7 @@ final class ArrivalAlarmKitBridge {
   func present(
     title: String,
     stopLabel: String,
+    openLabel: String,
     completion: @escaping (Result<UUID, Error>) -> Void
   ) {
     // 런타임 문자열을 그대로 쓴다 — 키로 찾지 못하면 그 문자열이 보인다.
@@ -198,26 +236,38 @@ final class ArrivalAlarmKitBridge {
       textColor: .white,
       systemImageName: "stop.circle"
     )
+    // 앱 알림 화면으로 들어가는 보조 버튼 (이슈 #241). `.custom` 이면 누를 때
+    // 아래 secondaryIntent 가 돈다 — 그 인텐트가 앱을 연다
+    let openButton = AlarmButton(
+      text: LocalizedStringResource(String.LocalizationValue(openLabel)),
+      textColor: .white,
+      systemImageName: "arrow.up.forward.app"
+    )
     // iOS 26.0 SDK(CI 의 Xcode 26.0)에는 stopButton 을 받는 생성자만 있다.
     // 26.1 에서 deprecated 됐지만 그 SDK 로 빌드해도 경고일 뿐이다
     let alert = AlarmPresentation.Alert(
       title: LocalizedStringResource(String.LocalizationValue(title)),
-      stopButton: stopButton
+      stopButton: stopButton,
+      secondaryButton: openButton,
+      secondaryButtonBehavior: .custom
     )
     let attributes = AlarmAttributes<ArrivalAlarmMetadata>(
       presentation: AlarmPresentation(alert: alert),
       metadata: ArrivalAlarmMetadata(),
       tintColor: .orange
     )
+    let id = UUID()
     // 무음 파일 — 스피커로 새지 않게 한다 (CLAUDE.md 규칙 2, 결정 057)
     let configuration = AlarmManager.AlarmConfiguration<ArrivalAlarmMetadata>.alarm(
       schedule: .fixed(Date().addingTimeInterval(1)),
       attributes: attributes,
+      secondaryIntent: OpenArrivalAlertIntent(alarmID: id),
       sound: .named("silent_haptic.caf")
     )
 
-    let id = UUID()
     presented.insert(id)
+    // 예약 요청 직전을 남긴다 (이슈 #241) — 이 뒤에 앱이 죽으면 "어디까지 갔나"가 이 줄로 갈린다
+    NativeDiagnosticLog.write("alarm", "schedule requested id=\(id.uuidString)")
     Task { @MainActor [weak self] in
       do {
         _ = try await AlarmManager.shared.schedule(id: id, configuration: configuration)

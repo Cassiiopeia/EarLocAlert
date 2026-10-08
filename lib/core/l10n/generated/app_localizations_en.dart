@@ -300,6 +300,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get alertScreenDismiss => 'Dismiss';
 
   @override
+  String get alertAlarmOpenApp => 'Open app';
+
+  @override
   String alertScreenRadius(int meters) {
     return 'Radius $meters m';
   }
