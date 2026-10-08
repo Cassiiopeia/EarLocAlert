@@ -294,9 +294,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get alertDismissedTitle => '提醒已关闭';
 
   @override
-  String get alertDismissedConfirm => '确定';
-
-  @override
   String get volumeTitle => '提示音音量';
 
   @override

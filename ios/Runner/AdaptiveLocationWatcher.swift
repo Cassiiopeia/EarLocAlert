@@ -84,6 +84,17 @@ final class AdaptiveLocationWatcher: NSObject, CLLocationManagerDelegate {
           NativeDiagnosticLog.write("watch", "tier applied tier=\(requested) running=\(self.running)")
         }
         result(nil)
+      case "requestFix":
+        // 장소가 바뀐 순간의 지금 위치 (이슈 #233). 움직이지 않으면 distanceFilter 에
+        // 막혀 측정이 오지 않는다 — 갱신을 다시 시작하면 첫 측정을 곧바로 준다.
+        // requestLocation 은 표준 갱신과 함께 쓰지 않는다(갱신 중 호출은 권장되지 않는다)
+        let reason = args?["reason"] as? String ?? "unknown"
+        if self.running {
+          self.manager.stopUpdatingLocation()
+          self.manager.startUpdatingLocation()
+        }
+        NativeDiagnosticLog.write("watch", "ios fix requested reason=\(reason) running=\(self.running)")
+        result(nil)
       case "stop":
         self.wanted = false
         self.stopUpdates(reason: "dart")

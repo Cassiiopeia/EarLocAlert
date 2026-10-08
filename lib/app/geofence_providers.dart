@@ -23,6 +23,7 @@ import 'background/geofence_background_processor.dart';
 import 'background/geofence_callback.dart';
 import 'background/ios_adaptive_watch.dart';
 import 'background/ios_watch_channel.dart';
+import 'background/pending_alert.dart';
 import 'background/pending_alert_store.dart';
 import 'background/region_event_relay.dart';
 import 'geofence_registration_sync.dart';
@@ -65,6 +66,9 @@ IosAdaptiveWatch iosAdaptiveWatch(Ref ref) {
   final plugin = ref.watch(notificationsPluginProvider);
   final arrivals = StreamController<void>.broadcast();
   ref.onDispose(arrivals.close);
+  // 화면 없이 정해진 알림 (이슈 #233) — 앱 루트가 받아 세션을 바로 시작한다
+  final backgroundArrivals = StreamController<PendingAlert>.broadcast();
+  ref.onDispose(backgroundArrivals.close);
 
   final alertPort = AppIsolateAlertPort(
     background: BackgroundAlertNotifier(
@@ -79,6 +83,9 @@ IosAdaptiveWatch iosAdaptiveWatch(Ref ref) {
         WidgetsBinding.instance.lifecycleState == AppLifecycleState.resumed,
     onForegroundAlert: () {
       if (!arrivals.isClosed) arrivals.add(null);
+    },
+    onBackgroundAlert: (alert) {
+      if (!backgroundArrivals.isClosed) backgroundArrivals.add(alert);
     },
   );
   final places = ref.watch(placeRepositoryProvider);
@@ -97,6 +104,7 @@ IosAdaptiveWatch iosAdaptiveWatch(Ref ref) {
     alertPort: alertPort,
     receiverFactory: RegionEventReceiver.new,
     foregroundAlerts: arrivals.stream,
+    backgroundAlerts: backgroundArrivals.stream,
   );
   ref.onDispose(watch.detach);
   return watch;

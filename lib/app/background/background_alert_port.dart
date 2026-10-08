@@ -10,6 +10,7 @@ abstract interface class BackgroundAlertPort {
   ///
   /// 백그라운드에서 할 수 있는 것은 OS 알림 발행과 PendingAlert 저장뿐이다
   /// (docs/02-ARCHITECTURE.md 규칙 5). 반복 진동·오디오는 앱이 열린 뒤
-  /// PendingAlertLauncher 가 시작한다.
+  /// PendingAlertLauncher 가 시작한다. **예외는 iOS 앱 isolate 출구다** —
+  /// 앱 isolate 가 살아 있으면 화면 없이도 세션을 바로 시작한다 (결정 055).
   Future<void> notify(PendingAlert alert);
 }

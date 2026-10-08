@@ -137,7 +137,6 @@
   "alertNotificationChannelName": "알림 진행 중",
   "alertNotificationChannelDescription": "알림 화면을 벗어났을 때 다시 돌아오는 알림입니다",
   "alertDismissedTitle": "알림을 껐습니다",
-  "alertDismissedConfirm": "확인",
   "volumeTitle": "알림음 크기",
   "volumeDescription": "알림이 울릴 때 시스템 볼륨이 이 수준보다 낮으면 여기까지 올렸다가, 끄면 원래대로 되돌립니다.",
   "volumePreviewStop": "미리듣기 멈추기",

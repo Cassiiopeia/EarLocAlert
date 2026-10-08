@@ -20,6 +20,9 @@ import '../features/alert/presentation/alert_controller_provider.dart';
 import '../features/app_update/domain/app_updater.dart';
 import '../features/app_update/presentation/app_update_providers.dart';
 import 'background/background_alert_notifier.dart';
+import 'background/pending_alert.dart';
+import 'background/pending_alert_store.dart';
+import 'background_alert_ringer.dart';
 import 'geofence_providers.dart';
 import 'pending_alert_resumer.dart';
 import 'router.dart';
@@ -70,6 +73,36 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
   /// 화면이 떠 있을 때 결정된 iOS 감시 알림 (이슈 #231)
   StreamSubscription<void>? _iosAlerts;
 
+  /// 화면 없이 결정된 iOS 감시 알림과, 그 세션의 끝 (이슈 #233)
+  StreamSubscription<PendingAlert>? _iosBackgroundAlerts;
+  StreamSubscription<Object?>? _sessionEnds;
+
+  /// 화면 없이 결정된 알림을 바로 울린다 (이슈 #233, 결정 055).
+  ///
+  /// 승격([_resumer])과 같은 세션 경로를 탄다 — 대기 알림을 꺼내 쓰므로 앱을 열 때
+  /// 승격이 같은 알림으로 두 번째 세션을 만들지 않는다.
+  late final _backgroundRinger = BackgroundAlertRinger(
+    takeRequest: () async =>
+        (await ref.read(pendingAlertLauncherProvider).takeRequest()).request,
+    startSession: (request) async {
+      final session = await ref
+          .read(activeAlertProvider.notifier)
+          .fire(request);
+      if (session == null) return false;
+      unawaited(_preloadAd());
+      // 화면이 없어도 경로를 먼저 바꿔 둔다 — 앱을 열면 이 세션의 알림 화면이다
+      _router.go(AppRoutes.alert);
+      return true;
+    },
+    audioDecision: () => ref.read(activeAlertProvider.notifier).audioDecision(),
+    remind: (alert, sequence) => BackgroundAlertNotifier(
+      plugin: ref.read(notificationsPluginProvider),
+      store: PendingAlertStore(),
+    ).remind(alert, sequence: sequence),
+    clearNotifications: _cancelBackgroundNotification,
+    isRinging: () => ref.read(alertControllerProvider).current != null,
+  );
+
   /// 적응형 감시의 측정 처리기와 영역 이벤트 수신기를 단다 (이슈 #231).
   ///
   /// 로깅을 여기서 먼저 켠다 — 백그라운드 재실행에서는 부트스트랩이 돌지 않아
@@ -81,6 +114,15 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
       _iosAlerts = watch.foregroundAlerts.listen(
         (_) => unawaited(_resumePendingAlert('ios_watch')),
       );
+      _iosBackgroundAlerts = watch.backgroundAlerts.listen(
+        (alert) => unawaited(_backgroundRinger.ring(alert)),
+      );
+      // 어디서 해제하든 반복 알림이 같이 멈춰야 한다 — 끈 뒤에 떨면 안 된다
+      _sessionEnds = ref.read(alertControllerProvider).sessionChanges.listen((
+        session,
+      ) {
+        if (session == null) unawaited(_backgroundRinger.onSessionEnded());
+      });
       await watch.attach();
     } on Object catch (error) {
       // 적응형 감시를 못 붙여도 영역 감시는 돈다
@@ -91,6 +133,8 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
   @override
   void dispose() {
     unawaited(_iosAlerts?.cancel());
+    unawaited(_iosBackgroundAlerts?.cancel());
+    unawaited(_sessionEnds?.cancel());
     _pendingAlertPoll?.cancel();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
@@ -151,6 +195,9 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
     // 않으면 영영 남는다. 앱이 새로 뜨는 시점의 알림은 정의상 지난 것이고,
     // 지금 살아 있는 알림이라면 바로 아래 승격이 화면으로 이어준다.
     await _cancelBackgroundNotification();
+    // 화면 없이 시작한 세션의 반복 알림도 여기서 멈춘다 (이슈 #233) — 첫 실행에는
+    // resumed 가 오지 않는다
+    await _backgroundRinger.onForeground();
 
     await _resumePendingAlert('start');
     // 광고 동의 (이슈 #166) — 알림이 울리는 중이 아닐 때만, 기다리지 않고 받는다
@@ -168,6 +215,8 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
 
     // 백그라운드 알림 뒤 앱을 열면(탭이든 직접이든) 풀 세션으로 잇는다
     if (state == AppLifecycleState.resumed) {
+      // 화면 없이 울리던 세션이면 알림 화면이 반복 알림을 대신한다 (이슈 #233)
+      unawaited(_backgroundRinger.onForeground());
       unawaited(_resumePendingAlert('resumed'));
       unawaited(_checkAppUpdate());
       _startPendingAlertPoll();
@@ -235,15 +284,17 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
 
   /// 백그라운드가 띄운 알림을 지운다 (이슈 #84).
   ///
+  /// 반복 알림이 번갈아 쓰는 id 까지 지운다 (이슈 #233).
+  ///
   /// 실패해도 흐름을 막지 않는다 — 알림이 남는 것보다 해제가 늦어지는
   /// 쪽이 훨씬 나쁘다 (docs/02-ARCHITECTURE.md 규칙 4와 같은 이유).
   Future<void> _cancelBackgroundNotification() async {
-    try {
-      await ref
-          .read(notificationsPluginProvider)
-          .cancel(BackgroundAlertNotifier.notificationId);
-    } on Object {
-      // 알림이 남는 것은 불편이지 고장이 아니다
+    for (final id in BackgroundAlertNotifier.notificationIds) {
+      try {
+        await ref.read(notificationsPluginProvider).cancel(id);
+      } on Object {
+        // 알림이 남는 것은 불편이지 고장이 아니다
+      }
     }
   }
 

@@ -1,3 +1,6 @@
+import 'dart:io' show Platform;
+
+import 'package:flutter/widgets.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -23,8 +26,14 @@ FlutterLocalNotificationsPlugin notificationsPlugin(Ref ref) =>
 @Riverpod(keepAlive: true)
 VibrationService vibrationService(Ref ref) => VibrationServiceImpl();
 
+/// iOS 는 앱이 화면 없이 세션을 시작할 수 있다 (이슈 #233) — 그때는 오디오
+/// 세션 설정이 달라야 활성화된다. Android 는 늘 전면에서 시작하므로 바꾸지 않는다.
 @Riverpod(keepAlive: true)
-AlertSoundService alertSoundService(Ref ref) => AlertSoundServiceImpl();
+AlertSoundService alertSoundService(Ref ref) => AlertSoundServiceImpl(
+  startsInBackground: () =>
+      Platform.isIOS &&
+      WidgetsBinding.instance.lifecycleState != AppLifecycleState.resumed,
+);
 
 @Riverpod(keepAlive: true)
 AlertNotifier alertNotifier(Ref ref) =>
@@ -59,7 +68,7 @@ AlertController alertController(Ref ref) {
 /// 현재 울리고 있는 알림 세션.
 ///
 /// 화면이 이것을 구독한다 — 세션이 생기면 알림 화면으로,
-/// 사라지면 해제 완료 화면으로 전환한다.
+/// 사라지면 홈으로 돌아간다 (결정 056).
 @riverpod
 class ActiveAlert extends _$ActiveAlert {
   @override
@@ -77,15 +86,22 @@ class ActiveAlert extends _$ActiveAlert {
   /// 마지막 발화에서 소리 재생이 실패했는가 — 화면 문구가 달라진다
   bool get soundFailed => ref.read(alertControllerProvider).lastSoundFailed;
 
-  Future<void> fire(
+  /// 새 세션을 시작했으면 그 세션을 돌려준다. 이미 울리는 중이라 버렸거나
+  /// 줄 세웠으면 null 이다 — 화면 없이 시작하는 경로(이슈 #233)가 이것으로
+  /// 반복 알림을 걸지 정한다.
+  Future<AlertSession?> fire(
     AlertRequest request, {
     Duration vibrationInterval = const Duration(seconds: 3),
-  }) async {
+  }) {
     // 세션 갱신은 sessionChanges 스트림이 처리한다
-    await ref
+    return ref
         .read(alertControllerProvider)
         .fire(request, vibrationInterval: vibrationInterval);
   }
+
+  /// 지금 세션의 오디오 판정 결과 (이슈 #233) — 실패하지 않는다
+  Future<AudioRoute?> audioDecision() =>
+      ref.read(alertControllerProvider).audioDecision;
 
   /// 해제한다.
   ///

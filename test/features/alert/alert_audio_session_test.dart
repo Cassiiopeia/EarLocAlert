@@ -58,6 +58,34 @@ void main() {
     );
   });
 
+  group('화면 없이 시작하는 iOS 세션 (이슈 #233)', () {
+    final background =
+        AlertSoundServiceImpl.alertSessionConfigurationBackground;
+
+    test('다른 앱과 섞는다 — 백그라운드에서는 끊는 세션을 켤 수 없다', () {
+      expect(
+        background.avAudioSessionCategory,
+        AVAudioSessionCategory.playback,
+      );
+      expect(
+        background.avAudioSessionCategoryOptions,
+        AVAudioSessionCategoryOptions.duckOthers,
+        reason:
+            '옵션이 없으면 활성화가 CannotInterruptOthers 로 실패해 이어폰이 '
+            '있어도 진동으로만 떨어진다',
+      );
+    });
+
+    test('Android 값은 전면 설정과 같다 — 스피커로 새는 용도를 쓰지 않는다', () {
+      expect(background.androidAudioAttributes?.usage, AndroidAudioUsage.media);
+      expect(background.androidWillPauseWhenDucked, isFalse);
+      expect(
+        background.androidAudioFocusGainType,
+        AndroidAudioFocusGainType.gainTransient,
+      );
+    });
+  });
+
   test('speech 프리셋을 쓰지 않는다', () {
     const speech = AudioSessionConfiguration.speech();
 

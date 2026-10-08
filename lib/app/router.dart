@@ -19,7 +19,6 @@ import '../core/domain/alert_sound.dart';
 import '../features/ads/presentation/ads_providers.dart';
 import '../features/alert/domain/alert_controller.dart';
 import '../features/alert/presentation/alert_controller_provider.dart';
-import '../features/alert/presentation/alert_dismissed_screen.dart';
 import '../features/alert/presentation/alert_screen.dart';
 import '../features/alert/presentation/alert_volume_sheet.dart';
 import '../features/alert/presentation/vibration_intensity_sheet.dart';
@@ -38,6 +37,7 @@ import '../features/settings/presentation/settings_screen.dart';
 import '../features/sounds/presentation/sound_picker_sheet.dart';
 import '../features/app_update/domain/app_updater.dart';
 import '../features/app_update/presentation/app_update_providers.dart';
+import 'alert_dismiss_flow.dart';
 import 'app_version_provider.dart';
 import 'ad_banner_frame.dart';
 import 'home_status_provider.dart';
@@ -50,7 +50,6 @@ abstract final class AppRoutes {
   static const onboarding = '/onboarding';
   static const home = '/';
   static const alert = '/alert';
-  static const alertDismissed = '/alert/dismissed';
   static const placeNew = '/places/new';
   static const placeEdit = '/places/edit';
   static const placeMap = '/places/map';
@@ -103,18 +102,6 @@ GoRouter createRouter() {
       GoRoute(
         path: AppRoutes.alert,
         builder: (context, state) => const _AlertRoute(),
-      ),
-      GoRoute(
-        path: AppRoutes.alertDismissed,
-        builder: (context, state) {
-          final args = state.extra is DismissedRouteArgs
-              ? state.extra! as DismissedRouteArgs
-              : const DismissedRouteArgs(placeName: '');
-          return AlertDismissedScreen(
-            placeName: args.placeName,
-            onContinue: () => _leaveDismissed(context, args),
-          );
-        },
       ),
     ],
   );
@@ -209,49 +196,19 @@ void _leaveForm(BuildContext context) {
 @visibleForTesting
 const previewPlaceId = 'preview';
 
-/// 해제 완료 화면에 넘기는 값 (이슈 #229)
-@visibleForTesting
-class DismissedRouteArgs {
-  const DismissedRouteArgs({
-    required this.placeName,
-    this.returnToSettings = false,
-  });
-
-  final String placeName;
-
-  /// 설정의 미리보기에서 시작했는가. 그렇다면 확인 후 설정으로 돌아간다
-  final bool returnToSettings;
-}
-
-/// 해제 완료 화면을 떠난다 (이슈 #229).
-///
-/// 알림 화면은 `go` 로 들어와 스택이 비어 있으므로 늘 홈부터 다시 세운다.
-/// **미리보기는 설정에서 시작했으니 설정으로 돌려보낸다** — 홈에 떨어지면
-/// 사용자가 설정을 다시 찾아 들어가야 했다. `go` 로 설정만 띄우면 뒤로 갈
-/// 곳이 없어지므로 홈 위에 `push` 한다. 홈이 실제로 세워진 뒤(다음 프레임)에
-/// push 해야 스택이 [홈, 설정] 으로 잡힌다.
-void _leaveDismissed(BuildContext context, DismissedRouteArgs args) {
-  final router = GoRouter.of(context);
-  router.go(AppRoutes.home);
-  if (!args.returnToSettings) return;
-  Diagnostics.log('alert', 'preview dismissed return=settings');
-  WidgetsBinding.instance.addPostFrameCallback(
-    (_) => unawaited(router.push(AppRoutes.settings)),
-  );
-}
-
 /// 세션 없는 알림 화면에서 홈으로 돌릴지 (이슈 #222).
 ///
-/// 아직 알림 화면에 머물러 있을 때만 돌린다. 해제 후 해제 완료 화면으로 이미
-/// 이동했다면 그 화면을 지켜야 한다.
+/// 아직 알림 화면에 머물러 있을 때만 돌린다. 해제 흐름이 이미 홈(미리보기면
+/// 설정)으로 옮겼다면 그 화면을 지켜야 한다 — 덮어쓰면 설정으로 돌아가던
+/// 미리보기가 홈에 떨어진다.
 @visibleForTesting
 bool shouldLeaveEmptyAlertRoute(String currentPath) =>
     currentPath == AppRoutes.alert;
 
 /// 알림 화면 라우트.
 ///
-/// 해제 시 **광고를 기다리지 않고** 곧바로 화면을 전환한다
-/// (docs/02-ARCHITECTURE.md 규칙 4).
+/// 해제 시 **광고를 기다리지 않고** 곧바로 홈으로 간다
+/// (docs/02-ARCHITECTURE.md 규칙 4, 결정 056). 흐름은 [AlertDismissFlow] 가 정한다.
 class _AlertRoute extends ConsumerWidget {
   const _AlertRoute();
 
@@ -261,8 +218,8 @@ class _AlertRoute extends ConsumerWidget {
 
     if (session == null) {
       // 세션이 없는 상태로 들어왔다 — 홈으로 돌린다.
-      // 해제 직후에도 세션이 비어 여기로 온다. 그때는 이미 해제 완료 화면으로
-      // 떠났으므로 덮어쓰면 안 된다 (이슈 #222).
+      // 해제 직후에도 세션이 비어 여기로 온다. 그때는 해제 흐름이 이미 홈으로
+      // 옮겼으므로 덮어쓰면 안 된다 (이슈 #222).
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!context.mounted) return;
         final path = GoRouter.of(
@@ -280,44 +237,41 @@ class _AlertRoute extends ConsumerWidget {
     return AlertScreen(
       session: session,
       soundFailed: ref.read(activeAlertProvider.notifier).soundFailed,
-      onDismiss: () async {
-        final placeName = session.placeName;
-
-        // 1) 해제가 먼저다. 광고와 무관하게 여기서 진동·소리가 멈춘다
-        final dismissed = await ref
-            .read(activeAlertProvider.notifier)
-            .dismiss();
-        if (!context.mounted) return;
-
-        // 대기 중이던 다른 장소 알림이 이어서 울리면 이 화면에 머문다
-        if (ref.read(activeAlertProvider) != null) return;
-
-        if (dismissed == null) {
-          context.go(AppRoutes.home);
-          return;
-        }
-
-        // 2) 그 다음에 광고를 시도한다 (docs/02-ARCHITECTURE.md 규칙 4).
-        //    실패·지연은 조율자가 삼키므로 여기서 처리할 것이 없다.
-        context.go(
-          AppRoutes.alertDismissed,
-          extra: DismissedRouteArgs(
-            placeName: placeName,
-            returnToSettings: session.placeId == previewPlaceId,
-          ),
+      onDismiss: () {
+        // 이 화면은 곧 사라진다 — 광고는 그 뒤에 시도되므로 화면의 ref·context 가
+        // 아니라 앱 수명의 라우터·컨테이너를 붙잡는다
+        final router = GoRouter.of(context);
+        final container = ProviderScope.containerOf(context, listen: false);
+        unawaited(
+          AlertDismissFlow(
+            dismiss: () =>
+                container.read(activeAlertProvider.notifier).dismiss(),
+            isRinging: () => container.read(activeAlertProvider) != null,
+            goHome: () => router.go(AppRoutes.home),
+            // `go` 로 설정만 띄우면 뒤로 갈 곳이 없다 — 홈이 세워진 뒤(다음
+            // 프레임)에 push 해야 스택이 [홈, 설정] 으로 잡힌다 (이슈 #229)
+            returnToSettings: () =>
+                WidgetsBinding.instance.addPostFrameCallback(
+                  (_) => unawaited(router.push(AppRoutes.settings)),
+                ),
+            // 옮겨 간 화면 위에 띄운다 — 알림 화면의 context 는 이미 없다
+            showDismissedToast: () =>
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  final target =
+                      router.routerDelegate.navigatorKey.currentContext;
+                  if (target == null || !target.mounted) return;
+                  target.showToast(target.l10n.alertDismissedTitle);
+                }),
+            tryShowAd: () => _tryShowAd(container),
+          ).run(fromPreview: session.placeId == previewPlaceId),
         );
-        unawaited(_tryShowAd(ref));
       },
     );
   }
 
-  Future<void> _tryShowAd(WidgetRef ref) async {
-    try {
-      final coordinator = await ref.read(alertAdCoordinatorProvider.future);
-      await coordinator.onAlertDismissed(now: DateTime.now().toUtc());
-    } on Object {
-      // 광고는 부가 기능이다 — 실패해도 사용자 흐름에 영향이 없다
-    }
+  Future<void> _tryShowAd(ProviderContainer container) async {
+    final coordinator = await container.read(alertAdCoordinatorProvider.future);
+    await coordinator.onAlertDismissed(now: DateTime.now().toUtc());
   }
 }
 

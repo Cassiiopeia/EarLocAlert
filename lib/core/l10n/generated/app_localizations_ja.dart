@@ -296,9 +296,6 @@ class AppLocalizationsJa extends AppLocalizations {
   String get alertDismissedTitle => 'アラートを止めました';
 
   @override
-  String get alertDismissedConfirm => 'OK';
-
-  @override
   String get volumeTitle => 'アラート音の大きさ';
 
   @override

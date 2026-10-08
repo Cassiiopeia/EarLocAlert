@@ -41,13 +41,54 @@ class BackgroundAlertNotifier implements BackgroundAlertPort {
   /// 앱이 승격하거나 정리할 때 지워야 하므로 id 를 공개한다 (이슈 #84).
   static const int notificationId = 2001;
 
+  /// 반복 알림이 번갈아 쓰는 두 번째 id (이슈 #233). 같은 id 로 다시 내면
+  /// 이미 떠 있는 알림을 갱신할 뿐 진동이 다시 나는지 보장되지 않아, 두 id 를
+  /// 번갈아 내고 앞의 것을 지운다 — 알림 목록에는 늘 하나만 남는다.
+  static const int reminderNotificationId = 2002;
+
+  /// 앱이 정리할 때 함께 지워야 하는 id 전부
+  static const List<int> notificationIds = [
+    notificationId,
+    reminderNotificationId,
+  ];
+
   static const String _channelId = 'ear_loc_alert_geofence';
 
   @override
   Future<void> notify(PendingAlert alert) async {
     // 저장이 먼저다 — 알림 발행이 실패해도 앱을 열면 알림이 이어진다
     await _store.save(alert);
+    await _post(alert, id: notificationId);
+    // 실기기에서 "알림은 떴는데 진동이 없었다"를 가르는 단서다 (이슈 #221)
+    Diagnostics.log(
+      'notify',
+      'background notification posted place=${alert.placeName} '
+          'direction=${alert.direction.name} ios_sound=$iosSilentHapticSound',
+    );
+  }
 
+  /// 같은 알림을 다시 내 진동을 한 번 더 일으킨다 (이슈 #233).
+  ///
+  /// iOS 는 백그라운드에서 반복 진동을 걸 수 없어 알림 한 번에 진동 한 번이다
+  /// (결정 053). 앱 세션이 화면 없이 울리는 동안 이것을 몇 번 반복해 주머니 속
+  /// 기기가 계속 떨게 한다. **대기 알림은 저장하지 않는다** — 세션이 이미 그것을
+  /// 꺼내 돌고 있다. 소리는 여전히 무음 파일이다 (CLAUDE.md 규칙 2).
+  Future<void> remind(PendingAlert alert, {required int sequence}) async {
+    final id = sequence.isOdd ? reminderNotificationId : notificationId;
+    final previous = id == notificationId
+        ? reminderNotificationId
+        : notificationId;
+    await _post(alert, id: id);
+    // 새 것을 낸 뒤에 앞의 것을 지운다 — 순서가 뒤집히면 잠깐 아무것도 없다
+    await _plugin.cancel(previous);
+    Diagnostics.log(
+      'notify',
+      'background reminder posted place=${alert.placeName} n=$sequence '
+          'ios_sound=$iosSilentHapticSound',
+    );
+  }
+
+  Future<void> _post(PendingAlert alert, {required int id}) async {
     final strings = await _loadStrings();
 
     final androidDetails = AndroidNotificationDetails(
@@ -96,18 +137,12 @@ class BackgroundAlertNotifier implements BackgroundAlertPort {
     );
 
     await _plugin.show(
-      notificationId,
+      id,
       alert.placeName,
       alert.direction == AlertDirection.exit
           ? strings.notificationLeft
           : strings.notificationArrived,
       NotificationDetails(android: androidDetails, iOS: iosDetails),
-    );
-    // 실기기에서 "알림은 떴는데 진동이 없었다"를 가르는 단서다 (이슈 #221)
-    Diagnostics.log(
-      'notify',
-      'background notification posted place=${alert.placeName} '
-          'direction=${alert.direction.name} ios_sound=$iosSilentHapticSound',
     );
   }
 }

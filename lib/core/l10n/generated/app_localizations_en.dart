@@ -315,9 +315,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get alertDismissedTitle => 'Alert dismissed';
 
   @override
-  String get alertDismissedConfirm => 'OK';
-
-  @override
   String get volumeTitle => 'Alert sound volume';
 
   @override
