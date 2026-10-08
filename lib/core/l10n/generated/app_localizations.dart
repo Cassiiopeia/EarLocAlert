@@ -1547,6 +1547,48 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'링크를 열 수 없어요. 브라우저가 설치되어 있는지 확인해 주세요'**
   String get settingsOpenLinkFailed;
+
+  /// No description provided for @settingsLockAlarmTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'잠금화면 알람'**
+  String get settingsLockAlarmTitle;
+
+  /// No description provided for @settingsLockAlarmOn.
+  ///
+  /// In ko, this message translates to:
+  /// **'화면이 꺼져 있으면 잠금 화면 전체에 알람을 띄워요'**
+  String get settingsLockAlarmOn;
+
+  /// No description provided for @settingsLockAlarmNotDetermined.
+  ///
+  /// In ko, this message translates to:
+  /// **'허용하면 화면이 꺼져 있을 때 잠금 화면 전체에 알람을 띄워요'**
+  String get settingsLockAlarmNotDetermined;
+
+  /// No description provided for @settingsLockAlarmDenied.
+  ///
+  /// In ko, this message translates to:
+  /// **'꺼져 있어요. 설정에서 알람을 허용하면 잠금 화면 전체에 알람을 띄워요'**
+  String get settingsLockAlarmDenied;
+
+  /// No description provided for @settingsLockAlarmNeedsNewerOs.
+  ///
+  /// In ko, this message translates to:
+  /// **'화면 전체를 덮는 알람은 iOS 26 이상에서 쓸 수 있어요. 지금은 알림과 진동으로 알려 드려요.'**
+  String get settingsLockAlarmNeedsNewerOs;
+
+  /// No description provided for @settingsLockAlarmAllow.
+  ///
+  /// In ko, this message translates to:
+  /// **'허용'**
+  String get settingsLockAlarmAllow;
+
+  /// No description provided for @settingsLockAlarmOpenSettings.
+  ///
+  /// In ko, this message translates to:
+  /// **'설정 열기'**
+  String get settingsLockAlarmOpenSettings;
 }
 
 class _AppLocalizationsDelegate

@@ -240,5 +240,12 @@
   "settingsLicensesTitle": "开源许可",
   "settingsAdPrivacyTitle": "广告隐私设置",
   "settingsAdPrivacySubtitle": "查看或更改你的广告同意选择",
-  "settingsOpenLinkFailed": "无法打开链接，请确认已安装浏览器"
+  "settingsOpenLinkFailed": "无法打开链接，请确认已安装浏览器",
+  "settingsLockAlarmTitle": "锁屏闹钟",
+  "settingsLockAlarmOn": "屏幕关闭时，闹钟会占满整个锁定屏幕",
+  "settingsLockAlarmNotDetermined": "允许后，屏幕关闭时会在整个锁定屏幕上显示闹钟",
+  "settingsLockAlarmDenied": "已关闭。在设置中允许闹钟后，会在整个锁定屏幕上显示闹钟",
+  "settingsLockAlarmNeedsNewerOs": "全屏闹钟需要 iOS 26 或更高版本。目前会通过通知和振动提醒您。",
+  "settingsLockAlarmAllow": "允许",
+  "settingsLockAlarmOpenSettings": "打开设置"
 }

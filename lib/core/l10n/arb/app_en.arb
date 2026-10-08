@@ -240,5 +240,12 @@
   "settingsLicensesTitle": "Open-source licenses",
   "settingsAdPrivacyTitle": "Ad privacy settings",
   "settingsAdPrivacySubtitle": "Review or change your ad consent choices",
-  "settingsOpenLinkFailed": "Couldn't open the link. Please check that a browser is installed."
+  "settingsOpenLinkFailed": "Couldn't open the link. Please check that a browser is installed.",
+  "settingsLockAlarmTitle": "Lock screen alarm",
+  "settingsLockAlarmOn": "When the screen is off, the alarm covers the whole lock screen",
+  "settingsLockAlarmNotDetermined": "Allow it to cover the whole lock screen with an alarm when the screen is off",
+  "settingsLockAlarmDenied": "Off. Allow alarms in Settings to cover the whole lock screen when you arrive",
+  "settingsLockAlarmNeedsNewerOs": "A full-screen alarm needs iOS 26 or later. For now, you will be alerted with a notification and vibration.",
+  "settingsLockAlarmAllow": "Allow",
+  "settingsLockAlarmOpenSettings": "Open Settings"
 }

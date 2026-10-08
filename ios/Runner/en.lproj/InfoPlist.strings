@@ -6,3 +6,4 @@
 "CFBundleDisplayName" = "EarLocAlert";
 "NSPhotoLibraryUsageDescription" = "Only used when you pick your own sound file for an alert. The app does not read your photos.";
 "NSMicrophoneUsageDescription" = "The app never records audio. Microphone access is not used.";
+"NSAlarmKitUsageDescription" = "Shows a full-screen alert on your lock screen when you arrive at or leave a saved place. The alarm itself is silent; sound plays only through your earphones.";

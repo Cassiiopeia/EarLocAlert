@@ -34,6 +34,34 @@ class SettingsPermissionRow {
   final VoidCallback onTap;
 }
 
+/// 잠금 화면 알람 상태 (이슈 #235)
+enum LockScreenAlarmState {
+  /// 허용됨 — 화면이 꺼져 있으면 잠금 화면 전체를 덮는다
+  on,
+
+  /// 아직 묻지 않았다 — 눌러서 허용을 묻는다
+  notDetermined,
+
+  /// 거부됐다 — OS 가 다시 묻지 않으므로 설정 앱으로 보낸다
+  denied,
+
+  /// iOS 26 미만 — 알림과 진동으로만 알린다는 안내만 보인다
+  needsNewerOs,
+}
+
+/// 설정 화면이 보여줄 잠금 화면 알람 한 줄 (이슈 #235)
+///
+/// [SettingsPermissionRow] 와 같은 이유로 값으로 받는다 — AlarmKit 상태는
+/// app 계층이 읽어 내려준다 (docs/02-ARCHITECTURE.md 규칙 1).
+class SettingsLockScreenAlarm {
+  const SettingsLockScreenAlarm({required this.state, this.onAction});
+
+  final LockScreenAlarmState state;
+
+  /// 허용 묻기 또는 설정 앱 열기. 할 일이 없는 상태면 null
+  final VoidCallback? onAction;
+}
+
 /// 설정 화면 (이슈 #98, #102)
 ///
 /// **왜 만들었나** — 홈 상태 바에 아이콘이 셋(알림음 크기·알림 미리보기·
@@ -60,6 +88,7 @@ class SettingsScreen extends StatelessWidget {
     required this.onOpenPrivacy,
     this.onOpenAdPrivacy,
     this.permissions = const [],
+    this.lockScreenAlarm,
     this.onPreviewAlert,
     super.key,
   });
@@ -91,6 +120,9 @@ class SettingsScreen extends StatelessWidget {
 
   /// 알림이 확실히 도달하는 데 필요한 권한들 (이슈 #102)
   final List<SettingsPermissionRow> permissions;
+
+  /// 잠금 화면 알람 (이슈 #235). **null 이면 줄을 숨긴다** — Android 에는 없다
+  final SettingsLockScreenAlarm? lockScreenAlarm;
 
   /// 알림 흐름 수동 확인 (실기기 스파이크용).
   /// 지오펜스 실기기 검증이 끝나면 제거한다 (docs/11-ROADMAP.md).
@@ -160,6 +192,9 @@ class SettingsScreen extends StatelessWidget {
               subtitle: context.l10n.settingsVolumeSubtitle,
               onTap: onOpenVolumeSettings,
             ),
+            // 화면이 꺼진 채 도착했을 때 무엇이 보이는지를 정하는 항목이라 알림 묶음에 둔다
+            if (lockScreenAlarm != null)
+              _LockScreenAlarmTile(alarm: lockScreenAlarm!),
             if (onPreviewAlert != null)
               _SettingTile(
                 icon: Icons.notifications_active_outlined,
@@ -277,6 +312,52 @@ class _PermissionTile extends StatelessWidget {
       // 이미 허용된 권한도 열 수 있게 둔다 — 사용자가 끄고 싶을 수 있다
       trailing: const Icon(Icons.chevron_right_outlined),
       onTap: row.onTap,
+    );
+  }
+}
+
+/// 잠금 화면 알람 한 줄 (이슈 #235)
+///
+/// iOS 26 미만에서도 숨기지 않는다 — "왜 내 아이폰은 화면을 덮지 않나"의 답이
+/// 여기 있어야 한다. 그때는 누를 것이 없으니 버튼을 달지 않는다.
+class _LockScreenAlarmTile extends StatelessWidget {
+  const _LockScreenAlarmTile({required this.alarm});
+
+  final SettingsLockScreenAlarm alarm;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final semantic = Theme.of(context).extension<AppSemanticColors>();
+    final onColor = semantic?.statusActive ?? AppColors.textSecondary;
+
+    final subtitle = switch (alarm.state) {
+      LockScreenAlarmState.on => l10n.settingsLockAlarmOn,
+      LockScreenAlarmState.notDetermined => l10n.settingsLockAlarmNotDetermined,
+      LockScreenAlarmState.denied => l10n.settingsLockAlarmDenied,
+      LockScreenAlarmState.needsNewerOs => l10n.settingsLockAlarmNeedsNewerOs,
+    };
+    final actionLabel = switch (alarm.state) {
+      LockScreenAlarmState.notDetermined => l10n.settingsLockAlarmAllow,
+      LockScreenAlarmState.denied => l10n.settingsLockAlarmOpenSettings,
+      LockScreenAlarmState.on || LockScreenAlarmState.needsNewerOs => null,
+    };
+    final on = alarm.state == LockScreenAlarmState.on;
+
+    return ListTile(
+      leading: Icon(
+        on ? Icons.check_circle_outlined : Icons.alarm_outlined,
+        color: on ? onColor : AppColors.textSecondary,
+      ),
+      title: Text(l10n.settingsLockAlarmTitle, style: AppTypography.body),
+      subtitle: Text(
+        context.keepAllText(subtitle),
+        style: AppTypography.caption,
+      ),
+      trailing: actionLabel == null || alarm.onAction == null
+          ? null
+          : TextButton(onPressed: alarm.onAction, child: Text(actionLabel)),
+      onTap: actionLabel == null ? null : alarm.onAction,
     );
   }
 }

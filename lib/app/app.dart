@@ -8,6 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/config/build_info.dart';
 import '../core/config/dev_flag.dart';
 import '../core/diagnostics/diagnostics.dart';
+import '../core/domain/alert_direction.dart';
 import '../core/l10n/app_language_controller.dart';
 import '../core/l10n/l10n.dart';
 import '../core/l10n/locale_resolver.dart';
@@ -16,9 +17,11 @@ import '../core/theme/app_theme.dart';
 import '../features/ads/domain/ad_consent.dart';
 import '../features/ads/presentation/ads_providers.dart';
 import '../features/alert/data/alert_notifier_impl.dart';
+import '../features/alert/domain/alert_controller.dart';
 import '../features/alert/presentation/alert_controller_provider.dart';
 import '../features/app_update/domain/app_updater.dart';
 import '../features/app_update/presentation/app_update_providers.dart';
+import 'arrival_alarm_providers.dart';
 import 'background/background_alert_notifier.dart';
 import 'background/pending_alert.dart';
 import 'background/pending_alert_store.dart';
@@ -92,6 +95,9 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
       unawaited(_preloadAd());
       // 화면이 없어도 경로를 먼저 바꿔 둔다 — 앱을 열면 이 세션의 알림 화면이다
       _router.go(AppRoutes.alert);
+      // 잠금 화면 전체를 덮는 무음 알람 (이슈 #235, iOS 26+) — 기다리지 않는다.
+      // 못 띄워도 알림·진동은 이미 나가고 있다
+      unawaited(_presentArrivalAlarm(request));
       return true;
     },
     audioDecision: () => ref.read(activeAlertProvider.notifier).audioDecision(),
@@ -117,11 +123,16 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
       _iosBackgroundAlerts = watch.backgroundAlerts.listen(
         (alert) => unawaited(_backgroundRinger.ring(alert)),
       );
-      // 어디서 해제하든 반복 알림이 같이 멈춰야 한다 — 끈 뒤에 떨면 안 된다
+      // 잠금 화면 알람의 "사용자가 껐다" 신호를 받기 시작한다 (이슈 #235)
+      final alarm = ref.read(arrivalAlarmCoordinatorProvider);
+      // 어디서 해제하든 반복 알림과 잠금 화면 알람이 같이 멈춰야 한다 — 끈 뒤에
+      // 떨거나 알람이 남으면 안 된다
       _sessionEnds = ref.read(alertControllerProvider).sessionChanges.listen((
         session,
       ) {
-        if (session == null) unawaited(_backgroundRinger.onSessionEnded());
+        if (session != null) return;
+        unawaited(_backgroundRinger.onSessionEnded());
+        unawaited(alarm.onSessionEnded());
       });
       await watch.attach();
     } on Object catch (error) {
@@ -198,6 +209,10 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
     // 화면 없이 시작한 세션의 반복 알림도 여기서 멈춘다 (이슈 #233) — 첫 실행에는
     // resumed 가 오지 않는다
     await _backgroundRinger.onForeground();
+    // 알림 화면이 뜨므로 잠금 화면 알람과 겹치지 않게 끈다 (이슈 #235)
+    if (Platform.isIOS) {
+      await ref.read(arrivalAlarmCoordinatorProvider).onForeground();
+    }
 
     await _resumePendingAlert('start');
     // 광고 동의 (이슈 #166) — 알림이 울리는 중이 아닐 때만, 기다리지 않고 받는다
@@ -217,6 +232,10 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
     if (state == AppLifecycleState.resumed) {
       // 화면 없이 울리던 세션이면 알림 화면이 반복 알림을 대신한다 (이슈 #233)
       unawaited(_backgroundRinger.onForeground());
+      // 앱 화면과 잠금 화면 알람이 함께 뜨지 않게 한다 (이슈 #235)
+      if (Platform.isIOS) {
+        unawaited(ref.read(arrivalAlarmCoordinatorProvider).onForeground());
+      }
       unawaited(_resumePendingAlert('resumed'));
       unawaited(_checkAppUpdate());
       _startPendingAlertPoll();
@@ -341,6 +360,33 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
       );
     } on Object catch (error) {
       Diagnostics.log('update', 'check flow failed $error');
+    }
+  }
+
+  /// 화면 없이 시작한 세션에 잠금 화면 알람을 붙인다 (이슈 #235).
+  ///
+  /// 문구는 앱 언어로 만들어 넘긴다 — 네이티브는 받은 문자열을 그대로 보여준다.
+  /// 화면 문맥이 없으므로 [AppStrings] 로 찾는다 (CLAUDE.md 규칙 6).
+  Future<void> _presentArrivalAlarm(AlertRequest request) async {
+    try {
+      final strings = AppStrings.forLocale(
+        resolveAppLocale(
+          ref.read(appLanguageControllerProvider),
+          WidgetsBinding.instance.platformDispatcher.locales,
+        ),
+      );
+      final event = request.direction == AlertDirection.enter
+          ? strings.alertScreenArrived
+          : strings.alertScreenLeft;
+      await ref
+          .read(arrivalAlarmCoordinatorProvider)
+          .present(
+            placeName: request.placeName,
+            title: '${request.placeName} · $event',
+            stopLabel: strings.alertScreenDismiss,
+          );
+    } on Object catch (error) {
+      Diagnostics.log('alarm', 'present flow failed error=$error');
     }
   }
 

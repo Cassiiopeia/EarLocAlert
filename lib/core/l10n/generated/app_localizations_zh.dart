@@ -790,4 +790,26 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get settingsOpenLinkFailed => '无法打开链接，请确认已安装浏览器';
+
+  @override
+  String get settingsLockAlarmTitle => '锁屏闹钟';
+
+  @override
+  String get settingsLockAlarmOn => '屏幕关闭时，闹钟会占满整个锁定屏幕';
+
+  @override
+  String get settingsLockAlarmNotDetermined => '允许后，屏幕关闭时会在整个锁定屏幕上显示闹钟';
+
+  @override
+  String get settingsLockAlarmDenied => '已关闭。在设置中允许闹钟后，会在整个锁定屏幕上显示闹钟';
+
+  @override
+  String get settingsLockAlarmNeedsNewerOs =>
+      '全屏闹钟需要 iOS 26 或更高版本。目前会通过通知和振动提醒您。';
+
+  @override
+  String get settingsLockAlarmAllow => '允许';
+
+  @override
+  String get settingsLockAlarmOpenSettings => '打开设置';
 }

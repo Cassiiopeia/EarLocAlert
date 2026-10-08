@@ -38,6 +38,7 @@
 
 | 작업 | 막힌 이유 |
 |---|---|
+| **#235 iOS 백그라운드 진동 · 잠금 화면 무음 알람 실기기 검증** | 실기기 필요 — **AlarmKit 경로는 CI(Xcode 26.0)에서만 컴파일된다** (로컬 Xcode 16.2 에는 없어 `#if canImport(AlarmKit)` 로 막았다). 화면 꺼진 채 도착 시 앱을 열지 않아도 진동하는가(`[alert] vibration route=system`), iOS 26 에서 잠금 화면을 덮는 무음 알람(`[alarm] presented`), 알람의 끄기 버튼이 세션을 끄는가(`[alarm] stopped by user`), 앱을 열면 알람이 사라지는가. Swift 계층은 자동 테스트가 없다 |
 | **#231 iOS 적응형 백그라운드 감시 실기기 검증** | 실기기 필요 — **시뮬레이터 검증만 됐다.** 앱을 내려도 상태 막대 위치 표시가 남는지, 밖에서 등록 후 걸어 들어가면 울리는지(`[sync] state seeded` → `[watch] tier changed tier=precise` → `[notify] background notification posted`), 배터리, 강제 종료 후 동작. Swift 계층은 자동 테스트가 없다 |
 | **#227 iOS 현재 위치 실기기 검증** | 실기기 필요 — 시뮬레이터는 좌표를 즉시 줘서 원래 증상(10초 시간 초과)이 거의 안 난다. iPhone 에서 첫 실행·지도 선택이 내 위치에서 시작하는지, 실패하면 진단 기록 `reason=` 을 본다 |
 | **#93 하이브리드 감시 실기기 검증** | 실기기 필요 — **Kotlin 계층은 자동 테스트가 없다.** 빌드 통과까지만 확인됐다. 가장 먼저 |

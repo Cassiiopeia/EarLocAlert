@@ -6,3 +6,4 @@
 "CFBundleDisplayName" = "イヤホン位置通知";
 "NSPhotoLibraryUsageDescription" = "アラート音に使う自分の音源ファイルを選ぶときにのみ使用します。アプリは写真を読み取りません。";
 "NSMicrophoneUsageDescription" = "このアプリは音声を録音しません。マイクは使用しません。";
+"NSAlarmKitUsageDescription" = "登録した場所に到着・出発したとき、ロック画面全体にアラームを表示します。アラーム自体は音が鳴らず、音はイヤホンからのみ聞こえます。";

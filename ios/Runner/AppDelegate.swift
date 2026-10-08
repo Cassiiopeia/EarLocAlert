@@ -60,6 +60,12 @@ import native_geofence
 
       // 적응형 백그라운드 감시 (이슈 #231)
       AdaptiveLocationWatcher.shared.register(messenger: controller.binaryMessenger)
+
+      // 백그라운드 세션의 진동 (이슈 #235) — Core Haptics 는 백그라운드에서 멈춘다
+      SystemVibration.register(messenger: controller.binaryMessenger)
+
+      // 잠금 화면 전체를 덮는 무음 알람 (이슈 #235, iOS 26+). 그 미만은 "지원 안 함"만 답한다
+      ArrivalAlarm.shared.register(messenger: controller.binaryMessenger)
     }
 
     // 위치 사유로 다시 떴든(중요 위치 변화·영역 이벤트) 사용자가 열었든, 감시를 원하던

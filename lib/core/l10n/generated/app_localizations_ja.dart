@@ -795,4 +795,27 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get settingsOpenLinkFailed => 'リンクを開けませんでした。ブラウザがインストールされているか確認してください';
+
+  @override
+  String get settingsLockAlarmTitle => 'ロック画面アラーム';
+
+  @override
+  String get settingsLockAlarmOn => '画面が消えているときは、ロック画面全体にアラームを表示します';
+
+  @override
+  String get settingsLockAlarmNotDetermined =>
+      '許可すると、画面が消えているときにロック画面全体にアラームを表示します';
+
+  @override
+  String get settingsLockAlarmDenied => 'オフです。設定でアラームを許可すると、ロック画面全体にアラームを表示します';
+
+  @override
+  String get settingsLockAlarmNeedsNewerOs =>
+      '画面全体を覆うアラームは iOS 26 以降で使えます。今は通知と振動でお知らせします。';
+
+  @override
+  String get settingsLockAlarmAllow => '許可';
+
+  @override
+  String get settingsLockAlarmOpenSettings => '設定を開く';
 }

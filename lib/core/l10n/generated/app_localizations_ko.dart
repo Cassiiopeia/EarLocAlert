@@ -797,4 +797,28 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get settingsOpenLinkFailed => '링크를 열 수 없어요. 브라우저가 설치되어 있는지 확인해 주세요';
+
+  @override
+  String get settingsLockAlarmTitle => '잠금화면 알람';
+
+  @override
+  String get settingsLockAlarmOn => '화면이 꺼져 있으면 잠금 화면 전체에 알람을 띄워요';
+
+  @override
+  String get settingsLockAlarmNotDetermined =>
+      '허용하면 화면이 꺼져 있을 때 잠금 화면 전체에 알람을 띄워요';
+
+  @override
+  String get settingsLockAlarmDenied =>
+      '꺼져 있어요. 설정에서 알람을 허용하면 잠금 화면 전체에 알람을 띄워요';
+
+  @override
+  String get settingsLockAlarmNeedsNewerOs =>
+      '화면 전체를 덮는 알람은 iOS 26 이상에서 쓸 수 있어요. 지금은 알림과 진동으로 알려 드려요.';
+
+  @override
+  String get settingsLockAlarmAllow => '허용';
+
+  @override
+  String get settingsLockAlarmOpenSettings => '설정 열기';
 }

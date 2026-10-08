@@ -6,3 +6,4 @@
 "CFBundleDisplayName" = "耳机位置提醒";
 "NSPhotoLibraryUsageDescription" = "仅在您为提醒选择自己的音频文件时使用。应用不会读取您的照片。";
 "NSMicrophoneUsageDescription" = "本应用不会录音，也不使用麦克风。";
+"NSAlarmKitUsageDescription" = "到达或离开已登记的地点时，在锁定屏幕上全屏显示闹钟。闹钟本身不发声，声音只会通过耳机播放。";

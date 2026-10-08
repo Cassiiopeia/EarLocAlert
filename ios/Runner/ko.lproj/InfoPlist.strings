@@ -6,3 +6,4 @@
 "CFBundleDisplayName" = "이어폰위치알림";
 "NSPhotoLibraryUsageDescription" = "알림음으로 쓸 내 음원 파일을 고를 때만 사용합니다. 앱은 사진을 읽지 않습니다.";
 "NSMicrophoneUsageDescription" = "이 앱은 소리를 녹음하지 않습니다. 마이크는 사용하지 않습니다.";
+"NSAlarmKitUsageDescription" = "등록한 장소에 도착하거나 떠날 때 잠금 화면 전체에 알람을 띄웁니다. 알람 자체는 소리가 나지 않으며, 소리는 이어폰으로만 들립니다.";

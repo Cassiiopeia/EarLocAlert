@@ -240,5 +240,12 @@
   "settingsLicensesTitle": "オープンソースライセンス",
   "settingsAdPrivacyTitle": "広告のプライバシー設定",
   "settingsAdPrivacySubtitle": "広告に関する同意の選択を確認または変更します",
-  "settingsOpenLinkFailed": "リンクを開けませんでした。ブラウザがインストールされているか確認してください"
+  "settingsOpenLinkFailed": "リンクを開けませんでした。ブラウザがインストールされているか確認してください",
+  "settingsLockAlarmTitle": "ロック画面アラーム",
+  "settingsLockAlarmOn": "画面が消えているときは、ロック画面全体にアラームを表示します",
+  "settingsLockAlarmNotDetermined": "許可すると、画面が消えているときにロック画面全体にアラームを表示します",
+  "settingsLockAlarmDenied": "オフです。設定でアラームを許可すると、ロック画面全体にアラームを表示します",
+  "settingsLockAlarmNeedsNewerOs": "画面全体を覆うアラームは iOS 26 以降で使えます。今は通知と振動でお知らせします。",
+  "settingsLockAlarmAllow": "許可",
+  "settingsLockAlarmOpenSettings": "設定を開く"
 }

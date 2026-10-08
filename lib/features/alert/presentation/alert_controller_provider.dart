@@ -10,6 +10,7 @@ import '../data/alert_sound_service_impl.dart';
 import '../data/prefs_alert_volume_store.dart';
 import '../data/prefs_vibration_intensity_store.dart';
 import '../data/system_volume_channel.dart';
+import '../data/ios_system_vibration.dart';
 import '../data/vibration_service_impl.dart';
 import '../domain/alert_controller.dart';
 import '../domain/alert_effects.dart';
@@ -23,8 +24,18 @@ part 'alert_controller_provider.g.dart';
 FlutterLocalNotificationsPlugin notificationsPlugin(Ref ref) =>
     FlutterLocalNotificationsPlugin();
 
+/// iOS 는 화면 없이 세션이 돌 수 있다 (이슈 #233). 그동안 Core Haptics 가
+/// 재생되지 않아 시스템 진동으로 바꿔 떤다 (이슈 #235)
 @Riverpod(keepAlive: true)
-VibrationService vibrationService(Ref ref) => VibrationServiceImpl();
+VibrationService vibrationService(Ref ref) => VibrationServiceImpl(
+  system: Platform.isIOS
+      ? IosSystemVibration(
+          isBackground: () =>
+              WidgetsBinding.instance.lifecycleState !=
+              AppLifecycleState.resumed,
+        )
+      : null,
+);
 
 /// iOS 는 앱이 화면 없이 세션을 시작할 수 있다 (이슈 #233) — 그때는 오디오
 /// 세션 설정이 달라야 활성화된다. Android 는 늘 전면에서 시작하므로 바꾸지 않는다.

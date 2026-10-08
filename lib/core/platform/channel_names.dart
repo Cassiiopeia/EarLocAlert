@@ -17,4 +17,10 @@ abstract final class ChannelNames {
 
   /// iOS 적응형 백그라운드 감시 (이슈 #231) — Swift `AdaptiveLocationWatcher`
   static const iosWatch = '$_prefix/ios_watch';
+
+  /// iOS 백그라운드 세션의 시스템 진동 (이슈 #235) — Swift `SystemVibration`
+  static const systemVibration = '$_prefix/system_vibration';
+
+  /// iOS 26+ 잠금 화면 무음 알람 (이슈 #235) — Swift `ArrivalAlarm`
+  static const arrivalAlarm = '$_prefix/arrival_alarm';
 }

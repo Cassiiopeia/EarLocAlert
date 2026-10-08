@@ -39,6 +39,8 @@ import '../features/app_update/domain/app_updater.dart';
 import '../features/app_update/presentation/app_update_providers.dart';
 import 'alert_dismiss_flow.dart';
 import 'app_version_provider.dart';
+import 'arrival_alarm_providers.dart';
+import 'background/arrival_alarm_channel.dart';
 import 'ad_banner_frame.dart';
 import 'home_status_provider.dart';
 
@@ -67,8 +69,21 @@ GoRouter createRouter() {
     routes: [
       GoRoute(
         path: AppRoutes.onboarding,
-        builder: (context, state) =>
-            OnboardingScreen(onFinished: () => context.go(AppRoutes.home)),
+        builder: (context, state) => OnboardingScreen(
+          onFinished: () {
+            // 잠금 화면 알람 권한은 온보딩이 끝난 뒤 한 번만 묻는다 (이슈 #235).
+            // 다시 온 사용자도 여기를 지나므로 앱 시작 시 묻는 자리이기도 하다 —
+            // 이미 정해졌으면 아무것도 하지 않는다. 위치 권한 대화상자와 겹치지 않게 뒤에 둔다
+            if (Platform.isIOS) {
+              unawaited(
+                ProviderScope.containerOf(context, listen: false)
+                    .read(arrivalAlarmCoordinatorProvider)
+                    .requestIfUndetermined('onboarding_finished'),
+              );
+            }
+            context.go(AppRoutes.home);
+          },
+        ),
       ),
       GoRoute(
         path: AppRoutes.home,
@@ -382,7 +397,43 @@ class _SettingsRouteState extends ConsumerState<_SettingsRoute>
     // 보이고, 사용자는 자기가 켠 것이 반영되지 않았다고 판단한다.
     if (state == AppLifecycleState.resumed) {
       unawaited(ref.read(permissionControllerProvider.notifier).refresh());
+      // 설정 앱에서 알람을 켜고 돌아왔을 수 있다 (이슈 #235)
+      ref.invalidate(arrivalAlarmStatusProvider);
     }
+  }
+
+  /// 설정 화면에 내려줄 잠금 화면 알람 줄 (이슈 #235). 읽는 중이면 줄을 숨긴다
+  SettingsLockScreenAlarm? _lockScreenAlarm() {
+    final status = ref.watch(arrivalAlarmStatusProvider).valueOrNull;
+    if (status == null) return null;
+    if (!status.supported) {
+      return const SettingsLockScreenAlarm(
+        state: LockScreenAlarmState.needsNewerOs,
+      );
+    }
+    return switch (status.authorization) {
+      ArrivalAlarmAuthorization.authorized => const SettingsLockScreenAlarm(
+        state: LockScreenAlarmState.on,
+      ),
+      ArrivalAlarmAuthorization.denied => SettingsLockScreenAlarm(
+        state: LockScreenAlarmState.denied,
+        // 한 번 거부하면 OS 가 다시 묻지 않는다 — 설정 앱으로 보낸다
+        onAction: () {
+          Diagnostics.log('alarm', 'settings open tapped');
+          unawaited(ref.read(arrivalAlarmPlatformProvider).openSettings());
+        },
+      ),
+      ArrivalAlarmAuthorization.notDetermined ||
+      ArrivalAlarmAuthorization.unsupported => SettingsLockScreenAlarm(
+        state: LockScreenAlarmState.notDetermined,
+        onAction: () async {
+          await ref
+              .read(arrivalAlarmCoordinatorProvider)
+              .requestAuthorization('settings');
+          ref.invalidate(arrivalAlarmStatusProvider);
+        },
+      ),
+    };
   }
 
   /// 설정에서 직접 누른 업데이트 확인 (이슈 #179)
@@ -452,6 +503,8 @@ class _SettingsRouteState extends ConsumerState<_SettingsRoute>
         unawaited(ref.read(geofenceRegistrationSyncProvider).refresh());
       },
       permissions: _permissionRows(ref, snapshot, context.l10n),
+      // 잠금 화면 알람 (이슈 #235) — iOS 에만 있다. Android 는 전체 화면 알림 권한이 같은 일을 한다
+      lockScreenAlarm: Platform.isIOS ? _lockScreenAlarm() : null,
       // 앱 버전과 업데이트 확인 (이슈 #179) — 읽기 실패는 `-` 로 보여준다
       appVersion: ref.watch(appVersionProvider).valueOrNull ?? '-',
       // 앱 내 업데이트가 없는 플랫폼(iOS)은 버튼을 숨긴다 (이슈 #229)

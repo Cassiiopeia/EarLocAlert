@@ -828,4 +828,29 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get settingsOpenLinkFailed =>
       'Couldn\'t open the link. Please check that a browser is installed.';
+
+  @override
+  String get settingsLockAlarmTitle => 'Lock screen alarm';
+
+  @override
+  String get settingsLockAlarmOn =>
+      'When the screen is off, the alarm covers the whole lock screen';
+
+  @override
+  String get settingsLockAlarmNotDetermined =>
+      'Allow it to cover the whole lock screen with an alarm when the screen is off';
+
+  @override
+  String get settingsLockAlarmDenied =>
+      'Off. Allow alarms in Settings to cover the whole lock screen when you arrive';
+
+  @override
+  String get settingsLockAlarmNeedsNewerOs =>
+      'A full-screen alarm needs iOS 26 or later. For now, you will be alerted with a notification and vibration.';
+
+  @override
+  String get settingsLockAlarmAllow => 'Allow';
+
+  @override
+  String get settingsLockAlarmOpenSettings => 'Open Settings';
 }

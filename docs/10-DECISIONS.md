@@ -1436,6 +1436,41 @@ Play 자동 업데이트(029)만으로는 사용자가 새 버전을 받는 시�
 
 ---
 
+## 057. iOS 26+ 는 화면이 꺼져 있으면 AlarmKit 무음 알람으로 잠금 화면을 덮고, 백그라운드 진동은 시스템 진동으로 낸다
+
+**날짜** — 2026-10-08 (이슈 #235)
+
+**발견** — v1.26.2 iPhone 15 실기기: 앱이 백그라운드에 살아 있는 채(054) 도착했고, 055 대로 세션이 바로 시작됐다(`audio=vibrate_only`). 그런데 **사용자가 앱을 열 때까지 한 번도 떨지 않았고**, 화면에도 아무것도 뜨지 않았다. 화면이 꺼진 주머니 속 iPhone 에는 알림 한 줄만 쌓였다.
+
+**원인** — `vibration` 플러그인(3.1.8)은 iPhone 에서 **Core Haptics** 로 떤다. Core Haptics 는 앱이 백그라운드에 있으면 재생되지 않는다. 그리고 iOS 에는 Android 의 전체 화면 인텐트 같은 "잠금 화면을 덮는" 수단이 앱에 열려 있지 않았다 — iOS 26 의 AlarmKit 이 처음이다.
+
+**정한 것**
+
+1. **백그라운드 진동은 시스템 진동(`kSystemSoundID_Vibrate`)으로 낸다.** `VibrationServiceImpl` 이 진동 한 번마다 경로를 고른다 — iOS 이고 앱이 전면이 아니면 시스템 진동(Swift `SystemVibration`, 채널 `system_vibration`), 아니면 세기가 반영되는 햅틱. 앱을 열면 다음 진동부터 햅틱으로 넘어간다. 로그 `[alert] vibration route=system|haptics from=…`(바뀔 때만), 실패는 `system vibration failed` 한 번만. `kSystemSoundID_Vibrate` 는 소리 없는 진동 전용이다.
+2. **iOS 26 이상이고 허용됐으면, 화면 없이 시작한 세션에 AlarmKit 알람을 붙인다** (Swift `ArrivalAlarm`, 채널 `arrival_alarm`, Dart `ArrivalAlarmCoordinator`). 시계 앱 알람처럼 잠금 화면 전체를 덮는다. 제목은 "장소 · 도착했습니다", 버튼은 "알림 끄기" 하나다. 카운트다운 표시가 없는 일회성 알람(1초 뒤)이라 위젯 확장이 필요 없다.
+3. **알람음은 무음 파일(`silent_haptic.caf`)이다.** AlarmKit 알람은 스피커로 울린다 — 소리를 넣는 순간 이어폰 허용 목록 판정(CLAUDE.md 규칙 2)을 우회한다. 알람은 **화면만** 덮고, 소리는 여전히 Dart `AlertController` 가 이어폰일 때만 낸다.
+4. **두 화면이 겹치지 않게 한다** — 세션이 끝나면(어디서 해제하든) 알람을 끈다. 앱이 전면으로 오면 알림 화면이 대신하므로 알람을 끈다. **사용자가 잠금 화면에서 알람을 끄면 세션도 끈다**(알림 화면의 해제와 같은 `ActiveAlert.dismiss`) — 화면 없는 해제라 광고는 붙이지 않는다(규칙 1·3). 우리가 먼저 끈 알람의 "꺼졌다" 신호로 세션을 두 번 끄지 않도록, 끄기 전에 "지금 알람" id 를 비운다.
+5. **권한** — 온보딩이 끝날 때(다시 온 사용자도 지난다) 아직 묻지 않았으면 한 번 묻는다. 설정 화면 "잠금화면 알람" 줄에서 허용을 묻거나(아직 안 물음), 설정 앱을 연다(거부됨). Info.plist `NSAlarmKitUsageDescription` 은 네 언어로 옮겼다.
+6. **iOS 26 미만** — 알림과 진동(1번)으로 알린다. 설정 줄은 숨기지 않고 "화면 전체를 덮는 알람은 iOS 26 이상에서 쓸 수 있어요" 를 보여준다 — "왜 내 아이폰은 화면을 덮지 않나"의 답이 거기 있어야 한다. Android 에는 이 줄이 없다(전체 화면 알림 권한이 같은 일을 한다).
+7. **로그** — `[alarm] presented place=… id=…`, `[alarm] skipped place=… reason=unsupported|not_authorized|session_ended|failed`, `[alarm] stopping id=… reason=dismissed|foreground`, `[alarm] stop received from native id=…` → `stopped by user id=…, dismissing session`, `[alarm] authorization requested trigger=… result=…`. 네이티브는 `diagnostic.ios.log` 에 `[alarm] scheduled id=`, `state id= state=alerting`, `stop observed id=`, `schedule failed error=` 를 남긴다.
+
+**고르지 않은 것**
+
+- 알람음을 실제 소리로 — 스피커로 샌다. 이 앱이 존재할 이유가 사라진다 (규칙 2).
+- Critical Alert — Apple 별도 승인이 필요하고 이 용도로는 받기 어렵다 (05-PLATFORM).
+- 카운트다운·Live Activity 표시 — 위젯 확장이 필요하고, 도착 알림에는 기다릴 시간이 없다.
+
+**한계**
+
+- **AlarmKit 경로는 CI(Xcode 26.0)에서만 컴파일된다.** 로컬 Xcode 16.2 에는 AlarmKit 이 없어 `#if canImport(AlarmKit)` 로 막았다 — 로컬 빌드는 "지원 안 함" 경로만 돈다. iOS 26.0 SDK 에 있는 `AlarmPresentation.Alert(title:stopButton:)` 을 쓴다(26.1 에서 deprecated, 대체 생성자는 26.1 부터).
+- **실기기 미확인** — 무음 알람이 실제로 잠금 화면을 덮는지, 알람이 따로 진동하는지, 끄기 버튼이 `alarmUpdates` 로 앱에 닿는지는 iOS 26 기기에서만 확인된다.
+- 알람은 앱 isolate 가 살아 있는 경로(055)에서만 뜬다. 강제 종료돼 영역 콜백만 도는 경로는 예전 그대로다.
+- 다른 장소 알림이 줄 서 있다가 이어 울리는 경우, 앞 장소의 알람을 끄면 이어 울리는 세션이 꺼진다 — 드문 경우라 두었다.
+
+**다시 볼 조건** — 무음 알람이 잠금 화면을 덮지 않거나 심사에서 AlarmKit 용도를 문제 삼으면 알람을 빼고 1번(시스템 진동)만 남긴다. 시스템 진동이 백그라운드에서도 울리지 않으면 무음 햅틱 알림 반복(055)만 남는다.
+
+---
+
 ## 미결 — 결정하지 않은 것들
 
 **결정하지 않았다는 사실을 기록한다.** 나중에 "왜 이건 안 정했지"를 헤매지 않기 위해서다.
