@@ -8,7 +8,9 @@ import '../../core/domain/alert_direction.dart';
 import '../../core/l10n/app_language_store.dart';
 import '../../core/l10n/l10n.dart';
 import '../../core/l10n/locale_resolver.dart';
+import '../../core/platform/notification_actions.dart';
 import 'background_alert_port.dart';
+import 'notification_action_handler.dart';
 import 'pending_alert.dart';
 import 'pending_alert_store.dart';
 
@@ -134,6 +136,9 @@ class BackgroundAlertNotifier implements BackgroundAlertPort {
       presentSound: true,
       sound: iosSilentHapticSound,
       interruptionLevel: InterruptionLevel.timeSensitive,
+      // 앱을 열지 않고 끄는 "알림 끄기" 버튼 (이슈 #237). iOS 26 미만은 잠금 화면을
+      // 덮지 못해 끄려면 앱을 열어야 했다
+      categoryIdentifier: NotificationActions.arrivalCategory,
     );
 
     await _plugin.show(
@@ -143,20 +148,47 @@ class BackgroundAlertNotifier implements BackgroundAlertPort {
           ? strings.notificationLeft
           : strings.notificationArrived,
       NotificationDetails(android: androidDetails, iOS: iosDetails),
+      // 버튼 눌림 기록에 어느 장소였는지 남기려고 싣는다 (이슈 #237)
+      payload: alert.placeName,
     );
   }
 }
 
 /// 알림 플러그인 초기화 설정 — 앱·백그라운드 isolate 가 같은 값을 쓴다.
 /// 권한 요청은 온보딩이 담당하므로 여기서는 요청하지 않는다.
-const notificationInitSettings = InitializationSettings(
-  android: AndroidInitializationSettings('@mipmap/ic_launcher'),
-  iOS: DarwinInitializationSettings(
-    requestAlertPermission: false,
-    requestBadgePermission: false,
-    requestSoundPermission: false,
-  ),
-);
+///
+/// **iOS 카테고리를 여기서 등록한다** (이슈 #237). 알림의 "알림 끄기" 버튼은
+/// 초기화 때 등록한 카테고리로만 생긴다. 버튼 이름은 그때의 앱 언어로 고정되고,
+/// 다음 초기화(앱 재시작)에서 바뀐 언어를 따른다.
+///
+/// **앱을 띄우지 않는 버튼이다** (`foreground` 옵션 없음). 끄려고 누른 사람에게
+/// 잠금 해제와 앱 화면을 요구하지 않는다 — 진동을 멈추는 것이 전부다.
+InitializationSettings buildNotificationInitSettings(AppLocalizations strings) {
+  return InitializationSettings(
+    android: const AndroidInitializationSettings('@mipmap/ic_launcher'),
+    iOS: DarwinInitializationSettings(
+      requestAlertPermission: false,
+      requestBadgePermission: false,
+      requestSoundPermission: false,
+      notificationCategories: [
+        DarwinNotificationCategory(
+          NotificationActions.arrivalCategory,
+          actions: [
+            DarwinNotificationAction.plain(
+              NotificationActions.dismiss,
+              strings.notificationActionDismiss,
+              options: const {DarwinNotificationActionOption.destructive},
+            ),
+          ],
+        ),
+      ],
+    ),
+  );
+}
+
+/// 앱 언어로 초기화 설정을 만든다. 문구를 못 구해도 영어로 만든다 — 던지지 않는다
+Future<InitializationSettings> loadNotificationInitSettings() async =>
+    buildNotificationInitSettings(await _loadStrings());
 
 final _initialized = Expando<Future<void>>('notifications initialized');
 
@@ -165,13 +197,21 @@ final _initialized = Expando<Future<void>>('notifications initialized');
 /// iOS 가 위치 사유로 앱을 백그라운드에서 다시 띄우면 첫 프레임이 오지 않아
 /// 앱 부트스트랩(여기서 초기화한다)이 돌지 않는다. 그 상태에서 도착 알림을
 /// 내려면 발행 직전에 초기화돼 있어야 한다. 실패하면 다음 호출에서 다시 시도한다.
+///
+/// 버튼 눌림 처리기도 함께 단다 (이슈 #237) — 이 경로로 낸 알림에도 버튼이 붙는다.
 Future<void> ensureNotificationsInitialized(
   FlutterLocalNotificationsPlugin plugin,
 ) {
   final existing = _initialized[plugin];
   if (existing != null) return existing;
-  final attempt = plugin
-      .initialize(notificationInitSettings)
+  final attempt = loadNotificationInitSettings()
+      .then(
+        (settings) => plugin.initialize(
+          settings,
+          onDidReceiveBackgroundNotificationResponse:
+              onBackgroundNotificationResponse,
+        ),
+      )
       .then<void>(
         (_) {},
         onError: (Object error) {

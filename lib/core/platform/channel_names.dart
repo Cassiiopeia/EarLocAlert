@@ -23,4 +23,7 @@ abstract final class ChannelNames {
 
   /// iOS 26+ 잠금 화면 무음 알람 (이슈 #235) — Swift `ArrivalAlarm`
   static const arrivalAlarm = '$_prefix/arrival_alarm';
+
+  /// iOS 알림 설정 읽기 (이슈 #237) — Swift `NotificationSettingsReader`
+  static const notificationSettings = '$_prefix/notification_settings';
 }

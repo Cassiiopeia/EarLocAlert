@@ -853,4 +853,90 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsLockAlarmOpenSettings => 'Open Settings';
+
+  @override
+  String get settingsVibrationTestTitle => 'Vibration test';
+
+  @override
+  String get settingsVibrationTestUntested =>
+      'Tap to check that this iPhone actually vibrates';
+
+  @override
+  String get settingsVibrationTestFelt => 'Vibration was felt in the last test';
+
+  @override
+  String get settingsVibrationTestNotFelt =>
+      'No vibration was felt in the last test. Tap to check again';
+
+  @override
+  String get vibrationTestQuestion => 'Did you feel a vibration?';
+
+  @override
+  String get vibrationTestQuestionBody =>
+      'We just vibrated once, the same way an arrival alert does.';
+
+  @override
+  String get vibrationTestYes => 'Yes';
+
+  @override
+  String get vibrationTestNo => 'No';
+
+  @override
+  String get vibrationTestFeltToast => 'Vibration works';
+
+  @override
+  String get vibrationGuideTitle => 'Vibration may be turned off';
+
+  @override
+  String get vibrationGuideBody =>
+      'Apps can\'t read the iPhone\'s vibration settings. Please check that the items below are on.';
+
+  @override
+  String get vibrationGuideStepAccessibility =>
+      'Settings > Accessibility > Touch > turn on Vibration';
+
+  @override
+  String get vibrationGuideStepHaptics =>
+      'Settings > Sounds & Haptics > Haptics > choose Always Play (so it vibrates in Silent Mode too)';
+
+  @override
+  String get vibrationGuideStepSystemHaptics =>
+      'Settings > Sounds & Haptics > turn on System Haptics';
+
+  @override
+  String get vibrationGuideHint =>
+      'Open Settings can only reach this app\'s page. Find the items above from the main Settings screen, then run the vibration test again.';
+
+  @override
+  String get vibrationGuideOpenSettings => 'Open Settings';
+
+  @override
+  String get vibrationGuideClose => 'Close';
+
+  @override
+  String get onboardingVibrationCardTitle =>
+      'Check that you can feel the vibration';
+
+  @override
+  String get onboardingVibrationCardBody =>
+      'If vibration is off on your iPhone, you won\'t feel anything when you arrive.';
+
+  @override
+  String get homeGapNotifications => 'Notifications';
+
+  @override
+  String get homeGapLockScreen => 'Lock Screen notifications';
+
+  @override
+  String get homeGapVibration => 'Vibration';
+
+  @override
+  String get settingsLockScreenNotifyTitle => 'Show on Lock Screen';
+
+  @override
+  String get settingsLockScreenNotifyDesc =>
+      'When off, nothing shows if you arrive with the screen off';
+
+  @override
+  String get notificationActionDismiss => 'Turn off alert';
 }

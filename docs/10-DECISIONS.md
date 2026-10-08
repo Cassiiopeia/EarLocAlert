@@ -1471,6 +1471,40 @@ Play 자동 업데이트(029)만으로는 사용자가 새 버전을 받는 시�
 
 ---
 
+## 058. iOS 는 읽을 수 있는 알림 설정을 홈 경고에 올리고, 진동은 사용자에게 직접 묻고, 알림에 "알림 끄기" 버튼을 단다
+
+**날짜** — 2026-10-08 (이슈 #237)
+
+**발견** — 057 로 백그라운드 진동과 잠금 화면 알람을 넣었지만, 사용자가 iPhone 에서 진동을 꺼 두었으면(손쉬운 사용 > 터치 > 진동, 사운드 및 햅틱 > 햅틱 '재생 안 함') 도착해도 아무 느낌이 없는데 앱은 계속 "감시 중"이라고 말한다. 잠금 화면 표시를 끈 사용자도 같다. 그리고 iOS 26 미만에는 잠금 화면을 덮는 수단이 없어 **끄려면 앱을 열어야 했다.**
+
+**원인** — iOS 는 진동·햅틱 설정을 앱에 알려주지 않는다. 알림 설정(`UNNotificationSettings`)은 읽을 수 있는데 아무도 읽지 않았다. 알림에는 버튼이 없었고, 앱이 알림 센터의 delegate 로 설정돼 있지 않아 버튼을 달아도 눌림이 앱에 닿지 않는 상태였다.
+
+**정한 것**
+
+1. **읽을 수 있는 것은 읽는다.** Swift `NotificationSettingsReader`(채널 `notification_settings`)가 `authorizationStatus`·`lockScreenSetting`·`alertSetting`·`notificationCenterSetting`·`soundSetting`·`timeSensitiveSetting`(iOS 15+)을 돌려준다. AlarmKit 권한(057)과 진동 시험 답(아래)을 합쳐 한 줄로 남긴다 — `[permission] ios notification settings auth=… lock_screen=… alert=… notification_center=… sound=… time_sensitive=… alarm=… vibration_felt=…`(바뀔 때만). 앱이 전면으로 돌아올 때 다시 읽는다.
+2. **막는 것만 홈 경고에 올린다** — Android 의 `missing=[…]`/`reliable` 과 같은 모델(`ReliabilityGap`)에 iOS 항목을 더했다. 막는 것: 알림 미허용(`notDetermined`·`denied`), 잠금 화면 표시 꺼짐(알림이 막혔으면 겹쳐 올리지 않는다), 잠금 화면 알람 거부(iOS 26+), 진동 시험 "아니요". **시간 민감 알림 꺼짐은 올리지 않는다** — 앱에 그 권한(entitlement)이 아직 없어 사용자가 켤 수 없다. 배너 꺼짐도 잠금 화면·진동이 살아 있으면 도착은 전달되므로 기록만 한다. 모르는 값은 막힌 것으로 보지 않는다(#142 QA). 경고를 누르면 설정 앱에서 고치는 항목이 하나라도 있으면 이 앱의 설정 페이지를, 진동만 남았으면 안내 시트를 연다.
+3. **진동은 직접 묻는다.** 설정(알림 묶음, 잠금화면 알람 아래)과 온보딩 완료 단계 카드에 "진동 시험"을 둔다. 알림 세션과 같은 `VibrationService` 로 저장된 세기로 한 번 떨고 "진동이 느껴졌나요?"를 묻는다. 답은 시각(UTC)과 함께 SharedPreferences 에 남고, "아니요"면 다음 시험에서 "예"라고 답할 때까지 홈 경고가 남는다. "아니요"는 안내 시트로 이어진다 — 손쉬운 사용 > 터치 > 진동, 사운드 및 햅틱 > 햅틱 '항상 재생', 사운드 및 햅틱 > 시스템 햅틱 + "설정 열기"(앱 설정 페이지까지만 열린다 — 더 깊이 가는 공개 경로가 없다는 사실을 시트에 적는다). 로그 `[vibration] test fired`, `test answered felt=`, `guide opened`, `guide settings_opened`.
+4. **도착 알림에 "알림 끄기" 버튼을 단다** — 카테고리 `ear_loc_alert_arrival`, 동작 `dismiss_alert`(destructive, `foreground` 없음). 백그라운드 알림(2001/2002)과 세션 알림(1001) 모두. 카테고리는 앱·백그라운드 두 초기화 경로에서 같은 설정(`buildNotificationInitSettings`)으로 등록한다. **앱을 띄우지 않는 버튼이라 플러그인이 별도 헤드리스 엔진에서 처리한다** — 그 엔진이 `IsolateNameServer` 로 앱 isolate 를 찾아 넘기면(영역 이벤트 054 와 같은 길) 앱이 알림 화면의 해제와 같은 `ActiveAlert.dismiss` 로 세션을 끄고, 반복 알림을 멈추고, AlarmKit 알람을 `stopAll` 하고, 대기 알림과 알림을 지운다. **광고는 붙이지 않고 화면도 옮기지 않는다**(규칙 1·3). 앱 isolate 가 없으면 헤드리스 엔진이 대기 알림과 알림만 지운다. 로그 `[notify] action received … engine=background|app` → `action tapped action=dismiss place=… handled=app|background`.
+5. **AppDelegate 가 알림 센터 delegate 가 된다** (`UNUserNotificationCenter.current().delegate = self`) — 플러그인 문서의 요구다. 헤드리스 엔진용 플러그인 등록 콜백(`FlutterLocalNotificationsPlugin.setPluginRegistrantCallback`)도 건다 — 없으면 버튼을 누르는 순간 죽는다. 부수 효과로 앱이 전면일 때 내는 알림이 각 알림의 `present*` 설정대로 보이게 된다(세션 알림은 배너 없이 목록에만).
+6. **Android 는 바꾸지 않는다** — 채널·알림 모양 그대로다. 카테고리는 iOS 설정에만 있다.
+
+**고르지 않은 것**
+
+- 진동 설정을 비공개 API 로 읽기 — 심사 반려 사유다.
+- 시간 민감 알림 꺼짐을 막힘으로 — 켤 방법이 없는 경고는 소음이다. entitlement 를 받은 뒤 다시 본다.
+- "알림 끄기"에 `foreground` 옵션 — 잠금 해제와 앱 화면을 요구하게 된다. 끄려는 사람에게 필요한 것은 진동이 멈추는 것뿐이다.
+
+**한계**
+
+- **실기기 미확인** — 헤드리스 엔진에서 앱 isolate 로 넘어가는지, 잠금 화면에서 누른 버튼이 진동을 멈추는지, delegate 설정 뒤 기존 알림 탭·전면 표시에 부작용이 없는지는 iPhone 에서만 확인된다.
+- 버튼 이름은 초기화 때의 앱 언어로 고정된다 — 언어를 바꾸면 다음 앱 시작부터 바뀐다.
+- 진동 시험은 전면 햅틱(Core Haptics)으로 떤다. 백그라운드의 시스템 진동(057)과 따르는 설정이 완전히 같다고 확인하지 못했다.
+- 헤드리스 엔진과 지오펜스 콜백 엔진이 동시에 뜨면 같은 백그라운드 로그 파일에 쓴다 — 드문 경우라 두었다.
+
+**다시 볼 조건** — 버튼 눌림이 앱 isolate 에 닿지 않으면 Swift 에서 응답을 직접 받아 채널로 넘긴다. Time Sensitive entitlement 를 받으면 2번의 시간 민감 항목을 막힘으로 올린다.
+
+---
+
 ## 미결 — 결정하지 않은 것들
 
 **결정하지 않았다는 사실을 기록한다.** 나중에 "왜 이건 안 정했지"를 헤매지 않기 위해서다.

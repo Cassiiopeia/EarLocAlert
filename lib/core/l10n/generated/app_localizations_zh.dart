@@ -812,4 +812,80 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get settingsLockAlarmOpenSettings => '打开设置';
+
+  @override
+  String get settingsVibrationTestTitle => '振动测试';
+
+  @override
+  String get settingsVibrationTestUntested => '点按以确认这台 iPhone 是否真的会振动';
+
+  @override
+  String get settingsVibrationTestFelt => '上次测试中感觉到了振动';
+
+  @override
+  String get settingsVibrationTestNotFelt => '上次测试中没有感觉到振动。点按再次确认';
+
+  @override
+  String get vibrationTestQuestion => '感觉到振动了吗？';
+
+  @override
+  String get vibrationTestQuestionBody => '刚刚以到达提醒相同的方式振动了一次。';
+
+  @override
+  String get vibrationTestYes => '是';
+
+  @override
+  String get vibrationTestNo => '否';
+
+  @override
+  String get vibrationTestFeltToast => '振动正常';
+
+  @override
+  String get vibrationGuideTitle => '振动可能已关闭';
+
+  @override
+  String get vibrationGuideBody => '应用无法读取 iPhone 的振动设置。请确认以下各项已开启。';
+
+  @override
+  String get vibrationGuideStepAccessibility => '设置 > 辅助功能 > 触控 > 打开振动';
+
+  @override
+  String get vibrationGuideStepHaptics =>
+      '设置 > 声音与触感 > 触感 > 选择“始终播放”（静音模式下也要振动）';
+
+  @override
+  String get vibrationGuideStepSystemHaptics => '设置 > 声音与触感 > 打开系统触感';
+
+  @override
+  String get vibrationGuideHint => '“打开设置”只能打开本应用的页面。请从设置首页找到以上各项，修改后再测试一次。';
+
+  @override
+  String get vibrationGuideOpenSettings => '打开设置';
+
+  @override
+  String get vibrationGuideClose => '关闭';
+
+  @override
+  String get onboardingVibrationCardTitle => '确认一下能否感觉到振动';
+
+  @override
+  String get onboardingVibrationCardBody => '如果 iPhone 的振动已关闭，到达时您将毫无感觉。';
+
+  @override
+  String get homeGapNotifications => '通知权限';
+
+  @override
+  String get homeGapLockScreen => '锁定屏幕通知';
+
+  @override
+  String get homeGapVibration => '振动';
+
+  @override
+  String get settingsLockScreenNotifyTitle => '在锁定屏幕上显示';
+
+  @override
+  String get settingsLockScreenNotifyDesc => '关闭时，若到达时屏幕处于关闭状态，将什么都不显示';
+
+  @override
+  String get notificationActionDismiss => '关闭提醒';
 }

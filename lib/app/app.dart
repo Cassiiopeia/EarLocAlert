@@ -21,12 +21,16 @@ import '../features/alert/domain/alert_controller.dart';
 import '../features/alert/presentation/alert_controller_provider.dart';
 import '../features/app_update/domain/app_updater.dart';
 import '../features/app_update/presentation/app_update_providers.dart';
+import '../core/platform/notification_actions.dart';
+import '../features/permission/presentation/ios_notification_settings_provider.dart';
 import 'arrival_alarm_providers.dart';
 import 'background/background_alert_notifier.dart';
+import 'background/notification_action_handler.dart';
 import 'background/pending_alert.dart';
 import 'background/pending_alert_store.dart';
 import 'background_alert_ringer.dart';
 import 'geofence_providers.dart';
+import 'notification_dismiss_action.dart';
 import 'pending_alert_resumer.dart';
 import 'router.dart';
 import 'splash_overlay.dart';
@@ -109,6 +113,44 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
     isRinging: () => ref.read(alertControllerProvider).current != null,
   );
 
+  /// 알림의 "알림 끄기" 버튼 (이슈 #237). 알림 화면의 해제와 같은 세션 해제를 쓰고
+  /// 광고는 붙이지 않는다 (CLAUDE.md 규칙 1·3)
+  late final _notificationDismiss = NotificationDismissAction(
+    isRinging: () => ref.read(alertControllerProvider).current != null,
+    dismissSession: () => ref.read(activeAlertProvider.notifier).dismiss(),
+    stopReminders: _backgroundRinger.onSessionEnded,
+    stopAlarms: () =>
+        ref.read(arrivalAlarmPlatformProvider).stopAll('notification_action'),
+    clearPending: () async {
+      await ref.read(pendingAlertLauncherProvider).takeRequest();
+    },
+    clearNotifications: () async {
+      await _cancelBackgroundNotification();
+      try {
+        await ref
+            .read(notificationsPluginProvider)
+            .cancel(AlertNotifierImpl.notificationId);
+      } on Object {
+        // 알림이 남는 것은 불편이지 고장이 아니다
+      }
+    },
+  );
+
+  /// 헤드리스 엔진이 넘겨준 버튼 눌림을 받는다 (이슈 #237)
+  late final _notificationActions = NotificationActionReceiver(
+    onDismiss: (place) => _notificationDismiss.run(place: place),
+  );
+
+  /// 앱 엔진으로 바로 온 알림 응답 (이슈 #237).
+  ///
+  /// "알림 끄기" 는 앱을 띄우지 않는 버튼이라 보통 헤드리스 엔진으로 가지만, 같은
+  /// 응답이 이쪽으로 와도 같은 처리를 한다. 알림 본문 탭은 여기서 다루지 않는다 —
+  /// 앱이 전면으로 오면 `resumed` 의 승격이 알림 화면으로 잇는다.
+  void _onNotificationResponse(NotificationResponse response) {
+    if (response.actionId != NotificationActions.dismiss) return;
+    unawaited(_notificationDismiss.run(place: response.payload ?? 'unknown'));
+  }
+
   /// 적응형 감시의 측정 처리기와 영역 이벤트 수신기를 단다 (이슈 #231).
   ///
   /// 로깅을 여기서 먼저 켠다 — 백그라운드 재실행에서는 부트스트랩이 돌지 않아
@@ -127,6 +169,9 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
       final alarm = ref.read(arrivalAlarmCoordinatorProvider);
       // 어디서 해제하든 반복 알림과 잠금 화면 알람이 같이 멈춰야 한다 — 끈 뒤에
       // 떨거나 알람이 남으면 안 된다
+      // 알림 버튼 눌림을 받기 시작한다 (이슈 #237) — 화면 없이 울리는 동안 눌리므로
+      // 첫 프레임을 기다리지 않는다
+      _notificationActions.attach();
       _sessionEnds = ref.read(alertControllerProvider).sessionChanges.listen((
         session,
       ) {
@@ -146,6 +191,7 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
     unawaited(_iosAlerts?.cancel());
     unawaited(_iosBackgroundAlerts?.cancel());
     unawaited(_sessionEnds?.cancel());
+    _notificationActions.detach();
     _pendingAlertPoll?.cancel();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
@@ -175,17 +221,15 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
     try {
       // 알림 탭으로 앱이 열리는 경로에 필요하다. 권한 요청은 온보딩이
       // 담당하므로 여기서는 요청하지 않는다.
+      //
+      // 백그라운드 경로와 같은 설정을 쓴다 — 알림 버튼 카테고리가 여기 들어 있다 (이슈 #237)
       await ref
           .read(notificationsPluginProvider)
           .initialize(
-            const InitializationSettings(
-              android: AndroidInitializationSettings('@mipmap/ic_launcher'),
-              iOS: DarwinInitializationSettings(
-                requestAlertPermission: false,
-                requestBadgePermission: false,
-                requestSoundPermission: false,
-              ),
-            ),
+            await loadNotificationInitSettings(),
+            onDidReceiveNotificationResponse: _onNotificationResponse,
+            onDidReceiveBackgroundNotificationResponse:
+                onBackgroundNotificationResponse,
           );
       Diagnostics.log('app', 'notification plugin initialized');
       await _deleteLegacyAlertChannel();
@@ -235,6 +279,11 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
       // 앱 화면과 잠금 화면 알람이 함께 뜨지 않게 한다 (이슈 #235)
       if (Platform.isIOS) {
         unawaited(ref.read(arrivalAlarmCoordinatorProvider).onForeground());
+        // 설정 앱에서 알림·잠금 화면·알람을 바꾸고 왔을 수 있다 — 홈 경고를 다시
+        // 계산한다 (이슈 #237)
+        ref
+          ..invalidate(iosNotificationSettingsProvider)
+          ..invalidate(arrivalAlarmStatusProvider);
       }
       unawaited(_resumePendingAlert('resumed'));
       unawaited(_checkAppUpdate());

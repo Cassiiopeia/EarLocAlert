@@ -1,5 +1,6 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
+import '../../../core/platform/notification_actions.dart';
 import '../domain/alert_effects.dart';
 import '../domain/alert_strings.dart';
 
@@ -14,7 +15,8 @@ class AlertNotifierImpl implements AlertNotifier {
 
   final FlutterLocalNotificationsPlugin _plugin;
 
-  static const int _notificationId = 1001;
+  /// 앱이 알림 버튼으로 정리할 때 함께 지워야 해서 공개한다 (이슈 #237)
+  static const int notificationId = 1001;
 
   /// 알림 화면이 떠 있는 동안의 **돌아오는 통로**다 — 튀어나오지 않는다.
   ///
@@ -53,18 +55,22 @@ class AlertNotifierImpl implements AlertNotifier {
       presentBadge: false,
       // 소리는 이어폰 연결 시에만 앱이 직접 재생한다 (F3.7)
       presentSound: false,
+      // 알림 목록에서 앱을 열지 않고 끌 수 있게 "알림 끄기" 버튼을 단다 (이슈 #237)
+      categoryIdentifier: NotificationActions.arrivalCategory,
     );
 
     await _plugin.show(
-      _notificationId,
+      notificationId,
       placeName,
       body,
       NotificationDetails(android: androidDetails, iOS: iosDetails),
+      // 버튼 눌림 기록에 어느 장소였는지 남기려고 싣는다 (이슈 #237)
+      payload: placeName,
     );
   }
 
   @override
   Future<void> dismiss() async {
-    await _plugin.cancel(_notificationId);
+    await _plugin.cancel(notificationId);
   }
 }

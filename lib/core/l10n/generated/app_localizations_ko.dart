@@ -821,4 +821,85 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get settingsLockAlarmOpenSettings => '설정 열기';
+
+  @override
+  String get settingsVibrationTestTitle => '진동 시험';
+
+  @override
+  String get settingsVibrationTestUntested => '눌러서 이 iPhone 에서 진동이 느껴지는지 확인해요';
+
+  @override
+  String get settingsVibrationTestFelt => '마지막 시험에서 진동이 느껴졌어요';
+
+  @override
+  String get settingsVibrationTestNotFelt =>
+      '마지막 시험에서 진동이 느껴지지 않았어요. 눌러서 다시 확인해요';
+
+  @override
+  String get vibrationTestQuestion => '진동이 느껴졌나요?';
+
+  @override
+  String get vibrationTestQuestionBody => '도착 알림과 같은 진동을 방금 한 번 울렸어요.';
+
+  @override
+  String get vibrationTestYes => '예';
+
+  @override
+  String get vibrationTestNo => '아니요';
+
+  @override
+  String get vibrationTestFeltToast => '진동이 잘 울려요';
+
+  @override
+  String get vibrationGuideTitle => '진동이 꺼져 있을 수 있어요';
+
+  @override
+  String get vibrationGuideBody =>
+      'iPhone 의 진동 설정은 앱이 읽을 수 없어요. 아래 항목이 켜져 있는지 확인해 주세요.';
+
+  @override
+  String get vibrationGuideStepAccessibility => '설정 > 손쉬운 사용 > 터치 > 진동 켜기';
+
+  @override
+  String get vibrationGuideStepHaptics =>
+      '설정 > 사운드 및 햅틱 > 햅틱 > \'항상 재생\' 선택 (무음 모드에서도 떨려야 해요)';
+
+  @override
+  String get vibrationGuideStepSystemHaptics => '설정 > 사운드 및 햅틱 > 시스템 햅틱 켜기';
+
+  @override
+  String get vibrationGuideHint =>
+      '설정 열기는 이 앱의 페이지까지만 열 수 있어요. 위 항목은 설정 첫 화면에서 찾아 주세요. 바꾼 뒤 진동 시험을 다시 해 보세요.';
+
+  @override
+  String get vibrationGuideOpenSettings => '설정 열기';
+
+  @override
+  String get vibrationGuideClose => '닫기';
+
+  @override
+  String get onboardingVibrationCardTitle => '진동이 느껴지는지 확인해 보세요';
+
+  @override
+  String get onboardingVibrationCardBody =>
+      'iPhone 진동 설정이 꺼져 있으면 도착해도 아무 느낌이 없어요.';
+
+  @override
+  String get homeGapNotifications => '알림 허용';
+
+  @override
+  String get homeGapLockScreen => '잠금 화면 알림';
+
+  @override
+  String get homeGapVibration => '진동';
+
+  @override
+  String get settingsLockScreenNotifyTitle => '잠금 화면에 표시';
+
+  @override
+  String get settingsLockScreenNotifyDesc =>
+      '꺼져 있으면 화면이 꺼진 채 도착했을 때 아무것도 보이지 않아요';
+
+  @override
+  String get notificationActionDismiss => '알림 끄기';
 }

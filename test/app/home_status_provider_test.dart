@@ -1,5 +1,6 @@
 import 'package:ear_loc_alert/app/geofence_providers.dart';
 import 'package:ear_loc_alert/app/home_status_provider.dart';
+import 'package:ear_loc_alert/app/ios_alert_readiness.dart';
 import 'package:ear_loc_alert/features/alert/domain/alert_effects.dart';
 import 'package:ear_loc_alert/features/alert/presentation/alert_controller_provider.dart';
 import 'package:ear_loc_alert/core/di/providers.dart';
@@ -76,9 +77,12 @@ void main() {
     required GeofenceMonitor monitor,
     required AlertSoundService sound,
     PermissionSnapshot permissions = const PermissionSnapshot(),
+    List<ReliabilityGap>? iosGaps,
   }) {
     final container = ProviderContainer(
       overrides: [
+        if (iosGaps != null)
+          iosAlertReadinessProvider.overrideWith((ref) async => iosGaps),
         geofenceMonitorProvider.overrideWithValue(monitor),
         alertSoundServiceProvider.overrideWithValue(sound),
         permissionServiceProvider.overrideWithValue(
@@ -182,6 +186,34 @@ void main() {
       expect(status.canAlertReliably, isTrue);
     });
 
+    test('iOS 에서 읽은 막힘 항목이 같은 경고로 올라온다 (이슈 #237)', () async {
+      final container = makeContainer(
+        monitor: FakeMonitor(registered: ['p1']),
+        sound: FakeSound(),
+        permissions: const PermissionSnapshot(
+          location: PermissionStatus.granted,
+          backgroundLocation: PermissionStatus.granted,
+          notification: PermissionStatus.granted,
+          batteryOptimization: PermissionStatus.granted,
+          overlay: PermissionStatus.granted,
+          fullScreenIntent: PermissionStatus.granted,
+        ),
+        iosGaps: const [ReliabilityGap.lockScreen, ReliabilityGap.vibration],
+      );
+
+      await container.read(permissionControllerProvider.future);
+      container.listen(iosAlertReadinessProvider, (_, _) {});
+      await container.read(iosAlertReadinessProvider.future);
+      final status = await container.read(homeStatusProvider.future);
+
+      // 권한은 다 있어도 잠금 화면 표시가 꺼졌거나 진동이 안 느껴지면 도착을 놓친다
+      expect(status.canAlertReliably, isFalse);
+      expect(status.missingReliability, [
+        ReliabilityGap.lockScreen,
+        ReliabilityGap.vibration,
+      ]);
+    });
+
     test('확인 전 기본값은 "모름"이다 — 꺼짐 경고도 알림 약함 경고도 띄우지 않는다', () {
       // 확인 전의 false 를 고장으로 그리면 알림을 끄고 돌아올 때마다
       // "감시 꺼짐" 이 번쩍였다 (이슈 #142 QA)
@@ -204,6 +236,9 @@ void main() {
     // 권한 조회가 늦게 끝나면 그것 때문에 다시 계산돼 우연히 통과한다 —
     // 먼저 끝내 두고, 신호 말고는 다시 읽을 이유가 없게 만든다
     await container.read(permissionControllerProvider.future);
+    // iOS 알림 설정(이슈 #237)도 같은 이유로 먼저 끝내 둔다 — 이 플랫폼에선 곧장 빈 목록이다
+    container.listen(iosAlertReadinessProvider, (_, _) {});
+    await container.read(iosAlertReadinessProvider.future);
     container.listen(homeStatusProvider, (_, _) {});
 
     expect(

@@ -21,7 +21,11 @@ import '../features/alert/domain/alert_controller.dart';
 import '../features/alert/presentation/alert_controller_provider.dart';
 import '../features/alert/presentation/alert_screen.dart';
 import '../features/alert/presentation/alert_volume_sheet.dart';
+import '../features/alert/presentation/vibration_check_flow.dart';
+import '../features/alert/presentation/vibration_check_provider.dart';
 import '../features/alert/presentation/vibration_intensity_sheet.dart';
+import '../features/permission/domain/ios_notification_settings.dart';
+import '../features/permission/presentation/ios_notification_settings_provider.dart';
 import '../features/permission/domain/permission_kind.dart';
 import '../features/permission/domain/permission_snapshot.dart';
 import '../features/permission/presentation/onboarding_screen.dart';
@@ -83,6 +87,10 @@ GoRouter createRouter() {
             }
             context.go(AppRoutes.home);
           },
+          // 진동 시험 (이슈 #237) — iOS 는 진동 설정을 앱이 읽을 수 없어 처음에 한 번 권한다
+          onTestVibration: Platform.isIOS
+              ? () => _runVibrationCheck(context, trigger: 'onboarding')
+              : null,
         ),
       ),
       GoRoute(
@@ -317,6 +325,11 @@ class _HomeRoute extends ConsumerWidget {
             ReliabilityGap.overlay => context.l10n.settingsPermOverlayTitle,
             ReliabilityGap.fullScreenIntent =>
               context.l10n.settingsPermFullScreenTitle,
+            ReliabilityGap.notifications => context.l10n.homeGapNotifications,
+            ReliabilityGap.lockScreen => context.l10n.homeGapLockScreen,
+            ReliabilityGap.lockScreenAlarm =>
+              context.l10n.settingsLockAlarmTitle,
+            ReliabilityGap.vibration => context.l10n.homeGapVibration,
           },
       ],
       // **push 다 — go 를 쓰면 스택이 교체되어 돌아갈 곳이 사라진다** (이슈 #97).
@@ -329,7 +342,11 @@ class _HomeRoute extends ConsumerWidget {
       // 신뢰성 권한(#74)을 다시 권한다. 한 번 거절했다는 기록을 지워야
       // 온보딩이 그 단계를 다시 보여준다 — 사용자가 스스로 찾아온 것이므로
       // 기록이 길을 막으면 안 된다.
-      onFixReliability: () => _reofferReliability(context, ref),
+      //
+      // iOS 는 온보딩에 신뢰성 단계가 없다 (이슈 #237) — 빠진 것에 맞는 곳으로 바로 보낸다
+      onFixReliability: Platform.isIOS
+          ? () => _fixIosReliability(context, ref, status.missingReliability)
+          : () => _reofferReliability(context, ref),
       onOpenSettings: () => context.push(AppRoutes.settings),
       onRefreshStatus: () => ref.invalidate(homeStatusProvider),
     );
@@ -399,6 +416,8 @@ class _SettingsRouteState extends ConsumerState<_SettingsRoute>
       unawaited(ref.read(permissionControllerProvider.notifier).refresh());
       // 설정 앱에서 알람을 켜고 돌아왔을 수 있다 (이슈 #235)
       ref.invalidate(arrivalAlarmStatusProvider);
+      // 알림·잠금 화면 표시도 마찬가지다 (이슈 #237)
+      ref.invalidate(iosNotificationSettingsProvider);
     }
   }
 
@@ -434,6 +453,19 @@ class _SettingsRouteState extends ConsumerState<_SettingsRoute>
         },
       ),
     };
+  }
+
+  /// 설정 화면에 내려줄 진동 시험 줄 (이슈 #237). 읽는 중이면 "시험 안 함" 으로 보인다
+  SettingsVibrationCheck _vibrationCheck(BuildContext context) {
+    final last = ref.watch(vibrationCheckProvider).valueOrNull;
+    return SettingsVibrationCheck(
+      state: last == null
+          ? VibrationCheckState.untested
+          : last.felt
+          ? VibrationCheckState.felt
+          : VibrationCheckState.notFelt,
+      onTap: () => _runVibrationCheck(context, trigger: 'settings'),
+    );
   }
 
   /// 설정에서 직접 누른 업데이트 확인 (이슈 #179)
@@ -502,9 +534,17 @@ class _SettingsRouteState extends ConsumerState<_SettingsRoute>
         // 알림은 앱이 죽어 있어도 Kotlin 이 만들어서 스스로는 언어 변경을 모른다
         unawaited(ref.read(geofenceRegistrationSyncProvider).refresh());
       },
-      permissions: _permissionRows(ref, snapshot, context.l10n),
+      permissions: Platform.isIOS
+          ? _iosNotificationRows(
+              ref,
+              ref.watch(iosNotificationSettingsProvider).valueOrNull,
+              context.l10n,
+            )
+          : _permissionRows(ref, snapshot, context.l10n),
       // 잠금 화면 알람 (이슈 #235) — iOS 에만 있다. Android 는 전체 화면 알림 권한이 같은 일을 한다
       lockScreenAlarm: Platform.isIOS ? _lockScreenAlarm() : null,
+      // 진동 시험 (이슈 #237) — iOS 는 진동 설정을 앱이 읽을 수 없다
+      vibrationCheck: Platform.isIOS ? _vibrationCheck(context) : null,
       // 앱 버전과 업데이트 확인 (이슈 #179) — 읽기 실패는 `-` 로 보여준다
       appVersion: ref.watch(appVersionProvider).valueOrNull ?? '-',
       // 앱 내 업데이트가 없는 플랫폼(iOS)은 버튼을 숨긴다 (이슈 #229)
@@ -587,6 +627,84 @@ List<SettingsPermissionRow> _permissionRows(
       onTap: () => request(PermissionKind.fullScreenIntent),
     ),
   ];
+}
+
+/// iOS 에서 앱이 읽을 수 있는 알림 설정 줄 (이슈 #237).
+///
+/// Android 의 권한 줄과 같은 자리·모양이다. 읽지 못했으면 줄을 숨긴다 — 모르는 값을
+/// "꺼짐"으로 그리지 않는다. 고치는 곳은 둘 다 설정 앱의 이 앱 알림 페이지다.
+List<SettingsPermissionRow> _iosNotificationRows(
+  WidgetRef ref,
+  IosNotificationSettings? settings,
+  AppLocalizations l10n,
+) {
+  if (settings == null ||
+      settings.authorization == IosNotificationAuthorization.unknown) {
+    return const [];
+  }
+  void openSettings() {
+    Diagnostics.log('permission', 'ios notification settings open tapped');
+    unawaited(ref.read(permissionControllerProvider.notifier).openSettings());
+  }
+
+  return [
+    SettingsPermissionRow(
+      title: l10n.settingsPermNotifyTitle,
+      description: l10n.settingsPermNotifyDesc,
+      granted: !settings.isBlocked,
+      onTap: openSettings,
+    ),
+    // 기기에 없는 항목이면 줄을 만들지 않는다
+    if (settings.lockScreen != IosNotificationSetting.notSupported &&
+        settings.lockScreen != IosNotificationSetting.unknown)
+      SettingsPermissionRow(
+        title: l10n.settingsLockScreenNotifyTitle,
+        description: l10n.settingsLockScreenNotifyDesc,
+        granted: settings.lockScreen == IosNotificationSetting.enabled,
+        onTap: openSettings,
+      ),
+  ];
+}
+
+/// 진동 시험을 돌린다 (이슈 #237). 안내 시트의 "설정 열기" 는 이 앱의 설정 페이지다 —
+/// 손쉬운 사용으로 바로 가는 공개 경로가 없다
+void _runVibrationCheck(BuildContext context, {required String trigger}) {
+  final container = ProviderScope.containerOf(context, listen: false);
+  unawaited(
+    runVibrationCheck(
+      context,
+      trigger: trigger,
+      onOpenSettings: () =>
+          container.read(permissionControllerProvider.notifier).openSettings(),
+    ),
+  );
+}
+
+/// iOS 홈 경고를 눌렀을 때 (이슈 #237).
+///
+/// 설정 앱에서 고치는 항목(알림·잠금 화면·알람)이 하나라도 있으면 이 앱의 설정
+/// 페이지를 연다 — 셋 다 거기 있다. 진동만 남았으면 설정 앱의 이 앱 페이지에는
+/// 고칠 것이 없으므로 안내 시트를 연다.
+void _fixIosReliability(
+  BuildContext context,
+  WidgetRef ref,
+  List<ReliabilityGap> gaps,
+) {
+  final container = ProviderScope.containerOf(context, listen: false);
+  Future<void> openSettings() =>
+      container.read(permissionControllerProvider.notifier).openSettings();
+
+  final needsSystemSettings = gaps.any((gap) => gap.fixedInSystemSettings);
+  Diagnostics.log(
+    'home',
+    'ios weak banner tapped gaps=[${gaps.map((gap) => gap.name).join(",")}] '
+        'target=${needsSystemSettings ? "system_settings" : "vibration_guide"}',
+  );
+  if (needsSystemSettings) {
+    unawaited(openSettings());
+  } else if (gaps.contains(ReliabilityGap.vibration)) {
+    unawaited(showVibrationGuideSheet(context, onOpenSettings: openSettings));
+  }
 }
 
 /// 신뢰성 권한(#74)을 다시 권하고 온보딩으로 보낸다.

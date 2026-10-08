@@ -2,6 +2,8 @@ import Flutter
 import UIKit
 import CoreLocation
 import GoogleMaps
+import UserNotifications
+import flutter_local_notifications
 import native_geofence
 
 @main
@@ -28,6 +30,18 @@ import native_geofence
     NativeGeofencePlugin.setPluginRegistrantCallback { registry in
         GeneratedPluginRegistrant.register(with: registry)
     }
+    // 알림의 "알림 끄기" 버튼 (이슈 #237) — 앱을 띄우지 않는 버튼은 플러그인이 별도
+    // 헤드리스 엔진에서 처리한다. 그 엔진도 플러그인(SharedPreferences·알림)을 써야
+    // 대기 알림을 지우고 알림을 걷을 수 있다. 등록하지 않으면 버튼을 누르는 순간 죽는다
+    FlutterLocalNotificationsPlugin.setPluginRegistrantCallback { registry in
+        GeneratedPluginRegistrant.register(with: registry)
+    }
+
+    // 알림 응답(버튼 탭)이 플러그인까지 오려면 앱이 알림 센터의 delegate 여야 한다
+    // (이슈 #237). FlutterAppDelegate 가 받아 플러그인에 넘긴다 — 지금까지는 아무도
+    // 설정하지 않아 버튼을 달아도 눌림이 앱에 닿지 않았다
+    UNUserNotificationCenter.current().delegate = self
+
     GeneratedPluginRegistrant.register(with: self)
 
     // Google Maps API 키를 Dart(장소 검색 REST)에 넘긴다.
@@ -66,6 +80,9 @@ import native_geofence
 
       // 잠금 화면 전체를 덮는 무음 알람 (이슈 #235, iOS 26+). 그 미만은 "지원 안 함"만 답한다
       ArrivalAlarm.shared.register(messenger: controller.binaryMessenger)
+
+      // 읽을 수 있는 알림 설정(잠금 화면 표시 등)을 홈 경고에 올린다 (이슈 #237)
+      NotificationSettingsReader.register(messenger: controller.binaryMessenger)
     }
 
     // 위치 사유로 다시 떴든(중요 위치 변화·영역 이벤트) 사용자가 열었든, 감시를 원하던

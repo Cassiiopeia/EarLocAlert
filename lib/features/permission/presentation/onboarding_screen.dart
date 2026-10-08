@@ -22,9 +22,13 @@ import 'reliability_prompt_provider.dart';
 /// 알림 화면 다음으로 중요한 화면이다 — 여기서 이탈하면 앱이 아무것도
 /// 하지 못한다.
 class OnboardingScreen extends ConsumerStatefulWidget {
-  const OnboardingScreen({super.key, this.onFinished});
+  const OnboardingScreen({super.key, this.onFinished, this.onTestVibration});
 
   final VoidCallback? onFinished;
+
+  /// 진동 시험 (이슈 #237). 완료 단계에 카드로 보인다. **null 이면 숨긴다** —
+  /// iOS 에만 있다. 시험 흐름은 alert feature 것이라 app 계층이 넘겨준다 (규칙 1)
+  final VoidCallback? onTestVibration;
 
   @override
   ConsumerState<OnboardingScreen> createState() => _OnboardingScreenState();
@@ -170,6 +174,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
               // 요청을 한 번 거친 뒤에만 (이슈 #211, [_requestedSteps]).
               // 무엇이 안 되는지는 홈에서 상시 표시하고 켜러 갈 길을 준다.
               onSkip: _canSkip(step) ? () => _skip(step) : null,
+              onTestVibration: step == OnboardingStep.done
+                  ? widget.onTestVibration
+                  : null,
             );
           },
         ),
@@ -184,12 +191,16 @@ class _StepView extends StatelessWidget {
     required this.snapshot,
     required this.onAction,
     this.onSkip,
+    this.onTestVibration,
   });
 
   final OnboardingStep step;
   final PermissionSnapshot snapshot;
   final VoidCallback onAction;
   final VoidCallback? onSkip;
+
+  /// 완료 단계의 진동 시험 카드 (이슈 #237)
+  final VoidCallback? onTestVibration;
 
   @override
   Widget build(BuildContext context) {
@@ -237,6 +248,10 @@ class _StepView extends StatelessWidget {
               ],
             ),
           ],
+          if (onTestVibration != null) ...[
+            const SizedBox(height: AppSpacing.lg),
+            _VibrationTestCard(onTest: onTestVibration!),
+          ],
           const Spacer(),
           FilledButton(onPressed: onAction, child: Text(copy.actionLabel)),
           if (onSkip != null) ...[
@@ -247,6 +262,62 @@ class _StepView extends StatelessWidget {
             ),
           ],
           const SizedBox(height: AppSpacing.sm),
+        ],
+      ),
+    );
+  }
+}
+
+/// 완료 단계의 진동 시험 카드 (이슈 #237)
+///
+/// **주 버튼(시작하기)을 뺏지 않는다** — 시험은 선택이라 보조 버튼으로 둔다.
+/// iOS 는 진동 설정을 앱에 알려주지 않아, 꺼져 있으면 도착해도 아무 느낌이 없다.
+/// 처음 쓰는 순간이 그것을 알아챌 가장 싼 때다.
+class _VibrationTestCard extends StatelessWidget {
+  const _VibrationTestCard({required this.onTest});
+
+  final VoidCallback onTest;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.md),
+      decoration: BoxDecoration(
+        color: AppColors.bgSurface,
+        borderRadius: BorderRadius.circular(AppRadius.card),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              const Icon(
+                Icons.vibration_outlined,
+                size: AppIconSize.inline,
+                color: AppColors.primary,
+              ),
+              const SizedBox(width: AppSpacing.xs),
+              Expanded(
+                child: Text(
+                  context.keepAllText(l10n.onboardingVibrationCardTitle),
+                  style: AppTypography.body.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          Text(
+            context.keepAllText(l10n.onboardingVibrationCardBody),
+            style: AppTypography.caption,
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          OutlinedButton(
+            onPressed: onTest,
+            child: Text(l10n.settingsVibrationTestTitle),
+          ),
         ],
       ),
     );

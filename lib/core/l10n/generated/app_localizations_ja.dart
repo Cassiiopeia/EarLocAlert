@@ -818,4 +818,84 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get settingsLockAlarmOpenSettings => '設定を開く';
+
+  @override
+  String get settingsVibrationTestTitle => 'バイブレーションのテスト';
+
+  @override
+  String get settingsVibrationTestUntested => 'タップして、このiPhoneが実際に振動するか確認します';
+
+  @override
+  String get settingsVibrationTestFelt => '前回のテストで振動を感じました';
+
+  @override
+  String get settingsVibrationTestNotFelt =>
+      '前回のテストで振動を感じませんでした。タップしてもう一度確認します';
+
+  @override
+  String get vibrationTestQuestion => '振動を感じましたか？';
+
+  @override
+  String get vibrationTestQuestionBody => '到着アラートと同じ振動を今1回鳴らしました。';
+
+  @override
+  String get vibrationTestYes => 'はい';
+
+  @override
+  String get vibrationTestNo => 'いいえ';
+
+  @override
+  String get vibrationTestFeltToast => '振動は正常です';
+
+  @override
+  String get vibrationGuideTitle => '振動がオフになっている可能性があります';
+
+  @override
+  String get vibrationGuideBody =>
+      'iPhoneの振動設定はアプリから読み取れません。以下の項目がオンになっているか確認してください。';
+
+  @override
+  String get vibrationGuideStepAccessibility =>
+      '設定 > アクセシビリティ > タッチ > バイブレーションをオン';
+
+  @override
+  String get vibrationGuideStepHaptics =>
+      '設定 > サウンドと触覚 > 触覚 > 「常に再生」を選択（消音モードでも振動させるため）';
+
+  @override
+  String get vibrationGuideStepSystemHaptics => '設定 > サウンドと触覚 > システムの触覚をオン';
+
+  @override
+  String get vibrationGuideHint =>
+      '「設定を開く」で開けるのはこのアプリのページまでです。上の項目は設定のトップ画面から探してください。変更したらもう一度テストしてください。';
+
+  @override
+  String get vibrationGuideOpenSettings => '設定を開く';
+
+  @override
+  String get vibrationGuideClose => '閉じる';
+
+  @override
+  String get onboardingVibrationCardTitle => '振動を感じられるか確認しましょう';
+
+  @override
+  String get onboardingVibrationCardBody => 'iPhoneの振動設定がオフだと、到着しても何も感じません。';
+
+  @override
+  String get homeGapNotifications => '通知の許可';
+
+  @override
+  String get homeGapLockScreen => 'ロック画面の通知';
+
+  @override
+  String get homeGapVibration => '振動';
+
+  @override
+  String get settingsLockScreenNotifyTitle => 'ロック画面に表示';
+
+  @override
+  String get settingsLockScreenNotifyDesc => 'オフだと、画面が消えたまま到着しても何も表示されません';
+
+  @override
+  String get notificationActionDismiss => 'アラートを止める';
 }

@@ -5,14 +5,12 @@ import '../core/diagnostics/diagnostics.dart';
 import '../features/alert/presentation/alert_controller_provider.dart';
 import '../features/permission/presentation/permission_controller.dart';
 import 'geofence_providers.dart';
+import 'ios_alert_readiness.dart';
+import 'reliability_gap.dart';
+
+export 'reliability_gap.dart';
 
 part 'home_status_provider.g.dart';
-
-/// 아직 켜지지 않은 신뢰성 권한의 종류 (이슈 #115)
-///
-/// **문구가 아니라 값이다.** 이 파일은 `BuildContext` 가 없어 언어를 모른다 —
-/// 화면(라우터)이 이 값을 현재 언어의 권한 이름으로 바꾼다 (이슈 #163).
-enum ReliabilityGap { batteryOptimization, overlay, fullScreenIntent }
 
 /// 메인 화면 상태 바에 필요한 값 (docs/06-UX.md F4.5)
 ///
@@ -110,7 +108,14 @@ Future<HomeStatus> homeStatus(Ref ref) async {
   // 권한 조회가 아직 안 끝났으면 경고하지 않는다 — 모르는 상태에서
   // 경고를 띄우면 정상인 사용자에게 없는 문제를 보여준다 (이슈 #74)
   final snapshot = ref.watch(permissionControllerProvider).valueOrNull;
-  final reliable = snapshot?.canAlertReliably ?? true;
+
+  // iOS 는 신뢰성 권한 대신 읽을 수 있는 알림 설정과 진동 시험 답을 본다 (이슈 #237).
+  // 읽는 중이면 비어 있다 — 권한과 같은 이유로 모르는 상태에서 경고하지 않는다.
+  // Android 에서는 늘 비어 있다
+  final iosGaps =
+      ref.watch(iosAlertReadinessProvider).valueOrNull ??
+      const <ReliabilityGap>[];
+  final reliable = (snapshot?.canAlertReliably ?? true) && iosGaps.isEmpty;
 
   // 켜지지 않은 것만 골라 종류로 담는다 — 이름은 화면이 설정 화면의
   // 항목명과 같은 말로 붙인다
@@ -120,6 +125,7 @@ Future<HomeStatus> homeStatus(Ref ref) async {
       if (!snapshot.canCoverScreen) ReliabilityGap.overlay,
       if (!snapshot.canWakeScreen) ReliabilityGap.fullScreenIntent,
     ],
+    ...iosGaps,
   ];
 
   // 홈 상태 배너가 왜 떴는지/안 떴는지는 이 값 없이 추적할 수 없다.

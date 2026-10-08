@@ -1589,6 +1589,156 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'설정 열기'**
   String get settingsLockAlarmOpenSettings;
+
+  /// No description provided for @settingsVibrationTestTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'진동 시험'**
+  String get settingsVibrationTestTitle;
+
+  /// No description provided for @settingsVibrationTestUntested.
+  ///
+  /// In ko, this message translates to:
+  /// **'눌러서 이 iPhone 에서 진동이 느껴지는지 확인해요'**
+  String get settingsVibrationTestUntested;
+
+  /// No description provided for @settingsVibrationTestFelt.
+  ///
+  /// In ko, this message translates to:
+  /// **'마지막 시험에서 진동이 느껴졌어요'**
+  String get settingsVibrationTestFelt;
+
+  /// No description provided for @settingsVibrationTestNotFelt.
+  ///
+  /// In ko, this message translates to:
+  /// **'마지막 시험에서 진동이 느껴지지 않았어요. 눌러서 다시 확인해요'**
+  String get settingsVibrationTestNotFelt;
+
+  /// No description provided for @vibrationTestQuestion.
+  ///
+  /// In ko, this message translates to:
+  /// **'진동이 느껴졌나요?'**
+  String get vibrationTestQuestion;
+
+  /// No description provided for @vibrationTestQuestionBody.
+  ///
+  /// In ko, this message translates to:
+  /// **'도착 알림과 같은 진동을 방금 한 번 울렸어요.'**
+  String get vibrationTestQuestionBody;
+
+  /// No description provided for @vibrationTestYes.
+  ///
+  /// In ko, this message translates to:
+  /// **'예'**
+  String get vibrationTestYes;
+
+  /// No description provided for @vibrationTestNo.
+  ///
+  /// In ko, this message translates to:
+  /// **'아니요'**
+  String get vibrationTestNo;
+
+  /// No description provided for @vibrationTestFeltToast.
+  ///
+  /// In ko, this message translates to:
+  /// **'진동이 잘 울려요'**
+  String get vibrationTestFeltToast;
+
+  /// No description provided for @vibrationGuideTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'진동이 꺼져 있을 수 있어요'**
+  String get vibrationGuideTitle;
+
+  /// No description provided for @vibrationGuideBody.
+  ///
+  /// In ko, this message translates to:
+  /// **'iPhone 의 진동 설정은 앱이 읽을 수 없어요. 아래 항목이 켜져 있는지 확인해 주세요.'**
+  String get vibrationGuideBody;
+
+  /// No description provided for @vibrationGuideStepAccessibility.
+  ///
+  /// In ko, this message translates to:
+  /// **'설정 > 손쉬운 사용 > 터치 > 진동 켜기'**
+  String get vibrationGuideStepAccessibility;
+
+  /// No description provided for @vibrationGuideStepHaptics.
+  ///
+  /// In ko, this message translates to:
+  /// **'설정 > 사운드 및 햅틱 > 햅틱 > \'항상 재생\' 선택 (무음 모드에서도 떨려야 해요)'**
+  String get vibrationGuideStepHaptics;
+
+  /// No description provided for @vibrationGuideStepSystemHaptics.
+  ///
+  /// In ko, this message translates to:
+  /// **'설정 > 사운드 및 햅틱 > 시스템 햅틱 켜기'**
+  String get vibrationGuideStepSystemHaptics;
+
+  /// No description provided for @vibrationGuideHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'설정 열기는 이 앱의 페이지까지만 열 수 있어요. 위 항목은 설정 첫 화면에서 찾아 주세요. 바꾼 뒤 진동 시험을 다시 해 보세요.'**
+  String get vibrationGuideHint;
+
+  /// No description provided for @vibrationGuideOpenSettings.
+  ///
+  /// In ko, this message translates to:
+  /// **'설정 열기'**
+  String get vibrationGuideOpenSettings;
+
+  /// No description provided for @vibrationGuideClose.
+  ///
+  /// In ko, this message translates to:
+  /// **'닫기'**
+  String get vibrationGuideClose;
+
+  /// No description provided for @onboardingVibrationCardTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'진동이 느껴지는지 확인해 보세요'**
+  String get onboardingVibrationCardTitle;
+
+  /// No description provided for @onboardingVibrationCardBody.
+  ///
+  /// In ko, this message translates to:
+  /// **'iPhone 진동 설정이 꺼져 있으면 도착해도 아무 느낌이 없어요.'**
+  String get onboardingVibrationCardBody;
+
+  /// No description provided for @homeGapNotifications.
+  ///
+  /// In ko, this message translates to:
+  /// **'알림 허용'**
+  String get homeGapNotifications;
+
+  /// No description provided for @homeGapLockScreen.
+  ///
+  /// In ko, this message translates to:
+  /// **'잠금 화면 알림'**
+  String get homeGapLockScreen;
+
+  /// No description provided for @homeGapVibration.
+  ///
+  /// In ko, this message translates to:
+  /// **'진동'**
+  String get homeGapVibration;
+
+  /// No description provided for @settingsLockScreenNotifyTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'잠금 화면에 표시'**
+  String get settingsLockScreenNotifyTitle;
+
+  /// No description provided for @settingsLockScreenNotifyDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'꺼져 있으면 화면이 꺼진 채 도착했을 때 아무것도 보이지 않아요'**
+  String get settingsLockScreenNotifyDesc;
+
+  /// No description provided for @notificationActionDismiss.
+  ///
+  /// In ko, this message translates to:
+  /// **'알림 끄기'**
+  String get notificationActionDismiss;
 }
 
 class _AppLocalizationsDelegate
