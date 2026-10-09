@@ -50,8 +50,13 @@ abstract interface class ArrivalAlarmPlatform {
   /// 권한을 묻는다. 이미 정해졌으면 OS 가 다시 묻지 않고 그 값을 돌려준다
   Future<ArrivalAlarmAuthorization> requestAuthorization();
 
-  /// 알람을 띄우고 그 id 를 돌려준다. 실패하면 던진다
-  Future<String> present({required String title, required String stopLabel});
+  /// 알람을 띄우고 그 id 를 돌려준다. 실패하면 던진다.
+  /// [openLabel] 은 앱 알림 화면으로 들어가는 보조 버튼 문구다 (이슈 #241)
+  Future<String> present({
+    required String title,
+    required String stopLabel,
+    required String openLabel,
+  });
 
   /// 이 앱이 띄운 알람을 모두 끈다. 던지지 않는다
   Future<void> stopAll(String reason);
@@ -75,8 +80,11 @@ class UnsupportedArrivalAlarm implements ArrivalAlarmPlatform {
       ArrivalAlarmAuthorization.unsupported;
 
   @override
-  Future<String> present({required String title, required String stopLabel}) =>
-      Future.error(UnsupportedError('arrival alarm'));
+  Future<String> present({
+    required String title,
+    required String stopLabel,
+    required String openLabel,
+  }) => Future.error(UnsupportedError('arrival alarm'));
 
   @override
   Future<void> stopAll(String reason) async {}
@@ -125,10 +133,12 @@ class ArrivalAlarmChannel implements ArrivalAlarmPlatform {
   Future<String> present({
     required String title,
     required String stopLabel,
+    required String openLabel,
   }) async {
     final id = await _channel.invokeMethod<String>('present', {
       'title': title,
       'stopLabel': stopLabel,
+      'openLabel': openLabel,
     });
     if (id == null) throw StateError('no alarm id');
     return id;

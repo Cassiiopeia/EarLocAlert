@@ -49,6 +49,7 @@ class ArrivalAlarmCoordinator {
     required String placeName,
     required String title,
     required String stopLabel,
+    required String openLabel,
   }) async {
     final status = await _platform.status();
     if (!status.supported) {
@@ -70,9 +71,15 @@ class ArrivalAlarmCoordinator {
     }
 
     _presenting = true;
+    // 네이티브로 넘기기 직전 (이슈 #241) — 경계 양쪽에 남겨야 어디서 멈췄는지 갈린다
+    Diagnostics.log('alarm', 'presenting place=$placeName');
     final String id;
     try {
-      id = await _platform.present(title: title, stopLabel: stopLabel);
+      id = await _platform.present(
+        title: title,
+        stopLabel: stopLabel,
+        openLabel: openLabel,
+      );
     } on Object catch (error) {
       Diagnostics.log(
         'alarm',

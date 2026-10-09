@@ -62,7 +62,9 @@ class AlertController {
     required AlertVolumeStore volumeStore,
     required SystemVolumeService systemVolume,
     VibrationIntensityStore? vibrationStore,
-  }) : _vibration = vibration,
+    bool Function()? needsSilentKeepAlive,
+  }) : _needsSilentKeepAlive = needsSilentKeepAlive ?? (() => false),
+       _vibration = vibration,
        _sound = sound,
        _notifier = notifier,
        _routeDecider = routeDecider,
@@ -71,6 +73,10 @@ class AlertController {
        _vibrationStore = vibrationStore;
 
   final VibrationService _vibration;
+
+  /// 소리 없이 울리는 세션이 무음 재생으로 오디오 세션을 붙들어야 하는가
+  /// (이슈 #241). iOS 백그라운드에서만 true — 그래야 진동 요청이 무시되지 않는다
+  final bool Function() _needsSilentKeepAlive;
   final AlertSoundService _sound;
   final AlertNotifier _notifier;
   final AudioRouteDecider _routeDecider;
@@ -255,7 +261,10 @@ class AlertController {
           'result=${route.name} source=${_describeSource(request.soundSource)}',
     );
 
-    if (route == AudioRoute.silent) return route; // 세션은 이미 silent 다
+    if (route == AudioRoute.silent) {
+      await _keepAliveIfNeeded(token);
+      return route; // 세션은 이미 silent 다
+    }
 
     try {
       // 설정 읽기 실패가 알림음을 없애면 안 된다 — 기본값으로 간다
@@ -292,6 +301,19 @@ class AlertController {
       final fallback = _routeDecider.onPlaybackFailure();
       _updateRoute(fallback, soundFailed: true);
       return fallback;
+    }
+  }
+
+  /// 소리 없는 iOS 백그라운드 세션에서 진동이 살도록 무음 재생을 건다 (이슈 #241).
+  /// **던지지 않는다** — 실패해도 알림 발행과 반복 알림은 그대로 간다.
+  Future<void> _keepAliveIfNeeded(int token) async {
+    if (!_needsSilentKeepAlive()) return;
+    try {
+      await _sound.keepAliveSilently();
+      // 거는 사이 해제됐다 — 무음이라도 남겨 두면 세션이 계속 살아 배터리를 쓴다
+      if (_sessionToken != token) await _sound.stop();
+    } on Object catch (error) {
+      Diagnostics.log('alert', 'silent keepalive failed error=$error');
     }
   }
 

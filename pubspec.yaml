@@ -109,6 +109,8 @@ flutter:
     - assets/sounds/electronic.wav
     - assets/sounds/siren.wav
     - assets/sounds/chime.wav
+    # 무음 유지용 — 표본이 전부 0 이다 (이슈 #241)
+    - assets/sounds/silence.wav
 
     # 스플래시 핀 (이슈 #150) — 네이티브 스플래시가 걷히는 순간을
     # 같은 그림으로 이어 받는다. 네이티브가 쓰는 파일과 같으므로

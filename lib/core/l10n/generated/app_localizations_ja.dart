@@ -282,6 +282,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get alertScreenDismiss => 'アラートを止める';
 
   @override
+  String get alertAlarmOpenApp => 'アプリを開く';
+
+  @override
   String alertScreenRadius(int meters) {
     return '半径 $meters m';
   }

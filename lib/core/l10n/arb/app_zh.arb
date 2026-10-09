@@ -86,6 +86,7 @@
   "alertScreenRouteSoundFailed": "无法播放声音，正在通过振动提醒",
   "alertScreenRouteVibrationOnly": "仅通过振动提醒",
   "alertScreenDismiss": "关闭提醒",
+  "alertAlarmOpenApp": "打开应用",
   "alertScreenRadius": "半径 {meters} 米",
   "alertNotificationChannelName": "提醒进行中",
   "alertNotificationChannelDescription": "离开提醒界面后用于返回的通知",

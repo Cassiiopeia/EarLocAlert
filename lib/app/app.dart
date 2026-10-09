@@ -433,6 +433,7 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
             placeName: request.placeName,
             title: '${request.placeName} · $event',
             stopLabel: strings.alertScreenDismiss,
+            openLabel: strings.alertAlarmOpenApp,
           );
     } on Object catch (error) {
       Diagnostics.log('alarm', 'present flow failed error=$error');

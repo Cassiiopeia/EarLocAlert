@@ -280,6 +280,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get alertScreenDismiss => '关闭提醒';
 
   @override
+  String get alertAlarmOpenApp => '打开应用';
+
+  @override
   String alertScreenRadius(int meters) {
     return '半径 $meters 米';
   }

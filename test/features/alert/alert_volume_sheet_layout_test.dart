@@ -32,6 +32,9 @@ class _Silent implements AlertSoundService {
   Future<void> play({required double volume, AlertSoundSource? source}) async {}
 
   @override
+  Future<void> keepAliveSilently() async {}
+
+  @override
   Future<void> stop() async {}
 }
 

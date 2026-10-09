@@ -71,6 +71,10 @@ AlertController alertController(Ref ref) {
     volumeStore: ref.watch(alertVolumeStoreProvider),
     systemVolume: ref.watch(systemVolumeServiceProvider),
     vibrationStore: ref.watch(vibrationIntensityStoreProvider),
+    // 화면 없이 도는 iOS 세션만 — Android 는 진동이 오디오와 무관하다 (이슈 #241)
+    needsSilentKeepAlive: () =>
+        Platform.isIOS &&
+        WidgetsBinding.instance.lifecycleState != AppLifecycleState.resumed,
   );
   ref.onDispose(controller.dispose);
   return controller;
