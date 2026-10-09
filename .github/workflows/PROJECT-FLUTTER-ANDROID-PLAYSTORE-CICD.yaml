@@ -4,7 +4,8 @@
 # ===================================================================
 #
 # main 브랜치 푸시 시 Android AAB를 빌드하고 내부 테스트에 올린 뒤,
-# DEPLOY_MODE 에 따라 프로덕션으로 승급합니다 (이슈 #201, 기본 store_submit = 심사 자동 등록).
+# DEPLOY_MODE 에 따라 프로덕션으로 승급합니다 (이슈 #201). 기본은 store_only — 내부 테스트까지만 올리고
+# 프로덕션 심사는 수동 실행에서 store_submit 을 골랐을 때만 넣는다.
 # 이전에는 비공개 테스트(alpha)까지만 올렸습니다 (이슈 #139).
 #
 # ===================================================================
@@ -29,7 +30,7 @@ on:
       deploy_mode:
         description: "배포 모드 (store_only=internal까지 / store_prepare=production draft / store_submit=심사 자동등록)"
         required: false
-        default: "store_submit"
+        default: "store_only"
         type: choice
         options:
           - store_only
@@ -62,9 +63,11 @@ env:
   # 배포 모드 (store_only | store_prepare | store_submit) — 이슈 #201
   # 우선순위: 수동 실행 입력 > 레포 변수 ANDROID_DEPLOY_MODE(있을 때만) > 아래 기본값.
   # 기본값을 코드에 둔다 — 레포 변수는 git 이력이 남지 않고 포크하면 따라오지 않는다.
-  # store_submit = internal 업로드 후 production 심사 자동 등록. 되돌리려면 store_only 로.
+  # **기본은 store_only 다.** store_submit 을 기본으로 두었더니 main 푸시마다 프로덕션 심사가
+  # 새로 들어가 진행 중이던 검토가 취소됐다 — 10/07~08 이틀간 10번 제출돼 9번 취소됐고 한 번도
+  # 검토를 끝내지 못했다. 심사는 검토 중인 것이 없을 때 수동 실행에서 store_submit 으로 넣는다.
   # ⚠️ 프로덕션 최초 출시 1회는 Play Console 에서 수동으로 해야 승급이 동작한다.
-  DEPLOY_MODE: ${{ github.event.inputs.deploy_mode || vars.ANDROID_DEPLOY_MODE || 'store_submit' }}
+  DEPLOY_MODE: ${{ github.event.inputs.deploy_mode || vars.ANDROID_DEPLOY_MODE || 'store_only' }}
 
 jobs:
   prepare-build:
