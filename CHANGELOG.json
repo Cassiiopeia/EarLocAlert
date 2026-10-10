@@ -1,14 +1,33 @@
 {
   "metadata": {
-    "lastUpdated": "2026-10-10T08:11:13Z",
-    "currentVersion": "1.29.0",
+    "lastUpdated": "2026-10-10T16:23:06Z",
+    "currentVersion": "1.29.1",
     "projectType": "flutter",
-    "totalReleases": 97,
+    "totalReleases": 98,
     "projectTypes": [
       "flutter"
     ]
   },
   "releases": [
+    {
+      "version": "1.29.1",
+      "project_type": "flutter",
+      "project_types": [
+        "flutter"
+      ],
+      "date": "2026-10-10",
+      "pr_number": 253,
+      "raw_summary": "## Summary by CodeRabbit\n\n## 릴리스 노트\n\n* **개선**\n  * iPhone 잠금 화면 알람이 울릴 때 진동이 느껴지도록 개선했습니다",
+      "parsed_changes": {
+        "개선": {
+          "title": "개선",
+          "items": [
+            "iPhone 잠금 화면 알람이 울릴 때 진동이 느껴지도록 개선했습니다"
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "1.29.0",
       "project_type": "flutter",

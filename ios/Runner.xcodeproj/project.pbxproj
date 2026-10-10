@@ -20,6 +20,7 @@
 		97C146FC1CF9000F007C117D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FA1CF9000F007C117D /* Main.storyboard */; };
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
 		EA1C0F0B2E9D000100A1C0DE /* silent_haptic.caf in Resources */ = {isa = PBXBuildFile; fileRef = EA1C0F0A2E9D000100A1C0DE /* silent_haptic.caf */; };
+		EA1C0F332E9D000100A1C0DE /* alarm_haptic.caf in Resources */ = {isa = PBXBuildFile; fileRef = EA1C0F322E9D000100A1C0DE /* alarm_haptic.caf */; };
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
 		B74FD03FC32C02EE25F84716 /* Pods_RunnerTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FE9B06A39FE0F5D28EB0C67D /* Pods_RunnerTests.framework */; };
 		DBBEC72F8395124F76E6A2D1 /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA8241CF15FBA1F774819F73 /* Pods_Runner.framework */; };
@@ -73,6 +74,7 @@
 		97C146EE1CF9000F007C117D /* Runner.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Runner.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		97C146FB1CF9000F007C117D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		97C146FD1CF9000F007C117D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		EA1C0F322E9D000100A1C0DE /* alarm_haptic.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = alarm_haptic.caf; sourceTree = "<group>"; };
 		EA1C0F0A2E9D000100A1C0DE /* silent_haptic.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = silent_haptic.caf; sourceTree = "<group>"; };
 		97C147001CF9000F007C117D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		97C147021CF9000F007C117D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -175,6 +177,7 @@
 				97C146FA1CF9000F007C117D /* Main.storyboard */,
 				97C146FD1CF9000F007C117D /* Assets.xcassets */,
 				EA1C0F0A2E9D000100A1C0DE /* silent_haptic.caf */,
+				EA1C0F322E9D000100A1C0DE /* alarm_haptic.caf */,
 				97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */,
 				97C147021CF9000F007C117D /* Info.plist */,
 				1498D2321E8E86230040F4C2 /* GeneratedPluginRegistrant.h */,
@@ -295,6 +298,7 @@
 				3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */,
 				97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */,
 				EA1C0F0B2E9D000100A1C0DE /* silent_haptic.caf in Resources */,
+				EA1C0F332E9D000100A1C0DE /* alarm_haptic.caf in Resources */,
 				97C146FC1CF9000F007C117D /* Main.storyboard in Resources */,
 				E95E8C5EFB892BEC8E6F5AC8 /* InfoPlist.strings in Resources */,
 			);

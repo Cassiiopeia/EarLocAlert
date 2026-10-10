@@ -257,12 +257,16 @@ final class ArrivalAlarmKitBridge {
       tintColor: .orange
     )
     let id = UUID()
-    // 무음 파일 — 스피커로 새지 않게 한다 (CLAUDE.md 규칙 2, 결정 057)
+    // **거의 무음 파일** — 스피커로 새지 않게 한다 (CLAUDE.md 규칙 2, 결정 057).
+    // 표본이 전부 0 인 파일(silent_haptic.caf)이었을 때는 알람이 울려도 진동이 느껴지지
+    // 않았다 (이슈 #252, 실기기). Apple 포럼에서는 "거의 무음" 파일에서도 알람 진동이
+    // 났다고 한다 — 시스템이 완전한 무(無)를 소리 없음으로 보고 진동을 건너뛰는지 가린다.
+    // alarm_haptic.caf 는 진폭 3/32768(약 -80dBFS)의 40Hz 라 들리지 않는다
     let configuration = AlarmManager.AlarmConfiguration<ArrivalAlarmMetadata>.alarm(
       schedule: .fixed(Date().addingTimeInterval(1)),
       attributes: attributes,
       secondaryIntent: OpenArrivalAlertIntent(alarmID: id),
-      sound: .named("silent_haptic.caf")
+      sound: .named("alarm_haptic.caf")
     )
 
     presented.insert(id)
