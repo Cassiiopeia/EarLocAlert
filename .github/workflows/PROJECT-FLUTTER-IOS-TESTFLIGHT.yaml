@@ -514,6 +514,13 @@ jobs:
           DEVELOPER_DIR: /Applications/Xcode_${{ env.XCODE_VERSION }}.app/Contents/Developer
         run: python3 "$GITHUB_WORKSPACE/.github/scripts/ios_release.py" archive-upload --phase build
 
+      # 배포 설정을 코드(.github/config/store-deploy.json)에서 읽고 push 에서는 심사 제출을 낮춘다 (projectops#816).
+      # push 는 TestFlight 까지만 가고, App Store 심사는 수동 실행(deploy_mode)에서 올린다.
+      - name: Resolve store deploy config
+        env:
+          INPUT_DEPLOY_MODE: ${{ github.event.inputs.deploy_mode }}
+        run: python3 .github/scripts/store_deploy_config.py resolve --platform ios
+
       # TestFlight 업로드 (마법사 생성 Fastfile 의 deploy lane, DEPLOY_MODE 에 따라 심사 제출까지).
       # 번호가 거부되면 ios_release.py 가 새 번호로 아카이브부터 다시 한다 (최대 5회).
       - name: Upload to TestFlight (+ App Store Submit if store_submit)

@@ -21,6 +21,8 @@
 # ===================================================================
 
 name: PROJECT-FLUTTER-ANDROID-PLAYSTORE-INTERNAL-CICD
+# 수동 실행은 고른 모드를 실행 이름에 남긴다 — push 배포가 "최근에 프로덕션을 제출했는지" 이 이름으로 판단한다 (projectops#816).
+run-name: ${{ github.event_name == 'workflow_dispatch' && format('PLAYSTORE deploy_mode={0} closed_testing={1}', inputs.deploy_mode, inputs.promote_to_closed_testing) || github.event.head_commit.message }}
 
 on:
   push:
@@ -36,6 +38,21 @@ on:
           - store_only
           - store_prepare
           - store_submit
+      promote_to_closed_testing:
+        description: "비공개 테스트(alpha) 트랙에도 올린다 — 개인 계정 프로덕션 액세스 조건(테스터 12명·14일)에 필요"
+        required: false
+        default: true
+        type: boolean
+      promote_to_open_testing:
+        description: "공개 테스트(beta) 트랙에도 올린다"
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  # GITHUB_TOKEN 으로는 읽기만 한다. 최근 수동 프로덕션 제출을 찾는 데 actions: read 가 필요하다 (projectops#816).
+  contents: read
+  actions: read
 
 # 같은 배포가 겹쳐 돌면 뒤 실행이 기다린다. 진행 중인 배포는 취소하지 않는다 (이슈 #167)
 concurrency:
@@ -67,7 +84,15 @@ env:
   # 새로 들어가 진행 중이던 검토가 취소됐다 — 10/07~08 이틀간 10번 제출돼 9번 취소됐고 한 번도
   # 검토를 끝내지 못했다. 심사는 검토 중인 것이 없을 때 수동 실행에서 store_submit 으로 넣는다.
   # ⚠️ 프로덕션 최초 출시 1회는 Play Console 에서 수동으로 해야 승급이 동작한다.
+  # ⚠️ push(자동 배포)는 프로덕션 단계를 타지 않는다 (projectops#816). 위 값이 store_prepare·store_submit 이어도
+  #    push 에서는 store_only 로 낮춘다 — 아래 Resolve store deploy config 단계. 프로덕션은 수동 실행(deploy_mode)으로 올린다.
   DEPLOY_MODE: ${{ github.event.inputs.deploy_mode || vars.ANDROID_DEPLOY_MODE || 'store_only' }}
+  # 트랙 승급 스위치 — DEPLOY_MODE 와 독립이다. 비공개 테스트(alpha)는 push 마다 자동으로 올린다.
+  # 수동 프로덕션 제출 뒤 48시간은 Guard 단계가 push 의 승급을 건너뛴다.
+  PROMOTE_TO_CLOSED_TESTING: ${{ github.event.inputs.promote_to_closed_testing || vars.ANDROID_PROMOTE_TO_CLOSED_TESTING || 'true' }}
+  PROMOTE_TO_OPEN_TESTING: ${{ github.event.inputs.promote_to_open_testing || vars.ANDROID_PROMOTE_TO_OPEN_TESTING || 'false' }}
+  CLOSED_TESTING_TRACK: ${{ vars.ANDROID_CLOSED_TESTING_TRACK || 'alpha' }}
+  OPEN_TESTING_TRACK: ${{ vars.ANDROID_OPEN_TESTING_TRACK || 'beta' }}
 
 jobs:
   prepare-build:
@@ -565,6 +590,19 @@ jobs:
           echo "✅ Fastlane 설치 완료 (Bundler)"
           bundle exec fastlane --version
 
+      # 배포 설정을 코드(.github/config/store-deploy.json)에서 읽고 push 에서는 심사 단계를 낮춘다 (projectops#816).
+      - name: Resolve store deploy config
+        env:
+          INPUT_DEPLOY_MODE: ${{ github.event.inputs.deploy_mode }}
+        run: python3 .github/scripts/store_deploy_config.py resolve --platform android
+
+      # 수동으로 올린 프로덕션 심사가 도는 동안 push 의 비공개·공개 승급이 그 심사를 다시 시작시키지 않게 한다.
+      # 확인에 실패하면 경고만 남기고 설정대로 진행한다 — 배포를 막지 않는다.
+      - name: Guard production review in progress
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python3 .github/scripts/store_deploy_config.py review-guard
+
       # Fastfile 복사 (Play Store 배포용)
       # android/fastlane/Fastfile.playstore를 사용하여 일관성 유지
       - name: Copy Fastfile for Play Store
@@ -579,6 +617,10 @@ jobs:
       - name: Upload to Play Store
         env:
           DEPLOY_MODE: ${{ env.DEPLOY_MODE }}
+          PROMOTE_TO_CLOSED_TESTING: ${{ env.PROMOTE_TO_CLOSED_TESTING }}
+          PROMOTE_TO_OPEN_TESTING: ${{ env.PROMOTE_TO_OPEN_TESTING }}
+          CLOSED_TESTING_TRACK: ${{ env.CLOSED_TESTING_TRACK }}
+          OPEN_TESTING_TRACK: ${{ env.OPEN_TESTING_TRACK }}
         run: |
           echo "=========================================="
           echo "🚀 Play Store 배포 시작"
