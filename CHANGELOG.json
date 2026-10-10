@@ -1,14 +1,38 @@
 {
   "metadata": {
-    "lastUpdated": "2026-10-09T03:27:28Z",
-    "currentVersion": "1.27.2",
+    "lastUpdated": "2026-10-10T07:31:40Z",
+    "currentVersion": "1.28.0",
     "projectType": "flutter",
-    "totalReleases": 95,
+    "totalReleases": 96,
     "projectTypes": [
       "flutter"
     ]
   },
   "releases": [
+    {
+      "version": "1.28.0",
+      "project_type": "flutter",
+      "project_types": [
+        "flutter"
+      ],
+      "date": "2026-10-10",
+      "pr_number": 249,
+      "raw_summary": "## Summary by CodeRabbit\n\n## 릴리스 노트\n\n* **새 기능**\n  * 스토어 업데이트 안내가 사용 중인 언어로 표시되도록 개선했어요",
+      "parsed_changes": {
+        "새_기능": {
+          "title": "새 기능",
+          "items": [
+            "스토어 업데이트 안내가 사용 중인 언어로 표시되도록 개선했어요"
+          ]
+        }
+      },
+      "parse_method": "markdown",
+      "store_notes": {
+        "en-US": "- Update notes in the store now appear in your language",
+        "ja-JP": "- ストアのアップデート案内が使用中の言語で表示されるようになりました",
+        "zh-CN": "- 商店中的更新说明现在会以您使用的语言显示"
+      }
+    },
     {
       "version": "1.27.2",
       "project_type": "flutter",
