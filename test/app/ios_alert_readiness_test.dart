@@ -24,6 +24,9 @@ const _alarmOn = ArrivalAlarmStatus(
   authorization: ArrivalAlarmAuthorization.authorized,
 );
 
+/// 진동을 느꼈다고 답한 상태 — 다른 항목만 보는 테스트가 진동 항목에 흔들리지 않게 한다
+final _felt = VibrationCheckResult(felt: true, answeredAt: DateTime.utc(2026));
+
 /// iOS 알림 설정 → 홈 경고 항목 (이슈 #237)
 ///
 /// **막는 것만 올린다.** 사용자가 바로 고칠 수 있고, 고치지 않으면 도착이 그냥
@@ -43,18 +46,33 @@ void main() {
     );
   });
 
-  test('아직 읽지 못했거나 모르는 값이면 경고하지 않는다', () {
+  test('알림 설정을 읽지 못해도 그것만으로 경고하지 않는다 — 진동 확인만 남는다', () {
+    final felt = VibrationCheckResult(
+      felt: true,
+      answeredAt: DateTime.utc(2026),
+    );
     expect(
-      iosAlertGaps(notifications: null, alarm: null, vibration: null),
+      iosAlertGaps(notifications: null, alarm: null, vibration: felt),
       isEmpty,
     );
     expect(
       iosAlertGaps(
         notifications: IosNotificationSettings.unknown,
         alarm: ArrivalAlarmStatus.unsupported,
-        vibration: null,
+        vibration: felt,
       ),
       isEmpty,
+    );
+  });
+
+  test('진동 시험을 아직 안 했으면 진동 확인을 올린다 (이슈 #250)', () {
+    expect(
+      iosAlertGaps(
+        notifications: _settings(),
+        alarm: _alarmOn,
+        vibration: null,
+      ),
+      [ReliabilityGap.vibration],
     );
   });
 
@@ -66,7 +84,7 @@ void main() {
           lockScreen: IosNotificationSetting.disabled,
         ),
         alarm: _alarmOn,
-        vibration: null,
+        vibration: _felt,
       ),
       [ReliabilityGap.notifications],
     );
@@ -77,7 +95,7 @@ void main() {
       iosAlertGaps(
         notifications: _settings(lockScreen: IosNotificationSetting.disabled),
         alarm: _alarmOn,
-        vibration: null,
+        vibration: _felt,
       ),
       [ReliabilityGap.lockScreen],
     );
@@ -91,15 +109,18 @@ void main() {
           alert: IosNotificationSetting.disabled,
         ),
         alarm: _alarmOn,
-        vibration: null,
+        vibration: _felt,
       ),
       isEmpty,
     );
   });
 
   test('잠금 화면 알람은 지원하는 기기에서 거부했을 때만 막힌 것이다', () {
-    List<ReliabilityGap> gapsFor(ArrivalAlarmStatus alarm) =>
-        iosAlertGaps(notifications: _settings(), alarm: alarm, vibration: null);
+    List<ReliabilityGap> gapsFor(ArrivalAlarmStatus alarm) => iosAlertGaps(
+      notifications: _settings(),
+      alarm: alarm,
+      vibration: _felt,
+    );
 
     expect(
       gapsFor(
@@ -135,8 +156,8 @@ void main() {
 
     expect(gapsFor(false), [ReliabilityGap.vibration]);
     expect(gapsFor(true), isEmpty);
-    // 시험하지 않은 사용자에게 경고하지 않는다
-    expect(gapsFor(null), isEmpty);
+    // 시험하지 않은 사용자에게도 확인을 권한다 (이슈 #250) — 설정을 앱이 못 읽는다
+    expect(gapsFor(null), [ReliabilityGap.vibration]);
   });
 
   test('네이티브 문자열을 읽는다 — 모르는 문자열은 unknown', () {
