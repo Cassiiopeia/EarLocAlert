@@ -14,11 +14,11 @@
 # 자동 버전 업데이트:
 # - version_code: 매 빌드마다 자동으로 1씩 증가 (아래 판정과 무관)
 # - 버전 승격 폭은 metadata.template.options.semver_auto 가 정합니다
-#   semver_auto: true  -> 릴리스 구간 커밋 제목으로 판정
+#   semver_auto: true  -> 릴리스 구간 커밋 제목으로 판정 (키가 없어도 같다)
 #                         "제목 : feat! : 내용" 또는 "feat!:" -> major (x+1.0.0)
 #                         "제목 : feat : 내용"  또는 "feat:"  -> minor (x.y+1.0)
 #                         그 외(fix/docs/chore/refactor/test) -> patch (x.y.z+1)
-#   키 없음 / false     -> 항상 patch +1
+#   semver_auto: false -> 항상 patch +1
 # - 위 판정과 무관하게 version 값을 직접 수정해도 됩니다
 #
 # 프로젝트 타입별 동기화 파일:
@@ -46,23 +46,27 @@ project_types: ["flutter"]   # 멀티타입 배열 — 첫 항목이 primary, �
 project_paths:                # 타입별 프로젝트 폴더 (레포 루트 기준 상대경로)
   flutter: "."   # pubspec.yaml
 metadata:
-  last_updated: "2026-10-09 03:27:27"
-  last_updated_by: "Cassiiopeia"
+  last_updated: "2026-10-10 02:07:33"
+  last_updated_by: "SUH SAECHAN"
   default_branch: "main"
   integrated_from: "projectops"
-  integration_date: "2026-10-04"
+  integration_date: "2026-10-10"
   template:
     source: "projectops"
-    version: "4.31.5"
+    version: "4.38.0"
     mode: "full"   # 통합 범위(full/version/workflows) — 업데이트 모드 재실행 기준
-    integrated_date: "2026-10-04"
-    last_update_date: "2026-10-04"
+    integrated_date: "2026-10-10"
+    last_update_date: "2026-10-10"
     options:
       intent: "none"   # 프로젝트 성격(app/library/both/none/manual) — 배포 질문 유도 기준
       deploy: "none"
       publish: []
       secret_backup: true
+      excluded_workflows: ["PROJECT-FLUTTER-ANDROID-SELFHOSTED-CICD.yaml"]   # 업데이트가 절대 설치하지 않을 워크플로우 파일 (직접 수정 가능) — 현역 SYNOLOGY-CICD 와 중복 배포 방지
       semver_auto: true   # 커밋 제목으로 버전 승격 폭 결정 (false면 항상 patch)
+      projects_sync: false   # GitHub Projects 상태 동기화 워크플로우 포함 여부
+      language: ko   # 이슈/PR 템플릿 언어 (en | ko)
+      label_style: ko   # 상태 라벨 표기 (en: status: todo / ko: 작업전)
       code_review:
         coderabbit: false
         ai_summary: true
