@@ -713,6 +713,13 @@ jobs:
           if [ -x "$GITHUB_WORKSPACE/.github/scripts/prepare_play_changelogs.sh" ]; then
             bash "$GITHUB_WORKSPACE/.github/scripts/prepare_play_changelogs.sh" "$GITHUB_WORKSPACE" "$VERSION_NAME" "$VERSION_CODE"
           fi
+
+          # 언어별 릴리스 노트 (projectops#829) — version.yml 에 store_locales 가 있을 때만 동작한다.
+          # 위 이슈 #167 스크립트 뒤에 두어, store_locales 를 켠 레포는 이 결과가 이기게 한다.
+          # 번역이 없는 언어는 기본 언어 문구로 채운다 (빈 채로 두지 않는다).
+          python3 "$GITHUB_WORKSPACE/.github/scripts/store_notes.py" write --platform play \
+            --workspace "$GITHUB_WORKSPACE" --app-root "$PWD" --version "$VERSION_NAME" --version-code "$VERSION_CODE" \
+            --default-file "$CHANGELOG_DIR/${VERSION_CODE}.txt" || echo "⚠️ 언어별 릴리스 노트 준비 실패 — 기본 changelog 로 진행"
           
           # Service Account JSON 파일 확인
           GOOGLE_PLAY_JSON_KEY="$HOME/.config/gcloud/service-account.json"

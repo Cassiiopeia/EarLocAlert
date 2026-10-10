@@ -9,3 +9,12 @@ Play 배포는 릴리스 노트를 언어별로 올린다(`.github/scripts/prepa
   - 파일이 없으면 한국어 노트가 대신 올라간다. 빈 화면보다 낫지만 사용자에게는 그 언어가 아니다.
 - 500자 이하(Play 한도). 넘으면 배포 직전에 잘린다.
 - **사용자가 직접 느끼는 변화만 쓴다.** 내부, CI, 테스트 항목은 뺀다.
+
+## 언어별 노트 자동 준비 (projectops#829)
+
+`version.yml` 의 `store_locales`(ko-KR, en-US, ja-JP, zh-CN)가 켜져 있어 배포가 언어별 노트를 준비한다.
+
+- 번역은 `/pro-changelog-deploy` 가 한국어 노트를 쓴 직후 초안으로 만들어 승인받고, 릴리스 PR 본문에 덧붙인다. 머지되면 `CHANGELOG.json` 의 `store_notes` 에 저장된다.
+- **번역이 없는 언어는 한국어 노트로 채운다.** 스토어가 빈 칸을 허용하지 않는다(App Store 는 빈 언어가 있으면 심사 제출을 거부한다).
+- 이 폴더의 `<언어>/<버전>.txt` 는 그대로 쓸 수 있다. 다만 `store_locales` 가 켜져 있으면 배포가 마지막에 `store_notes.py` 로 다시 정하므로 **번역이 `store_notes` 에 있으면 그것이 이긴다.** 직접 쓴 한국어 노트(`ko-KR/<버전>.txt`)는 계속 우선한다.
+- 끄려면 `version.yml` 에서 `store_locales` 줄을 지운다. 그러면 예전 방식 그대로다.

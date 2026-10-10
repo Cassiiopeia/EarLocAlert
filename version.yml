@@ -64,6 +64,7 @@ metadata:
       secret_backup: true
       excluded_workflows: ["PROJECT-FLUTTER-ANDROID-SELFHOSTED-CICD.yaml"]   # 업데이트가 절대 설치하지 않을 워크플로우 파일 (직접 수정 가능) — 현역 SYNOLOGY-CICD 와 중복 배포 방지
       semver_auto: true   # 커밋 제목으로 버전 승격 폭 결정 (false면 항상 patch)
+      store_locales: ["ko-KR", "en-US", "ja-JP", "zh-CN"]   # 스토어 릴리스 노트 언어, 첫 항목이 기본 언어 (projectops#829)
       projects_sync: false   # GitHub Projects 상태 동기화 워크플로우 포함 여부
       language: ko   # 이슈/PR 템플릿 언어 (en | ko)
       label_style: ko   # 상태 라벨 표기 (en: status: todo / ko: 작업전)
