@@ -31,3 +31,17 @@ dart run flutter_launcher_icons
 ## 그래픽 이미지 주의
 
 **"Get it on Google Play" 배지를 넣지 않는다.** 그 배지는 Play 밖에서 앱을 홍보할 때 쓰는 것이고, 메타데이터 정책의 "Google Play 프로그램을 나타내는 요소" 조항에 걸릴 소지가 있다 (docs/09-RELEASE.md).
+
+
+## 플랫폼별 등록정보는 따로 쓴다 (이슈 #244, #245)
+
+Android 와 iOS 는 알림이 다르게 동작하므로 설명문을 나눈다.
+
+| | Android (`ko-KR_full.txt`) | iOS (`ios-ko-KR_full.txt`) |
+|---|---|---|
+| 앱을 밀어서 종료 | 그래도 동작한다고 쓴다 | 위치 감시가 멈춰 알림이 늦거나 오지 않을 수 있다고 쓴다 |
+| 필요한 권한 | 위치(항상), 알림, 배터리 최적화 제외, 다른 앱 위에 표시, 전체 화면 알림 | 위치(항상), 알림, 잠금화면 알람(iOS 26+) |
+| 백그라운드 알림 | 알림 화면이 자동으로 뜬다 | 알림과 진동. 알림 화면은 앱을 열어야 보인다 |
+
+- 간단한 설명(Play) 80자: `ko-KR_short.txt`, 프로모션 텍스트(App Store) 170자: `ios-ko-KR_promo.txt`
+- 스크린샷은 `screenshots/ko-KR/` (Android 에뮬레이터). iOS 스크린샷은 iOS 시뮬레이터에서 따로 찍는다

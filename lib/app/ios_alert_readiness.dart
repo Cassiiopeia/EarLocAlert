@@ -22,11 +22,15 @@ part 'ios_alert_readiness.g.dart';
 /// - 잠금 화면 표시가 꺼졌다 (알림이 막혔으면 그쪽이 먼저라 겹쳐 올리지 않는다)
 /// - 잠금 화면 알람을 거부했다 (iOS 26+ 에서만 있다)
 /// - 진동 시험에서 느껴지지 않았다고 답했다
+/// - **진동 시험을 아직 한 번도 안 했다** (이슈 #250)
 ///
 /// 시간 민감 알림이 꺼진 것은 올리지 않는다 — 앱에 그 권한(entitlement)이 아직 없어
 /// 사용자가 켤 수도 없다. 기록만 남긴다.
 ///
 /// **모르는 값은 막힌 것이 아니다** — 읽지 못했다고 경고부터 띄우지 않는다 (#142 QA).
+/// 다만 **진동은 예외다.** iPhone 의 진동 설정(햅틱, 손쉬운 사용, 집중 모드)은 앱이
+/// 읽을 수 없고, 이 앱은 진동이 곧 알림이다. 도착해도 아무 느낌이 없었던 사용자가
+/// 실기기에서 나왔는데 홈은 "감시 중"으로만 보였다 — 시험 전까지는 확인을 권한다.
 List<ReliabilityGap> iosAlertGaps({
   required IosNotificationSettings? notifications,
   required ArrivalAlarmStatus? alarm,
@@ -42,7 +46,8 @@ List<ReliabilityGap> iosAlertGaps({
         alarm.supported &&
         alarm.authorization == ArrivalAlarmAuthorization.denied)
       ReliabilityGap.lockScreenAlarm,
-    if (vibration != null && !vibration.felt) ReliabilityGap.vibration,
+    // 시험 안 함(null)과 "느껴지지 않음"을 같은 항목으로 올린다 — 해야 할 일이 같다
+    if (vibration == null || !vibration.felt) ReliabilityGap.vibration,
   ];
 }
 
