@@ -1,14 +1,39 @@
 {
   "metadata": {
-    "lastUpdated": "2026-10-12T08:26:26Z",
-    "currentVersion": "1.30.0",
+    "lastUpdated": "2026-10-12T23:36:50Z",
+    "currentVersion": "1.31.0",
     "projectType": "flutter",
-    "totalReleases": 99,
+    "totalReleases": 100,
     "projectTypes": [
       "flutter"
     ]
   },
   "releases": [
+    {
+      "version": "1.31.0",
+      "project_type": "flutter",
+      "project_types": [
+        "flutter"
+      ],
+      "date": "2026-10-12",
+      "pr_number": 261,
+      "raw_summary": "## Summary by CodeRabbit\n\n## 릴리스 노트\n\n* **개선**\n  * 도착 알림이 늦게 울리던 문제를 개선했습니다\n  * 문제 신고에 기기 정보가 포함됩니다",
+      "parsed_changes": {
+        "개선": {
+          "title": "개선",
+          "items": [
+            "도착 알림이 늦게 울리던 문제를 개선했습니다",
+            "문제 신고에 기기 정보가 포함됩니다"
+          ]
+        }
+      },
+      "parse_method": "markdown",
+      "store_notes": {
+        "en-US": "- Improved late arrival alerts\n- Problem reports now include device info",
+        "ja-JP": "- 到着通知の遅れを改善しました\n- 問題報告に端末情報が含まれます",
+        "zh-CN": "- 改善了到达提醒延迟的问题\n- 问题反馈中包含设备信息"
+      }
+    },
     {
       "version": "1.30.0",
       "project_type": "flutter",
