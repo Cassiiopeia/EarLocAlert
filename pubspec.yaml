@@ -62,6 +62,7 @@ dependencies:
   file_picker: ^11.0.3
   in_app_update: ^4.2.5
   package_info_plus: ^9.0.1
+  flutter_email_sender: ^8.0.0
 # 전이 의존성 고정 (이슈 #76)
 #
 # device_info_plus 12.4.0 이 `NSProcessInfo.isiOSAppOnVision` 을 쓰기 시작했는데

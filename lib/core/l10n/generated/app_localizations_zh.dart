@@ -891,4 +891,45 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get notificationActionDismiss => '关闭提醒';
+
+  @override
+  String get settingsReportTitle => '反馈问题';
+
+  @override
+  String get settingsReportSubtitle => '通过邮件反馈故障或不便之处';
+
+  @override
+  String get reportSheetTitle => '反馈问题';
+
+  @override
+  String get reportSheetHint => '将打开邮件应用。请描述问题并自行发送。';
+
+  @override
+  String get reportAttachLog => '同时发送运行记录';
+
+  @override
+  String get reportAttachLogNote => '记录中包含位置坐标。发送前可在邮件中查看，只有您自己发送时才会传出。';
+
+  @override
+  String get reportAttachLogEmpty => '暂无可附加的记录。';
+
+  @override
+  String get reportOpenMail => '打开邮件应用';
+
+  @override
+  String get reportMailSubject => '[EarLocAlert] 问题反馈';
+
+  @override
+  String get reportMailPrompt => '请描述遇到的问题。';
+
+  @override
+  String get reportMailInfoHeader => '以下设备信息有助于排查，请保留。';
+
+  @override
+  String reportFallbackNotice(String address) {
+    return '未设置邮件账户，已打开分享面板。收件人为 $address。';
+  }
+
+  @override
+  String get reportFailed => '无法打开邮件。已复制收件人地址。';
 }

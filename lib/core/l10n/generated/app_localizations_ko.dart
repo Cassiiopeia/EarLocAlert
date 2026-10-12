@@ -905,4 +905,46 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get notificationActionDismiss => '알림 끄기';
+
+  @override
+  String get settingsReportTitle => '문제 신고';
+
+  @override
+  String get settingsReportSubtitle => '불편한 점이나 오류를 메일로 보냅니다';
+
+  @override
+  String get reportSheetTitle => '문제 신고';
+
+  @override
+  String get reportSheetHint => '메일 앱이 열립니다. 내용을 적고 직접 보내 주세요.';
+
+  @override
+  String get reportAttachLog => '동작 기록 함께 보내기';
+
+  @override
+  String get reportAttachLogNote =>
+      '위치 좌표가 담긴 기록이 첨부됩니다. 보내기 전에 메일에서 확인할 수 있고, 직접 보낼 때만 전송됩니다.';
+
+  @override
+  String get reportAttachLogEmpty => '첨부할 기록이 아직 없습니다.';
+
+  @override
+  String get reportOpenMail => '메일 앱 열기';
+
+  @override
+  String get reportMailSubject => '[이어폰위치알림] 문제 신고';
+
+  @override
+  String get reportMailPrompt => '어떤 문제가 있었는지 적어 주세요.';
+
+  @override
+  String get reportMailInfoHeader => '아래는 확인에 필요한 기기 정보입니다. 지우지 말아 주세요.';
+
+  @override
+  String reportFallbackNotice(String address) {
+    return '메일 계정이 없어 공유 화면으로 열었습니다. 받는 사람은 $address 입니다.';
+  }
+
+  @override
+  String get reportFailed => '메일을 열지 못했습니다. 받는 사람 주소를 복사했습니다.';
 }

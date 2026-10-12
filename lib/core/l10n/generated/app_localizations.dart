@@ -1745,6 +1745,84 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'알림 끄기'**
   String get notificationActionDismiss;
+
+  /// No description provided for @settingsReportTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'문제 신고'**
+  String get settingsReportTitle;
+
+  /// No description provided for @settingsReportSubtitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'불편한 점이나 오류를 메일로 보냅니다'**
+  String get settingsReportSubtitle;
+
+  /// No description provided for @reportSheetTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'문제 신고'**
+  String get reportSheetTitle;
+
+  /// No description provided for @reportSheetHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'메일 앱이 열립니다. 내용을 적고 직접 보내 주세요.'**
+  String get reportSheetHint;
+
+  /// No description provided for @reportAttachLog.
+  ///
+  /// In ko, this message translates to:
+  /// **'동작 기록 함께 보내기'**
+  String get reportAttachLog;
+
+  /// No description provided for @reportAttachLogNote.
+  ///
+  /// In ko, this message translates to:
+  /// **'위치 좌표가 담긴 기록이 첨부됩니다. 보내기 전에 메일에서 확인할 수 있고, 직접 보낼 때만 전송됩니다.'**
+  String get reportAttachLogNote;
+
+  /// No description provided for @reportAttachLogEmpty.
+  ///
+  /// In ko, this message translates to:
+  /// **'첨부할 기록이 아직 없습니다.'**
+  String get reportAttachLogEmpty;
+
+  /// No description provided for @reportOpenMail.
+  ///
+  /// In ko, this message translates to:
+  /// **'메일 앱 열기'**
+  String get reportOpenMail;
+
+  /// No description provided for @reportMailSubject.
+  ///
+  /// In ko, this message translates to:
+  /// **'[이어폰위치알림] 문제 신고'**
+  String get reportMailSubject;
+
+  /// No description provided for @reportMailPrompt.
+  ///
+  /// In ko, this message translates to:
+  /// **'어떤 문제가 있었는지 적어 주세요.'**
+  String get reportMailPrompt;
+
+  /// No description provided for @reportMailInfoHeader.
+  ///
+  /// In ko, this message translates to:
+  /// **'아래는 확인에 필요한 기기 정보입니다. 지우지 말아 주세요.'**
+  String get reportMailInfoHeader;
+
+  /// No description provided for @reportFallbackNotice.
+  ///
+  /// In ko, this message translates to:
+  /// **'메일 계정이 없어 공유 화면으로 열었습니다. 받는 사람은 {address} 입니다.'**
+  String reportFallbackNotice(String address);
+
+  /// No description provided for @reportFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'메일을 열지 못했습니다. 받는 사람 주소를 복사했습니다.'**
+  String get reportFailed;
 }
 
 class _AppLocalizationsDelegate

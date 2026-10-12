@@ -273,5 +273,25 @@
   "homeGapVibration": "振動",
   "settingsLockScreenNotifyTitle": "ロック画面に表示",
   "settingsLockScreenNotifyDesc": "オフだと、画面が消えたまま到着しても何も表示されません",
-  "notificationActionDismiss": "アラートを止める"
+  "notificationActionDismiss": "アラートを止める",
+  "settingsReportTitle": "問題を報告",
+  "settingsReportSubtitle": "不具合や気になる点をメールで送ります",
+  "reportSheetTitle": "問題を報告",
+  "reportSheetHint": "メールアプリが開きます。内容を書いてご自身で送信してください。",
+  "reportAttachLog": "動作ログも一緒に送る",
+  "reportAttachLogNote": "位置座標を含むログが添付されます。送信前にメールで確認でき、ご自身で送信したときだけ送られます。",
+  "reportAttachLogEmpty": "添付できるログがまだありません。",
+  "reportOpenMail": "メールアプリを開く",
+  "reportMailSubject": "[EarLocAlert] 問題の報告",
+  "reportMailPrompt": "どのような問題があったか書いてください。",
+  "reportMailInfoHeader": "以下は調査に必要な端末情報です。消さないでください。",
+  "reportFallbackNotice": "メールアカウントがないため共有画面を開きました。宛先は {address} です。",
+  "@reportFallbackNotice": {
+    "placeholders": {
+      "address": {
+        "type": "String"
+      }
+    }
+  },
+  "reportFailed": "メールを開けませんでした。宛先アドレスをコピーしました。"
 }

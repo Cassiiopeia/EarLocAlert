@@ -103,6 +103,7 @@ class SettingsScreen extends StatelessWidget {
     required this.onOpenVolumeSettings,
     required this.onOpenVibrationSettings,
     required this.onOpenDiagnostics,
+    required this.onReportProblem,
     required this.language,
     required this.onLanguageChanged,
     required this.appVersion,
@@ -122,6 +123,9 @@ class SettingsScreen extends StatelessWidget {
   /// 진동 세기 (이슈 #103)
   final VoidCallback onOpenVibrationSettings;
   final VoidCallback onOpenDiagnostics;
+
+  /// 문제 신고 메일 (이슈 #255). 시트는 diagnostics feature 에 있어 app 계층이 연결한다
+  final VoidCallback onReportProblem;
 
   /// 지금 고른 앱 언어와 바꾸는 방법 (이슈 #163). app 계층이 값을 내려준다
   final AppLanguage language;
@@ -256,6 +260,12 @@ class SettingsScreen extends StatelessWidget {
               title: context.l10n.settingsDiagnosticsTitle,
               subtitle: context.l10n.settingsDiagnosticsSubtitle,
               onTap: onOpenDiagnostics,
+            ),
+            _SettingTile(
+              icon: Icons.mail_outlined,
+              title: context.l10n.settingsReportTitle,
+              subtitle: context.l10n.settingsReportSubtitle,
+              onTap: onReportProblem,
             ),
 
             // 약관과 방침은 스토어 심사 항목이고, 사용자가 찾는 자리다 (이슈 #188)

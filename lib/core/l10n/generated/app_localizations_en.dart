@@ -942,4 +942,50 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get notificationActionDismiss => 'Turn off alert';
+
+  @override
+  String get settingsReportTitle => 'Report a problem';
+
+  @override
+  String get settingsReportSubtitle =>
+      'Email us about a bug or something that felt wrong';
+
+  @override
+  String get reportSheetTitle => 'Report a problem';
+
+  @override
+  String get reportSheetHint =>
+      'Your mail app will open. Describe the problem and send it yourself.';
+
+  @override
+  String get reportAttachLog => 'Attach the activity log';
+
+  @override
+  String get reportAttachLogNote =>
+      'The log includes location coordinates. You can review it in the email before sending, and nothing is sent unless you send it.';
+
+  @override
+  String get reportAttachLogEmpty => 'There is no log to attach yet.';
+
+  @override
+  String get reportOpenMail => 'Open mail app';
+
+  @override
+  String get reportMailSubject => '[EarLocAlert] Problem report';
+
+  @override
+  String get reportMailPrompt => 'Please describe what went wrong.';
+
+  @override
+  String get reportMailInfoHeader =>
+      'The device details below help us investigate. Please keep them.';
+
+  @override
+  String reportFallbackNotice(String address) {
+    return 'No mail account is set up, so the share sheet opened instead. Send it to $address.';
+  }
+
+  @override
+  String get reportFailed =>
+      'Could not open mail. The recipient address was copied.';
 }

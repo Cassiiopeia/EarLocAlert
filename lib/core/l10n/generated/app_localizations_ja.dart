@@ -901,4 +901,46 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get notificationActionDismiss => 'アラートを止める';
+
+  @override
+  String get settingsReportTitle => '問題を報告';
+
+  @override
+  String get settingsReportSubtitle => '不具合や気になる点をメールで送ります';
+
+  @override
+  String get reportSheetTitle => '問題を報告';
+
+  @override
+  String get reportSheetHint => 'メールアプリが開きます。内容を書いてご自身で送信してください。';
+
+  @override
+  String get reportAttachLog => '動作ログも一緒に送る';
+
+  @override
+  String get reportAttachLogNote =>
+      '位置座標を含むログが添付されます。送信前にメールで確認でき、ご自身で送信したときだけ送られます。';
+
+  @override
+  String get reportAttachLogEmpty => '添付できるログがまだありません。';
+
+  @override
+  String get reportOpenMail => 'メールアプリを開く';
+
+  @override
+  String get reportMailSubject => '[EarLocAlert] 問題の報告';
+
+  @override
+  String get reportMailPrompt => 'どのような問題があったか書いてください。';
+
+  @override
+  String get reportMailInfoHeader => '以下は調査に必要な端末情報です。消さないでください。';
+
+  @override
+  String reportFallbackNotice(String address) {
+    return 'メールアカウントがないため共有画面を開きました。宛先は $address です。';
+  }
+
+  @override
+  String get reportFailed => 'メールを開けませんでした。宛先アドレスをコピーしました。';
 }

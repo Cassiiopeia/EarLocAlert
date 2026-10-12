@@ -21,6 +21,7 @@ void main() {
         onOpenVolumeSettings: () {},
         onOpenVibrationSettings: () {},
         onOpenDiagnostics: () {},
+        onReportProblem: () {},
         language: AppLanguage.system,
         onLanguageChanged: (_) {},
         appVersion: '1.0.0 (1)',
