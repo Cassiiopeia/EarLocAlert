@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import '../domain/geofence_monitor.dart';
 import '../domain/geofence_target.dart';
 import '../domain/proximity_radius.dart';
+import '../domain/schedule_windows_codec.dart';
 import '../../../core/platform/channel_names.dart';
 
 /// Android 지오펜스 등록 어댑터 (이슈 #93)
@@ -38,7 +39,14 @@ class AndroidGeofenceMonitor implements GeofenceMonitor {
             'latitude': t.latitude,
             'longitude': t.longitude,
             'radiusMeters': t.radiusMeters.toDouble(),
-            'proximityRadiusMeters': proximityRadiusMeters(t.radiusMeters),
+            // Android 는 OS 이벤트 지연에 여유를 두고, 바깥 원 안에서는
+            // 앱이 직접 위치를 본다 (이슈 #260). iOS 는 이 경로를 쓰지 않는다.
+            'proximityRadiusMeters': androidProximityRadiusMeters(
+              t.radiusMeters,
+            ),
+            'outerRadiusMeters': androidOuterRadiusMeters(t.radiusMeters),
+            // 알림 시간대 밖에서는 중간 단계 감시를 켜지 않아 배터리를 아낀다
+            'scheduleWindows': encodeScheduleWindows(t.schedules),
           },
       ],
     });

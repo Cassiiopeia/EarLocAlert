@@ -112,11 +112,20 @@ class BugReportSender {
   }
 
   /// 메일 본문의 기기 정보 줄. **좌표는 넣지 않는다** — 좌표는 첨부 기록에만 있다
-  static String deviceInfo({required String appVersion, String? locale}) {
+  ///
+  /// [device] 는 네이티브가 모은 기기·앱 기본 정보 한 줄이다(이슈 #260).
+  /// 못 읽었거나(`?`) 비어 있으면 줄을 넣지 않는다.
+  static String deviceInfo({
+    required String appVersion,
+    String? locale,
+    String? device,
+  }) {
     return [
       'App: $appVersion',
       'OS: ${Platform.operatingSystem} ${Platform.operatingSystemVersion}',
       if (locale != null) 'Locale: $locale',
+      if (device != null && device.isNotEmpty && device != '?')
+        'Device: $device',
     ].join('\n');
   }
 }

@@ -135,6 +135,8 @@ class MainActivity : FlutterActivity() {
                 "versionLabel" -> result.success(
                     "${BuildConfig.VERSION_NAME}(${BuildConfig.VERSION_CODE})",
                 )
+                // 기기·앱 기본 정보 (이슈 #260) — 진단 기록과 문제 신고 메일에 쓴다
+                "deviceInfo" -> result.success(DeviceInfo.summary(this))
                 else -> result.notImplemented()
             }
         }

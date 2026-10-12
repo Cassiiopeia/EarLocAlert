@@ -29,13 +29,20 @@ class CurrentLocationProvider(private val context: Context) {
      * 날아가면 고장으로 보인다.
      */
     @SuppressLint("MissingPermission")
-    fun fetch(onResult: (android.location.Location?) -> Unit) {
+    fun fetch(
+        // 기본값은 지도 "내 위치" 버튼용이다. 감시 쪽(이슈 #260)은 GPS 를 켜지
+        // 않도록 균형 전력과 더 긴 허용 나이를 넘긴다.
+        priority: Int = Priority.PRIORITY_HIGH_ACCURACY,
+        durationMs: Long = 10_000L,
+        maxAgeMs: Long = 30_000L,
+        onResult: (android.location.Location?) -> Unit,
+    ) {
         val client = LocationServices.getFusedLocationProviderClient(context)
         val request = CurrentLocationRequest.Builder()
-            .setPriority(Priority.PRIORITY_HIGH_ACCURACY)
+            .setPriority(priority)
             // 버튼을 누르고 기다리는 시간이다 — 길면 눌렀는지 의심하게 된다
-            .setDurationMillis(10_000)
-            .setMaxUpdateAgeMillis(30_000)
+            .setDurationMillis(durationMs)
+            .setMaxUpdateAgeMillis(maxAgeMs)
             .build()
 
         try {

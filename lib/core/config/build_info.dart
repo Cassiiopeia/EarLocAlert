@@ -18,6 +18,7 @@ abstract final class BuildInfo {
   static const unknown = '?';
 
   static String _label = unknown;
+  static String _deviceLabel = unknown;
 
   /// 앱 시작 시 한 번 읽는다. 실패해도 조용히 [unknown] 으로 남는다 —
   /// 버전을 못 읽은 것이 앱을 멈출 이유는 없다.
@@ -28,7 +29,18 @@ abstract final class BuildInfo {
       // iOS 는 이 채널이 없다. 나중에 필요해지면 그때 붙인다
       _label = unknown;
     }
+    // 기기·앱 기본 정보 (이슈 #260) — 개인을 특정하는 값은 담지 않는다
+    try {
+      _deviceLabel =
+          await _channel.invokeMethod<String>('deviceInfo') ?? unknown;
+    } on Object {
+      _deviceLabel = unknown;
+    }
   }
+
+  /// `maker=samsung model=SM-S911N android=15(sdk35) ...` 형태의 한 줄.
+  /// 못 읽었으면 [unknown].
+  static String get deviceLabel => _deviceLabel;
 
   /// `1.13.1(95)` 형태
   static String get label => _label;

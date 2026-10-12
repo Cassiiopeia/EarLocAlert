@@ -35,4 +35,34 @@ void main() {
       );
     }
   });
+
+  group('Android 반경 (이슈 #260)', () {
+    test('근접 원은 기존 값에 여유 2km 를 더한다', () {
+      expect(androidProximityRadiusMeters(100), 2500); // 500 + 2000
+      expect(androidProximityRadiusMeters(1150), 5450); // 3450 + 2000
+    });
+
+    test('바깥 원은 기존 값에 여유 8km 를 더한다', () {
+      expect(androidOuterRadiusMeters(100), 8500);
+      expect(androidOuterRadiusMeters(1150), 11450);
+    });
+
+    test('바깥 원은 언제나 근접 원보다 크고 근접 원은 실제 반경보다 크다', () {
+      for (final radius in [50, 100, 166, 500, 1000, 1150, 2000]) {
+        expect(
+          androidOuterRadiusMeters(radius),
+          greaterThan(androidProximityRadiusMeters(radius)),
+        );
+        expect(
+          androidProximityRadiusMeters(radius),
+          greaterThan(radius.toDouble()),
+        );
+      }
+    });
+
+    test('iOS 가 쓰는 기존 함수는 바뀌지 않는다', () {
+      expect(proximityRadiusMeters(100), 500);
+      expect(proximityRadiusMeters(500), 1500);
+    });
+  });
 }

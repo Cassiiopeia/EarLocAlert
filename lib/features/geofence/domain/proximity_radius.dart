@@ -18,3 +18,31 @@ double proximityRadiusMeters(int radiusMeters) {
   final proportional = radiusMeters * multiplier;
   return proportional > minimumMeters ? proportional : minimumMeters;
 }
+
+/// Android 근접 원에 더하는 여유 (이슈 #260)
+///
+/// OS 지오펜스 이벤트가 늦게 전달되는 것을 흡수한다. 2026-10-13 소만사
+/// 도착 알림이 반경 1150m 장소에서 중심 70m 지점에야 울렸다 — 이벤트가
+/// 수 km 늦었다. **추정치다.** 진단 기록의 `[receiver] detail` 줄
+/// (`fix_age_s`, `since_last_event_s`)로 실측해 조정한다.
+const androidProximityMarginMeters = 2000.0;
+
+/// Android 바깥 원에 더하는 여유 (이슈 #260)
+///
+/// 이 원 안에 있는 동안 앱이 균형 전력 위치를 직접 확인한다(중간 단계).
+/// 근접 원 이벤트가 늦어도 앱이 이미 보고 있게 하려는 것이다.
+/// **추정치다** — 1분 주기 측정과 OS 전달 지연을 합쳐 수 분 거리를 덮도록 잡았다.
+const androidOuterMarginMeters = 8000.0;
+
+/// Android 근접 원 반경 — [proximityRadiusMeters] 에 여유를 더한다.
+///
+/// iOS 는 적응형 감시가 상시 위치를 보므로 기존 [proximityRadiusMeters] 를
+/// 그대로 쓴다. 배터리를 실측하지 않은 채 바꾸지 않는다.
+double androidProximityRadiusMeters(int radiusMeters) =>
+    proximityRadiusMeters(radiusMeters) + androidProximityMarginMeters;
+
+/// Android 바깥 원 반경 — 중간 단계 위치 감시를 켜는 경계 (이슈 #260)
+///
+/// 언제나 [androidProximityRadiusMeters] 보다 크다.
+double androidOuterRadiusMeters(int radiusMeters) =>
+    proximityRadiusMeters(radiusMeters) + androidOuterMarginMeters;

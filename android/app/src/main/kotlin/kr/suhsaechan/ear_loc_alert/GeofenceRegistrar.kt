@@ -29,11 +29,22 @@ class GeofenceRegistrar(private val context: Context) {
         /** 근접 지오펜스 id 접미사 — 실제 반경과 구분하는 유일한 표식 */
         const val PROXIMITY_SUFFIX = "#proximity"
 
+        /**
+         * 바깥 지오펜스 id 접미사 (이슈 #260).
+         *
+         * 이 원 안에 있는 동안 앱이 균형 전력 위치를 직접 확인한다. OS 의
+         * 근접 원 이벤트가 늦어도 앱이 이미 보고 있게 하려는 것이다.
+         */
+        const val OUTER_SUFFIX = "#outer"
+
         fun placeIdOf(geofenceId: String): String =
-            geofenceId.removeSuffix(PROXIMITY_SUFFIX)
+            geofenceId.removeSuffix(PROXIMITY_SUFFIX).removeSuffix(OUTER_SUFFIX)
 
         fun isProximity(geofenceId: String): Boolean =
             geofenceId.endsWith(PROXIMITY_SUFFIX)
+
+        fun isOuter(geofenceId: String): Boolean =
+            geofenceId.endsWith(OUTER_SUFFIX)
     }
 
     private val client: GeofencingClient by lazy {
@@ -74,6 +85,12 @@ class GeofenceRegistrar(private val context: Context) {
 
             geofences += buildGeofence(placeId, lat, lng, radius)
             geofences += buildGeofence(placeId + PROXIMITY_SUFFIX, lat, lng, proximity)
+            // 바깥 원은 근접 원보다 클 때만 의미가 있다. 값이 없으면(옛 등록 사본)
+            // 건너뛰어 기존 동작을 그대로 유지한다.
+            val outer = (fence["outerRadiusMeters"] as? Number)?.toFloat() ?: 0f
+            if (outer > proximity) {
+                geofences += buildGeofence(placeId + OUTER_SUFFIX, lat, lng, outer)
+            }
             ids += placeId
         }
 

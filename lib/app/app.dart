@@ -217,6 +217,8 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
       'app start ${BuildInfo.label} devBuild=${DevFlag.isDevBuild} '
           'ads=${AdUnitIds.usingTestIds ? "test" : "live"}',
     );
+    // 기기·앱 기본 정보 — 같은 코드가 기기마다 다르게 동작하는 이유를 로그만으로 설명하려는 것이다 (이슈 #260)
+    Diagnostics.log('device', BuildInfo.deviceLabel);
 
     try {
       // 알림 탭으로 앱이 열리는 경로에 필요하다. 권한 요청은 온보딩이

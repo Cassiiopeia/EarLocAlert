@@ -130,4 +130,21 @@ void main() {
     expect(info, contains('Locale: ko'));
     expect(info, isNot(contains('37.')));
   });
+
+  test('기기 정보 한 줄이 있으면 본문에 넣고, 못 읽었으면(?) 뺀다 (이슈 #260)', () {
+    final withDevice = BugReportSender.deviceInfo(
+      appVersion: '1.30.0 (140)',
+      device: 'maker=samsung model=SM-S911N android=15(sdk35)',
+    );
+    expect(
+      withDevice,
+      contains('Device: maker=samsung model=SM-S911N android=15(sdk35)'),
+    );
+
+    final unreadable = BugReportSender.deviceInfo(
+      appVersion: '1.30.0 (140)',
+      device: '?',
+    );
+    expect(unreadable, isNot(contains('Device:')));
+  });
 }

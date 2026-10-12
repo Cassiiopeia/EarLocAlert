@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/config/build_info.dart';
 import '../../../core/diagnostics/diagnostic_log_reader.dart';
 import '../../../core/diagnostics/diagnostics.dart';
 import '../../../core/l10n/l10n.dart';
@@ -101,7 +102,11 @@ class _BugReportSheetState extends State<_BugReportSheet> {
       '\n\n',
       '----',
       l10n.reportMailInfoHeader,
-      BugReportSender.deviceInfo(appVersion: widget.appVersion, locale: locale),
+      BugReportSender.deviceInfo(
+        appVersion: widget.appVersion,
+        locale: locale,
+        device: BuildInfo.deviceLabel,
+      ),
     ].join('\n');
 
     final outcome = await widget.sender.send(

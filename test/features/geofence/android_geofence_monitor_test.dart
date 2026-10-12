@@ -1,4 +1,5 @@
 import 'package:ear_loc_alert/core/domain/alert_direction.dart';
+import 'package:ear_loc_alert/core/domain/alert_schedule.dart';
 import 'package:ear_loc_alert/features/geofence/data/android_geofence_monitor.dart';
 import 'package:ear_loc_alert/features/geofence/domain/geofence_target.dart';
 import 'package:flutter/services.dart';
@@ -54,8 +55,31 @@ void main() {
     expect(fence['latitude'], 37.5663);
     expect(fence['longitude'], 126.9779);
     expect(fence['radiusMeters'], 100.0);
-    // 100 × 3 = 300 < 500 → 하한이 적용된다
-    expect(fence['proximityRadiusMeters'], 500.0);
+    // 100 × 3 = 300 < 500 → 하한 500 에 Android 여유 2000 (이슈 #260)
+    expect(fence['proximityRadiusMeters'], 2500.0);
+    // 바깥 원은 500 + 8000
+    expect(fence['outerRadiusMeters'], 8500.0);
+    // 시간대가 없으면 빈 문자열 — 네이티브는 항상 활성으로 읽는다
+    expect(fence['scheduleWindows'], '');
+  });
+
+  test('알림 시간대를 네이티브가 읽는 문자열로 넘긴다 (이슈 #260)', () async {
+    await const AndroidGeofenceMonitor().sync([
+      target.copyWith(
+        schedules: const [
+          AlertSchedule(
+            daysOfWeek: {5, 1, 3, 2, 4},
+            startMinuteOfDay: 465,
+            endMinuteOfDay: 600,
+          ),
+        ],
+      ),
+    ]);
+
+    final call = calls.singleWhere((c) => c.method == 'syncGeofences');
+    final fence = ((call.arguments as Map)['geofences'] as List).first as Map;
+    // 요일은 정렬되어 붙는다
+    expect(fence['scheduleWindows'], '12345,465,600');
   });
 
   test('여러 장소를 한 번에 넘긴다', () async {
@@ -67,7 +91,8 @@ void main() {
     final call = calls.singleWhere((c) => c.method == 'syncGeofences');
     final fences = (call.arguments as Map)['geofences'] as List;
     expect(fences, hasLength(2));
-    expect((fences[1] as Map)['proximityRadiusMeters'], 1500.0);
+    // 500 × 3 = 1500 + 2000
+    expect((fences[1] as Map)['proximityRadiusMeters'], 3500.0);
   });
 
   test('빈 목록도 그대로 전달한다 — 전체 해제를 뜻한다', () async {

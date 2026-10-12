@@ -94,8 +94,11 @@ class WatchdogReceiver : BroadcastReceiver() {
             "watchdog",
             "check service=${if (AlertWatchService.isRunning) "running" else "absent"} " +
                 "last_registered=${WatchState.agoText(WatchState.registeredAt(context), now)} " +
-                "last_received=${WatchState.agoText(WatchState.eventAt(context), now)}",
+                "last_received=${WatchState.agoText(WatchState.eventAt(context), now)} " +
+                DeviceState.snapshot(context),
         )
+        // 기기·앱 상태는 시간에 따라 바뀐다(대기 버킷·절전). 점검마다 남겨 변화를 본다 (이슈 #260)
+        DiagnosticLog.write(context, "device", DeviceInfo.summary(context))
 
         ExitReasonLogger.logNew(context)
         restoreFromCache(context, "watchdog")

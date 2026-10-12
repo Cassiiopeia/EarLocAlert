@@ -6,9 +6,12 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.graphics.drawable.Icon
 import android.app.Service
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.ServiceInfo
+import android.location.Location
 import android.os.Build
 import android.os.Handler
 import android.os.IBinder
@@ -84,6 +87,9 @@ class AlertWatchService : Service() {
 
         const val EXTRA_ENTERED = "entered"
         const val EXTRA_PROXIMITY_IDS = "proximity_ids"
+
+        /** 바깥 원(중간 단계 감시 트리거)에 닿은 장소 id (이슈 #260) */
+        const val EXTRA_OUTER_IDS = "outer_ids"
         const val EXTRA_PLACE_IDS = "place_ids"
         const val EXTRA_LATITUDE = "latitude"
         const val EXTRA_LONGITUDE = "longitude"
@@ -151,6 +157,24 @@ class AlertWatchService : Service() {
          */
         private const val PRECISE_TIMEOUT_MS = 30 * 60 * 1000L
 
+        /**
+         * 알림 시간대가 열리기 이만큼 전부터 중간 단계 감시를 켠다 (이슈 #260).
+         * 시간대 밖에서는 켜지 않는 것이 배터리 보호의 핵심이다.
+         */
+        private const val MID_SCHEDULE_MARGIN_MIN = 30
+
+        /** 시간대·바깥 원 조건을 다시 확인하는 주기. 위치를 받지 않는 메모리 판단이다 */
+        private const val MID_GUARD_INTERVAL_MS = 5 * 60 * 1000L
+
+        /** 화면 켜짐마다 위치를 조회하지 않게 막는 최소 간격 */
+        private const val SCREEN_CHECK_THROTTLE_MS = 30_000L
+
+        /**
+         * 중간 단계 측정이 근접 원 이 거리(m) 안쪽까지 오면 정밀 감시로 올린다.
+         * 측정 간격(약 60초, 시속 60km 에서 1km)과 정확도 오차를 흡수하는 여유다.
+         */
+        private const val PRECISE_START_MARGIN_M = 1_000f
+
         /** 대기 0.4초 · 진동 0.8초 반복 — 주머니 속에서도 놓치기 어렵게 */
         private val VIBRATION_PATTERN = longArrayOf(400, 800)
 
@@ -186,6 +210,21 @@ class AlertWatchService : Service() {
     /** 정밀 감시를 요구하는 장소들. 비면 스트림을 끈다 */
     private val proximityPlaces = mutableSetOf<String>()
 
+    // ---- 중간 단계 감시 (이슈 #260)
+
+    /** 네이티브가 아는 장소 목록. 등록 맵과 같은 시점에 갱신된다 */
+    private var places: List<WatchPlace> = emptyList()
+
+    /** 바깥 원 안에 있다고 알고 있는 장소들. 비면 중간 단계를 끈다 */
+    private val outerPlaces = mutableSetOf<String>()
+
+    private val midTracker by lazy { CoarseLocationTracker(this) }
+    private val locationProvider by lazy { CurrentLocationProvider(this) }
+    private var midStartedElapsedMs = 0L
+    private var midFixCount = 0
+    private var lastScreenCheckElapsedMs = 0L
+    private var screenReceiverRegistered = false
+
     private val vibrator: Vibrator by lazy {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             val manager =
@@ -199,6 +238,19 @@ class AlertWatchService : Service() {
 
     private val timeoutTask = Runnable { endAlert(timedOut = true) }
     private val preciseTimeoutTask = Runnable { stopPreciseTracking() }
+    private val midGuardTask = Runnable { reconcileMid("guard_tick") }
+
+    /**
+     * 화면 켜짐 수신 (이슈 #260).
+     *
+     * OS 가 지오펜스 평가를 미루다가 사용자가 화면을 켜는 순간에야 이벤트를
+     * 내보내는 경우가 있다. 그 전에 앱이 먼저 현재 위치를 확인한다.
+     */
+    private val screenReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            if (intent.action == Intent.ACTION_SCREEN_ON) onScreenOn()
+        }
+    }
 
     override fun onBind(intent: Intent?): IBinder? = null
 
@@ -252,6 +304,21 @@ class AlertWatchService : Service() {
             "watch",
             "watch engine started in ${SystemClock.elapsedRealtime() - startedAt}ms",
         )
+
+        // 저장된 사본으로 장소를 복원한다 — 서비스가 다시 떴을 때도 중간 단계
+        // 판단이 가능해야 한다 (등록 맵이 다시 오지 않을 수 있다)
+        // 기기·앱 정보 — 이 기록만 보고도 "어떤 기기·어떤 상태에서" 났는지 알 수 있게 한다
+        DiagnosticLog.write(this, "device", DeviceInfo.summary(this))
+        places = WatchState.loadFences(this).mapNotNull(WatchPlace::fromMap)
+        registerScreenReceiver()
+        DiagnosticLog.write(
+            this,
+            "tier",
+            "tier state restored places=${places.size} " +
+                "outer_enabled=${places.count { it.outerRadiusMeters > 0f }} ${DeviceState.snapshot(this)}",
+        )
+        // 서비스가 막 떴다 = 그동안 놓친 이벤트가 있을 수 있다. 현재 위치로 한 번 맞춘다
+        handler.post { checkNow("service_created") }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -266,6 +333,8 @@ class AlertWatchService : Service() {
             ACTION_STOP_WATCH -> {
                 endAlert()
                 stopPreciseTracking()
+                outerPlaces.clear()
+                reconcileMid("watch_stopped")
                 stopSelf()
                 return START_NOT_STICKY
             }
@@ -305,7 +374,20 @@ class AlertWatchService : Service() {
         DiagnosticLog.write(this, "watch", "watch service destroyed")
         handler.removeCallbacks(timeoutTask)
         handler.removeCallbacks(preciseTimeoutTask)
+        handler.removeCallbacks(midGuardTask)
         stopPreciseTracking()
+        if (midTracker.isRunning) {
+            midTracker.stop()
+            DiagnosticLog.write(this, "mid", "mid tracking stopped reason=service_destroyed fixes=$midFixCount")
+        }
+        if (screenReceiverRegistered) {
+            try {
+                unregisterReceiver(screenReceiver)
+            } catch (error: Exception) {
+                DiagnosticLog.write(this, "screen", "screen receiver unregister failed $error")
+            }
+            screenReceiverRegistered = false
+        }
         engine.stop()
         if (alerting) stopVibration()
         alerting = false
@@ -419,6 +501,21 @@ class AlertWatchService : Service() {
         WatchState.saveFences(this, fences)
         WatchState.markRegistered(this)
 
+        // 중간 단계 판단용 장소 목록도 같은 시점에 맞춘다 (이슈 #260)
+        places = fences.mapNotNull(WatchPlace::fromMap)
+        val knownIds = places.map { it.id }.toSet()
+        outerPlaces.retainAll(knownIds)
+        DiagnosticLog.write(
+            this,
+            "tier",
+            "tier places synced places=${places.size} " +
+                places.joinToString(" ") {
+                    "${it.shortId}(r=${it.radiusMeters.toInt()} prox=${it.proximityRadiusMeters.toInt()} " +
+                        "outer=${it.outerRadiusMeters.toInt()} windows=${it.windows.size})"
+                },
+        )
+        reconcileMid("sync")
+
         // 등록 개수가 0 이면 어떤 도착도 감지되지 않는다 (이슈 #95)
         DiagnosticLog.write(
             this,
@@ -444,6 +541,7 @@ class AlertWatchService : Service() {
         val entered = intent.getBooleanExtra(EXTRA_ENTERED, false)
         val proximityIds = intent.getStringArrayListExtra(EXTRA_PROXIMITY_IDS).orEmpty()
         val placeIds = intent.getStringArrayListExtra(EXTRA_PLACE_IDS).orEmpty()
+        val outerIds = intent.getStringArrayListExtra(EXTRA_OUTER_IDS).orEmpty()
         val latitude =
             if (intent.hasExtra(EXTRA_LATITUDE)) intent.getDoubleExtra(EXTRA_LATITUDE, 0.0)
             else null
@@ -451,7 +549,27 @@ class AlertWatchService : Service() {
             if (intent.hasExtra(EXTRA_LONGITUDE)) intent.getDoubleExtra(EXTRA_LONGITUDE, 0.0)
             else null
 
+        // 바깥 원은 중간 단계 위치 감시를 켜고 끈다 (이슈 #260)
+        if (outerIds.isNotEmpty()) {
+            if (entered) outerPlaces += outerIds else outerPlaces -= outerIds.toSet()
+            DiagnosticLog.write(
+                this,
+                "tier",
+                "outer ring ${if (entered) "ENTER" else "EXIT"} " +
+                    "places=${outerIds.joinToString(",") { it.take(8) }} " +
+                    "outer_inside=${outerPlaces.size} ${DeviceState.snapshot(this)}",
+            )
+            reconcileMid(if (entered) "outer_enter" else "outer_exit")
+        }
+
         if (proximityIds.isNotEmpty()) {
+            DiagnosticLog.write(
+                this,
+                "tier",
+                "proximity ring ${if (entered) "ENTER" else "EXIT"} " +
+                    "places=${proximityIds.joinToString(",") { it.take(8) }} " +
+                    "mid_running=${midTracker.isRunning} precise_running=${tracker.isRunning}",
+            )
             if (entered) startPreciseTracking(proximityIds)
             else stopPreciseTrackingIfIdle(proximityIds)
         }
@@ -461,6 +579,206 @@ class AlertWatchService : Service() {
                 if (decision.shouldAlert) beginAlert(decision)
             }
         }
+    }
+
+    // ------------------------------------------------------ 중간 단계 감시 (#260)
+
+    /**
+     * 중간 단계 위치 감시를 켜고 끌지 정한다.
+     *
+     * **켜는 조건** — 바깥 원 안에 있고, 그 장소의 알림 시간대가 열려 있거나
+     * [MID_SCHEDULE_MARGIN_MIN] 분 안에 열린다. 둘 중 하나라도 어긋나면 끈다.
+     *
+     * 이벤트가 올 때마다, 장소 목록이 바뀔 때마다, 그리고 주기적으로 부른다.
+     * 주기 호출은 "아직 안 열렸던 시간대가 열렸는가"를 잡는다 — 바깥 원
+     * 이벤트는 시간대와 무관하게 한 번만 오기 때문이다.
+     */
+    private fun reconcileMid(reason: String) {
+        handler.removeCallbacks(midGuardTask)
+
+        val nowMs = System.currentTimeMillis()
+        val inside = places.filter { it.id in outerPlaces }
+        val eligible = inside.filter { it.isScheduleActive(nowMs, MID_SCHEDULE_MARGIN_MIN) }
+
+        if (eligible.isNotEmpty()) {
+            if (!midTracker.isRunning) {
+                val started = midTracker.start { location -> handleFix(location, "mid") }
+                if (started) {
+                    midStartedElapsedMs = SystemClock.elapsedRealtime()
+                    midFixCount = 0
+                    DiagnosticLog.write(
+                        this,
+                        "mid",
+                        "mid tracking started reason=$reason " +
+                            "targets=${eligible.joinToString(",") { it.shortId }} " +
+                            "outer_inside=${inside.size} ${DeviceState.snapshot(this)}",
+                    )
+                } else {
+                    DiagnosticLog.write(this, "mid", "mid tracking start failed reason=permission_missing")
+                }
+            }
+        } else {
+            if (midTracker.isRunning) {
+                midTracker.stop()
+                val ranS = (SystemClock.elapsedRealtime() - midStartedElapsedMs) / 1000
+                DiagnosticLog.write(
+                    this,
+                    "mid",
+                    "mid tracking stopped reason=${if (inside.isEmpty()) "left_outer_ring" else "outside_schedule"} " +
+                        "trigger=$reason fixes=$midFixCount ran_s=$ranS ${DeviceState.snapshot(this)}",
+                )
+            } else if (inside.isNotEmpty()) {
+                // 바깥 원 안인데 시간대가 아니라 안 켜는 경우 — 안 울린 이유를 남긴다
+                DiagnosticLog.write(
+                    this,
+                    "mid",
+                    "mid tracking idle reason=outside_schedule trigger=$reason " +
+                        "outer_inside=${inside.joinToString(",") { it.shortId }}",
+                )
+            }
+        }
+
+        // 바깥 원 안에 있는 동안은 시간대 변화를 계속 지켜본다
+        if (outerPlaces.isNotEmpty()) handler.postDelayed(midGuardTask, MID_GUARD_INTERVAL_MS)
+    }
+
+    /**
+     * 위치 한 건을 처리한다 — 중간 단계 측정·화면 켜짐·서비스 시작 때 공통이다.
+     *
+     * 하는 일: ① 바깥 원 소속을 실측으로 바로잡고 ② 근접 원 근처면 정밀
+     * 감시로 올리고 ③ 기존 판정기에 넘긴다. **알림 여부는 ③ 이 정한다.**
+     */
+    private fun handleFix(location: Location, source: String) {
+        if (source == "mid") midFixCount++
+        val nowMs = System.currentTimeMillis()
+        val ageS = (SystemClock.elapsedRealtimeNanos() - location.elapsedRealtimeNanos) / 1_000_000_000L
+
+        // 장소별 거리 — 안 울린 이유를 사후에 가리려면 거리가 전부 있어야 한다
+        val distances = places.associateWith { it.distanceTo(location.latitude, location.longitude) }
+        DiagnosticLog.write(
+            this,
+            "mid",
+            "fix source=$source lat=${location.latitude} lng=${location.longitude} " +
+                "acc=${location.accuracy.toInt()}m age_s=$ageS provider=${location.provider} " +
+                "mid_fixes=$midFixCount " +
+                distances.entries.joinToString(" ") { (place, dist) ->
+                    "${place.shortId}:dist=${dist.toInt()}m" +
+                        "(actual=${place.radiusMeters.toInt()} prox=${place.proximityRadiusMeters.toInt()} " +
+                        "outer=${place.outerRadiusMeters.toInt()} " +
+                        "schedule=${place.isScheduleActive(nowMs, MID_SCHEDULE_MARGIN_MIN)})"
+                },
+        )
+
+        // ① 바깥 원 소속을 실측으로 맞춘다 — OS 이벤트가 늦거나 없어도 어긋나지 않게
+        var membershipChanged = false
+        for ((place, dist) in distances) {
+            if (place.outerRadiusMeters <= 0f) continue
+            val inside = dist <= place.outerRadiusMeters
+            if (inside && outerPlaces.add(place.id)) membershipChanged = true
+            if (!inside && outerPlaces.remove(place.id)) membershipChanged = true
+        }
+        if (membershipChanged) {
+            DiagnosticLog.write(
+                this,
+                "tier",
+                "outer membership corrected by fix source=$source outer_inside=${outerPlaces.size}",
+            )
+        }
+
+        // ② 근접 원 근처(여유 포함)면 정밀 감시로 올린다. 시간대 밖이면 올리지 않는다
+        val near = distances.filter { (place, dist) ->
+            dist <= place.proximityRadiusMeters + PRECISE_START_MARGIN_M &&
+                place.isScheduleActive(nowMs, MID_SCHEDULE_MARGIN_MIN)
+        }.keys.map { it.id }
+        if (near.isNotEmpty() && !tracker.isRunning) {
+            DiagnosticLog.write(
+                this,
+                "tier",
+                "precise start requested by fix source=$source " +
+                    "targets=${near.joinToString(",") { it.take(8) }}",
+            )
+            startPreciseTracking(near)
+        }
+
+        // ③ 기존 판정기에 넘긴다 — 중복 발화는 상태 전이가 막는다
+        engine.evaluatePosition(
+            latitude = location.latitude,
+            longitude = location.longitude,
+            accuracyMeters = location.accuracy.toDouble(),
+            timestampMs = location.time,
+        ) { decision ->
+            if (decision.shouldAlert) beginAlert(decision)
+        }
+
+        reconcileMid("fix_$source")
+    }
+
+    /**
+     * 현재 위치를 1회 조회해 [handleFix] 로 처리한다.
+     *
+     * **GPS 를 켜지 않는다.** 균형 전력으로 최근 값(1분 이내)을 우선 쓰고,
+     * 없으면 짧게(5초) 기다린다. 화면 켜짐마다 불리므로 가벼워야 한다.
+     */
+    private fun checkNow(reason: String) {
+        val nowMs = System.currentTimeMillis()
+        if (places.none { it.isScheduleActive(nowMs, MID_SCHEDULE_MARGIN_MIN) }) {
+            DiagnosticLog.write(
+                this,
+                "mid",
+                "one-shot check skipped reason=$reason cause=no_active_schedule places=${places.size}",
+            )
+            return
+        }
+        if (alerting) {
+            DiagnosticLog.write(this, "mid", "one-shot check skipped reason=$reason cause=alerting")
+            return
+        }
+        locationProvider.fetch(
+            priority = com.google.android.gms.location.Priority.PRIORITY_BALANCED_POWER_ACCURACY,
+            durationMs = 5_000L,
+            maxAgeMs = 60_000L,
+        ) { location ->
+            if (location == null) {
+                DiagnosticLog.write(this, "mid", "one-shot check failed reason=$reason cause=no_location")
+            } else {
+                handleFix(location, reason)
+            }
+        }
+    }
+
+    private fun registerScreenReceiver() {
+        if (screenReceiverRegistered) return
+        try {
+            val filter = IntentFilter(Intent.ACTION_SCREEN_ON)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                registerReceiver(screenReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
+            } else {
+                registerReceiver(screenReceiver, filter)
+            }
+            screenReceiverRegistered = true
+        } catch (error: Exception) {
+            // 등록 실패는 기능이 하나 줄 뿐이다 — 기록만 남기고 감시는 계속한다
+            DiagnosticLog.write(this, "screen", "screen receiver register failed $error")
+        }
+    }
+
+    private fun onScreenOn() {
+        val now = SystemClock.elapsedRealtime()
+        val sinceLastS =
+            if (lastScreenCheckElapsedMs == 0L) "first" else ((now - lastScreenCheckElapsedMs) / 1000).toString()
+        if (lastScreenCheckElapsedMs != 0L && now - lastScreenCheckElapsedMs < SCREEN_CHECK_THROTTLE_MS) {
+            DiagnosticLog.write(this, "screen", "screen on, check skipped cause=throttled since_last_s=$sinceLastS")
+            return
+        }
+        lastScreenCheckElapsedMs = now
+        DiagnosticLog.write(
+            this,
+            "screen",
+            "screen on, checking position since_last_s=$sinceLastS " +
+                "mid_running=${midTracker.isRunning} precise_running=${tracker.isRunning} " +
+                "alerting=$alerting places=${places.size} ${DeviceState.snapshot(this)}",
+        )
+        checkNow("screen_on")
     }
 
     // ------------------------------------------------------------ 정밀 감시

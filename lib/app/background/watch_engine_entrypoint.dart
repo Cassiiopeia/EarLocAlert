@@ -13,6 +13,7 @@ import '../../features/geofence/data/drift_geofence_event_repository.dart';
 import '../../features/geofence/data/drift_geofence_state_repository.dart';
 import '../../features/geofence/domain/geofence_evaluator.dart';
 import '../../features/geofence/domain/proximity_radius.dart';
+import '../../features/geofence/domain/schedule_windows_codec.dart';
 import '../../features/places/data/drift_place_repository.dart';
 import 'background_alert_notifier.dart';
 import 'geofence_background_processor.dart';
@@ -144,7 +145,11 @@ Future<void> _restoreGeofences(
             'latitude': p.latitude,
             'longitude': p.longitude,
             'radiusMeters': p.radiusMeters.toDouble(),
-            'proximityRadiusMeters': proximityRadiusMeters(p.radiusMeters),
+            'proximityRadiusMeters': androidProximityRadiusMeters(
+              p.radiusMeters,
+            ),
+            'outerRadiusMeters': androidOuterRadiusMeters(p.radiusMeters),
+            'scheduleWindows': encodeScheduleWindows(p.schedules),
           },
       ],
     });
