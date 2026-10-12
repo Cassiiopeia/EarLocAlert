@@ -281,7 +281,23 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
       appBar: AppBar(
         title: Text(isNew ? l10n.placeFormTitleNew : l10n.placeFormTitleEdit),
       ),
+      // 저장 버튼이 스크롤 맨 끝에 있으면 폼을 처음 열었을 때 보이지 않는다
+      // (이슈 #254). 하단에 고정하고, 키보드가 올라오면 그 위에 붙는다
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.md),
+          // 주 동작(저장)이 FilledButton 한 자리뿐이어야 위계가 갈리지 않는다
+          child: FilledButton(
+            onPressed: _saving ? null : _save,
+            child: Text(
+              isNew ? l10n.placeFormSubmitNew : l10n.placeFormSubmitSave,
+            ),
+          ),
+        ),
+      ),
+      // 아래 안전 영역은 하단 막대가 맡는다
       body: SafeArea(
+        bottom: false,
         child: ListView(
           controller: _scroll,
           padding: const EdgeInsets.all(AppSpacing.md),
@@ -483,19 +499,11 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
                 ),
               ),
             ],
-            const SizedBox(height: AppSpacing.lg),
-
-            FilledButton(
-              onPressed: _saving ? null : _save,
-              child: Text(
-                isNew ? l10n.placeFormSubmitNew : l10n.placeFormSubmitSave,
-              ),
-            ),
-
-            // 삭제는 편집 중인 장소에만 있다. 저장 버튼 **아래**에 옅게 둔다 —
-            // 주 동작과 같은 무게로 놓으면 저장하려다 누른다 (이슈 #205).
-            // 스와이프를 모르는 사용자도 여기서 찾을 수 있다
+            // 삭제는 편집 중인 장소에만 있다. 저장 버튼은 하단 고정 막대로 올라갔고,
+            // 삭제는 폼 맨 끝에 옅게 둔다 — 주 동작과 같은 무게로 놓으면 저장하려다
+            // 누른다 (이슈 #205). 스와이프를 모르는 사용자도 여기서 찾을 수 있다
             if (!isNew) ...[
+              const SizedBox(height: AppSpacing.lg),
               const SizedBox(height: AppSpacing.xs),
               // 주 동작(저장)이 FilledButton 한 자리뿐이어야 위계가 갈리지 않는다
               // (design_system_test) — 삭제는 TextButton 에 옅은 색을 입힌다

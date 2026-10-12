@@ -118,6 +118,12 @@ void main() {
   });
 
   testWidgets('반경을 바꾸면 원 반지름이 따라간다', (tester) async {
+    // 저장 버튼이 하단에 고정돼 목록 영역이 줄었다. 지도와 슬라이더가 한 화면에
+    // 다 그려지도록 화면을 키운다 (ListView 는 화면 밖 항목을 만들지 않는다)
+    tester.view.physicalSize = const Size(800, 2000);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+
     await pump(tester, PlaceFormScreen(existing: existing));
 
     double circleRadius() =>
@@ -134,5 +140,23 @@ void main() {
       greaterThan(200),
       reason: '슬라이더와 지도가 따로 놀면 미리보기가 거짓말을 한다',
     );
+  });
+
+  testWidgets('저장 버튼은 스크롤하지 않아도 처음부터 보인다', (tester) async {
+    // 작은 폰 높이 — 폼이 한 화면을 넘겨도 저장 버튼은 하단에 고정돼야 한다 (#254)
+    tester.view.physicalSize = const Size(360, 480);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+
+    await pump(tester, PlaceFormScreen(existing: existing));
+
+    final button = find.byType(FilledButton);
+    expect(button, findsOneWidget);
+    expect(
+      tester.getBottomLeft(button).dy,
+      lessThanOrEqualTo(480),
+      reason: '저장 버튼이 목록 끝에 있으면 처음 열었을 때 화면 밖이다',
+    );
+    expect(button.hitTestable(), findsOneWidget);
   });
 }
