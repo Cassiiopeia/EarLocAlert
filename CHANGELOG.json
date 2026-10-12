@@ -1,14 +1,40 @@
 {
   "metadata": {
-    "lastUpdated": "2026-10-10T16:23:06Z",
-    "currentVersion": "1.29.1",
+    "lastUpdated": "2026-10-12T08:26:26Z",
+    "currentVersion": "1.30.0",
     "projectType": "flutter",
-    "totalReleases": 98,
+    "totalReleases": 99,
     "projectTypes": [
       "flutter"
     ]
   },
   "releases": [
+    {
+      "version": "1.30.0",
+      "project_type": "flutter",
+      "project_types": [
+        "flutter"
+      ],
+      "date": "2026-10-12",
+      "pr_number": 259,
+      "raw_summary": "## Summary by CodeRabbit\n\n## 릴리스 노트\n\n* **새 기능**\n  * 설정에서 문제를 메일로 바로 신고할 수 있어요\n  * 등록한 장소를 파일로 내보내고 다시 불러올 수 있어요\n\n* **개선**\n  * 장소 등록 화면의 저장 버튼이 항상 보여요",
+      "parsed_changes": {
+        "새_기능": {
+          "title": "새 기능",
+          "items": [
+            "설정에서 문제를 메일로 바로 신고할 수 있어요",
+            "등록한 장소를 파일로 내보내고 다시 불러올 수 있어요"
+          ]
+        },
+        "개선": {
+          "title": "개선",
+          "items": [
+            "장소 등록 화면의 저장 버튼이 항상 보여요"
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "1.29.1",
       "project_type": "flutter",
