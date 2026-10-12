@@ -17,6 +17,8 @@ Widget _screen({required String version, required VoidCallback? onCheck}) {
       onOpenVibrationSettings: () {},
       onOpenDiagnostics: () {},
       onReportProblem: () {},
+      onExportPlaces: () {},
+      onImportPlaces: () {},
       language: AppLanguage.ko,
       onLanguageChanged: (_) {},
       appVersion: version,

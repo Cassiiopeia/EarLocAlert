@@ -293,5 +293,60 @@
       }
     }
   },
-  "reportFailed": "Could not open mail. The recipient address was copied."
+  "reportFailed": "Could not open mail. The recipient address was copied.",
+  "settingsSectionBackup": "Backup",
+  "settingsBackupExportTitle": "Export places",
+  "settingsBackupExportSubtitle": "Save your places as a file or send them elsewhere",
+  "settingsBackupImportTitle": "Import places",
+  "settingsBackupImportSubtitle": "Bring in places from an exported file",
+  "backupExportEmpty": "There are no places to export",
+  "backupExportSubject": "EarLocAlert places backup",
+  "backupExportCustomSound": "{count} places use your own sound and were saved with the default alert sound",
+  "@backupExportCustomSound": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "backupImportTitle": "Import places?",
+  "backupImportBody": "Found {count} places in the file. You have {existing} places now. Places you already have are skipped.",
+  "@backupImportBody": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "existing": {
+        "type": "int"
+      }
+    }
+  },
+  "backupImportAdd": "Add",
+  "backupImportReplace": "Replace all",
+  "backupCancel": "Cancel",
+  "backupReplaceTitle": "Delete all current places?",
+  "backupReplaceBody": "Your {existing} current places will be deleted and replaced with the ones in the file. This cannot be undone.",
+  "@backupReplaceBody": {
+    "placeholders": {
+      "existing": {
+        "type": "int"
+      }
+    }
+  },
+  "backupReplaceConfirm": "Replace",
+  "backupImportResult": "Imported {added} places. Skipped {skipped}",
+  "@backupImportResult": {
+    "placeholders": {
+      "added": {
+        "type": "int"
+      },
+      "skipped": {
+        "type": "int"
+      }
+    }
+  },
+  "backupImportNone": "There are no new places to import",
+  "backupImportInvalid": "This is not a places file exported from this app",
+  "backupImportNewer": "This file was made by a newer version of the app. Update the app and try again",
+  "backupImportReadFailed": "Could not read the file"
 }

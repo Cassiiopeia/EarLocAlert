@@ -17,6 +17,8 @@ Widget _screen(SettingsLockScreenAlarm? alarm) {
       onOpenVibrationSettings: () {},
       onOpenDiagnostics: () {},
       onReportProblem: () {},
+      onExportPlaces: () {},
+      onImportPlaces: () {},
       language: AppLanguage.ko,
       onLanguageChanged: (_) {},
       appVersion: '1.0.0',

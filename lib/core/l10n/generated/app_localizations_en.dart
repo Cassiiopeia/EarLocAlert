@@ -988,4 +988,79 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get reportFailed =>
       'Could not open mail. The recipient address was copied.';
+
+  @override
+  String get settingsSectionBackup => 'Backup';
+
+  @override
+  String get settingsBackupExportTitle => 'Export places';
+
+  @override
+  String get settingsBackupExportSubtitle =>
+      'Save your places as a file or send them elsewhere';
+
+  @override
+  String get settingsBackupImportTitle => 'Import places';
+
+  @override
+  String get settingsBackupImportSubtitle =>
+      'Bring in places from an exported file';
+
+  @override
+  String get backupExportEmpty => 'There are no places to export';
+
+  @override
+  String get backupExportSubject => 'EarLocAlert places backup';
+
+  @override
+  String backupExportCustomSound(int count) {
+    return '$count places use your own sound and were saved with the default alert sound';
+  }
+
+  @override
+  String get backupImportTitle => 'Import places?';
+
+  @override
+  String backupImportBody(int count, int existing) {
+    return 'Found $count places in the file. You have $existing places now. Places you already have are skipped.';
+  }
+
+  @override
+  String get backupImportAdd => 'Add';
+
+  @override
+  String get backupImportReplace => 'Replace all';
+
+  @override
+  String get backupCancel => 'Cancel';
+
+  @override
+  String get backupReplaceTitle => 'Delete all current places?';
+
+  @override
+  String backupReplaceBody(int existing) {
+    return 'Your $existing current places will be deleted and replaced with the ones in the file. This cannot be undone.';
+  }
+
+  @override
+  String get backupReplaceConfirm => 'Replace';
+
+  @override
+  String backupImportResult(int added, int skipped) {
+    return 'Imported $added places. Skipped $skipped';
+  }
+
+  @override
+  String get backupImportNone => 'There are no new places to import';
+
+  @override
+  String get backupImportInvalid =>
+      'This is not a places file exported from this app';
+
+  @override
+  String get backupImportNewer =>
+      'This file was made by a newer version of the app. Update the app and try again';
+
+  @override
+  String get backupImportReadFailed => 'Could not read the file';
 }

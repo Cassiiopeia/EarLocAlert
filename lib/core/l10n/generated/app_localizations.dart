@@ -1823,6 +1823,132 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'메일을 열지 못했습니다. 받는 사람 주소를 복사했습니다.'**
   String get reportFailed;
+
+  /// No description provided for @settingsSectionBackup.
+  ///
+  /// In ko, this message translates to:
+  /// **'백업'**
+  String get settingsSectionBackup;
+
+  /// No description provided for @settingsBackupExportTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'장소 내보내기'**
+  String get settingsBackupExportTitle;
+
+  /// No description provided for @settingsBackupExportSubtitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'등록한 장소를 파일로 저장하거나 다른 곳으로 보냅니다'**
+  String get settingsBackupExportSubtitle;
+
+  /// No description provided for @settingsBackupImportTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'장소 불러오기'**
+  String get settingsBackupImportTitle;
+
+  /// No description provided for @settingsBackupImportSubtitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'내보낸 파일에서 장소를 가져옵니다'**
+  String get settingsBackupImportSubtitle;
+
+  /// No description provided for @backupExportEmpty.
+  ///
+  /// In ko, this message translates to:
+  /// **'내보낼 장소가 없습니다'**
+  String get backupExportEmpty;
+
+  /// No description provided for @backupExportSubject.
+  ///
+  /// In ko, this message translates to:
+  /// **'이어폰위치알림 장소 백업'**
+  String get backupExportSubject;
+
+  /// No description provided for @backupExportCustomSound.
+  ///
+  /// In ko, this message translates to:
+  /// **'내 음원을 쓰는 장소 {count}곳은 기본 알림음으로 담았습니다'**
+  String backupExportCustomSound(int count);
+
+  /// No description provided for @backupImportTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'장소를 불러올까요?'**
+  String get backupImportTitle;
+
+  /// No description provided for @backupImportBody.
+  ///
+  /// In ko, this message translates to:
+  /// **'파일에서 장소 {count}곳을 찾았습니다. 지금 등록된 장소는 {existing}곳입니다. 이미 있는 장소는 건너뜁니다.'**
+  String backupImportBody(int count, int existing);
+
+  /// No description provided for @backupImportAdd.
+  ///
+  /// In ko, this message translates to:
+  /// **'추가하기'**
+  String get backupImportAdd;
+
+  /// No description provided for @backupImportReplace.
+  ///
+  /// In ko, this message translates to:
+  /// **'모두 바꾸기'**
+  String get backupImportReplace;
+
+  /// No description provided for @backupCancel.
+  ///
+  /// In ko, this message translates to:
+  /// **'취소'**
+  String get backupCancel;
+
+  /// No description provided for @backupReplaceTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'기존 장소를 모두 지울까요?'**
+  String get backupReplaceTitle;
+
+  /// No description provided for @backupReplaceBody.
+  ///
+  /// In ko, this message translates to:
+  /// **'지금 등록된 장소 {existing}곳이 지워지고 파일의 장소로 바뀝니다. 되돌릴 수 없습니다.'**
+  String backupReplaceBody(int existing);
+
+  /// No description provided for @backupReplaceConfirm.
+  ///
+  /// In ko, this message translates to:
+  /// **'바꾸기'**
+  String get backupReplaceConfirm;
+
+  /// No description provided for @backupImportResult.
+  ///
+  /// In ko, this message translates to:
+  /// **'장소 {added}곳을 불러왔습니다. 건너뜀 {skipped}곳'**
+  String backupImportResult(int added, int skipped);
+
+  /// No description provided for @backupImportNone.
+  ///
+  /// In ko, this message translates to:
+  /// **'불러올 새 장소가 없습니다'**
+  String get backupImportNone;
+
+  /// No description provided for @backupImportInvalid.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 앱에서 내보낸 장소 파일이 아닙니다'**
+  String get backupImportInvalid;
+
+  /// No description provided for @backupImportNewer.
+  ///
+  /// In ko, this message translates to:
+  /// **'더 새로운 버전의 앱에서 만든 파일입니다. 앱을 업데이트한 뒤 다시 불러오세요'**
+  String get backupImportNewer;
+
+  /// No description provided for @backupImportReadFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'파일을 읽지 못했습니다'**
+  String get backupImportReadFailed;
 }
 
 class _AppLocalizationsDelegate

@@ -293,5 +293,60 @@
       }
     }
   },
-  "reportFailed": "メールを開けませんでした。宛先アドレスをコピーしました。"
+  "reportFailed": "メールを開けませんでした。宛先アドレスをコピーしました。",
+  "settingsSectionBackup": "バックアップ",
+  "settingsBackupExportTitle": "場所を書き出す",
+  "settingsBackupExportSubtitle": "登録した場所をファイルに保存、または他へ送ります",
+  "settingsBackupImportTitle": "場所を読み込む",
+  "settingsBackupImportSubtitle": "書き出したファイルから場所を取り込みます",
+  "backupExportEmpty": "書き出す場所がありません",
+  "backupExportSubject": "EarLocAlert 場所のバックアップ",
+  "backupExportCustomSound": "独自の音源を使う場所 {count} か所は、標準の通知音で保存しました",
+  "@backupExportCustomSound": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "backupImportTitle": "場所を読み込みますか?",
+  "backupImportBody": "ファイルに {count} か所の場所が見つかりました。現在の登録は {existing} か所です。すでにある場所はスキップします。",
+  "@backupImportBody": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "existing": {
+        "type": "int"
+      }
+    }
+  },
+  "backupImportAdd": "追加する",
+  "backupImportReplace": "すべて置き換える",
+  "backupCancel": "キャンセル",
+  "backupReplaceTitle": "現在の場所をすべて削除しますか?",
+  "backupReplaceBody": "現在登録されている {existing} か所が削除され、ファイルの場所に置き換わります。元に戻せません。",
+  "@backupReplaceBody": {
+    "placeholders": {
+      "existing": {
+        "type": "int"
+      }
+    }
+  },
+  "backupReplaceConfirm": "置き換える",
+  "backupImportResult": "{added} か所を読み込みました。スキップ {skipped} か所",
+  "@backupImportResult": {
+    "placeholders": {
+      "added": {
+        "type": "int"
+      },
+      "skipped": {
+        "type": "int"
+      }
+    }
+  },
+  "backupImportNone": "読み込める新しい場所がありません",
+  "backupImportInvalid": "このアプリで書き出した場所ファイルではありません",
+  "backupImportNewer": "新しいバージョンのアプリで作成されたファイルです。アプリを更新してからもう一度お試しください",
+  "backupImportReadFailed": "ファイルを読み込めませんでした"
 }

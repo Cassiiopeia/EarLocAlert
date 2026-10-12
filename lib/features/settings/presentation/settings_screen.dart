@@ -103,6 +103,8 @@ class SettingsScreen extends StatelessWidget {
     required this.onOpenVolumeSettings,
     required this.onOpenVibrationSettings,
     required this.onOpenDiagnostics,
+    required this.onExportPlaces,
+    required this.onImportPlaces,
     required this.onReportProblem,
     required this.language,
     required this.onLanguageChanged,
@@ -123,6 +125,10 @@ class SettingsScreen extends StatelessWidget {
   /// 진동 세기 (이슈 #103)
   final VoidCallback onOpenVibrationSettings;
   final VoidCallback onOpenDiagnostics;
+
+  /// 장소 내보내기·불러오기 (이슈 #256). 구현은 places feature 에 있어 app 계층이 잇는다
+  final VoidCallback onExportPlaces;
+  final VoidCallback onImportPlaces;
 
   /// 문제 신고 메일 (이슈 #255). 시트는 diagnostics feature 에 있어 app 계층이 연결한다
   final VoidCallback onReportProblem;
@@ -266,6 +272,20 @@ class SettingsScreen extends StatelessWidget {
               title: context.l10n.settingsReportTitle,
               subtitle: context.l10n.settingsReportSubtitle,
               onTap: onReportProblem,
+            ),
+
+            _SectionLabel(context.l10n.settingsSectionBackup),
+            _SettingTile(
+              icon: Icons.upload_file_outlined,
+              title: context.l10n.settingsBackupExportTitle,
+              subtitle: context.l10n.settingsBackupExportSubtitle,
+              onTap: onExportPlaces,
+            ),
+            _SettingTile(
+              icon: Icons.file_open_outlined,
+              title: context.l10n.settingsBackupImportTitle,
+              subtitle: context.l10n.settingsBackupImportSubtitle,
+              onTap: onImportPlaces,
             ),
 
             // 약관과 방침은 스토어 심사 항목이고, 사용자가 찾는 자리다 (이슈 #188)

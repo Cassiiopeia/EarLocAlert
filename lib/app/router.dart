@@ -37,6 +37,7 @@ import '../features/places/presentation/place_map_home_screen.dart';
 import '../features/places/presentation/place_map_picker_screen.dart';
 import '../features/diagnostics/presentation/diagnostics_screen.dart';
 import '../features/diagnostics/presentation/bug_report_sheet.dart';
+import '../features/places/presentation/place_backup_actions.dart';
 import '../features/places/presentation/place_search_provider.dart';
 import '../features/settings/presentation/settings_screen.dart';
 import '../features/sounds/presentation/sound_picker_sheet.dart';
@@ -517,6 +518,16 @@ class _SettingsRouteState extends ConsumerState<_SettingsRoute>
       // 진동 세기 (이슈 #103) — 이어폰이 없을 때 유일한 알림 수단이다
       onOpenVibrationSettings: () => showVibrationIntensitySheet(context),
       onOpenDiagnostics: () => context.push(AppRoutes.diagnostics),
+      // 장소 내보내기·불러오기 (이슈 #256)
+      onExportPlaces: () => exportPlacesBackup(
+        context,
+        repository: ref.read(placeRepositoryProvider),
+        appVersion: ref.read(appVersionProvider).valueOrNull ?? '-',
+      ),
+      onImportPlaces: () => importPlacesBackup(
+        context,
+        repository: ref.read(placeRepositoryProvider),
+      ),
       // 문제 신고 (이슈 #255) — 메일 앱을 열고 기록을 첨부한다
       onReportProblem: () => showBugReportSheet(
         context,

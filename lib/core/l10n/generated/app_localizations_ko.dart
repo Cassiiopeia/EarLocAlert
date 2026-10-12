@@ -947,4 +947,75 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get reportFailed => '메일을 열지 못했습니다. 받는 사람 주소를 복사했습니다.';
+
+  @override
+  String get settingsSectionBackup => '백업';
+
+  @override
+  String get settingsBackupExportTitle => '장소 내보내기';
+
+  @override
+  String get settingsBackupExportSubtitle => '등록한 장소를 파일로 저장하거나 다른 곳으로 보냅니다';
+
+  @override
+  String get settingsBackupImportTitle => '장소 불러오기';
+
+  @override
+  String get settingsBackupImportSubtitle => '내보낸 파일에서 장소를 가져옵니다';
+
+  @override
+  String get backupExportEmpty => '내보낼 장소가 없습니다';
+
+  @override
+  String get backupExportSubject => '이어폰위치알림 장소 백업';
+
+  @override
+  String backupExportCustomSound(int count) {
+    return '내 음원을 쓰는 장소 $count곳은 기본 알림음으로 담았습니다';
+  }
+
+  @override
+  String get backupImportTitle => '장소를 불러올까요?';
+
+  @override
+  String backupImportBody(int count, int existing) {
+    return '파일에서 장소 $count곳을 찾았습니다. 지금 등록된 장소는 $existing곳입니다. 이미 있는 장소는 건너뜁니다.';
+  }
+
+  @override
+  String get backupImportAdd => '추가하기';
+
+  @override
+  String get backupImportReplace => '모두 바꾸기';
+
+  @override
+  String get backupCancel => '취소';
+
+  @override
+  String get backupReplaceTitle => '기존 장소를 모두 지울까요?';
+
+  @override
+  String backupReplaceBody(int existing) {
+    return '지금 등록된 장소 $existing곳이 지워지고 파일의 장소로 바뀝니다. 되돌릴 수 없습니다.';
+  }
+
+  @override
+  String get backupReplaceConfirm => '바꾸기';
+
+  @override
+  String backupImportResult(int added, int skipped) {
+    return '장소 $added곳을 불러왔습니다. 건너뜀 $skipped곳';
+  }
+
+  @override
+  String get backupImportNone => '불러올 새 장소가 없습니다';
+
+  @override
+  String get backupImportInvalid => '이 앱에서 내보낸 장소 파일이 아닙니다';
+
+  @override
+  String get backupImportNewer => '더 새로운 버전의 앱에서 만든 파일입니다. 앱을 업데이트한 뒤 다시 불러오세요';
+
+  @override
+  String get backupImportReadFailed => '파일을 읽지 못했습니다';
 }

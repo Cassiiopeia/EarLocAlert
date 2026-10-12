@@ -22,6 +22,8 @@ void main() {
         onOpenVibrationSettings: () {},
         onOpenDiagnostics: () {},
         onReportProblem: () {},
+        onExportPlaces: () {},
+        onImportPlaces: () {},
         language: AppLanguage.system,
         onLanguageChanged: (_) {},
         appVersion: '1.0.0 (1)',

@@ -932,4 +932,75 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get reportFailed => '无法打开邮件。已复制收件人地址。';
+
+  @override
+  String get settingsSectionBackup => '备份';
+
+  @override
+  String get settingsBackupExportTitle => '导出地点';
+
+  @override
+  String get settingsBackupExportSubtitle => '将已登记的地点保存为文件或发送到其他地方';
+
+  @override
+  String get settingsBackupImportTitle => '导入地点';
+
+  @override
+  String get settingsBackupImportSubtitle => '从导出的文件中导入地点';
+
+  @override
+  String get backupExportEmpty => '没有可导出的地点';
+
+  @override
+  String get backupExportSubject => 'EarLocAlert 地点备份';
+
+  @override
+  String backupExportCustomSound(int count) {
+    return '使用自定义音源的 $count 个地点已改用默认提示音保存';
+  }
+
+  @override
+  String get backupImportTitle => '要导入地点吗?';
+
+  @override
+  String backupImportBody(int count, int existing) {
+    return '文件中找到 $count 个地点，当前已登记 $existing 个。已有的地点将被跳过。';
+  }
+
+  @override
+  String get backupImportAdd => '添加';
+
+  @override
+  String get backupImportReplace => '全部替换';
+
+  @override
+  String get backupCancel => '取消';
+
+  @override
+  String get backupReplaceTitle => '要删除当前所有地点吗?';
+
+  @override
+  String backupReplaceBody(int existing) {
+    return '当前已登记的 $existing 个地点将被删除，并替换为文件中的地点。此操作无法撤销。';
+  }
+
+  @override
+  String get backupReplaceConfirm => '替换';
+
+  @override
+  String backupImportResult(int added, int skipped) {
+    return '已导入 $added 个地点，跳过 $skipped 个';
+  }
+
+  @override
+  String get backupImportNone => '没有可导入的新地点';
+
+  @override
+  String get backupImportInvalid => '这不是由本应用导出的地点文件';
+
+  @override
+  String get backupImportNewer => '该文件由更新版本的应用创建。请更新应用后重试';
+
+  @override
+  String get backupImportReadFailed => '无法读取文件';
 }

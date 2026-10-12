@@ -943,4 +943,76 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get reportFailed => 'メールを開けませんでした。宛先アドレスをコピーしました。';
+
+  @override
+  String get settingsSectionBackup => 'バックアップ';
+
+  @override
+  String get settingsBackupExportTitle => '場所を書き出す';
+
+  @override
+  String get settingsBackupExportSubtitle => '登録した場所をファイルに保存、または他へ送ります';
+
+  @override
+  String get settingsBackupImportTitle => '場所を読み込む';
+
+  @override
+  String get settingsBackupImportSubtitle => '書き出したファイルから場所を取り込みます';
+
+  @override
+  String get backupExportEmpty => '書き出す場所がありません';
+
+  @override
+  String get backupExportSubject => 'EarLocAlert 場所のバックアップ';
+
+  @override
+  String backupExportCustomSound(int count) {
+    return '独自の音源を使う場所 $count か所は、標準の通知音で保存しました';
+  }
+
+  @override
+  String get backupImportTitle => '場所を読み込みますか?';
+
+  @override
+  String backupImportBody(int count, int existing) {
+    return 'ファイルに $count か所の場所が見つかりました。現在の登録は $existing か所です。すでにある場所はスキップします。';
+  }
+
+  @override
+  String get backupImportAdd => '追加する';
+
+  @override
+  String get backupImportReplace => 'すべて置き換える';
+
+  @override
+  String get backupCancel => 'キャンセル';
+
+  @override
+  String get backupReplaceTitle => '現在の場所をすべて削除しますか?';
+
+  @override
+  String backupReplaceBody(int existing) {
+    return '現在登録されている $existing か所が削除され、ファイルの場所に置き換わります。元に戻せません。';
+  }
+
+  @override
+  String get backupReplaceConfirm => '置き換える';
+
+  @override
+  String backupImportResult(int added, int skipped) {
+    return '$added か所を読み込みました。スキップ $skipped か所';
+  }
+
+  @override
+  String get backupImportNone => '読み込める新しい場所がありません';
+
+  @override
+  String get backupImportInvalid => 'このアプリで書き出した場所ファイルではありません';
+
+  @override
+  String get backupImportNewer =>
+      '新しいバージョンのアプリで作成されたファイルです。アプリを更新してからもう一度お試しください';
+
+  @override
+  String get backupImportReadFailed => 'ファイルを読み込めませんでした';
 }
