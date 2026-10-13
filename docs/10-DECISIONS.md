@@ -1637,6 +1637,8 @@ Play 자동 업데이트(029)만으로는 사용자가 새 버전을 받는 시�
 2. **iOS 배포 레인의 `automatic_release` 를 항상 true 로 한다.** 이전에는 `store_submit` 일 때만 켜져, `store_prepare` 로 만든 버전은 승인 뒤에도 수동 출시로 남았다. 템플릿(`Fastfile.ios.template`)도 같이 바꿔 갱신에 덮이지 않게 했다. 템플릿이 다시 갱신되면 이 값이 되돌아갈 수 있으니 갱신 후 확인한다.
 3. **AdMob 스토어 연결은 앱 공개 직후 한다.** Android 는 Google Play, iOS 는 App Store(App Store ID `6755805664`). 연결 전에는 요청만 쌓이고 수익이 없다.
 
+**app-ads.txt 호스팅 (2026-10-13 추가)** — AdMob 앱 인증은 스토어 등록정보의 **개발자 웹사이트 도메인 루트**에서 `app-ads.txt` 를 읽는다. 이 앱의 사이트(`cassiiopeia.github.io/EarLocAlert`)는 프로젝트 페이지라 도메인 루트가 달랐고, 그곳에 파일이 없었다. 그래서 **사용자 사이트 저장소 `Cassiiopeia/Cassiiopeia.github.io` 를 만들어** 루트에 `app-ads.txt`(`google.com, pub-2025665624324395, DIRECT, f08c47fec0942fa0`)와 자리 표시 `index.html` 을 올렸다. 이 저장소는 나중에 블로그로 써도 된다 — 다른 앱을 만들어도 같은 게시자 ID 한 줄로 충분하다. Play 등록정보의 웹사이트는 `https://cassiiopeia.github.io/EarLocAlert/` 로 설정했다. iOS 는 App Store 등록정보의 마케팅 URL 이 같은 도메인이어야 한다.
+
 **남는 한계** — SKAdNetwork 목록은 새 빌드가 나가야 반영된다. 스토어 연결 후 AdMob 이 "준비됨"으로 바뀌는 데 시간이 걸릴 수 있다. 연결 후에도 수익이 없으면 app-ads.txt 와 동의(UMP) 흐름을 본다.
 
 ## 미결 — 결정하지 않은 것들
