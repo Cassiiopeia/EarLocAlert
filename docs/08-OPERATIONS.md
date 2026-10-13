@@ -389,3 +389,11 @@ GitHub Actions:                         빌드·분석 검증
 | Play 프로덕션 | 정식 출시 | **수동 승격** |
 
 **프로덕션 승격은 자동화하지 않는다.** 심사 통과 후 사람이 판단해서 올린다 → [09-RELEASE](09-RELEASE.md)
+
+## QA 브랜치로 스토어에 올리지 않는다 (2026-10-13, 이슈 #262)
+
+QA·테스트 브랜치에서 `PROJECT-FLUTTER-ANDROID-PLAYSTORE-CICD` 를 수동 실행하면 **실제 앱의 internal 트랙에 올라간다.** 그 브랜치의 `version_code`(QA 충돌 방지로 큰 값을 쓰기도 한다)가 그대로 Play 에 남고, Play 는 올라간 코드를 지우거나 낮출 수 없다. 이후 main 의 정식 코드가 전부 거부되어 Play 배포가 연속 실패한다.
+
+- QA 로 스토어 단계를 검증해야 하면 **별도 패키지 이름**을 쓰거나 업로드 전 단계까지만 돌린다.
+- 정식 트랙에 코드를 올리기 전 Play Console 의 "최신 버전 및 번들"에서 **현재 최고 versionCode** 를 확인한다.
+- 증상은 `does not allow any existing users to upgrade to the newly added APKs` 이다. 복구는 `version.yml` 의 `version_code` 를 최고 코드보다 크게 올리는 것이다 → [10-DECISIONS](10-DECISIONS.md) 063
