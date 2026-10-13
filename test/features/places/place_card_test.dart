@@ -122,6 +122,105 @@ void main() {
       expect(find.text('회사'), findsOneWidget);
     });
 
+    testWidgets('밀지 않았을 때는 삭제 아이콘이 투명이다 — 모서리 틈에 붉은 기가 없다 (#266)', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        wrap(
+          PlaceCard(
+            place: makePlace(),
+            onTap: () {},
+            onToggle: (_) {},
+            onDelete: () {},
+          ),
+        ),
+      );
+
+      final opacity = tester.widget<Opacity>(
+        find
+            .ancestor(
+              of: find.byIcon(Icons.delete_outlined),
+              matching: find.byType(Opacity),
+            )
+            .first,
+      );
+      expect(opacity.opacity, 0);
+    });
+
+    testWidgets('밀면 삭제 아이콘이 줄의 오른쪽 끝에 머문다 — 카드를 따라가지 않는다 (#266)', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        wrap(
+          PlaceCard(
+            place: makePlace(),
+            onTap: () {},
+            onToggle: (_) {},
+            onDelete: () {},
+          ),
+        ),
+      );
+      final row = tester.getRect(find.byType(PlaceCard));
+
+      final gesture = await tester.startGesture(
+        tester.getCenter(find.text('회사')),
+      );
+      // 첫 이동은 터치 슬롭에 쓰이므로 나눠서 민다
+      await gesture.moveBy(const Offset(-40, 0));
+      await tester.pump();
+      await gesture.moveBy(const Offset(-120, 0));
+      await tester.pump();
+
+      final card = tester.getRect(find.byType(AnimatedContainer).first);
+      final icon = tester.getRect(find.byIcon(Icons.delete_outlined));
+
+      // 카드는 밀린 만큼 왼쪽으로 갔다
+      expect(card.right, lessThan(row.right - 100));
+      // 아이콘은 드러난 영역(카드 오른쪽 끝 ~ 줄 오른쪽 끝) 안에 있다
+      expect(icon.left, greaterThan(card.right));
+      expect(icon.right, lessThanOrEqualTo(row.right));
+
+      await gesture.up();
+      await tester.pumpAndSettle();
+      // 놓으면 제자리로 돌아오고 아이콘은 다시 투명이다
+      expect(
+        tester
+            .widget<Opacity>(
+              find
+                  .ancestor(
+                    of: find.byIcon(Icons.delete_outlined),
+                    matching: find.byType(Opacity),
+                  )
+                  .first,
+            )
+            .opacity,
+        0,
+      );
+    });
+
+    test('삭제 판은 카드 뒤로 이어지고 오른쪽 끝은 줄 끝에 맞는다 (#266)', () {
+      const size = Size(300, 80);
+
+      // 밀지 않았으면 그리지 않는다
+      expect(deletePanelRect(size, 0), isNull);
+
+      // 40%(확정 거리) 밀었을 때: 카드는 120 만큼 왼쪽에 있다
+      final rect = deletePanelRect(size, 0.4)!;
+      // 카드 기준 오른쪽 끝 = 폭 + 밀린 만큼 → 줄 기준으로는 줄의 오른쪽 끝
+      expect(rect.right, 300 + 120);
+      // 왼쪽은 카드 오른쪽 끝(300)보다 반지름만큼 안쪽 — 둥근 모서리 틈이 빈다
+      expect(rect.left, 300 - 24);
+      expect(rect.top, 0);
+      expect(rect.bottom, 80);
+    });
+
+    test('밀기 정도는 확정 거리에서 1 이 된다 (#266)', () {
+      expect(deleteSwipeIntensity(0), 0);
+      expect(deleteSwipeIntensity(0.2), closeTo(0.5, 1e-9));
+      expect(deleteSwipeIntensity(0.4), 1);
+      expect(deleteSwipeIntensity(0.9), 1);
+    });
+
     testWidgets('오른쪽으로 밀어도 지워지지 않는다 — 한 방향만 쓴다', (tester) async {
       var deleted = false;
       await tester.pumpWidget(

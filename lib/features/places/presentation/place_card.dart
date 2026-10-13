@@ -217,53 +217,133 @@ class _SwipeToDeleteState extends State<_SwipeToDelete> {
         resizeDuration: const Duration(milliseconds: 220),
         onUpdate: (details) => _progress.value = details.progress,
         onDismissed: _onDismissed,
-        background: _DeleteBackground(progress: _progress),
-        child: widget.child,
+        // **삭제 배경을 `background` 로 두지 않는다** (이슈 #266). Dismissible 은
+        // background 를 "밀려서 드러난 사각형"으로만 잘라 그려서, 카드의 둥근
+        // 오른쪽 모서리 틈으로 검은 바탕이 비치고 빨간 영역의 왼쪽이 직각이 됐다.
+        // 대신 카드와 함께 움직이는 자식 안에서 카드 뒤로 깔아 모서리 뒤까지
+        // 빨간색이 이어지게 한다
+        child: Stack(
+          // 판이 카드 오른쪽 밖으로 나가야 하므로 잘라내지 않는다
+          clipBehavior: Clip.none,
+          children: [
+            Positioned.fill(child: _DeletePanel(progress: _progress)),
+            widget.child,
+          ],
+        ),
       ),
     );
   }
 }
 
-/// 밀었을 때 카드 뒤에 드러나는 삭제 배경.
+/// 밀었을 때 카드 뒤에 드러나는 삭제 판.
 ///
 /// 처음에는 은은하다가 확정 거리에 가까워질수록 진해지고 아이콘이 커진다 —
 /// "여기까지 밀면 지워진다"가 손끝에서 읽힌다.
-class _DeleteBackground extends StatelessWidget {
-  const _DeleteBackground({required this.progress});
+///
+/// **카드의 자식으로 카드와 함께 움직인다.** 카드 오른쪽 끝에서 카드 반지름만큼
+/// 안쪽(=카드 뒤)부터 시작해, 카드의 둥근 모서리 뒤까지 빨간색이 이어진다.
+///
+/// **레이아웃은 밀기와 무관하게 고정이고 그리기만 바뀐다.** [Dismissible] 은
+/// 드래그 중에 자기 크기를 읽는데, 그 사이 자식의 레이아웃이 바뀌면 "레이아웃이
+/// 더럽혀진 render object 의 크기를 읽을 수 없다"로 죽는다. 판은 [CustomPaint],
+/// 아이콘은 [FractionalTranslation] 으로 움직여 레이아웃을 건드리지 않는다.
+class _DeletePanel extends StatelessWidget {
+  const _DeletePanel({required this.progress});
 
   final ValueListenable<double> progress;
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder<double>(
-      valueListenable: progress,
-      builder: (context, value, _) {
-        // 확정 거리에서 1 이 되도록 정규화한다
-        final t = (value / _SwipeToDeleteState._threshold).clamp(0.0, 1.0);
-        return DecoratedBox(
-          decoration: BoxDecoration(
-            color: AppColors.danger.withValues(alpha: 0.14 + 0.5 * t),
-            borderRadius: BorderRadius.circular(AppRadius.card),
-          ),
-          child: Align(
-            alignment: Alignment.centerRight,
-            child: Padding(
-              padding: const EdgeInsets.only(right: AppSpacing.md),
-              child: Transform.scale(
-                scale: 0.85 + 0.3 * t,
-                child: Icon(
-                  Icons.delete_outlined,
-                  size: AppIconSize.standard,
-                  // 진해진 배경 위에서는 아이콘이 배경색과 섞이므로 밝게 바꾼다
-                  color: Color.lerp(AppColors.danger, AppColors.textPrimary, t),
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Positioned.fill(
+          child: CustomPaint(painter: _DeletePanelPainter(progress)),
+        ),
+        Positioned.fill(
+          child: ValueListenableBuilder<double>(
+            valueListenable: progress,
+            builder: (context, value, _) {
+              // 확정 거리에서 1 이 되도록 정규화한다
+              final t = deleteSwipeIntensity(value);
+              // 밀지 않았으면 투명 — 지우지 않고 투명으로 두는 이유는 위 설명대로
+              // 레이아웃을 바꾸지 않기 위해서다
+              return Opacity(
+                opacity: value <= 0 ? 0 : 1,
+                // 카드 폭의 [value] 만큼 오른쪽으로 — 카드가 그만큼 왼쪽에 있으므로
+                // 아이콘은 밀기 전 줄의 오른쪽 끝에 머문다
+                child: FractionalTranslation(
+                  translation: Offset(value, 0),
+                  child: Align(
+                    alignment: Alignment.centerRight,
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: AppSpacing.md),
+                      child: Transform.scale(
+                        scale: 0.85 + 0.3 * t,
+                        child: Icon(
+                          Icons.delete_outlined,
+                          size: AppIconSize.standard,
+                          // 진해진 배경 위에서는 아이콘이 배경색과 섞이므로 밝게 바꾼다
+                          color: Color.lerp(
+                            AppColors.danger,
+                            AppColors.textPrimary,
+                            t,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
-              ),
-            ),
+              );
+            },
           ),
-        );
-      },
+        ),
+      ],
     );
   }
+}
+
+/// 밀기 정도(0~1, 카드 폭 대비)를 확정 거리에서 1 이 되는 세기로 바꾼다
+@visibleForTesting
+double deleteSwipeIntensity(double progress) =>
+    (progress / _SwipeToDeleteState._threshold).clamp(0.0, 1.0);
+
+/// 삭제 판이 그려지는 영역. [size] 는 밀기 전 줄(=카드)의 크기다.
+///
+/// 왼쪽은 카드 반지름만큼 카드 뒤로 들어가고(둥근 모서리 틈을 메운다),
+/// 오른쪽은 밀기 전 줄의 오른쪽 끝을 지나 [progress] × 폭만큼 더 나간다 —
+/// 카드는 그만큼 왼쪽에 있으므로 화면에서는 줄의 오른쪽 끝에 맞는다.
+/// 밀지 않았으면 비어 있다 — 있으면 카드 모서리 틈으로 붉은 기가 비친다.
+@visibleForTesting
+Rect? deletePanelRect(Size size, double progress) {
+  if (progress <= 0) return null;
+  return Rect.fromLTRB(
+    size.width - AppRadius.card,
+    0,
+    size.width + progress * size.width,
+    size.height,
+  );
+}
+
+class _DeletePanelPainter extends CustomPainter {
+  _DeletePanelPainter(this.progress) : super(repaint: progress);
+
+  final ValueListenable<double> progress;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final rect = deletePanelRect(size, progress.value);
+    if (rect == null) return;
+    final t = deleteSwipeIntensity(progress.value);
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(rect, const Radius.circular(AppRadius.card)),
+      Paint()..color = AppColors.danger.withValues(alpha: 0.14 + 0.5 * t),
+    );
+  }
+
+  @override
+  bool shouldRepaint(_DeletePanelPainter oldDelegate) =>
+      oldDelegate.progress != progress;
 }
 
 /// 알림 방향의 아이콘·문구·색.
