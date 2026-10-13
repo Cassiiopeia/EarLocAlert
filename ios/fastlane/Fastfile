@@ -143,7 +143,9 @@ platform :ios do
         app_version: app_ver,
         build_number: ENV["BUILD_NUMBER"],
         submit_for_review: submit_to_appstore,
-        automatic_release: submit_to_appstore,
+        # 심사 통과 즉시 자동 출시한다 (이슈 #264). store_submit 일 때만 켜면 store_prepare 로 만든 버전이
+        # 수동 출시로 남아 승인 뒤에도 공개되지 않는다 — 1.30.0 이 그렇게 대기했고 광고 스토어 연결도 미뤄졌다.
+        automatic_release: true,
         force: true,
         run_precheck_before_submit: false,
         skip_binary_upload: true,
