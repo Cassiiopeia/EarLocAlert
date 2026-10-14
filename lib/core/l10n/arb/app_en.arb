@@ -224,6 +224,7 @@
   "scheduleSameStartEnd": "Start and end are the same. To alert all day, don't add a time range.",
   "scheduleSave": "Save",
   "scheduleAddButton": "Add",
+  "placeFormSaveFailed": "Couldn't save. Please try again in a moment.",
   "scheduleCancel": "Cancel",
   "scheduleWindow": "{days} {start} ~ {end}",
   "scheduleWindowNextDay": "{days} {start} ~ {end} (next day)",

@@ -731,6 +731,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get scheduleAddButton => '添加';
 
   @override
+  String get placeFormSaveFailed => '保存失败，请稍后重试。';
+
+  @override
   String get scheduleCancel => '取消';
 
   @override

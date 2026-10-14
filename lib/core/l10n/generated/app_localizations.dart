@@ -1446,6 +1446,12 @@ abstract class AppLocalizations {
   /// **'추가'**
   String get scheduleAddButton;
 
+  /// No description provided for @placeFormSaveFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'저장하지 못했습니다. 잠시 후 다시 시도해주세요.'**
+  String get placeFormSaveFailed;
+
   /// No description provided for @scheduleCancel.
   ///
   /// In ko, this message translates to:

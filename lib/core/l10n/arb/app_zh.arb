@@ -224,6 +224,7 @@
   "scheduleSameStartEnd": "开始和结束相同。若要全天提醒，不设置时段即可。",
   "scheduleSave": "保存",
   "scheduleAddButton": "添加",
+  "placeFormSaveFailed": "保存失败，请稍后重试。",
   "scheduleCancel": "取消",
   "scheduleWindow": "{days} {start} ~ {end}",
   "scheduleWindowNextDay": "{days} {start} ~ {end}（次日）",

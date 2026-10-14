@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../../../core/domain/alert_schedule.dart';
@@ -187,11 +188,75 @@ class _AlertScheduleSheetState extends State<_AlertScheduleSheet> {
     if (picked != null) setState(() => _end = picked);
   }
 
-  Future<int?> _pickTime(int minuteOfDay) async {
-    final picked = await showTimePicker(
+  /// 휠로 시·분을 고른다. 시계 다이얼은 손가락으로 돌려 맞추기 불편해
+  /// 오전/오후·시·분 세 칸을 위아래로 넘기는 방식을 쓴다.
+  Future<int?> _pickTime(int minuteOfDay) {
+    return showModalBottomSheet<int>(
       context: context,
-      initialTime: TimeOfDay(hour: minuteOfDay ~/ 60, minute: minuteOfDay % 60),
+      builder: (_) => _TimeWheelSheet(initial: minuteOfDay),
     );
-    return picked == null ? null : picked.hour * 60 + picked.minute;
+  }
+}
+
+/// 시·분 휠 시트. 확인을 눌러야 값이 반영되고, 취소하면 `null` 이다.
+///
+/// 시간 창 시트와 별개 위젯이다 — 한 위젯에 주 버튼이 둘이면 위계가 갈린다.
+class _TimeWheelSheet extends StatefulWidget {
+  const _TimeWheelSheet({required this.initial});
+
+  final int initial;
+
+  @override
+  State<_TimeWheelSheet> createState() => _TimeWheelSheetState();
+}
+
+class _TimeWheelSheetState extends State<_TimeWheelSheet> {
+  // 휠을 돌리는 동안의 값
+  late int _selected = widget.initial;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    return SafeArea(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(
+            height: 216,
+            child: CupertinoTheme(
+              data: const CupertinoThemeData(brightness: Brightness.dark),
+              child: CupertinoDatePicker(
+                mode: CupertinoDatePickerMode.time,
+                use24hFormat: false,
+                // 날짜는 쓰지 않는다 — 시·분만 뽑아 쓴다
+                initialDateTime: DateTime(
+                  2000,
+                  1,
+                  1,
+                  widget.initial ~/ 60,
+                  widget.initial % 60,
+                ),
+                onDateTimeChanged: (value) =>
+                    _selected = value.hour * 60 + value.minute,
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.md,
+              vertical: AppSpacing.xs,
+            ),
+            child: FilledButton(
+              onPressed: () => Navigator.of(context).pop(_selected),
+              child: Text(l10n.scheduleSave),
+            ),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(l10n.scheduleCancel),
+          ),
+        ],
+      ),
+    );
   }
 }

@@ -281,244 +281,259 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
       appBar: AppBar(
         title: Text(isNew ? l10n.placeFormTitleNew : l10n.placeFormTitleEdit),
       ),
-      // 저장 버튼이 스크롤 맨 끝에 있으면 폼을 처음 열었을 때 보이지 않는다
-      // (이슈 #254). 하단에 고정하고, 키보드가 올라오면 그 위에 붙는다
-      bottomNavigationBar: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.md),
-          // 주 동작(저장)이 FilledButton 한 자리뿐이어야 위계가 갈리지 않는다
-          child: FilledButton(
-            onPressed: _saving ? null : _save,
-            child: Text(
-              isNew ? l10n.placeFormSubmitNew : l10n.placeFormSubmitSave,
-            ),
-          ),
-        ),
-      ),
-      // 아래 안전 영역은 하단 막대가 맡는다
-      body: SafeArea(
-        bottom: false,
-        child: ListView(
-          controller: _scroll,
-          padding: const EdgeInsets.all(AppSpacing.md),
-          // 폼을 훑어 내리면 키보드가 비켜준다 (이슈 #228). iOS 숫자 자판에는
-          // 닫기 키가 없어 좌표를 입력하면 키보드를 내릴 방법이 없었다
-          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-          children: [
-            TextField(
-              controller: _name,
-              focusNode: _nameFocus,
-              decoration: InputDecoration(
-                labelText: l10n.placeFormNameLabel,
-                hintText: l10n.placeFormNameHint,
-                errorText: _nameError,
+      // 저장 버튼은 막대 없이 버튼만 본문 위에 띄운다 (이슈 #254 후속).
+      // 하단 막대를 두면 스크롤할 때 막대 배경이 잘려 내려간다. 키보드가
+      // 올라오면 Scaffold 가 본문을 줄여 버튼도 그 위에 붙는다
+      body: Stack(
+        children: [
+          SafeArea(
+            bottom: false,
+            child: ListView(
+              controller: _scroll,
+              // 떠 있는 버튼(56) 아래로 마지막 칸이 가려지지 않게 비운다
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.md,
+                AppSpacing.md,
+                AppSpacing.md,
+                AppSpacing.md * 2 + 56,
               ),
-              textInputAction: TextInputAction.done,
-              onTapOutside: _dismissKeyboard,
-              onChanged: (_) {
-                // 고치기 시작하면 오류를 거둔다 — 다 쓸 때까지 빨간 글씨가
-                // 남아 있으면 아직 틀린 것처럼 보인다
-                if (_nameError != null) setState(() => _nameError = null);
-              },
-            ),
-            const SizedBox(height: AppSpacing.md),
-
-            PlaceSectionLabel(l10n.placeFormLocationLabel, key: _locationKey),
-            OutlinedButton.icon(
-              onPressed: widget.onPickOnMap == null ? null : _pickOnMap,
-              icon: const Icon(Icons.map_outlined),
-              label: Text(
-                _hasCoordinates
-                    ? l10n.placeFormRepickOnMap
-                    : l10n.placeFormPickOnMap,
-              ),
-            ),
-            const SizedBox(height: AppSpacing.xs),
-
-            // **고른 자리를 지도로 확인시킨다** (이슈 #155).
-            //
-            // 좌표 숫자는 "여기가 맞나"에 답하지 않는다. 확인하려면 지도를
-            // 다시 열어야 했고, 반경을 바꿔도 그 범위가 어디까지인지
-            // 보이지 않았다.
-            //
-            // **좌표가 없으면 그리지 않는다** — 지도 키 없이 빌드된
-            // 경우에도 폼은 동작해야 한다 (알림 화면과 같은 규칙).
-            if (_hasCoordinates)
-              _LocationPreview(
-                latitude: _latitudeValue!,
-                longitude: _longitudeValue!,
-                radiusMeters: _radius,
-                onTap: widget.onPickOnMap == null ? null : _pickOnMap,
-              )
-            else
-              Text(
-                context.keepAllText(l10n.placeFormNoLocation),
-                style: AppTypography.caption,
-              ),
-
-            // 좌표를 직접 아는 경우와, 지도 키 없이 빌드된 경우의 보조 경로.
-            // 기본 경로가 아니므로 접어둔다
-            ExpansionTile(
-              // 지도 카드가 "어디인가"에 답하므로, 펼치기 제목에는
-              // **정확한 값**을 보여준다 — 둘의 역할이 다르다
-              title: Text(
-                _hasCoordinates
-                    ? l10n.placeFormCoordinates(_coordinateSummary)
-                    : l10n.placeFormCoordinatesManual,
-                style: AppTypography.caption,
-              ),
-              tilePadding: EdgeInsets.zero,
-              // 펼칠 때 머티리얼 기본 구분선이 위아래로 생겨 지도 카드 밑에
-              // 선이 붙었다 (이슈 #228). 폼의 다른 칸에는 구분선이 없다
-              shape: const Border(),
-              collapsedShape: const Border(),
-              childrenPadding: const EdgeInsets.only(bottom: AppSpacing.xs),
+              // 폼을 훑어 내리면 키보드가 비켜준다 (이슈 #228). iOS 숫자 자판에는
+              // 닫기 키가 없어 좌표를 입력하면 키보드를 내릴 방법이 없었다
+              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
               children: [
-                Row(
+                TextField(
+                  controller: _name,
+                  focusNode: _nameFocus,
+                  decoration: InputDecoration(
+                    labelText: l10n.placeFormNameLabel,
+                    hintText: l10n.placeFormNameHint,
+                    errorText: _nameError,
+                  ),
+                  textInputAction: TextInputAction.done,
+                  onTapOutside: _dismissKeyboard,
+                  onChanged: (_) {
+                    // 고치기 시작하면 오류를 거둔다 — 다 쓸 때까지 빨간 글씨가
+                    // 남아 있으면 아직 틀린 것처럼 보인다
+                    if (_nameError != null) setState(() => _nameError = null);
+                  },
+                ),
+                const SizedBox(height: AppSpacing.md),
+
+                PlaceSectionLabel(
+                  l10n.placeFormLocationLabel,
+                  key: _locationKey,
+                ),
+                OutlinedButton.icon(
+                  onPressed: widget.onPickOnMap == null ? null : _pickOnMap,
+                  icon: const Icon(Icons.map_outlined),
+                  label: Text(
+                    _hasCoordinates
+                        ? l10n.placeFormRepickOnMap
+                        : l10n.placeFormPickOnMap,
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.xs),
+
+                // **고른 자리를 지도로 확인시킨다** (이슈 #155).
+                //
+                // 좌표 숫자는 "여기가 맞나"에 답하지 않는다. 확인하려면 지도를
+                // 다시 열어야 했고, 반경을 바꿔도 그 범위가 어디까지인지
+                // 보이지 않았다.
+                //
+                // **좌표가 없으면 그리지 않는다** — 지도 키 없이 빌드된
+                // 경우에도 폼은 동작해야 한다 (알림 화면과 같은 규칙).
+                if (_hasCoordinates)
+                  _LocationPreview(
+                    latitude: _latitudeValue!,
+                    longitude: _longitudeValue!,
+                    radiusMeters: _radius,
+                    onTap: widget.onPickOnMap == null ? null : _pickOnMap,
+                  )
+                else
+                  Text(
+                    context.keepAllText(l10n.placeFormNoLocation),
+                    style: AppTypography.caption,
+                  ),
+
+                // 좌표를 직접 아는 경우와, 지도 키 없이 빌드된 경우의 보조 경로.
+                // 기본 경로가 아니므로 접어둔다
+                ExpansionTile(
+                  // 지도 카드가 "어디인가"에 답하므로, 펼치기 제목에는
+                  // **정확한 값**을 보여준다 — 둘의 역할이 다르다
+                  title: Text(
+                    _hasCoordinates
+                        ? l10n.placeFormCoordinates(_coordinateSummary)
+                        : l10n.placeFormCoordinatesManual,
+                    style: AppTypography.caption,
+                  ),
+                  tilePadding: EdgeInsets.zero,
+                  // 펼칠 때 머티리얼 기본 구분선이 위아래로 생겨 지도 카드 밑에
+                  // 선이 붙었다 (이슈 #228). 폼의 다른 칸에는 구분선이 없다
+                  shape: const Border(),
+                  collapsedShape: const Border(),
+                  childrenPadding: const EdgeInsets.only(bottom: AppSpacing.xs),
                   children: [
-                    Expanded(
-                      child: TextField(
-                        controller: _latitude,
-                        decoration: InputDecoration(
-                          labelText: l10n.placeFormLatitude,
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: _latitude,
+                            decoration: InputDecoration(
+                              labelText: l10n.placeFormLatitude,
+                            ),
+                            keyboardType: const TextInputType.numberWithOptions(
+                              decimal: true,
+                              signed: true,
+                            ),
+                            onTapOutside: _dismissKeyboard,
+                            onChanged: (_) => setState(() {}),
+                          ),
                         ),
-                        keyboardType: const TextInputType.numberWithOptions(
-                          decimal: true,
-                          signed: true,
+                        const SizedBox(width: AppSpacing.xs),
+                        Expanded(
+                          child: TextField(
+                            controller: _longitude,
+                            decoration: InputDecoration(
+                              labelText: l10n.placeFormLongitude,
+                            ),
+                            keyboardType: const TextInputType.numberWithOptions(
+                              decimal: true,
+                              signed: true,
+                            ),
+                            onTapOutside: _dismissKeyboard,
+                            onChanged: (_) => setState(() {}),
+                          ),
                         ),
-                        onTapOutside: _dismissKeyboard,
-                        onChanged: (_) => setState(() {}),
-                      ),
-                    ),
-                    const SizedBox(width: AppSpacing.xs),
-                    Expanded(
-                      child: TextField(
-                        controller: _longitude,
-                        decoration: InputDecoration(
-                          labelText: l10n.placeFormLongitude,
-                        ),
-                        keyboardType: const TextInputType.numberWithOptions(
-                          decimal: true,
-                          signed: true,
-                        ),
-                        onTapOutside: _dismissKeyboard,
-                        onChanged: (_) => setState(() {}),
-                      ),
+                      ],
                     ),
                   ],
                 ),
-              ],
-            ),
-            const SizedBox(height: AppSpacing.md),
+                const SizedBox(height: AppSpacing.md),
 
-            // 반경 — 슬라이더 값이 즉시 보여야 한다.
-            // 지도가 붙으면 반경 원이 실시간으로 함께 커진다 (docs/06-UX.md)
-            //
-            // 제목은 다른 칸(위치·알림 시점)과 같은 작은 회색, 값만 오른쪽에
-            // 굵게 둔다 — 예전엔 이 제목만 굵은 흰 글자라 위계가 섞였다
-            // (디자인 리뷰 #155). 알림음 크기 시트와 같은 배치다
-            PlaceSectionLabel(
-              l10n.placeFormRadiusLabel,
-              trailing: l10n.placeFormRadiusValue(_radius.round()),
-            ),
-            Slider(
-              value: _radius,
-              min: PlaceValidator.minRadiusMeters.toDouble(),
-              max: PlaceValidator.maxRadiusMeters.toDouble(),
-              divisions: 39,
-              onChanged: (value) => setState(() => _radius = value),
-            ),
-            const SizedBox(height: AppSpacing.md),
-
-            PlaceSectionLabel(l10n.placeFormTimingLabel),
-            SegmentedButton<AlertDirection>(
-              segments: [
-                ButtonSegment(
-                  value: AlertDirection.enter,
-                  icon: const Icon(Icons.login_outlined),
-                  label: _SegmentLabel(l10n.placeFormTimingEnter),
+                // 반경 — 슬라이더 값이 즉시 보여야 한다.
+                // 지도가 붙으면 반경 원이 실시간으로 함께 커진다 (docs/06-UX.md)
+                //
+                // 제목은 다른 칸(위치·알림 시점)과 같은 작은 회색, 값만 오른쪽에
+                // 굵게 둔다 — 예전엔 이 제목만 굵은 흰 글자라 위계가 섞였다
+                // (디자인 리뷰 #155). 알림음 크기 시트와 같은 배치다
+                PlaceSectionLabel(
+                  l10n.placeFormRadiusLabel,
+                  trailing: l10n.placeFormRadiusValue(_radius.round()),
                 ),
-                ButtonSegment(
-                  value: AlertDirection.exit,
-                  icon: const Icon(Icons.logout_outlined),
-                  label: _SegmentLabel(l10n.placeFormTimingExit),
+                Slider(
+                  value: _radius,
+                  min: PlaceValidator.minRadiusMeters.toDouble(),
+                  max: PlaceValidator.maxRadiusMeters.toDouble(),
+                  divisions: 39,
+                  onChanged: (value) => setState(() => _radius = value),
                 ),
-                ButtonSegment(
-                  value: AlertDirection.both,
-                  icon: const Icon(Icons.sync_alt_outlined),
-                  label: _SegmentLabel(l10n.placeFormTimingBoth),
+                const SizedBox(height: AppSpacing.md),
+
+                PlaceSectionLabel(l10n.placeFormTimingLabel),
+                _DirectionSelector(
+                  selected: _direction,
+                  onChanged: (value) => setState(() => _direction = value),
+                  options: [
+                    (
+                      AlertDirection.enter,
+                      Icons.login_outlined,
+                      l10n.placeFormTimingEnter,
+                    ),
+                    (
+                      AlertDirection.exit,
+                      Icons.logout_outlined,
+                      l10n.placeFormTimingExit,
+                    ),
+                    (
+                      AlertDirection.both,
+                      Icons.sync_alt_outlined,
+                      l10n.placeFormTimingBoth,
+                    ),
+                  ],
                 ),
-              ],
-              selected: {_direction},
-              onSelectionChanged: (selection) =>
-                  setState(() => _direction = selection.first),
-            ),
-            const SizedBox(height: AppSpacing.md),
+                const SizedBox(height: AppSpacing.md),
 
-            // 알림 시점(무엇을) 바로 아래에 시간대(언제)를 둔다 — 두 축이
-            // 이어져 읽힌다 (이슈 #81)
-            AlertScheduleEditor(
-              schedules: _schedules,
-              onChanged: (next) => setState(() => _schedules = next),
-            ),
-            const SizedBox(height: AppSpacing.md),
+                // 알림 시점(무엇을) 바로 아래에 시간대(언제)를 둔다 — 두 축이
+                // 이어져 읽힌다 (이슈 #81)
+                AlertScheduleEditor(
+                  schedules: _schedules,
+                  onChanged: (next) => setState(() => _schedules = next),
+                ),
+                const SizedBox(height: AppSpacing.md),
 
-            // 소리 칸도 다른 칸과 같은 제목 줄을 쓴다 (이슈 #228). 예전엔 이
-            // 칸만 굵은 흰 제목이라 폼 안에서 위계가 갈렸다 — 제목은 회색
-            // 칸 제목, 스위치 줄에는 무엇이 켜지는지를 적는다
-            PlaceSectionLabel(l10n.placeFormSoundTitle),
-            SwitchListTile(
-              title: Text(
-                context.keepAllText(l10n.placeFormSoundDescription),
-                style: AppTypography.caption,
-              ),
-              value: _soundEnabled,
-              onChanged: (value) => setState(() => _soundEnabled = value),
-              contentPadding: EdgeInsets.zero,
-            ),
-
-            // 소리를 켠 다음에 무슨 소리인지 고르는 순서다 (이슈 #121).
-            // 꺼져 있어도 숨기지 않는다 — 숨기면 스위치를 켤 때 화면이 튄다
-            if (widget.onPickSound != null) ...[
-              const SizedBox(height: AppSpacing.xs),
-              Opacity(
-                opacity: _soundEnabled ? 1 : 0.5,
-                child: ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  leading: const Icon(Icons.music_note_outlined),
+                // 소리 칸도 다른 칸과 같은 제목 줄을 쓴다 (이슈 #228). 예전엔 이
+                // 칸만 굵은 흰 제목이라 폼 안에서 위계가 갈렸다 — 제목은 회색
+                // 칸 제목, 스위치 줄에는 무엇이 켜지는지를 적는다
+                PlaceSectionLabel(l10n.placeFormSoundTitle),
+                SwitchListTile(
                   title: Text(
-                    l10n.placeFormSoundLabel,
-                    style: AppTypography.body,
-                  ),
-                  subtitle: Text(
-                    _soundLabel ?? _fallbackLabel(l10n, _sound),
+                    context.keepAllText(l10n.placeFormSoundDescription),
                     style: AppTypography.caption,
                   ),
-                  trailing: const Icon(Icons.chevron_right_outlined),
-                  onTap: _soundEnabled ? _pickSound : null,
+                  value: _soundEnabled,
+                  onChanged: (value) => setState(() => _soundEnabled = value),
+                  contentPadding: EdgeInsets.zero,
+                ),
+
+                // 소리를 켠 다음에 무슨 소리인지 고르는 순서다 (이슈 #121).
+                // 꺼져 있어도 숨기지 않는다 — 숨기면 스위치를 켤 때 화면이 튄다
+                if (widget.onPickSound != null) ...[
+                  const SizedBox(height: AppSpacing.xs),
+                  Opacity(
+                    opacity: _soundEnabled ? 1 : 0.5,
+                    child: ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: const Icon(Icons.music_note_outlined),
+                      title: Text(
+                        l10n.placeFormSoundLabel,
+                        style: AppTypography.body,
+                      ),
+                      subtitle: Text(
+                        _soundLabel ?? _fallbackLabel(l10n, _sound),
+                        style: AppTypography.caption,
+                      ),
+                      trailing: const Icon(Icons.chevron_right_outlined),
+                      onTap: _soundEnabled ? _pickSound : null,
+                    ),
+                  ),
+                ],
+                // 삭제는 편집 중인 장소에만 있다. 저장 버튼은 하단 고정 막대로 올라갔고,
+                // 삭제는 폼 맨 끝에 옅게 둔다 — 주 동작과 같은 무게로 놓으면 저장하려다
+                // 누른다 (이슈 #205). 스와이프를 모르는 사용자도 여기서 찾을 수 있다
+                if (!isNew) ...[
+                  const SizedBox(height: AppSpacing.lg),
+                  const SizedBox(height: AppSpacing.xs),
+                  // 주 동작(저장)이 FilledButton 한 자리뿐이어야 위계가 갈리지 않는다
+                  // (design_system_test) — 삭제는 TextButton 에 옅은 색을 입힌다
+                  TextButton.icon(
+                    onPressed: _saving ? null : _delete,
+                    icon: const Icon(Icons.delete_outlined),
+                    label: Text(l10n.placeFormDelete),
+                    style: TextButton.styleFrom(
+                      backgroundColor: AppColors.danger.withValues(alpha: 0.12),
+                      foregroundColor: AppColors.danger,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+          // 주 동작(저장)이 FilledButton 한 자리뿐이어야 위계가 갈리지 않는다
+          Positioned(
+            left: AppSpacing.md,
+            right: AppSpacing.md,
+            bottom: AppSpacing.md,
+            child: SafeArea(
+              top: false,
+              child: FilledButton(
+                onPressed: _saving ? null : _save,
+                child: Text(
+                  isNew ? l10n.placeFormSubmitNew : l10n.placeFormSubmitSave,
                 ),
               ),
-            ],
-            // 삭제는 편집 중인 장소에만 있다. 저장 버튼은 하단 고정 막대로 올라갔고,
-            // 삭제는 폼 맨 끝에 옅게 둔다 — 주 동작과 같은 무게로 놓으면 저장하려다
-            // 누른다 (이슈 #205). 스와이프를 모르는 사용자도 여기서 찾을 수 있다
-            if (!isNew) ...[
-              const SizedBox(height: AppSpacing.lg),
-              const SizedBox(height: AppSpacing.xs),
-              // 주 동작(저장)이 FilledButton 한 자리뿐이어야 위계가 갈리지 않는다
-              // (design_system_test) — 삭제는 TextButton 에 옅은 색을 입힌다
-              TextButton.icon(
-                onPressed: _saving ? null : _delete,
-                icon: const Icon(Icons.delete_outlined),
-                label: Text(l10n.placeFormDelete),
-                style: TextButton.styleFrom(
-                  backgroundColor: AppColors.danger.withValues(alpha: 0.12),
-                  foregroundColor: AppColors.danger,
-                ),
-              ),
-            ],
-          ],
-        ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -644,21 +659,32 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
 
     // 좌표가 없으면 저장소까지 가지 않는다. 이름도 함께 비었으면 같이
     // 알린다 — 하나 고치고 다시 눌러야 다음 오류를 보는 일이 없게 한다
-    final errors = latitude == null || longitude == null
-        ? _rejectWithoutCoordinates()
-        : await ref
-              .read(placeActionsProvider.notifier)
-              .save(
-                id: widget.existing?.id,
-                name: _name.text,
-                latitude: latitude,
-                longitude: longitude,
-                radiusMeters: _radius.round(),
-                direction: _direction,
-                soundEnabled: _soundEnabled,
-                sound: _sound,
-                schedules: _schedules,
-              );
+    // 저장소 예외를 삼키지 않으면 `_saving` 이 true 로 남아 저장 버튼이
+    // 영영 비활성이 된다 — 실패해도 버튼은 되살리고 사유를 남긴다
+    List<PlaceValidationError> errors;
+    try {
+      errors = latitude == null || longitude == null
+          ? _rejectWithoutCoordinates()
+          : await ref
+                .read(placeActionsProvider.notifier)
+                .save(
+                  id: widget.existing?.id,
+                  name: _name.text,
+                  latitude: latitude,
+                  longitude: longitude,
+                  radiusMeters: _radius.round(),
+                  direction: _direction,
+                  soundEnabled: _soundEnabled,
+                  sound: _sound,
+                  schedules: _schedules,
+                );
+    } on Object catch (error) {
+      Diagnostics.log('place', 'place save failed error=$error');
+      if (!mounted) return;
+      setState(() => _saving = false);
+      context.showToast(context.l10n.placeFormSaveFailed);
+      return;
+    }
 
     if (!mounted) return;
     setState(() => _saving = false);
@@ -888,16 +914,100 @@ class _LocationPreviewState extends State<_LocationPreview> {
 ///
 /// 세 칸으로 나눈 폭이 좁아 영어 "Departure" 가 "Departur / e" 로 단어
 /// 중간에서 쪼개졌다. 줄을 바꾸지 않고, 넘치면 글자를 조금 줄인다.
-class _SegmentLabel extends StatelessWidget {
-  const _SegmentLabel(this.text);
+/// 알림 시점 선택 — 테두리 없는 알약 트랙 위에서 선택 칸만 채워진다.
+///
+/// 기본 `SegmentedButton` 은 칸마다 테두리가 있고 체크 아이콘이 붙어 답답했다.
+/// 칸 폭은 같게 두고, 라벨은 줄어들어도 한 줄을 지킨다.
+class _DirectionSelector extends StatelessWidget {
+  const _DirectionSelector({
+    required this.selected,
+    required this.onChanged,
+    required this.options,
+  });
 
-  final String text;
+  final AlertDirection selected;
+  final ValueChanged<AlertDirection> onChanged;
+  final List<(AlertDirection, IconData, String)> options;
 
   @override
   Widget build(BuildContext context) {
-    return FittedBox(
-      fit: BoxFit.scaleDown,
-      child: Text(text, maxLines: 1, softWrap: false),
+    return Container(
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        color: AppColors.bgSurface,
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Row(
+        children: [
+          for (final (value, icon, label) in options)
+            Expanded(
+              child: _DirectionOption(
+                icon: icon,
+                label: label,
+                selected: value == selected,
+                onTap: () => onChanged(value),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _DirectionOption extends StatelessWidget {
+  const _DirectionOption({
+    required this.icon,
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = selected ? AppColors.textOnPrimary : AppColors.textSecondary;
+    return Semantics(
+      button: true,
+      selected: selected,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          curve: Curves.easeOut,
+          height: 48,
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          decoration: BoxDecoration(
+            color: selected ? AppColors.secondary : Colors.transparent,
+            borderRadius: BorderRadius.circular(999),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, size: AppIconSize.inline, color: color),
+              const SizedBox(width: 6),
+              Flexible(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    label,
+                    maxLines: 1,
+                    softWrap: false,
+                    style: AppTypography.body.copyWith(
+                      color: color,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

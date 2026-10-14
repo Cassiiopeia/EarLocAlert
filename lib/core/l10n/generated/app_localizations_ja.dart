@@ -736,6 +736,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get scheduleAddButton => '追加';
 
   @override
+  String get placeFormSaveFailed => '保存できませんでした。しばらくしてからもう一度お試しください。';
+
+  @override
   String get scheduleCancel => 'キャンセル';
 
   @override

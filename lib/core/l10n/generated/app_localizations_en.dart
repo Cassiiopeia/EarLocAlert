@@ -767,6 +767,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get scheduleAddButton => 'Add';
 
   @override
+  String get placeFormSaveFailed =>
+      'Couldn\'t save. Please try again in a moment.';
+
+  @override
   String get scheduleCancel => 'Cancel';
 
   @override

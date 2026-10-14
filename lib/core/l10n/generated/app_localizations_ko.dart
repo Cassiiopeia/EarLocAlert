@@ -738,6 +738,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get scheduleAddButton => '추가';
 
   @override
+  String get placeFormSaveFailed => '저장하지 못했습니다. 잠시 후 다시 시도해주세요.';
+
+  @override
   String get scheduleCancel => '취소';
 
   @override

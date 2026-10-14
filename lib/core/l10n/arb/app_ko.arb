@@ -414,6 +414,7 @@
   "scheduleSameStartEnd": "시작과 종료가 같습니다. 하루 종일 알리려면 시간대를 만들지 않으면 됩니다.",
   "scheduleSave": "저장",
   "scheduleAddButton": "추가",
+  "placeFormSaveFailed": "저장하지 못했습니다. 잠시 후 다시 시도해주세요.",
   "scheduleCancel": "취소",
   "scheduleWindow": "{days} {start} ~ {end}",
   "@scheduleWindow": {
