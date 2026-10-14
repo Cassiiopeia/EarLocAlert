@@ -1,14 +1,33 @@
 {
   "metadata": {
-    "lastUpdated": "2026-10-13T01:04:13Z",
-    "currentVersion": "1.32.0",
+    "lastUpdated": "2026-10-13T15:01:22Z",
+    "currentVersion": "1.32.1",
     "projectType": "flutter",
-    "totalReleases": 102,
+    "totalReleases": 103,
     "projectTypes": [
       "flutter"
     ]
   },
   "releases": [
+    {
+      "version": "1.32.1",
+      "project_type": "flutter",
+      "project_types": [
+        "flutter"
+      ],
+      "date": "2026-10-13",
+      "pr_number": 267,
+      "raw_summary": "## Summary by CodeRabbit\n\n## 릴리스 노트\n\n* **개선**\n  * 장소 카드 삭제 화면 디자인 개선",
+      "parsed_changes": {
+        "개선": {
+          "title": "개선",
+          "items": [
+            "장소 카드 삭제 화면 디자인 개선"
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "1.32.0",
       "project_type": "flutter",
