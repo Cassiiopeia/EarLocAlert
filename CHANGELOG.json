@@ -1,14 +1,41 @@
 {
   "metadata": {
-    "lastUpdated": "2026-10-13T15:01:22Z",
-    "currentVersion": "1.32.1",
+    "lastUpdated": "2026-10-14T09:01:59Z",
+    "currentVersion": "1.33.0",
     "projectType": "flutter",
-    "totalReleases": 103,
+    "totalReleases": 104,
     "projectTypes": [
       "flutter"
     ]
   },
   "releases": [
+    {
+      "version": "1.33.0",
+      "project_type": "flutter",
+      "project_types": [
+        "flutter"
+      ],
+      "date": "2026-10-14",
+      "pr_number": 269,
+      "raw_summary": "## Summary by CodeRabbit\n\n## 릴리스 노트\n\n* **개선**\n  * 장소 등록·편집 화면의 저장 버튼이 화면 아래에 떠 있어 스크롤해도 잘리지 않습니다\n  * 알림 시간대를 오전/오후·시·분 휠로 간편하게 고를 수 있습니다\n  * 알림 시점(도착/출발/둘 다) 선택 디자인이 더 깔끔해졌습니다\n\n* **버그 수정**\n  * 저장 중 오류가 나도 저장 버튼이 비활성으로 남지 않고 안내가 표시됩니다",
+      "parsed_changes": {
+        "개선": {
+          "title": "개선",
+          "items": [
+            "장소 등록·편집 화면의 저장 버튼이 화면 아래에 떠 있어 스크롤해도 잘리지 않습니다",
+            "알림 시간대를 오전/오후·시·분 휠로 간편하게 고를 수 있습니다",
+            "알림 시점(도착/출발/둘 다) 선택 디자인이 더 깔끔해졌습니다"
+          ]
+        },
+        "버그_수정": {
+          "title": "버그 수정",
+          "items": [
+            "저장 중 오류가 나도 저장 버튼이 비활성으로 남지 않고 안내가 표시됩니다"
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "1.32.1",
       "project_type": "flutter",
