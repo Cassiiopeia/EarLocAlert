@@ -145,7 +145,8 @@ class _AlertInfo extends StatelessWidget {
         children: [
           // 색만으로 구분하지 않는다 — 아이콘·텍스트를 함께 쓴다 (색각 이상 대응)
           Icon(
-            isExit ? Icons.logout_outlined : Icons.login_outlined,
+            // 장소 카드·등록 폼과 같은 아이콘을 쓴다 (#276)
+            (isExit ? AlertDirection.exit : AlertDirection.enter).outlinedIcon,
             size: AppIconSize.hero,
             color: accent,
           ),
