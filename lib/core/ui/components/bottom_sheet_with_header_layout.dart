@@ -30,6 +30,7 @@ class BottomSheetWithHeaderLayout extends StatelessWidget {
   const BottomSheetWithHeaderLayout({
     this.headerIcon,
     required this.title,
+    this.headerTrailing,
     this.description,
     required this.body,
     this.primaryAction,
@@ -40,6 +41,9 @@ class BottomSheetWithHeaderLayout extends StatelessWidget {
   /// 제목 앞 아이콘. 문구를 못 읽는 언어가 되어도 무슨 시트인지 알아보게 한다
   final IconData? headerIcon;
   final String title;
+
+  /// 제목 줄 오른쪽 끝 — 지금 값처럼 제목과 한 줄에 둘 것 (알림음 크기 %)
+  final Widget? headerTrailing;
 
   /// 제목 아래 회색 설명 한두 줄
   final String? description;
@@ -76,7 +80,11 @@ class BottomSheetWithHeaderLayout extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _BottomSheetHeader(icon: headerIcon, title: title),
+                    _BottomSheetHeader(
+                      icon: headerIcon,
+                      title: title,
+                      trailing: headerTrailing,
+                    ),
                     if (description != null) ...[
                       const SizedBox(height: AppSpacing.xs),
                       Text(
@@ -117,10 +125,15 @@ class BottomSheetWithHeaderLayout extends StatelessWidget {
 }
 
 class _BottomSheetHeader extends StatelessWidget {
-  const _BottomSheetHeader({required this.icon, required this.title});
+  const _BottomSheetHeader({
+    required this.icon,
+    required this.title,
+    required this.trailing,
+  });
 
   final IconData? icon;
   final String title;
+  final Widget? trailing;
 
   @override
   Widget build(BuildContext context) {
@@ -131,6 +144,10 @@ class _BottomSheetHeader extends StatelessWidget {
           const SizedBox(width: AppSpacing.sm),
         ],
         Expanded(child: Text(title, style: context.appTextStyles.headline)),
+        if (trailing != null) ...[
+          const SizedBox(width: AppSpacing.sm),
+          trailing!,
+        ],
       ],
     );
   }

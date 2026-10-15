@@ -4,8 +4,8 @@ import '../../../core/config/build_info.dart';
 import '../../../core/diagnostics/diagnostic_log_reader.dart';
 import '../../../core/diagnostics/diagnostics.dart';
 import '../../../core/l10n/l10n.dart';
+import '../../../core/ui/components/bottom_sheet_with_header_layout.dart';
 import '../../../core/text/keep_all.dart';
-import '../../../core/ui/foundation/app_spacing.dart';
 import '../../../core/ui/foundation/app_color_palette.dart';
 import '../domain/bug_report_sending.dart';
 
@@ -18,10 +18,8 @@ Future<void> showBugReportSheet(
   required String appVersion,
   required BugReportSending sender,
 }) {
-  return showModalBottomSheet<void>(
-    context: context,
-    showDragHandle: true,
-    isScrollControlled: true,
+  return showAppBottomSheet<void>(
+    context,
     builder: (_) => _BugReportSheet(appVersion: appVersion, sender: sender),
   );
 }
@@ -128,63 +126,38 @@ class _BugReportSheetState extends State<_BugReportSheet> {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    return SafeArea(
-      child: Padding(
-        padding: EdgeInsets.only(
-          left: AppSpacing.md,
-          right: AppSpacing.md,
-          bottom: AppSpacing.lg + MediaQuery.viewInsetsOf(context).bottom,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                const Icon(Icons.mail_outlined),
-                const SizedBox(width: AppSpacing.sm),
-                Text(
-                  l10n.reportSheetTitle,
-                  style: context.appTextStyles.body.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
+    return BottomSheetWithHeaderLayout(
+      headerIcon: Icons.mail_outlined,
+      title: l10n.reportSheetTitle,
+      description: l10n.reportSheetHint,
+      body: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          CheckboxListTile(
+            contentPadding: EdgeInsets.zero,
+            controlAffinity: ListTileControlAffinity.leading,
+            value: _attachLog && _hasLog,
+            onChanged: _hasLog && !_busy
+                ? (value) => setState(() => _attachLog = value ?? false)
+                : null,
+            title: Text(
+              l10n.reportAttachLog,
+              style: context.appTextStyles.body,
             ),
-            const SizedBox(height: AppSpacing.xs),
-            Text(
-              context.keepAllText(l10n.reportSheetHint),
+            subtitle: Text(
+              context.keepAllText(
+                _hasLog ? l10n.reportAttachLogNote : l10n.reportAttachLogEmpty,
+              ),
               style: context.appTextStyles.caption,
             ),
-            const SizedBox(height: AppSpacing.md),
-            CheckboxListTile(
-              contentPadding: EdgeInsets.zero,
-              controlAffinity: ListTileControlAffinity.leading,
-              value: _attachLog && _hasLog,
-              onChanged: _hasLog && !_busy
-                  ? (value) => setState(() => _attachLog = value ?? false)
-                  : null,
-              title: Text(
-                l10n.reportAttachLog,
-                style: context.appTextStyles.body,
-              ),
-              subtitle: Text(
-                context.keepAllText(
-                  _hasLog
-                      ? l10n.reportAttachLogNote
-                      : l10n.reportAttachLogEmpty,
-                ),
-                style: context.appTextStyles.caption,
-              ),
-            ),
-            const SizedBox(height: AppSpacing.md),
-            FilledButton(
-              key: _sendKey,
-              onPressed: _busy ? null : _send,
-              child: Text(l10n.reportOpenMail),
-            ),
-          ],
-        ),
+          ),
+        ],
+      ),
+      primaryAction: FilledButton(
+        key: _sendKey,
+        onPressed: _busy ? null : _send,
+        child: Text(l10n.reportOpenMail),
       ),
     );
   }

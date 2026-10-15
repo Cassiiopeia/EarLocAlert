@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/l10n/l10n.dart';
+import '../../../core/ui/components/bottom_sheet_with_header_layout.dart';
 import '../../../core/ui/foundation/app_spacing.dart';
 import '../../../core/ui/foundation/app_color_palette.dart';
 import '../../../core/text/keep_all.dart';
@@ -14,9 +15,8 @@ import 'alert_controller_provider.dart';
 /// 확인 버튼을 두지 않는 이유는, 볼륨은 "듣고 맞추는" 값이라 미리듣기와
 /// 저장이 분리되면 사용자가 저장을 잊는다.
 Future<void> showAlertVolumeSheet(BuildContext context) {
-  return showModalBottomSheet<void>(
-    context: context,
-    showDragHandle: true,
+  return showAppBottomSheet<void>(
+    context,
     builder: (context) => const _AlertVolumeSheet(),
   );
 }
@@ -63,48 +63,25 @@ class _AlertVolumeSheetState extends ConsumerState<_AlertVolumeSheet> {
   Widget build(BuildContext context) {
     final volume = _volume;
 
-    return Padding(
-      padding: EdgeInsets.only(
-        left: AppSpacing.md,
-        right: AppSpacing.md,
-        bottom: MediaQuery.of(context).viewInsets.bottom + AppSpacing.lg,
-      ),
-      child: Column(
+    // **값을 제목 줄에 둔다.** 슬라이더 옆 고정 폭(44px)에 두었더니
+    // Pretendard 로 '100%' 가 41px 이라 여유가 3px 뿐이었고, 시스템 글자
+    // 크기를 한 단계만 키워도 '100' / '%' 로 쪼개졌다
+    return BottomSheetWithHeaderLayout(
+      title: context.l10n.volumeTitle,
+      headerTrailing: volume == null
+          ? null
+          : Text(
+              '${(volume * 100).round()}%',
+              style: context.appTextStyles.headline.copyWith(
+                color: context.appColors.accent,
+              ),
+              maxLines: 1,
+            ),
+      description: context.l10n.volumeDescription,
+      body: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // **값을 제목 줄에 둔다.** 슬라이더 옆 고정 폭(44px)에 두었더니
-          // Pretendard 로 '100%' 가 41px 이라 여유가 3px 뿐이었고,
-          // 시스템 글자 크기를 한 단계만 키워도 '100' / '%' 로 쪼개졌다.
-          // 줄 전체를 쓰는 자리로 옮기면 넘칠 자리 자체가 없다.
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  context.l10n.volumeTitle,
-                  style: context.appTextStyles.body.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-              if (volume != null)
-                Text(
-                  '${(volume * 100).round()}%',
-                  style: context.appTextStyles.body.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: context.appColors.accent,
-                  ),
-                  maxLines: 1,
-                ),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.xs),
-          Text(
-            context.keepAllText(context.l10n.volumeDescription),
-            style: context.appTextStyles.caption,
-          ),
-          const SizedBox(height: AppSpacing.md),
-
           if (volume == null)
             const Center(child: CircularProgressIndicator())
           else
@@ -137,20 +114,17 @@ class _AlertVolumeSheetState extends ConsumerState<_AlertVolumeSheet> {
               context.keepAllText(_previewNotice!),
               style: context.appTextStyles.caption,
             ),
-
-          const SizedBox(height: AppSpacing.sm),
-          // **보조 동작이라 주 버튼이 아니다** (docs/06-UX.md 주 액션 규칙).
-          // 이 시트는 고치는 즉시 적용되므로 확정할 것이 없고, 하단 주
-          // 버튼 자리는 "안 누르면 목적이 달성되지 않는 동작"만 쓴다.
-          OutlinedButton(
-            onPressed: volume == null ? null : _togglePreview,
-            child: Text(
-              _previewing
-                  ? context.l10n.volumePreviewStop
-                  : context.l10n.soundPreview,
-            ),
-          ),
         ],
+      ),
+      // **보조 동작이라 주 버튼이 아니다** (docs/06-UX.md 주 액션 규칙). 이
+      // 시트는 고치는 즉시 적용되므로 확정할 것이 없다
+      secondaryAction: OutlinedButton(
+        onPressed: volume == null ? null : _togglePreview,
+        child: Text(
+          _previewing
+              ? context.l10n.volumePreviewStop
+              : context.l10n.soundPreview,
+        ),
       ),
     );
   }

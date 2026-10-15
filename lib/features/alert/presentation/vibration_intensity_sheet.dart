@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/l10n/l10n.dart';
-import '../../../core/ui/foundation/app_spacing.dart';
+import '../../../core/ui/components/bottom_sheet_with_header_layout.dart';
 import '../../../core/ui/foundation/app_color_palette.dart';
 import '../../../core/text/keep_all.dart';
 import '../domain/alert_effects.dart';
@@ -15,9 +15,8 @@ import 'alert_controller_provider.dart';
 /// 미리 느껴보지 않으면 고를 수 없다. 알림음 크기 시트와 같은 이유로
 /// 확인 버튼을 두지 않는다 — 고르는 즉시 저장된다.
 Future<void> showVibrationIntensitySheet(BuildContext context) {
-  return showModalBottomSheet<void>(
-    context: context,
-    showDragHandle: true,
+  return showAppBottomSheet<void>(
+    context,
     builder: (context) => const _VibrationIntensitySheet(),
   );
 }
@@ -90,29 +89,14 @@ class _VibrationIntensitySheetState
   Widget build(BuildContext context) {
     final selected = _selected;
 
-    return Padding(
-      padding: EdgeInsets.only(
-        left: AppSpacing.md,
-        right: AppSpacing.md,
-        bottom: MediaQuery.of(context).viewInsets.bottom + AppSpacing.lg,
-      ),
-      child: Column(
+    return BottomSheetWithHeaderLayout(
+      headerIcon: Icons.vibration_outlined,
+      title: context.l10n.vibrationTitle,
+      description: context.l10n.vibrationDescription,
+      body: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            context.l10n.vibrationTitle,
-            style: context.appTextStyles.body.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          const SizedBox(height: AppSpacing.xs),
-          Text(
-            context.keepAllText(context.l10n.vibrationDescription),
-            style: context.appTextStyles.caption,
-          ),
-          const SizedBox(height: AppSpacing.md),
-
           if (selected == null)
             const Center(child: CircularProgressIndicator())
           else

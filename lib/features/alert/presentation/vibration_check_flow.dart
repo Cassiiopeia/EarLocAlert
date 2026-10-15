@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/diagnostics/diagnostics.dart';
 import '../../../core/l10n/l10n.dart';
+import '../../../core/ui/components/bottom_sheet_with_header_layout.dart';
 import '../../../core/text/keep_all.dart';
 import '../../../core/ui/foundation/app_color_palette.dart';
 import '../../../core/ui/foundation/app_spacing.dart';
@@ -74,10 +75,8 @@ Future<void> showVibrationGuideSheet(
   required Future<void> Function() onOpenSettings,
 }) {
   Diagnostics.log('vibration', 'guide opened');
-  return showModalBottomSheet<void>(
-    context: context,
-    showDragHandle: true,
-    isScrollControlled: true,
+  return showAppBottomSheet<void>(
+    context,
     builder: (sheetContext) => _VibrationGuideSheet(
       onOpenSettings: () {
         Diagnostics.log('vibration', 'guide settings_opened');
@@ -107,84 +106,65 @@ class _VibrationGuideSheet extends StatelessWidget {
       l10n.vibrationGuideStepSystemHaptics,
     ];
 
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(
-          AppSpacing.md,
-          0,
-          AppSpacing.md,
-          AppSpacing.md,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              context.keepAllText(l10n.vibrationGuideTitle),
-              style: context.appTextStyles.body.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(height: AppSpacing.xs),
-            Text(
-              context.keepAllText(l10n.vibrationGuideBody),
-              style: context.appTextStyles.caption,
-            ),
-            const SizedBox(height: AppSpacing.md),
-            // 순서대로 확인하면 되게 번호를 붙인다 — 첫 항목이 꺼져 있으면 나머지와
-            // 무관하게 모든 진동이 멈춘다
-            for (final (index, step) in steps.indexed)
-              Padding(
-                padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '${index + 1}.',
-                      style: context.appTextStyles.body.copyWith(
-                        color: context.appColors.accent,
-                      ),
+    return BottomSheetWithHeaderLayout(
+      headerIcon: Icons.vibration_outlined,
+      title: l10n.vibrationGuideTitle,
+      description: l10n.vibrationGuideBody,
+      body: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 순서대로 확인하면 되게 번호를 붙인다 — 첫 항목이 꺼져 있으면 나머지와
+          // 무관하게 모든 진동이 멈춘다
+          for (final (index, step) in steps.indexed)
+            Padding(
+              padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '${index + 1}.',
+                    style: context.appTextStyles.body.copyWith(
+                      color: context.appColors.accent,
                     ),
-                    const SizedBox(width: AppSpacing.xs),
-                    Expanded(
-                      child: Text(
-                        context.keepAllText(step),
-                        style: context.appTextStyles.body,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            const SizedBox(height: AppSpacing.xs),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Icon(
-                  Icons.info_outlined,
-                  size: AppIconSize.inline,
-                  color: context.appColors.textSecondary,
-                ),
-                const SizedBox(width: AppSpacing.xs),
-                Expanded(
-                  child: Text(
-                    context.keepAllText(l10n.vibrationGuideHint),
-                    style: context.appTextStyles.caption,
                   ),
+                  const SizedBox(width: AppSpacing.xs),
+                  Expanded(
+                    child: Text(
+                      context.keepAllText(step),
+                      style: context.appTextStyles.body,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          const SizedBox(height: AppSpacing.xs),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(
+                Icons.info_outlined,
+                size: AppIconSize.inline,
+                color: context.appColors.textSecondary,
+              ),
+              const SizedBox(width: AppSpacing.xs),
+              Expanded(
+                child: Text(
+                  context.keepAllText(l10n.vibrationGuideHint),
+                  style: context.appTextStyles.caption,
                 ),
-              ],
-            ),
-            const SizedBox(height: AppSpacing.md),
-            FilledButton(
-              onPressed: onOpenSettings,
-              child: Text(l10n.vibrationGuideOpenSettings),
-            ),
-            const SizedBox(height: AppSpacing.xs),
-            TextButton(
-              onPressed: onClose,
-              child: Text(l10n.vibrationGuideClose),
-            ),
-          ],
-        ),
+              ),
+            ],
+          ),
+        ],
+      ),
+      primaryAction: FilledButton(
+        onPressed: onOpenSettings,
+        child: Text(l10n.vibrationGuideOpenSettings),
+      ),
+      secondaryAction: TextButton(
+        onPressed: onClose,
+        child: Text(l10n.vibrationGuideClose),
       ),
     );
   }
