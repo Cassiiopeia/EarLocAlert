@@ -64,7 +64,7 @@ class GeofenceRegistrationSync {
     if (_subscription != null) return;
     await _apply(await _places.findAll());
     _subscription = _places.watchAll().listen(
-      (places) => unawaited(_applySafely(places)),
+      (places) => unawaited(_applyInOrder(places)),
     );
   }
 
@@ -73,7 +73,17 @@ class GeofenceRegistrationSync {
   /// 앱 언어를 바꾼 직후에 부른다 — 감시 서비스가 다시 시작 요청을 받아 상시
   /// 알림 문구와 알림 채널 이름을 **바뀐 언어로 다시 만들게** 하려는 것이다.
   /// 감시 대상이 없으면 서비스를 띄우지 않는다(`_apply` 가 판단한다).
-  Future<void> refresh() async => _applySafely(await _places.findAll());
+  Future<void> refresh() async => _applyInOrder(await _places.findAll());
+
+  /// 앞선 동기화가 끝난 뒤에 돈다 (#276 리뷰). 목록이 연달아 바뀌면 동기화가
+  /// 겹쳐, 늦게 끝난 옛 목록이 새 장소의 상태를 지울 수 있었다
+  Future<void> _applyInOrder(List<AlertPlace> places) {
+    final next = _lastApply.then((_) => _applySafely(places));
+    _lastApply = next;
+    return next;
+  }
+
+  Future<void> _lastApply = Future<void>.value();
 
   Future<void> stop() async {
     await _subscription?.cancel();
@@ -130,7 +140,10 @@ class GeofenceRegistrationSync {
     // 기능이 지오펜스 저장소를 직접 부르던 것을 여기로 옮겼다 — feature 끼리
     // 직접 의존하지 않는다 (docs/02-ARCHITECTURE.md 규칙 1). 꺼 둔 채 지운
     // 장소는 OS 등록이 없어 위 규칙에 걸리지 않는다
-    final existingIds = {for (final place in places) place.id};
+    // 받은 목록이 아니라 **지금 저장소**를 다시 읽고 판단한다 (#276 리뷰) —
+    // 이 동기화가 기다리는 사이 새 장소가 들어왔을 수 있다. 옛 목록으로
+    // 지우면 막 정해진 새 장소의 상태가 날아가 그 도착을 놓친다
+    final existingIds = {for (final place in await _places.findAll()) place.id};
     for (final staleId in (await _states.allStates()).keys) {
       if (!existingIds.contains(staleId)) {
         await _states.remove(staleId);

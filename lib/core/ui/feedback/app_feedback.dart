@@ -49,21 +49,24 @@ Future<bool> showConfirmDialog(
 ///
 /// 화면을 떠난 뒤에도 띄워야 하는 경우가 많아(삭제 후 목록으로 돌아감 등)
 /// context 가 아니라 미리 잡아 둔 [ScaffoldMessengerState] 를 받는다. 앞서 떠 있던
-/// 스낵바는 걷는다 — 연달아 눌렀을 때 옛 되돌리기가 남아 있으면 엉뚱한 것을 되돌린다.
+/// 스낵바는 기본으로 걷는다 — 연달아 눌렀을 때 옛 되돌리기가 남아 있으면 엉뚱한 것을 되돌린다.
 void showSnackBarWithActionButton(
   ScaffoldMessengerState messenger, {
   required String message,
   required String actionLabel,
   required VoidCallback onActionPressed,
   Duration duration = const Duration(seconds: 4),
+
+  /// 사용자 동작과 무관하게 뜨는 안내(앱 업데이트 등)는 false — 앞에 떠 있는
+  /// 되돌리기를 걷으면 복원할 기회가 사라진다. 뒤에 줄을 선다
+  bool replaceCurrentSnackBar = true,
 }) {
-  messenger
-    ..hideCurrentSnackBar()
-    ..showSnackBar(
-      SnackBar(
-        content: Text(message),
-        duration: duration,
-        action: SnackBarAction(label: actionLabel, onPressed: onActionPressed),
-      ),
-    );
+  if (replaceCurrentSnackBar) messenger.hideCurrentSnackBar();
+  messenger.showSnackBar(
+    SnackBar(
+      content: Text(message),
+      duration: duration,
+      action: SnackBarAction(label: actionLabel, onPressed: onActionPressed),
+    ),
+  );
 }

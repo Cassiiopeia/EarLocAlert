@@ -420,6 +420,8 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
           actionLabel: strings.appUpdateRestart,
           onActionPressed: () => unawaited(gate.install()),
           duration: const Duration(seconds: 15),
+          // 앱을 켠 직후 장소를 지웠다면 그 되돌리기를 걷지 않는다 (#276 리뷰)
+          replaceCurrentSnackBar: false,
         );
       }
     } on Object catch (error) {

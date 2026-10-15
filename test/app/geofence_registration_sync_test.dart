@@ -88,6 +88,33 @@ void main() {
     expect(states.states.containsKey('gone'), isFalse);
   });
 
+  test(
+    '목록 변경이 연달아 와도 동기화는 순서대로 하나씩 돈다 — 새 장소 상태를 옛 목록이 지우지 않는다 (#276 리뷰)',
+    () async {
+      places.items = [place('a')];
+      await sync.start();
+
+      // 첫 변경의 동기화가 OS 등록 조회에서 멈춰 있는 사이에
+      final gate = Completer<void>();
+      monitor.registeredGate = gate;
+      places.controller.add([place('a')]);
+      await Future<void>.delayed(Duration.zero);
+
+      // 새 장소 b 가 들어오고 그 상태가 정해졌다
+      places.items = [place('a'), place('b', minute: 1)];
+      places.controller.add(places.items);
+      states.states['b'] = GeofenceState.inside;
+      await Future<void>.delayed(Duration.zero);
+
+      // 옛 목록([a])의 동기화가 이제 이어서 돈다
+      monitor.registeredGate = null;
+      gate.complete();
+      await Future<void>.delayed(const Duration(milliseconds: 20));
+
+      expect(states.states['b'], GeofenceState.inside);
+    },
+  );
+
   test('목록 변경 스트림에 반응한다', () async {
     places.items = [place('a')];
     await sync.start();
@@ -398,6 +425,9 @@ class _FakeMonitor implements GeofenceMonitor {
   List<GeofenceTarget> lastSynced = [];
   List<String> registered = [];
 
+  /// 걸어 두면 등록 목록 조회가 풀릴 때까지 멈춘다 — 동기화가 겹치는 상황을 만든다
+  Completer<void>? registeredGate;
+
   @override
   Future<void> sync(List<GeofenceTarget> targets) async {
     lastSynced = targets;
@@ -408,7 +438,10 @@ class _FakeMonitor implements GeofenceMonitor {
   Future<void> stopAll() async => registered = [];
 
   @override
-  Future<List<String>> registeredPlaceIds() async => List.of(registered);
+  Future<List<String>> registeredPlaceIds() async {
+    await registeredGate?.future;
+    return List.of(registered);
+  }
 }
 
 class _FakeStateRepository implements GeofenceStateRepository {

@@ -17,6 +17,8 @@ Future<T?> showAppBottomSheet<T>(
     context: context,
     showDragHandle: true,
     isScrollControlled: true,
+    // 긴 시트가 상태 표시줄 밑까지 올라가지 않게 한다 (#276 리뷰)
+    useSafeArea: true,
     builder: builder,
   );
 }
@@ -143,7 +145,13 @@ class _BottomSheetHeader extends StatelessWidget {
           Icon(icon, size: AppIconSize.standard),
           const SizedBox(width: AppSpacing.sm),
         ],
-        Expanded(child: Text(title, style: context.appTextStyles.headline)),
+        Expanded(
+          // 한국어 긴 제목이 낱말 중간에서 끊기지 않게 한다 (#276 리뷰)
+          child: Text(
+            context.keepAllText(title),
+            style: context.appTextStyles.headline,
+          ),
+        ),
         if (trailing != null) ...[
           const SizedBox(width: AppSpacing.sm),
           trailing!,

@@ -7,7 +7,11 @@ import 'package:path/path.dart' as p;
 ///
 /// 문서에는 "lint 로 잡는다"고 적혀 있었지만 실제 규칙이 없어 위반이 쌓였다.
 /// import 줄을 읽어 실제 대상 경로로 풀고 검사한다.
-final _importPattern = RegExp(r'''^import\s+'([^']+)';''', multiLine: true);
+/// `as`·`show`·`hide` 가 붙은 import 와 export 도 잡는다 (#276 리뷰)
+final _importPattern = RegExp(
+  r'''^(?:import|export)\s+'([^']+)'[^;]*;''',
+  multiLine: true,
+);
 
 /// `lib/` 기준 경로로 푼다. 패키지 밖 import 는 null
 String? _resolve(File from, String target) {

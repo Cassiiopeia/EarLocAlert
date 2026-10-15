@@ -130,7 +130,14 @@ void main() {
       );
       await openSheet(tester, results, initial: existing);
 
-      expect(find.text('시간대 편집'), findsOneWidget);
+      // 시트 제목은 낱말 사이에 보이지 않는 줄바꿈 금지 문자가 들어간다
+      expect(
+        find.byWidgetPredicate(
+          (w) =>
+              w is Text && (w.data ?? '').replaceAll('\u2060', '') == '시간대 편집',
+        ),
+        findsOneWidget,
+      );
 
       await tester.tap(find.widgetWithText(FilledButton, '저장'));
       await tester.pumpAndSettle();

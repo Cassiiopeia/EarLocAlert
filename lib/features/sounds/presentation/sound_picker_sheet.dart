@@ -105,9 +105,10 @@ class _SoundPickerSheetState extends ConsumerState<_SoundPickerSheet>
     try {
       final connected = await ref.read(headphoneDetectorProvider).isConnected();
       if (mounted) setState(() => _headphonesConnected = connected);
-    } on Object {
+    } on Object catch (error) {
       // 확인하지 못했으면 연결되지 않은 것으로 본다 —
       // 확인 못 한 상태로 재생하면 스피커로 샐 수 있다
+      Diagnostics.log('sound', 'headphone check failed error=$error');
       if (mounted) setState(() => _headphonesConnected = false);
     }
   }
@@ -137,7 +138,8 @@ class _SoundPickerSheetState extends ConsumerState<_SoundPickerSheet>
     if (source == null || !mounted) return;
     try {
       await _previewPlayer.play(source);
-    } on Object {
+    } on Object catch (error) {
+      Diagnostics.log('sound', 'preview play failed error=$error');
       if (mounted) _showMessage(context.l10n.soundPreviewFailed);
     }
   }
