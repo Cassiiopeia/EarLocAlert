@@ -2,7 +2,7 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 import '../../../core/diagnostics/diagnostics.dart';
 import '../domain/ad_consent.dart';
-import '../domain/ad_unit_ids.dart';
+import '../../../core/config/ad_unit_ids.dart';
 import '../domain/interstitial_ad_service.dart';
 
 /// `google_mobile_ads` 기반 전면광고 구현

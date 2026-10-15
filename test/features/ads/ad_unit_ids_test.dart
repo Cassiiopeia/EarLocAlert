@@ -1,5 +1,5 @@
 import 'package:ear_loc_alert/core/config/dev_flag.dart';
-import 'package:ear_loc_alert/features/ads/domain/ad_unit_ids.dart';
+import 'package:ear_loc_alert/core/config/ad_unit_ids.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// 광고 단위 ID 선택 (이슈 #109)

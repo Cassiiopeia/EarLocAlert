@@ -76,7 +76,7 @@ void main() {
     expect(offenders, isEmpty, reason: offenders.join('\n'));
   });
 
-  test('domain 은 data·presentation·Flutter 화면을 모른다', () {
+  test('domain 은 data·presentation·Flutter 를 모른다', () {
     final files = Directory('lib/features')
         .listSync(recursive: true)
         .whereType<File>()
@@ -89,8 +89,9 @@ void main() {
         final resolved = _resolve(file, raw) ?? raw;
         if (resolved.contains('/data/') ||
             resolved.contains('/presentation/') ||
-            raw == 'package:flutter/material.dart' ||
-            raw == 'package:flutter/widgets.dart') {
+            // 판정 로직은 Flutter 없이 돌아야 한다 — 빌드 모드·플랫폼에 따라 값이
+            // 바뀌는 설정은 core/config 에 둔다 (#278)
+            raw.startsWith('package:flutter/')) {
           offenders.add('${file.path} → $raw');
         }
       }

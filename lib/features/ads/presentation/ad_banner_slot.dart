@@ -6,7 +6,7 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 import '../../../core/diagnostics/diagnostics.dart';
 import '../../../core/ui/foundation/app_color_palette.dart';
-import '../domain/ad_unit_ids.dart';
+import '../../../core/config/ad_unit_ids.dart';
 import 'ads_providers.dart';
 
 /// 화면 맨 아래 고정 배너 한 칸 (이슈 #186)

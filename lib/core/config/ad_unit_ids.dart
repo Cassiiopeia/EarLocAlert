@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 
-import '../../../core/config/dev_flag.dart';
+import 'dev_flag.dart';
 
 /// 광고 단위 ID (docs/07-MONETIZATION.md · docs/08-OPERATIONS.md)
 ///

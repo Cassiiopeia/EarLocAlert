@@ -13,7 +13,7 @@ import '../core/domain/alert_direction.dart';
 import '../core/l10n/app_language_controller.dart';
 import '../core/l10n/l10n.dart';
 import '../core/l10n/locale_resolver.dart';
-import '../features/ads/domain/ad_unit_ids.dart';
+import '../core/config/ad_unit_ids.dart';
 import '../core/ui/foundation/app_theme.dart';
 import '../features/ads/domain/ad_consent.dart';
 import '../features/ads/presentation/ads_providers.dart';
