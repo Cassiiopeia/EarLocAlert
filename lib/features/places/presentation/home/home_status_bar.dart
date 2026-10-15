@@ -161,9 +161,14 @@ class _StatusBar extends StatelessWidget {
                 // 넣었는데, 그 판은 768 에 핀이 468 뿐이라 핀이 7dp 로
                 // 쪼그라들어 옆 아이콘의 절반으로 보였다. 높이를 옆 아이콘과
                 // 같은 18 로 맞춘다 (이슈 #155 QA)
+                //
+                // **폭도 정해 둔다** (#278). 높이만 주면 이미지를 디코딩하기 전
+                // 폭이 0 이라, 디코딩이 끝나는 순간 알약이 로고 폭만큼 늘어났다
+                // (원본 100×144 → 높이 24 에서 폭 약 16.7)
                 Image.asset(
                   'assets/icon/app_logo_mark.png',
                   height: AppIconSize.standard,
+                  width: AppIconSize.standard * 100 / 144,
                   filterQuality: FilterQuality.medium,
                 ),
                 // 로고와 상태를 한 칸 떼어 놓는다 — 붙어 있으면 청록 아이콘 둘이

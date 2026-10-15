@@ -77,7 +77,12 @@ void main() {
       WidgetTester tester,
       CurrentLocationFailure failure,
     ) async {
-      await tester.binding.setSurfaceSize(const Size(411, 914));
+      // **폭을 넉넉히 준다** (#278). 이 테스트는 실제 글꼴을 불러오지 않아,
+      // 글자마다 정사각형인 테스트 글꼴로 상단 알약의 "Monitoring" 이 실제보다
+      // 두 배 가까이 넓다. 411 폭에서 로고 디코딩이 끝나면 0.4px 넘쳤고, 디코딩이
+      // 끝나는 시점이 실행마다 달라 가끔만 실패했다. 알약 폭은 실제 글꼴로 재는
+      // home_status_bar_width_test 가 따로 지킨다 — 여기서 보는 것은 안내 문구다
+      await tester.binding.setSurfaceSize(const Size(600, 914));
       addTearDown(() => tester.binding.setSurfaceSize(null));
       await tester.pumpWidget(
         ProviderScope(
