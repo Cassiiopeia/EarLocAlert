@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import '../../../core/diagnostics/diagnostics.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/audio/alert_sound_source.dart';
@@ -112,6 +114,26 @@ class _SoundPickerSheetState extends ConsumerState<_SoundPickerSheet>
   }
 
   Future<void> _preview(AlertSound sound) async {
+    // **재생 직전에 이어폰을 다시 확인한다** (아키텍처 검수 #276). 시트를 열
+    // 때 확인한 값만 믿으면, 연 채로 이어폰을 뽑았을 때 스피커로 샌다
+    // (CLAUDE.md 규칙 2). 알림음 크기 시트와 같은 방식이다
+    var connected = false;
+    try {
+      connected = await ref.read(headphoneDetectorProvider).isConnected();
+    } on Object catch (error) {
+      Diagnostics.log('sound', 'preview headphone check failed error=$error');
+    }
+    Diagnostics.log(
+      'sound',
+      'preview requested tone=${sound.storageValue} headphones=$connected',
+    );
+    if (!mounted) return;
+    if (!connected) {
+      setState(() => _headphonesConnected = false);
+      _showMessage(context.l10n.volumePreviewNoHeadphones);
+      return;
+    }
+
     final source = await _sourceOf(sound);
     if (source == null || !mounted) return;
     try {

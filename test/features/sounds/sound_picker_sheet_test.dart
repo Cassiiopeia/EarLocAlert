@@ -22,7 +22,8 @@ import 'package:flutter_test/flutter_test.dart';
 class FakeDetector implements HeadphoneDetector {
   FakeDetector(this.connected);
 
-  final bool connected;
+  /// 시트를 연 뒤 이어폰을 뽑는 상황을 흉내 내려고 바꿀 수 있다
+  bool connected;
 
   @override
   Future<bool> isConnected() async => connected;
@@ -87,6 +88,7 @@ CustomSound makeSound({String id = 's1', String name = '알람소리.mp3'}) {
 void main() {
   late FakeSoundRepository repo;
   late RecordingPlayer player;
+  late FakeDetector detector;
 
   setUp(() {
     repo = FakeSoundRepository();
@@ -99,12 +101,13 @@ void main() {
     AlertSound current = AlertSound.fallback,
   }) async {
     AlertSound? result;
+    detector = FakeDetector(headphones);
 
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
           customSoundRepositoryProvider.overrideWithValue(repo),
-          headphoneDetectorProvider.overrideWithValue(FakeDetector(headphones)),
+          headphoneDetectorProvider.overrideWithValue(detector),
           soundPreviewPlayerProvider.overrideWithValue(player),
         ],
         child: MaterialApp(
@@ -209,6 +212,26 @@ void main() {
 
     expect(player.playCount, 1);
     expect((player.lastSource! as FileSound).filePath, '/tmp/s1.mp3');
+  });
+
+  testWidgets('시트를 연 뒤 이어폰을 뽑으면 ▶ 를 눌러도 재생하지 않는다 — 스피커 유출 방지', (tester) async {
+    await pumpSheet(tester, headphones: true);
+    // 시트를 연 채 이어폰을 뽑았다. 화면은 아직 연결된 것으로 알고 있다
+    detector.connected = false;
+
+    await tester.tap(
+      find
+          .byWidgetPredicate(
+            (w) =>
+                w is IconButton &&
+                w.icon is Icon &&
+                (w.icon as Icon).icon == Icons.play_arrow_outlined,
+          )
+          .first,
+    );
+    await tester.pumpAndSettle();
+
+    expect(player.playCount, 0);
   });
 
   testWidgets('고른 값을 돌려준다', (tester) async {
