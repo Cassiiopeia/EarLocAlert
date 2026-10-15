@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url>
+    <loc>https://cassiiopeia.github.io/EarLocAlert/</loc>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://cassiiopeia.github.io/EarLocAlert/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://cassiiopeia.github.io/EarLocAlert/en.html"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://cassiiopeia.github.io/EarLocAlert/ja.html"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://cassiiopeia.github.io/EarLocAlert/zh.html"/>
+    <changefreq>weekly</changefreq><priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://cassiiopeia.github.io/EarLocAlert/en.html</loc>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://cassiiopeia.github.io/EarLocAlert/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://cassiiopeia.github.io/EarLocAlert/en.html"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://cassiiopeia.github.io/EarLocAlert/ja.html"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://cassiiopeia.github.io/EarLocAlert/zh.html"/>
+    <changefreq>weekly</changefreq><priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://cassiiopeia.github.io/EarLocAlert/ja.html</loc>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://cassiiopeia.github.io/EarLocAlert/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://cassiiopeia.github.io/EarLocAlert/en.html"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://cassiiopeia.github.io/EarLocAlert/ja.html"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://cassiiopeia.github.io/EarLocAlert/zh.html"/>
+    <changefreq>weekly</changefreq><priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://cassiiopeia.github.io/EarLocAlert/zh.html</loc>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://cassiiopeia.github.io/EarLocAlert/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://cassiiopeia.github.io/EarLocAlert/en.html"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://cassiiopeia.github.io/EarLocAlert/ja.html"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://cassiiopeia.github.io/EarLocAlert/zh.html"/>
+    <changefreq>weekly</changefreq><priority>0.9</priority>
+  </url>
+  <url><loc>https://cassiiopeia.github.io/EarLocAlert/privacy.html</loc><priority>0.3</priority></url>
+  <url><loc>https://cassiiopeia.github.io/EarLocAlert/privacy-en.html</loc><priority>0.3</priority></url>
+  <url><loc>https://cassiiopeia.github.io/EarLocAlert/terms.html</loc><priority>0.3</priority></url>
+  <url><loc>https://cassiiopeia.github.io/EarLocAlert/terms-en.html</loc><priority>0.3</priority></url>
+</urlset>

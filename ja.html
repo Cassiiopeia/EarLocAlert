@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>イヤホン位置通知 — バス・電車の降りる駅を到着通知、振動とイヤホンだけで</title>
+<meta name="description" content="バスで居眠りしても降りる停留所を逃さない。地図に場所を登録すると、到着したときに振動で、イヤホン接続中だけ音で知らせる無料の位置通知アプリです。スピーカーからは鳴らず、位置情報は端末の外に出ません。">
+<meta name="keywords" content="到着通知, 降りる駅 通知, バス停 アラーム, 電車 寝過ごし防止, 位置情報 アラーム, ジオフェンス, イヤホン アラーム, 振動 アラーム">
+<link rel="canonical" href="https://cassiiopeia.github.io/EarLocAlert/ja.html">
+<link rel="alternate" hreflang="ko" href="https://cassiiopeia.github.io/EarLocAlert/">
+<link rel="alternate" hreflang="en" href="https://cassiiopeia.github.io/EarLocAlert/en.html">
+<link rel="alternate" hreflang="ja" href="https://cassiiopeia.github.io/EarLocAlert/ja.html">
+<link rel="alternate" hreflang="zh" href="https://cassiiopeia.github.io/EarLocAlert/zh.html">
+<link rel="alternate" hreflang="x-default" href="https://cassiiopeia.github.io/EarLocAlert/">
+<meta property="og:site_name" content="イヤホン位置通知">
+<meta property="og:locale" content="ja_JP">
+<meta property="og:locale:alternate" content="ko_KR">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="og:locale:alternate" content="zh_CN">
+<meta property="og:title" content="イヤホン位置通知 — 降りる場所を、見逃さない">
+<meta property="og:description" content="到着したら振動で。音はイヤホンだけで。バス・電車の降りる場所の通知アプリ。">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://cassiiopeia.github.io/EarLocAlert/icon/og-ja.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:url" content="https://cassiiopeia.github.io/EarLocAlert/ja.html">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="イヤホン位置通知 — 降りる場所を、見逃さない">
+<meta name="twitter:description" content="到着したら振動で。音はイヤホンだけで。バス・電車の降りる場所の通知アプリ。">
+<meta name="twitter:image" content="https://cassiiopeia.github.io/EarLocAlert/icon/og-ja.png">
+<meta name="apple-itunes-app" content="app-id=6755805664">
+<meta name="theme-color" content="#0b0d0c">
+<script type="application/ld+json">
+[
+ {
+  "@context": "https://schema.org",
+  "@type": "MobileApplication",
+  "name": "イヤホン位置通知",
+  "alternateName": [
+   "EarLocAlert",
+   "이어폰위치알림"
+  ],
+  "operatingSystem": "iOS, Android",
+  "applicationCategory": "TravelApplication",
+  "description": "バス停や駅など登録した場所に到着すると振動で知らせ、イヤホン接続中だけ音を鳴らす位置通知アプリ。",
+  "offers": {
+   "@type": "Offer",
+   "price": "0",
+   "priceCurrency": "JPY"
+  },
+  "url": "https://cassiiopeia.github.io/EarLocAlert/ja.html",
+  "image": "https://cassiiopeia.github.io/EarLocAlert/icon/og-ja.png",
+  "inLanguage": "ja",
+  "downloadUrl": [
+   "https://apps.apple.com/jp/app/id6755805664",
+   "https://play.google.com/store/apps/details?id=kr.suhsaechan.ear_loc_alert"
+  ]
+ },
+ {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+   {
+    "@type": "Question",
+    "name": "バスや電車で寝過ごしても降りる場所を教えてくれますか？",
+    "acceptedAnswer": {
+     "@type": "Answer",
+     "text": "はい。降りる停留所や駅を地図で登録しておけば、その半径に入った瞬間に振動で起こします。アプリを開いていなくても、画面が消えていても動作します。"
+    }
+   },
+   {
+    "@type": "Question",
+    "name": "イヤホンがないと音が鳴りますか？",
+    "acceptedAnswer": {
+     "@type": "Answer",
+     "text": "いいえ。有線・USB-C・Bluetooth イヤホンの接続を確認してから音を鳴らします。接続されていなければ振動だけで、スピーカーからは鳴りません。"
+    }
+   },
+   {
+    "@type": "Question",
+    "name": "バッテリーを多く使いますか？",
+    "acceptedAnswer": {
+     "@type": "Answer",
+     "text": "位置情報を常にオンにはしません。場所から遠いときは OS のジオフェンスに任せ、近づいたときだけ精密に確認します。"
+    }
+   },
+   {
+    "@type": "Question",
+    "name": "位置情報はサーバーに送られますか？",
+    "acceptedAnswer": {
+     "@type": "Answer",
+     "text": "送られません。到着の判定はすべて端末の中で行い、登録した場所や記録も端末にだけ保存されます。会員登録もありません。"
+    }
+   },
+   {
+    "@type": "Question",
+    "name": "スマートウォッチでも通知を受け取れますか？",
+    "acceptedAnswer": {
+     "@type": "Answer",
+     "text": "Galaxy Watch や Apple Watch でスマートフォンの通知を受け取る設定にすれば、ウォッチにも到着通知が届きます。アプリの設定 › ウォッチで通知を受け取る で手順を案内します。"
+    }
+   },
+   {
+    "@type": "Question",
+    "name": "無料ですか？",
+    "acceptedAnswer": {
+     "@type": "Answer",
+     "text": "無料です。広告が含まれますが、通知が鳴っている画面には広告を表示しません。"
+    }
+   }
+  ]
+ }
+]
+</script>
+<link rel="icon" type="image/png" sizes="32x32" href="icon/favicon-32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="icon/favicon-180.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-in">
+    <a class="nav-brand" href="./">
+      <img class="brand-mark" src="icon/pin.png" width="20" height="29" alt="" aria-hidden="true">
+      イヤホン位置通知
+    </a>
+    <div class="nav-links">
+      <a href="#features">機能</a>
+      <a href="#faq">よくある質問</a>
+      <a href="#privacy">プライバシー</a>
+      <a href="./" hreflang="ko" lang="ko">한국어</a> <a href="en.html" hreflang="en" lang="en">English</a> <a href="zh.html" hreflang="zh" lang="zh">中文</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap hero-in">
+    <div>
+      <span class="eyebrow">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true">
+          <rect x="8" y="3" width="8" height="18" rx="2"></rect><path d="M4 9v6M20 9v6"></path>
+        </svg>
+        振動で、またはイヤホンだけで
+      </span>
+
+      <h1>降りる場所を見逃さないように、<br><span class="hl">静かに</span> お知らせします</h1>
+
+      <p class="lead">
+        バスで居眠りして降りる場所を通り過ぎたことはありませんか。地図に場所を登録しておけば、到着したときに振動で起こします。イヤホンをしていれば音でも知らせます。
+      </p>
+
+      <div class="badges">
+        <a href="https://apps.apple.com/jp/app/id6755805664" rel="noopener" aria-label="App Store からダウンロード">
+          <img src="badges/appstore-en.svg" width="150" height="50" alt="Download on the App Store">
+        </a>
+        <a href="https://play.google.com/store/apps/details?id=kr.suhsaechan.ear_loc_alert&amp;hl=ja" rel="noopener" aria-label="Google Play で手に入れよう">
+          <img src="badges/play-ja.png" width="168" height="65" alt="Google Play で手に入れよう">
+        </a>
+      </div>
+      <p class="note">iPhone · Android 無料 · 日本語 · English · 한국어 · 中文</p>
+    </div>
+
+    <div class="hero-art">
+      <img class="phone" src="shots/ja/alert.jpg" width="486" height="1054"
+           alt="到着通知画面。場所の名前と到着時刻、周辺の地図、大きな通知停止ボタン。">
+    </div>
+  </div>
+</header>
+
+<div class="pitch">
+  <div class="wrap narrow">
+    <p>図書館でスピーカーが一度でも鳴れば、<br>このアプリの存在意義はなくなります。</p>
+    <p class="sub">
+      だから <strong>イヤホンの接続を確認してから</strong> 音を鳴らします。有線・USB-C・Bluetooth をすべて同じように扱い、確認できなければ振動だけ。車のオーディオのように外に漏れる機器は対象外です。
+    </p>
+  </div>
+</div>
+
+<section id="features">
+  <div class="wrap">
+    <h2>できること</h2>
+    <p class="sec-lead">ひとつの通知をきちんと届けるための機能だけ。</p>
+
+    <div class="grid">
+      <div class="card">
+        <div class="ico">
+          <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle>
+          </svg>
+        </div>
+        <h3>地図で選んで登録</h3>
+        <p>名前で検索するか地図を動かして決めます。半径を円で見ながら決めるので、100m がどのくらいか迷いません。</p>
+      </div>
+
+      <div class="card">
+        <div class="ico">
+          <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4"></path>
+          </svg>
+        </div>
+        <h3>場所ごとに違う通知音</h3>
+        <p>5 種類の内蔵サウンドから選ぶか、手持ちの音源を登録できます。どこに着いたか音で分かります。</p>
+      </div>
+
+      <div class="card">
+        <div class="ico">
+          <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 6v6l4 2"></path><circle cx="12" cy="12" r="9"></circle>
+          </svg>
+        </div>
+        <h3>アプリを開かなくても</h3>
+        <p>画面が消えていても、ほかのアプリを使っていても到着を知らせます。位置情報を常にオンにはしません。</p>
+      </div>
+
+      <div class="card">
+        <div class="ico">
+          <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M3 12h4l3 8 4-16 3 8h4"></path>
+          </svg>
+        </div>
+        <h3>振動の強さを調整</h3>
+        <p>イヤホンがないときは振動が唯一の手段。弱・中・強の 3 段階から選べます。</p>
+      </div>
+
+      <div class="card">
+        <div class="ico">
+          <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="9"></circle><path d="M12 3v18"></path><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"></path>
+          </svg>
+        </div>
+        <h3>ライト・ダークモード</h3>
+        <p>端末の設定に従うか、設定で選びます。通知画面は夜のバスでもまぶしくないよう常に暗く表示されます。</p>
+      </div>
+
+      <div class="card">
+        <div class="ico">
+          <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="6" y="6" width="12" height="12" rx="3"></rect><path d="M9 6l1-3h4l1 3M9 18l1 3h4l1-3"></path>
+          </svg>
+        </div>
+        <h3>スマートウォッチでも</h3>
+        <p>Galaxy Watch・Apple Watch で通知を受け取る方法をアプリが案内します。手首でも到着が分かります。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section style="padding-top:0">
+  <div class="wrap">
+    <h2>画面</h2>
+    <p class="sec-lead">暗い場所でもまぶしくなく、急いでいても迷わない作りです。</p>
+    <div class="shots">
+      <figure class="shot" style="margin:0">
+        <img class="promo" loading="lazy" src="shots/ja/01.jpg" width="540" height="960" alt="降りる場所を、 見逃さない — バスで居眠りしても、到着したら振動で起こします">
+      </figure>
+      <figure class="shot" style="margin:0">
+        <img class="promo" loading="lazy" src="shots/ja/02.jpg" width="540" height="960" alt="鳴るのは イヤホンだけ — イヤホンがなければ振動だけ。スピーカーからは鳴りません">
+      </figure>
+      <figure class="shot" style="margin:0">
+        <img class="promo" loading="lazy" src="shots/ja/03.jpg" width="540" height="960" alt="地図で選んで 半径を決めるだけ — 50mから2kmまで、円で見ながら">
+      </figure>
+      <figure class="shot" style="margin:0">
+        <img class="promo" loading="lazy" src="shots/ja/04.jpg" width="540" height="960" alt="到着・出発・ 両方 — 場所ごとに通知タイミングを設定">
+      </figure>
+      <figure class="shot" style="margin:0">
+        <img class="promo" loading="lazy" src="shots/ja/05.jpg" width="540" height="960" alt="平日の 通勤時間だけ — 曜日と時間帯を決めておけばその時だけ">
+      </figure>
+      <figure class="shot" style="margin:0">
+        <img class="promo" loading="lazy" src="shots/ja/06.jpg" width="540" height="960" alt="ライト・ダーク、 ウォッチにも — 画面モードを選んで、スマートウォッチでも受け取れます">
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section id="faq" style="padding-top:0">
+  <div class="wrap narrow">
+    <h2>よくある質問</h2>
+      <details class="faq-item">
+        <summary>バスや電車で寝過ごしても降りる場所を教えてくれますか？</summary>
+        <p>はい。降りる停留所や駅を地図で登録しておけば、その半径に入った瞬間に振動で起こします。アプリを開いていなくても、画面が消えていても動作します。</p>
+      </details>
+      <details class="faq-item">
+        <summary>イヤホンがないと音が鳴りますか？</summary>
+        <p>いいえ。有線・USB-C・Bluetooth イヤホンの接続を確認してから音を鳴らします。接続されていなければ振動だけで、スピーカーからは鳴りません。</p>
+      </details>
+      <details class="faq-item">
+        <summary>バッテリーを多く使いますか？</summary>
+        <p>位置情報を常にオンにはしません。場所から遠いときは OS のジオフェンスに任せ、近づいたときだけ精密に確認します。</p>
+      </details>
+      <details class="faq-item">
+        <summary>位置情報はサーバーに送られますか？</summary>
+        <p>送られません。到着の判定はすべて端末の中で行い、登録した場所や記録も端末にだけ保存されます。会員登録もありません。</p>
+      </details>
+      <details class="faq-item">
+        <summary>スマートウォッチでも通知を受け取れますか？</summary>
+        <p>Galaxy Watch や Apple Watch でスマートフォンの通知を受け取る設定にすれば、ウォッチにも到着通知が届きます。アプリの設定 › ウォッチで通知を受け取る で手順を案内します。</p>
+      </details>
+      <details class="faq-item">
+        <summary>無料ですか？</summary>
+        <p>無料です。広告が含まれますが、通知が鳴っている画面には広告を表示しません。</p>
+      </details>
+  </div>
+</section>
+
+<section id="privacy" style="padding-top:0">
+  <div class="wrap">
+    <div class="privacy-box">
+      <h2>位置情報は端末の外に出ません</h2>
+      <p class="sec-lead" style="margin-bottom:0">
+        到着の判定はすべてスマートフォンの中で行います。座標や移動履歴をどのサーバーにも送らず、開発者もあなたがどこにいたか知ることはできません。
+      </p>
+      <ul class="plist">
+        <li><span class="tick">✓</span><span>会員登録なし。名前・メール・電話番号を受け取りません。</span></li>
+        <li><span class="tick">✓</span><span>登録した場所と到着履歴は端末にだけ保存されます。</span></li>
+        <li><span class="tick">✓</span><span>動作記録はアプリ専用の領域にあり、自分で「書き出し」を押したときだけ外に出ます。</span></li>
+        <li><span class="tick">✓</span><span>アプリを削除すると保存されたものはすべて消えます。</span></li>
+      </ul>
+      <div class="cta" style="margin-top:28px">
+        <a class="btn btn-ghost" href="privacy-en.html">プライバシーポリシー全文</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot-in">
+    <span>イヤホン位置通知 · 서새찬</span>
+    <a href="privacy-en.html">プライバシーポリシー</a>
+    <a href="./" hreflang="ko">한국어</a>
+    <a href="mailto:chan4760@gmail.com">お問い合わせ</a>
+    <a href="https://apps.apple.com/jp/app/id6755805664" rel="noopener">App Store</a>
+    <a href="https://play.google.com/store/apps/details?id=kr.suhsaechan.ear_loc_alert&amp;hl=ja" rel="noopener">Google Play</a>
+    <span class="sp">iPhone · Android</span>
+  </div>
+</footer>
+
+</body>
+</html>
