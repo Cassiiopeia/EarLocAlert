@@ -7,12 +7,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../../../core/diagnostics/diagnostics.dart';
-import '../../../core/domain/alert_direction.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/map/default_map_view.dart';
 import '../../../core/map/map_reveal_cover.dart';
 import '../../../core/map/map_style_guard.dart';
 import '../../../core/map/radius_zoom.dart';
+import '../../../core/ui/foundation/alert_direction_appearance.dart';
 import '../../../core/ui/foundation/app_color_palette.dart';
 import '../../../core/ui/foundation/app_semantic_colors.dart';
 import '../../../core/ui/foundation/app_spacing.dart';
@@ -377,9 +377,7 @@ class _PlaceMapHomeScreenState extends ConsumerState<PlaceMapHomeScreen>
 
   /// 카드와 같은 색 규칙을 쓴다 (place_card.dart `describeDirection`)
   Color _directionColor(AlertPlace place, AppSemanticColors semantic) =>
-      place.direction == AlertDirection.exit
-      ? semantic.alertExit
-      : semantic.alertEnter;
+      place.direction.colorFrom(semantic);
 
   double _markerHue(AlertPlace place) => markerHueFor(place.direction);
 

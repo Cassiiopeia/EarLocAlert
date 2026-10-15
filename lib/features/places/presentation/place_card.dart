@@ -1,10 +1,13 @@
 import 'package:flutter/foundation.dart' show ValueListenable;
 import 'package:flutter/material.dart';
+
+import '../../../core/ui/feedback/app_feedback.dart';
 import 'package:flutter/semantics.dart' show CustomSemanticsAction;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/domain/alert_direction.dart';
 import '../../../core/l10n/l10n.dart';
+import '../../../core/ui/foundation/alert_direction_appearance.dart';
 import '../../../core/ui/foundation/app_color_palette.dart';
 import '../../../core/ui/foundation/app_semantic_colors.dart';
 import '../../../core/ui/foundation/app_spacing.dart';
@@ -370,19 +373,19 @@ class _DeletePanelPainter extends CustomPainter {
   AppLocalizations l10n,
 ) => switch (direction) {
   AlertDirection.enter => (
-    Icons.login_outlined,
+    direction.outlinedIcon,
     l10n.placeDirectionEnter,
-    semantic.alertEnter,
+    direction.colorFrom(semantic),
   ),
   AlertDirection.exit => (
-    Icons.logout_outlined,
+    direction.outlinedIcon,
     l10n.placeDirectionExit,
-    semantic.alertExit,
+    direction.colorFrom(semantic),
   ),
   AlertDirection.both => (
-    Icons.sync_alt_outlined,
+    direction.outlinedIcon,
     l10n.placeDirectionBoth,
-    semantic.alertEnter,
+    direction.colorFrom(semantic),
   ),
 };
 
@@ -415,15 +418,10 @@ void showPlaceDeletedSnack(
   PlaceActions actions,
   AlertPlace deleted,
 ) {
-  messenger
-    ..hideCurrentSnackBar()
-    ..showSnackBar(
-      SnackBar(
-        content: Text(l10n.placeDeleted(deleted.name)),
-        action: SnackBarAction(
-          label: l10n.placeUndo,
-          onPressed: () => actions.restore(deleted),
-        ),
-      ),
-    );
+  showSnackBarWithActionButton(
+    messenger,
+    message: l10n.placeDeleted(deleted.name),
+    actionLabel: l10n.placeUndo,
+    onActionPressed: () => actions.restore(deleted),
+  );
 }

@@ -8,6 +8,7 @@ import '../../../core/l10n/locale_resolver.dart';
 import 'language_sheet.dart';
 import 'theme_mode_sheet.dart';
 import '../../../core/ui/components/grouped_list_row.dart';
+import '../../../core/ui/feedback/app_feedback.dart';
 import '../../../core/ui/components/grouped_list_section.dart';
 import '../../../core/ui/foundation/app_theme_preference.dart';
 
@@ -164,18 +165,13 @@ class SettingsScreen extends StatelessWidget {
     final strings = AppStrings.forLocale(
       resolveAppLocale(picked, PlatformDispatcher.instance.locales),
     );
-    messenger
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(
-          content: Text(strings.languageChanged),
-          duration: const Duration(seconds: 8),
-          action: SnackBarAction(
-            label: strings.languageUndo,
-            onPressed: () => onLanguageChanged(language),
-          ),
-        ),
-      );
+    showSnackBarWithActionButton(
+      messenger,
+      message: strings.languageChanged,
+      actionLabel: strings.languageUndo,
+      onActionPressed: () => onLanguageChanged(language),
+      duration: const Duration(seconds: 8),
+    );
   }
 
   Future<void> _openTheme(BuildContext context) async {
@@ -187,18 +183,13 @@ class SettingsScreen extends StatelessWidget {
     onThemeChanged(picked);
 
     // 실수로 눌렀을 때 바로 되돌릴 수 있게 한다 — 언어 설정과 같은 방식
-    messenger
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(
-          content: Text(l10n.themeChanged),
-          duration: const Duration(seconds: 8),
-          action: SnackBarAction(
-            label: l10n.themeUndo,
-            onPressed: () => onThemeChanged(themePreference),
-          ),
-        ),
-      );
+    showSnackBarWithActionButton(
+      messenger,
+      message: l10n.themeChanged,
+      actionLabel: l10n.themeUndo,
+      onActionPressed: () => onThemeChanged(themePreference),
+      duration: const Duration(seconds: 8),
+    );
   }
 
   @override

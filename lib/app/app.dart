@@ -32,6 +32,7 @@ import 'background/pending_alert_store.dart';
 import 'background_alert_ringer.dart';
 import '../features/geofence/data/drift_geofence_event_repository.dart';
 import '../core/database/app_database_provider.dart';
+import '../core/ui/feedback/app_feedback.dart';
 import 'alert_ad_coordinator_provider.dart';
 import 'geofence_event_retention.dart';
 import 'geofence_providers.dart';
@@ -411,16 +412,16 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
         WidgetsBinding.instance.platformDispatcher.locales,
       );
       final strings = AppStrings.forLocale(locale);
-      _messengerKey.currentState?.showSnackBar(
-        SnackBar(
-          content: Text(strings.appUpdateReady),
+      final messenger = _messengerKey.currentState;
+      if (messenger != null) {
+        showSnackBarWithActionButton(
+          messenger,
+          message: strings.appUpdateReady,
+          actionLabel: strings.appUpdateRestart,
+          onActionPressed: () => unawaited(gate.install()),
           duration: const Duration(seconds: 15),
-          action: SnackBarAction(
-            label: strings.appUpdateRestart,
-            onPressed: () => unawaited(gate.install()),
-          ),
-        ),
-      );
+        );
+      }
     } on Object catch (error) {
       Diagnostics.log('update', 'check flow failed $error');
     }

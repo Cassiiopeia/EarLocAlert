@@ -44,3 +44,26 @@ Future<bool> showConfirmDialog(
   );
   return confirmed ?? false;
 }
+
+/// 버튼이 하나 달린 스낵바 — 되돌리기·다시 시작처럼 바로 이어서 할 동작이 있을 때 (#276)
+///
+/// 화면을 떠난 뒤에도 띄워야 하는 경우가 많아(삭제 후 목록으로 돌아감 등)
+/// context 가 아니라 미리 잡아 둔 [ScaffoldMessengerState] 를 받는다. 앞서 떠 있던
+/// 스낵바는 걷는다 — 연달아 눌렀을 때 옛 되돌리기가 남아 있으면 엉뚱한 것을 되돌린다.
+void showSnackBarWithActionButton(
+  ScaffoldMessengerState messenger, {
+  required String message,
+  required String actionLabel,
+  required VoidCallback onActionPressed,
+  Duration duration = const Duration(seconds: 4),
+}) {
+  messenger
+    ..hideCurrentSnackBar()
+    ..showSnackBar(
+      SnackBar(
+        content: Text(message),
+        duration: duration,
+        action: SnackBarAction(label: actionLabel, onPressed: onActionPressed),
+      ),
+    );
+}

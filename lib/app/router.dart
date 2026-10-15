@@ -497,18 +497,13 @@ class _SettingsRouteState extends ConsumerState<_SettingsRoute>
     if (!mounted) return;
     switch (outcome) {
       case AppUpdateOutcome.downloaded:
-        messenger
-          ..hideCurrentSnackBar()
-          ..showSnackBar(
-            SnackBar(
-              content: Text(l10n.appUpdateReady),
-              duration: const Duration(seconds: 15),
-              action: SnackBarAction(
-                label: l10n.appUpdateRestart,
-                onPressed: () => unawaited(gate.install()),
-              ),
-            ),
-          );
+        showSnackBarWithActionButton(
+          messenger,
+          message: l10n.appUpdateReady,
+          actionLabel: l10n.appUpdateRestart,
+          onActionPressed: () => unawaited(gate.install()),
+          duration: const Duration(seconds: 15),
+        );
       case AppUpdateOutcome.none:
         messenger
           ..hideCurrentSnackBar()

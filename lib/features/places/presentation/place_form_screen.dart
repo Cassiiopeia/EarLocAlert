@@ -12,6 +12,7 @@ import '../../../core/map/map_corner_mask.dart';
 import '../../../core/map/map_reveal_cover.dart';
 import '../../../core/map/map_style_guard.dart';
 import '../../../core/map/radius_zoom.dart';
+import '../../../core/ui/foundation/alert_direction_appearance.dart';
 import '../../../core/ui/foundation/app_color_palette.dart';
 import '../../../core/ui/foundation/app_semantic_colors.dart';
 import '../../../core/ui/foundation/map_style.dart';
@@ -440,17 +441,17 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
                   segments: [
                     IconLabelSegment(
                       value: AlertDirection.enter,
-                      icon: Icons.where_to_vote_outlined,
+                      icon: AlertDirection.enter.outlinedIcon,
                       label: l10n.placeFormTimingEnter,
                     ),
                     IconLabelSegment(
                       value: AlertDirection.exit,
-                      icon: Icons.near_me_outlined,
+                      icon: AlertDirection.exit.outlinedIcon,
                       label: l10n.placeFormTimingExit,
                     ),
                     IconLabelSegment(
                       value: AlertDirection.both,
-                      icon: Icons.sync_alt_outlined,
+                      icon: AlertDirection.both.outlinedIcon,
                       label: l10n.placeFormTimingBoth,
                     ),
                   ],

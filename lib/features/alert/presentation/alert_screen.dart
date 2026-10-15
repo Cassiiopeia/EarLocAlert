@@ -8,6 +8,7 @@ import '../../../core/l10n/l10n.dart';
 import '../../../core/map/map_style_guard.dart';
 import '../../../core/map/map_corner_mask.dart';
 import '../../../core/map/radius_zoom.dart';
+import '../../../core/ui/foundation/alert_direction_appearance.dart';
 import '../../../core/ui/foundation/app_color_palette.dart';
 import '../../../core/ui/foundation/app_semantic_colors.dart';
 import '../../../core/ui/foundation/app_spacing.dart';
@@ -64,7 +65,7 @@ class AlertScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final semantic = Theme.of(context).extension<AppSemanticColors>()!;
-    final accent = _isExit ? semantic.alertExit : semantic.alertEnter;
+    final accent = session.direction.colorFrom(semantic);
 
     return Scaffold(
       backgroundColor: context.appColors.background,
