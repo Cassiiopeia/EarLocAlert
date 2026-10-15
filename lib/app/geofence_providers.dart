@@ -5,7 +5,10 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import '../core/di/providers.dart';
+import '../core/database/app_database_provider.dart';
+import '../features/geofence/data/geofence_state_repository_provider.dart';
+import '../features/places/data/place_repository_provider.dart';
+import '../features/sounds/data/custom_sound_repository_provider.dart';
 import '../core/domain/id_generator.dart';
 import '../features/alert/presentation/alert_controller_provider.dart';
 import '../features/geofence/data/android_geofence_monitor.dart';

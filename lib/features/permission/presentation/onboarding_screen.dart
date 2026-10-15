@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import '../../../core/ui/components/status_bar_icons_following_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/di/providers.dart';
+import '../data/permission_providers.dart';
 import '../../../core/diagnostics/diagnostics.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/ui/foundation/app_color_palette.dart';

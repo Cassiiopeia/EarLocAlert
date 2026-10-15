@@ -3,7 +3,7 @@ import 'package:ear_loc_alert/app/home_status_provider.dart';
 import 'package:ear_loc_alert/app/ios_alert_readiness.dart';
 import 'package:ear_loc_alert/features/alert/domain/alert_effects.dart';
 import 'package:ear_loc_alert/features/alert/presentation/alert_controller_provider.dart';
-import 'package:ear_loc_alert/core/di/providers.dart';
+import 'package:ear_loc_alert/features/permission/data/permission_providers.dart';
 import 'package:ear_loc_alert/features/geofence/domain/geofence_monitor.dart';
 import 'package:ear_loc_alert/features/geofence/domain/geofence_target.dart';
 import 'package:ear_loc_alert/features/permission/domain/permission_kind.dart';

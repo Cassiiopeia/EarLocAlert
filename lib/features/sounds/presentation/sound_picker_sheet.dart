@@ -4,7 +4,7 @@ import '../../../core/diagnostics/diagnostics.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/audio/alert_sound_source.dart';
-import '../../../core/di/providers.dart';
+import '../data/custom_sound_repository_provider.dart';
 import '../../../core/domain/alert_sound.dart';
 import '../../../core/domain/sound_preset_label.dart';
 import '../../../core/l10n/l10n.dart';

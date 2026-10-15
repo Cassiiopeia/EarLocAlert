@@ -3,7 +3,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../core/diagnostics/diagnostics.dart';
 import '../../../core/diagnostics/log_format.dart';
-import '../../../core/di/providers.dart';
+import '../data/place_repository_provider.dart';
 import '../../../core/domain/alert_direction.dart';
 import '../../../core/domain/alert_schedule.dart';
 import '../../../core/domain/alert_sound.dart';

@@ -1,7 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../core/diagnostics/diagnostics.dart';
-import '../../../core/di/providers.dart';
+import '../data/permission_providers.dart';
 import '../domain/permission_gate.dart';
 import '../domain/permission_kind.dart';
 import '../domain/permission_service.dart';

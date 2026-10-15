@@ -3,7 +3,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../core/audio/audio_session_headphone_detector.dart';
 import '../../../core/audio/headphone_detector.dart';
-import '../../../core/di/providers.dart';
+import '../data/custom_sound_repository_provider.dart';
 import '../data/file_picker_sound_source.dart';
 import '../data/just_audio_preview_player.dart';
 import '../data/just_audio_sound_probe.dart';

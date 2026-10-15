@@ -1,6 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import '../../../core/di/providers.dart';
+import '../data/permission_providers.dart';
 
 part 'reliability_prompt_provider.g.dart';
 

@@ -31,7 +31,7 @@ import 'background/pending_alert.dart';
 import 'background/pending_alert_store.dart';
 import 'background_alert_ringer.dart';
 import '../features/geofence/data/drift_geofence_event_repository.dart';
-import '../core/di/providers.dart';
+import '../core/database/app_database_provider.dart';
 import 'geofence_event_retention.dart';
 import 'geofence_providers.dart';
 import 'notification_dismiss_action.dart';

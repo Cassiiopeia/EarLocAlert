@@ -1,4 +1,5 @@
-import 'package:ear_loc_alert/core/di/providers.dart';
+import 'package:ear_loc_alert/features/geofence/data/geofence_state_repository_provider.dart';
+import 'package:ear_loc_alert/features/places/data/place_repository_provider.dart';
 import 'package:ear_loc_alert/core/domain/alert_direction.dart';
 import 'package:ear_loc_alert/core/l10n/l10n.dart';
 import 'package:ear_loc_alert/core/ui/foundation/app_theme.dart';

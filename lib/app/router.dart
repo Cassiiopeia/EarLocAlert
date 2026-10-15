@@ -6,7 +6,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../core/di/providers.dart';
+import '../features/places/data/place_repository_provider.dart';
+import '../features/sounds/data/custom_sound_repository_provider.dart';
 import '../core/diagnostics/diagnostics.dart';
 import '../core/legal/legal_links.dart';
 import '../core/ui/feedback/app_feedback.dart';

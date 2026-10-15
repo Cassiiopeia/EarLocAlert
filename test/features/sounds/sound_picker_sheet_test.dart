@@ -1,7 +1,7 @@
 import 'package:ear_loc_alert/core/text/keep_all.dart';
 import 'package:ear_loc_alert/core/audio/alert_sound_source.dart';
 import 'package:ear_loc_alert/core/audio/headphone_detector.dart';
-import 'package:ear_loc_alert/core/di/providers.dart';
+import 'package:ear_loc_alert/features/sounds/data/custom_sound_repository_provider.dart';
 import 'package:ear_loc_alert/core/domain/alert_sound.dart';
 import 'package:ear_loc_alert/core/ui/foundation/app_theme.dart';
 import 'package:ear_loc_alert/features/sounds/domain/custom_sound.dart';
