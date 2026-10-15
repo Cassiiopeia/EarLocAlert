@@ -84,7 +84,7 @@ h1 .hl { color: var(--mint); }
   display: inline-flex; align-items: center; gap: 9px;
   padding: 14px 26px; border-radius: 14px; font-weight: 700; font-size: 16px;
 }
-.btn-primary { background: var(--amber); color: #1a1408; }
+.btn-primary { background: var(--mint); color: #04130f; }
 .btn-primary:hover { text-decoration: none; filter: brightness(1.06); }
 .btn-ghost { border: 1px solid var(--line); color: var(--text); }
 .btn-ghost:hover { text-decoration: none; background: var(--surface); }
