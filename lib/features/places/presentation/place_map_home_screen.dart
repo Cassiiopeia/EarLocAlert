@@ -13,20 +13,20 @@ import '../../../core/map/default_map_view.dart';
 import '../../../core/map/map_reveal_cover.dart';
 import '../../../core/map/map_style_guard.dart';
 import '../../../core/map/radius_zoom.dart';
-import '../../../core/theme/app_palette.dart';
-import '../../../core/theme/app_semantic_colors.dart';
-import '../../../core/theme/app_spacing.dart';
-import '../../../core/theme/map_style.dart';
+import '../../../core/ui/foundation/app_color_palette.dart';
+import '../../../core/ui/foundation/app_semantic_colors.dart';
+import '../../../core/ui/foundation/app_spacing.dart';
+import '../../../core/ui/foundation/map_style.dart';
 import '../../../core/text/keep_all.dart';
-import '../../../core/widgets/themed_status_bar.dart';
-import '../../../core/widgets/floating_circle_button.dart';
+import '../../../core/ui/components/status_bar_icons_following_theme.dart';
+import '../../../core/ui/components/floating_circle_button.dart';
 import '../data/current_location_channel.dart';
 import '../domain/alert_place.dart';
 import 'current_location_message.dart';
 import 'place_card.dart';
 import 'place_empty_state.dart';
 import 'place_list_controller.dart';
-import '../../../core/widgets/app_feedback.dart';
+import '../../../core/ui/feedback/app_feedback.dart';
 import '../../../core/map/marker_hue.dart';
 
 /// 메인 화면 (docs/06-UX.md "메인 화면")
@@ -164,9 +164,9 @@ class _PlaceMapHomeScreenState extends ConsumerState<PlaceMapHomeScreen>
     }
 
     // 앱바가 없는 화면 — 상태바 아이콘색을 직접 맞춘다 (이슈 #272)
-    return ThemedStatusBar(
+    return StatusBarIconsFollowingTheme(
       child: Scaffold(
-        backgroundColor: context.palette.background,
+        backgroundColor: context.appColors.background,
         body: Stack(
           children: [
             MapRevealCover(
@@ -178,7 +178,7 @@ class _PlaceMapHomeScreenState extends ConsumerState<PlaceMapHomeScreen>
                       : LatLng(places.first.latitude, places.first.longitude),
                   zoom: places.isEmpty ? _fallback.zoom : 14,
                 ),
-                style: MapStyle.forBrightness(Theme.of(context).brightness),
+                style: MapStyle.jsonForBrightness(Theme.of(context).brightness),
                 markers: _markers(places),
                 circles: _circles(places, semantic),
                 onMapCreated: (controller) {
@@ -188,7 +188,7 @@ class _PlaceMapHomeScreenState extends ConsumerState<PlaceMapHomeScreen>
                     ensureMapStyle(
                       controller,
                       'home',
-                      style: MapStyle.forBrightness(
+                      style: MapStyle.jsonForBrightness(
                         Theme.of(context).brightness,
                       ),
                     ),
@@ -519,7 +519,7 @@ class _StatusBar extends StatelessWidget {
         ? semantic.statusActive
         : _isBroken
         ? semantic.statusInactive
-        : context.palette.textSecondary; // 정상 대기 — 경고색을 쓰지 않는다
+        : context.appColors.textSecondary; // 정상 대기 — 경고색을 쓰지 않는다
 
     // 설정 버튼은 보이는 원보다 탭 영역이 크다. 그 차이만큼 바깥 여백에서
     // 빼야 **보이는 원이 예전 자리 그대로** 오른쪽 끝·알약과 같은 높이에
@@ -582,7 +582,7 @@ class _StatusBar extends StatelessWidget {
     Color statusColor,
   ) {
     return Material(
-      color: context.palette.surface,
+      color: context.appColors.surface,
       borderRadius: BorderRadius.circular(AppRadius.pill),
       child: InkWell(
         // 고장일 때만 해결 경로(권한 화면)로 보낸다.
@@ -652,7 +652,9 @@ class _StatusBar extends StatelessWidget {
                       : _isChecking
                       ? context.l10n.placeHomeStatusChecking
                       : context.l10n.placeHomeStatusIdle,
-                  style: context.typo.body.copyWith(color: statusColor),
+                  style: context.appTextStyles.body.copyWith(
+                    color: statusColor,
+                  ),
                   maxLines: 1,
                   softWrap: false,
                 ),
@@ -669,8 +671,10 @@ class _StatusBar extends StatelessWidget {
                 const SizedBox(width: AppSpacing.xs),
                 Text(
                   '·',
-                  style: context.typo.body.copyWith(
-                    color: context.palette.textSecondary.withValues(alpha: 0.5),
+                  style: context.appTextStyles.body.copyWith(
+                    color: context.appColors.textSecondary.withValues(
+                      alpha: 0.5,
+                    ),
                   ),
                 ),
                 const SizedBox(width: AppSpacing.xs),
@@ -682,7 +686,7 @@ class _StatusBar extends StatelessWidget {
                   size: AppIconSize.control,
                   color: isHeadphoneConnected
                       ? semantic.audioBluetooth
-                      : context.palette.textSecondary,
+                      : context.appColors.textSecondary,
                 ),
                 const SizedBox(width: AppSpacing.xs),
                 Flexible(
@@ -690,7 +694,7 @@ class _StatusBar extends StatelessWidget {
                     isHeadphoneConnected
                         ? context.l10n.placeHomeAudioHeadphones
                         : context.l10n.placeHomeAudioVibrationOnly,
-                    style: context.typo.body,
+                    style: context.appTextStyles.body,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -725,7 +729,7 @@ class _WeakAlertBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final accent = context.palette.warning;
+    final accent = context.appColors.warning;
 
     // **불투명해야 한다.** 지도 위에 뜨는 배너라 반투명이면 도로와 지명이
     // 글자 뒤로 비쳐 읽히지 않는다. 표면색에 강조색을 섞어 경고 기운은
@@ -733,7 +737,7 @@ class _WeakAlertBanner extends StatelessWidget {
     return Material(
       color: Color.alphaBlend(
         accent.withValues(alpha: 0.22),
-        context.palette.surface,
+        context.appColors.surface,
       ),
       borderRadius: BorderRadius.circular(AppRadius.card),
       child: InkWell(
@@ -759,7 +763,7 @@ class _WeakAlertBanner extends StatelessWidget {
                   children: [
                     Text(
                       context.l10n.placeHomeWeakTitle,
-                      style: context.typo.body.copyWith(
+                      style: context.appTextStyles.body.copyWith(
                         fontWeight: FontWeight.w700,
                         color: accent,
                       ),
@@ -775,7 +779,7 @@ class _WeakAlertBanner extends StatelessWidget {
                                 missing.join(' · '),
                               ),
                       ),
-                      style: context.typo.caption,
+                      style: context.appTextStyles.caption,
                       // **두 줄까지 보여준다** — 한 줄로 자르면 정작 무엇이
                       // 꺼졌는지가 잘려 나간다
                       maxLines: 2,
@@ -853,8 +857,8 @@ class _MapControls extends StatelessWidget {
             onPressed: onAddPlace,
             semanticLabel: context.l10n.placeHomeAddPlace,
             size: AppControlSize.primary,
-            background: context.palette.accent,
-            foreground: context.palette.onAccent,
+            background: context.appColors.accent,
+            foreground: context.appColors.onAccent,
             slop: const EdgeInsets.fromLTRB(_slop, gapHalf, _slop, _slop),
           ),
         ],
@@ -890,7 +894,7 @@ class _PlaceSheet extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Container(
       decoration: BoxDecoration(
-        color: context.palette.background,
+        color: context.appColors.background,
         borderRadius: BorderRadius.vertical(
           top: Radius.circular(AppRadius.card),
         ),
@@ -904,7 +908,7 @@ class _PlaceSheet extends ConsumerWidget {
               width: 36,
               height: 4,
               decoration: BoxDecoration(
-                color: context.palette.textSecondary,
+                color: context.appColors.textSecondary,
                 borderRadius: BorderRadius.circular(AppRadius.pill),
               ),
             ),
@@ -933,7 +937,7 @@ class _PlaceSheet extends ConsumerWidget {
             padding: const EdgeInsets.all(AppSpacing.md),
             child: Text(
               context.l10n.placeHomeLoadFailed,
-              style: context.typo.caption,
+              style: context.appTextStyles.caption,
               textAlign: TextAlign.center,
             ),
           ),

@@ -6,8 +6,8 @@ import '../../../core/di/providers.dart';
 import '../../../core/domain/alert_sound.dart';
 import '../../../core/domain/sound_preset_label.dart';
 import '../../../core/l10n/l10n.dart';
-import '../../../core/theme/app_spacing.dart';
-import '../../../core/theme/app_palette.dart';
+import '../../../core/ui/foundation/app_spacing.dart';
+import '../../../core/ui/foundation/app_color_palette.dart';
 import '../../../core/text/keep_all.dart';
 import '../domain/custom_sound.dart';
 import '../domain/sound_importer.dart';
@@ -15,7 +15,7 @@ import '../domain/sound_preview_player.dart';
 import '../domain/sound_validator.dart';
 import 'sound_import_message.dart';
 import 'sound_providers.dart';
-import '../../../core/widgets/app_feedback.dart';
+import '../../../core/ui/feedback/app_feedback.dart';
 
 /// 알림음 선택 시트 (이슈 #121)
 ///
@@ -164,7 +164,7 @@ class _SoundPickerSheetState extends ConsumerState<_SoundPickerSheet>
       body: context.l10n.soundDeleteBody(sound.displayName),
       cancelLabel: context.l10n.soundCancel,
       confirmLabel: context.l10n.soundDelete,
-      bodyStyle: context.typo.body,
+      bodyStyle: context.appTextStyles.body,
     );
     if (!confirmed || !mounted) return;
 
@@ -198,7 +198,9 @@ class _SoundPickerSheetState extends ConsumerState<_SoundPickerSheet>
           children: [
             Text(
               context.l10n.soundPickerTitle,
-              style: context.typo.body.copyWith(fontWeight: FontWeight.w600),
+              style: context.appTextStyles.body.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
             ),
             const SizedBox(height: AppSpacing.xs),
 
@@ -226,7 +228,7 @@ class _SoundPickerSheetState extends ConsumerState<_SoundPickerSheet>
                       const SizedBox(height: AppSpacing.xs),
                       Text(
                         context.l10n.soundPickerPresetHeader,
-                        style: context.typo.caption,
+                        style: context.appTextStyles.caption,
                       ),
                       for (final preset in SoundPreset.values)
                         _SoundTile(
@@ -242,7 +244,7 @@ class _SoundPickerSheetState extends ConsumerState<_SoundPickerSheet>
                           customSounds?.length ?? 0,
                           SoundLimits.maxCount,
                         ),
-                        style: context.typo.caption,
+                        style: context.appTextStyles.caption,
                       ),
 
                       if (customSounds == null)
@@ -259,7 +261,7 @@ class _SoundPickerSheetState extends ConsumerState<_SoundPickerSheet>
                             context.keepAllText(
                               context.l10n.soundPickerCustomEmpty,
                             ),
-                            style: context.typo.caption,
+                            style: context.appTextStyles.caption,
                           ),
                         )
                       else
@@ -343,7 +345,7 @@ class _HeadphoneNotice extends StatelessWidget {
           Expanded(
             child: Text(
               context.keepAllText(context.l10n.soundPickerHeadphoneNotice),
-              style: context.typo.caption,
+              style: context.appTextStyles.caption,
             ),
           ),
         ],
@@ -374,10 +376,13 @@ class _SoundTile extends StatelessWidget {
     final sub = subtitle;
     return RadioListTile<AlertSound>(
       value: value,
-      title: Text(title, style: context.typo.body),
+      title: Text(title, style: context.appTextStyles.body),
       subtitle: sub == null
           ? null
-          : Text(context.keepAllText(sub), style: context.typo.caption),
+          : Text(
+              context.keepAllText(sub),
+              style: context.appTextStyles.caption,
+            ),
       contentPadding: EdgeInsets.zero,
       secondary: Row(
         mainAxisSize: MainAxisSize.min,

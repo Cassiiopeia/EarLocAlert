@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'app_palette.dart';
+import 'app_color_palette.dart';
 import 'app_semantic_colors.dart';
 import 'app_spacing.dart';
 import 'app_typography.dart';
@@ -16,11 +16,11 @@ abstract final class AppTheme {
   /// (스낵바 등)는 이 값을 직접 받아야 글꼴이 빠지지 않는다
   static const _fontFamily = 'Pretendard';
 
-  static ThemeData dark() => _build(AppPalette.dark, Brightness.dark);
+  static ThemeData dark() => _build(AppColorPalette.dark, Brightness.dark);
 
-  static ThemeData light() => _build(AppPalette.light, Brightness.light);
+  static ThemeData light() => _build(AppColorPalette.light, Brightness.light);
 
-  static ThemeData _build(AppPalette p, Brightness brightness) {
+  static ThemeData _build(AppColorPalette p, Brightness brightness) {
     final colorScheme = ColorScheme(
       brightness: brightness,
       primary: p.accent,

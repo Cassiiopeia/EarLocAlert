@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
-import '../theme/app_palette.dart';
-import '../theme/app_spacing.dart';
+import '../foundation/app_color_palette.dart';
+import '../foundation/app_spacing.dart';
 
 /// 세그먼트 한 칸
-class AppSegment<T> {
-  const AppSegment({
+class IconLabelSegment<T> {
+  const IconLabelSegment({
     required this.value,
     required this.icon,
     required this.label,
@@ -21,15 +21,15 @@ class AppSegment<T> {
 /// 트랙 위에서 선택한 칸만 한 층 떠오른다. 기본 `SegmentedButton` 은 칸마다
 /// 테두리와 체크 표시가 붙어 답답했다. 칸 폭은 같게 두고, 라벨은 줄어들어도
 /// 한 줄을 지킨다 — 영어·일본어에서 줄이 바뀌면 높이가 들쭉날쭉해진다.
-class AppSegmentedControl<T> extends StatelessWidget {
-  const AppSegmentedControl({
+class IconLabelSegmentedControl<T> extends StatelessWidget {
+  const IconLabelSegmentedControl({
     required this.segments,
     required this.selected,
     required this.onChanged,
     super.key,
   });
 
-  final List<AppSegment<T>> segments;
+  final List<IconLabelSegment<T>> segments;
   final T selected;
   final ValueChanged<T> onChanged;
 
@@ -38,7 +38,7 @@ class AppSegmentedControl<T> extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(3),
       decoration: BoxDecoration(
-        color: context.palette.elevated,
+        color: context.appColors.elevated,
         borderRadius: BorderRadius.circular(AppRadius.small),
       ),
       child: Row(
@@ -64,13 +64,13 @@ class _SegmentCell<T> extends StatelessWidget {
     required this.onTap,
   });
 
-  final AppSegment<T> segment;
+  final IconLabelSegment<T> segment;
   final bool selected;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    final palette = context.palette;
+    final palette = context.appColors;
     // 선택 칸은 주색 아이콘 + 굵은 본문색, 나머지는 회색 — 색만으로 가르지 않는다
     final textColor = selected ? palette.textPrimary : palette.textSecondary;
     final iconColor = selected ? palette.accent : palette.textSecondary;
@@ -106,7 +106,7 @@ class _SegmentCell<T> extends StatelessWidget {
                     segment.label,
                     maxLines: 1,
                     softWrap: false,
-                    style: context.typo.body.copyWith(
+                    style: context.appTextStyles.body.copyWith(
                       color: textColor,
                       fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
                     ),

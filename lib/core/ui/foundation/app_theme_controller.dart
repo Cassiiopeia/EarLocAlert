@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import '../diagnostics/diagnostics.dart';
+import '../../diagnostics/diagnostics.dart';
 import 'app_theme_preference.dart';
 
 part 'app_theme_controller.g.dart';

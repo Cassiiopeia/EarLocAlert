@@ -1,10 +1,10 @@
 import 'dart:ui';
 
-import 'app_palette.dart';
+import 'app_color_palette.dart';
 
 /// 다크 팔레트 값의 정적 사본 (docs/06-UX.md)
 ///
-/// **화면에서 쓰지 않는다** (이슈 #272) — 화면은 `context.palette` 로 지금
+/// **화면에서 쓰지 않는다** (이슈 #272) — 화면은 `context.appColors` 로 지금
 /// 테마의 색을 읽는다. 이 상수를 쓰면 라이트 모드에서도 다크 색이 박힌다.
 /// `design_system_test` 가 화면 코드의 사용을 막는다. 테마 밖에서 색이
 /// 필요한 드문 자리(네이티브 경계 등)를 위해서만 남긴다.
@@ -22,5 +22,5 @@ abstract final class AppColors {
   static const Color danger = Color(0xFFFF453A);
 
   /// 다크 팔레트와 값이 어긋나지 않았는지 테스트가 비교한다
-  static const AppPalette palette = AppPalette.dark;
+  static const AppColorPalette palette = AppColorPalette.dark;
 }

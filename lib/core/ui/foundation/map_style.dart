@@ -70,6 +70,6 @@ abstract final class MapStyle {
 ''';
 
   /// 화면 밝기에 맞는 스타일. 알림 화면은 항상 다크라 [dark] 를 직접 쓴다
-  static String forBrightness(Brightness brightness) =>
+  static String jsonForBrightness(Brightness brightness) =>
       brightness == Brightness.dark ? dark : light;
 }

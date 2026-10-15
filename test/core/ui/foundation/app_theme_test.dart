@@ -1,6 +1,6 @@
-import 'package:ear_loc_alert/core/theme/app_palette.dart';
-import 'package:ear_loc_alert/core/theme/app_theme.dart';
-import 'package:ear_loc_alert/core/theme/map_style.dart';
+import 'package:ear_loc_alert/core/ui/foundation/app_color_palette.dart';
+import 'package:ear_loc_alert/core/ui/foundation/app_theme.dart';
+import 'package:ear_loc_alert/core/ui/foundation/map_style.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -15,8 +15,8 @@ double _contrast(Color a, Color b) {
 
 void main() {
   for (final (name, p) in [
-    ('dark', AppPalette.dark),
-    ('light', AppPalette.light),
+    ('dark', AppColorPalette.dark),
+    ('light', AppColorPalette.light),
   ]) {
     test('$name 본문 대비 4.5:1 이상', () {
       expect(_contrast(p.textPrimary, p.background), greaterThanOrEqualTo(4.5));
@@ -44,38 +44,41 @@ void main() {
   }
 
   test('테마마다 맞는 팔레트가 실린다', () {
-    expect(AppTheme.dark().extension<AppPalette>(), AppPalette.dark);
-    expect(AppTheme.light().extension<AppPalette>(), AppPalette.light);
+    expect(AppTheme.dark().extension<AppColorPalette>(), AppColorPalette.dark);
+    expect(
+      AppTheme.light().extension<AppColorPalette>(),
+      AppColorPalette.light,
+    );
     expect(AppTheme.light().brightness, Brightness.light);
     expect(AppTheme.dark().brightness, Brightness.dark);
   });
 
-  testWidgets('context.typo.caption 은 보조색이다', (tester) async {
+  testWidgets('context.appTextStyles.caption 은 보조색이다', (tester) async {
     late TextStyle caption;
     await tester.pumpWidget(
       MaterialApp(
         theme: AppTheme.light(),
         home: Builder(
           builder: (context) {
-            caption = context.typo.caption;
+            caption = context.appTextStyles.caption;
             return const SizedBox();
           },
         ),
       ),
     );
-    expect(caption.color, AppPalette.light.textSecondary);
+    expect(caption.color, AppColorPalette.light.textSecondary);
   });
 
   test('선택된 칩 글자는 본문색이다 — 흰 글자가 연한 바탕에 묻히지 않게', () {
     for (final theme in [AppTheme.light(), AppTheme.dark()]) {
-      final p = theme.extension<AppPalette>()!;
+      final p = theme.extension<AppColorPalette>()!;
       expect(theme.colorScheme.onSecondaryContainer, p.textPrimary);
       expect(theme.chipTheme.checkmarkColor, p.textPrimary);
     }
   });
 
   test('밝기별 지도 스타일', () {
-    expect(MapStyle.forBrightness(Brightness.dark), MapStyle.dark);
-    expect(MapStyle.forBrightness(Brightness.light), MapStyle.light);
+    expect(MapStyle.jsonForBrightness(Brightness.dark), MapStyle.dark);
+    expect(MapStyle.jsonForBrightness(Brightness.light), MapStyle.light);
   });
 }

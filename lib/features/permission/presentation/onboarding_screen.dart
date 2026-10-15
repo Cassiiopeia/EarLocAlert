@@ -2,14 +2,14 @@ import 'dart:io' show Platform;
 
 import 'package:flutter/material.dart';
 
-import '../../../core/widgets/themed_status_bar.dart';
+import '../../../core/ui/components/status_bar_icons_following_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/di/providers.dart';
 import '../../../core/diagnostics/diagnostics.dart';
 import '../../../core/l10n/l10n.dart';
-import '../../../core/theme/app_palette.dart';
-import '../../../core/theme/app_spacing.dart';
+import '../../../core/ui/foundation/app_color_palette.dart';
+import '../../../core/ui/foundation/app_spacing.dart';
 import '../../../core/text/keep_all.dart';
 import '../domain/permission_gate.dart';
 import '../domain/permission_kind.dart';
@@ -119,7 +119,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
     final asyncPromptSeen = ref.watch(reliabilityPromptProvider);
 
     // 앱바가 없는 화면 — 상태바 아이콘색을 직접 맞춘다 (이슈 #272)
-    return ThemedStatusBar(
+    return StatusBarIconsFollowingTheme(
       child: Scaffold(
         body: SafeArea(
           child: asyncSnapshot.when(
@@ -226,10 +226,13 @@ class _StepView extends StatelessWidget {
           ],
           Text(
             context.keepAllText(copy.title),
-            style: context.typo.screenTitle,
+            style: context.appTextStyles.screenTitle,
           ),
           const SizedBox(height: AppSpacing.sm),
-          Text(context.keepAllText(copy.body), style: context.typo.body),
+          Text(
+            context.keepAllText(copy.body),
+            style: context.appTextStyles.body,
+          ),
           if (step == OnboardingStep.openSettings) ...[
             const SizedBox(height: AppSpacing.md),
             _SettingsChecklist(snapshot: snapshot),
@@ -242,13 +245,13 @@ class _StepView extends StatelessWidget {
                 Icon(
                   Icons.lock_outlined,
                   size: AppIconSize.inline,
-                  color: context.palette.textSecondary,
+                  color: context.appColors.textSecondary,
                 ),
                 const SizedBox(width: AppSpacing.xs),
                 Expanded(
                   child: Text(
                     context.keepAllText(copy.footnote!),
-                    style: context.typo.caption,
+                    style: context.appTextStyles.caption,
                   ),
                 ),
               ],
@@ -290,7 +293,7 @@ class _VibrationTestCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
-        color: context.palette.surface,
+        color: context.appColors.surface,
         borderRadius: BorderRadius.circular(AppRadius.card),
       ),
       child: Column(
@@ -301,13 +304,13 @@ class _VibrationTestCard extends StatelessWidget {
               Icon(
                 Icons.vibration_outlined,
                 size: AppIconSize.inline,
-                color: context.palette.accent,
+                color: context.appColors.accent,
               ),
               const SizedBox(width: AppSpacing.xs),
               Expanded(
                 child: Text(
                   context.keepAllText(l10n.onboardingVibrationCardTitle),
-                  style: context.typo.body.copyWith(
+                  style: context.appTextStyles.body.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -317,7 +320,7 @@ class _VibrationTestCard extends StatelessWidget {
           const SizedBox(height: AppSpacing.xs),
           Text(
             context.keepAllText(l10n.onboardingVibrationCardBody),
-            style: context.typo.caption,
+            style: context.appTextStyles.caption,
           ),
           const SizedBox(height: AppSpacing.sm),
           OutlinedButton(
@@ -368,13 +371,13 @@ class _SettingsChecklist extends StatelessWidget {
                 Icon(
                   Icons.radio_button_unchecked_outlined,
                   size: AppIconSize.inline,
-                  color: context.palette.warning,
+                  color: context.appColors.warning,
                 ),
                 const SizedBox(width: AppSpacing.xs),
                 Expanded(
                   child: Text(
                     context.keepAllText(row),
-                    style: context.typo.body,
+                    style: context.appTextStyles.body,
                   ),
                 ),
               ],
@@ -387,7 +390,7 @@ class _SettingsChecklist extends StatelessWidget {
             Icon(
               Icons.info_outlined,
               size: AppIconSize.inline,
-              color: context.palette.textSecondary,
+              color: context.appColors.textSecondary,
             ),
             const SizedBox(width: AppSpacing.xs),
             Expanded(
@@ -397,7 +400,7 @@ class _SettingsChecklist extends StatelessWidget {
                       ? l10n.permissionSettingsReturnHintAndroid
                       : l10n.permissionSettingsReturnHintIos,
                 ),
-                style: context.typo.caption,
+                style: context.appTextStyles.caption,
               ),
             ),
           ],
@@ -425,8 +428,8 @@ class _ProgressDots extends StatelessWidget {
               height: 4,
               decoration: BoxDecoration(
                 color: snapshot.statusOf(kind).isGranted
-                    ? context.palette.accent
-                    : context.palette.elevated,
+                    ? context.appColors.accent
+                    : context.appColors.elevated,
                 borderRadius: BorderRadius.circular(AppRadius.pill),
               ),
             ),
@@ -451,12 +454,12 @@ class _ErrorView extends StatelessWidget {
         children: [
           Text(
             context.keepAllText(context.l10n.onboardingErrorTitle),
-            style: context.typo.screenTitle,
+            style: context.appTextStyles.screenTitle,
           ),
           const SizedBox(height: AppSpacing.sm),
           Text(
             context.keepAllText(context.l10n.onboardingErrorHint),
-            style: context.typo.caption,
+            style: context.appTextStyles.caption,
           ),
           const SizedBox(height: AppSpacing.md),
           FilledButton(

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 ///
 /// 위계는 크기보다 굵기와 명도로 만든다 — 큰 흰 글자 옆의 작은 회색 글자.
 /// **색은 넣지 않는다** (이슈 #272) — 라이트·다크마다 달라서 테마가 정한다.
-/// 화면은 이 클래스를 직접 쓰지 않고 `context.typo` 를 쓴다.
+/// 화면은 이 클래스를 직접 쓰지 않고 `context.appTextStyles` 를 쓴다.
 abstract final class AppTypography {
   /// 알림 화면 장소명 — 앱에서 가장 큰 글자
   static const TextStyle alertPlaceName = TextStyle(
@@ -51,7 +51,7 @@ abstract final class AppTypography {
     height: 1.5,
   );
 
-  /// 보조 설명 — 회색은 `context.typo.caption` 이 입힌다
+  /// 보조 설명 — 회색은 `context.appTextStyles.caption` 이 입힌다
   static const TextStyle caption = TextStyle(
     fontSize: 14,
     fontWeight: FontWeight.w400,

@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../../../core/l10n/l10n.dart';
 import '../../../core/text/keep_all.dart';
-import '../../../core/theme/app_palette.dart';
-import '../../../core/theme/app_spacing.dart';
-import '../../../core/theme/app_theme_preference.dart';
+import '../../../core/ui/foundation/app_color_palette.dart';
+import '../../../core/ui/foundation/app_spacing.dart';
+import '../../../core/ui/foundation/app_theme_preference.dart';
 
 /// 화면 모드 선택 시트 (이슈 #272)
 ///
@@ -62,7 +62,7 @@ class _ThemeModeSheet extends StatelessWidget {
                   const SizedBox(width: AppSpacing.sm),
                   Text(
                     l10n.settingsThemeTitle,
-                    style: context.typo.body.copyWith(
+                    style: context.appTextStyles.body.copyWith(
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -73,7 +73,7 @@ class _ThemeModeSheet extends StatelessWidget {
               // 알림만 어두우면 고장으로 보인다
               Text(
                 context.keepAllText(l10n.themeSheetHint),
-                style: context.typo.caption,
+                style: context.appTextStyles.caption,
               ),
               const SizedBox(height: AppSpacing.md),
               RadioGroup<AppThemePreference>(
@@ -90,7 +90,7 @@ class _ThemeModeSheet extends StatelessWidget {
                         secondary: Icon(_icon(value)),
                         title: Text(
                           themePreferenceLabel(l10n, value),
-                          style: context.typo.body,
+                          style: context.appTextStyles.body,
                         ),
                         contentPadding: EdgeInsets.zero,
                       ),

@@ -3,7 +3,7 @@ import 'dart:async';
 
 import 'package:ear_loc_alert/core/text/keep_all.dart';
 import 'package:ear_loc_alert/core/di/providers.dart';
-import 'package:ear_loc_alert/core/theme/app_theme.dart';
+import 'package:ear_loc_alert/core/ui/foundation/app_theme.dart';
 import 'package:ear_loc_alert/features/permission/domain/permission_kind.dart';
 import 'package:ear_loc_alert/features/permission/domain/permission_service.dart';
 import 'package:ear_loc_alert/features/permission/domain/permission_snapshot.dart';

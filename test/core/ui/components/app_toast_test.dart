@@ -1,6 +1,6 @@
 import 'package:ear_loc_alert/app/ad_banner_frame.dart';
-import 'package:ear_loc_alert/core/theme/app_theme.dart';
-import 'package:ear_loc_alert/core/widgets/app_feedback.dart';
+import 'package:ear_loc_alert/core/ui/foundation/app_theme.dart';
+import 'package:ear_loc_alert/core/ui/feedback/app_feedback.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 

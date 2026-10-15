@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/l10n/l10n.dart';
-import '../../../core/theme/app_spacing.dart';
-import '../../../core/theme/app_palette.dart';
+import '../../../core/ui/foundation/app_spacing.dart';
+import '../../../core/ui/foundation/app_color_palette.dart';
 import '../../../core/text/keep_all.dart';
 import '../domain/alert_effects.dart';
 import 'alert_controller_provider.dart';
@@ -82,7 +82,7 @@ class _AlertVolumeSheetState extends ConsumerState<_AlertVolumeSheet> {
               Expanded(
                 child: Text(
                   context.l10n.volumeTitle,
-                  style: context.typo.body.copyWith(
+                  style: context.appTextStyles.body.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -90,9 +90,9 @@ class _AlertVolumeSheetState extends ConsumerState<_AlertVolumeSheet> {
               if (volume != null)
                 Text(
                   '${(volume * 100).round()}%',
-                  style: context.typo.body.copyWith(
+                  style: context.appTextStyles.body.copyWith(
                     fontWeight: FontWeight.w600,
-                    color: context.palette.accent,
+                    color: context.appColors.accent,
                   ),
                   maxLines: 1,
                 ),
@@ -101,7 +101,7 @@ class _AlertVolumeSheetState extends ConsumerState<_AlertVolumeSheet> {
           const SizedBox(height: AppSpacing.xs),
           Text(
             context.keepAllText(context.l10n.volumeDescription),
-            style: context.typo.caption,
+            style: context.appTextStyles.caption,
           ),
           const SizedBox(height: AppSpacing.md),
 
@@ -135,7 +135,7 @@ class _AlertVolumeSheetState extends ConsumerState<_AlertVolumeSheet> {
           if (_previewNotice != null)
             Text(
               context.keepAllText(_previewNotice!),
-              style: context.typo.caption,
+              style: context.appTextStyles.caption,
             ),
 
           const SizedBox(height: AppSpacing.sm),

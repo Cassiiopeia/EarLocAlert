@@ -6,7 +6,7 @@ import 'package:flutter/widgets.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../diagnostics/diagnostics.dart';
-import '../theme/app_palette.dart';
+import '../ui/foundation/app_color_palette.dart';
 
 /// 지도 타일이 그려지기 전의 밝은 바탕을 가린다 (이슈 #143)
 ///
@@ -94,7 +94,7 @@ class _MapRevealCoverState extends State<MapRevealCover> {
             opacity: _revealed ? 0 : 1,
             duration: const Duration(milliseconds: 250),
             // 덮개는 화면 바탕과 같아야 지도가 걷힐 때 이음매가 없다 (이슈 #272)
-            child: ColoredBox(color: context.palette.background),
+            child: ColoredBox(color: context.appColors.background),
           ),
         ),
       ],

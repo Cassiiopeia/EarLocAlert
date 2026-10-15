@@ -1,4 +1,4 @@
-import 'package:ear_loc_alert/core/widgets/hit_slop.dart';
+import 'package:ear_loc_alert/core/ui/components/hit_slop.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 

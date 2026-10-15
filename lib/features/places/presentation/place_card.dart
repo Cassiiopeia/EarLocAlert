@@ -5,9 +5,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/domain/alert_direction.dart';
 import '../../../core/l10n/l10n.dart';
-import '../../../core/theme/app_palette.dart';
-import '../../../core/theme/app_semantic_colors.dart';
-import '../../../core/theme/app_spacing.dart';
+import '../../../core/ui/foundation/app_color_palette.dart';
+import '../../../core/ui/foundation/app_semantic_colors.dart';
+import '../../../core/ui/foundation/app_spacing.dart';
 import '../domain/alert_place.dart';
 import 'alert_schedule_summary.dart';
 import 'place_list_controller.dart';
@@ -50,12 +50,12 @@ class PlaceCard extends StatelessWidget {
     final enabled = place.enabled;
 
     final background = enabled
-        ? context.palette.elevated
-        : context.palette.surface;
+        ? context.appColors.elevated
+        : context.appColors.surface;
     final foreground = enabled
-        ? context.palette.textPrimary
-        : context.palette.textSecondary;
-    final secondary = context.palette.textSecondary;
+        ? context.appColors.textPrimary
+        : context.appColors.textSecondary;
+    final secondary = context.appColors.textSecondary;
 
     final (directionIcon, directionLabel, directionColor) = describeDirection(
       place.direction,
@@ -89,7 +89,7 @@ class PlaceCard extends StatelessWidget {
                   directionIcon,
                   color: enabled
                       ? directionColor
-                      : context.palette.textSecondary,
+                      : context.appColors.textSecondary,
                 ),
                 const SizedBox(width: AppSpacing.sm),
                 Expanded(
@@ -98,7 +98,7 @@ class PlaceCard extends StatelessWidget {
                     children: [
                       Text(
                         place.name,
-                        style: context.typo.body.copyWith(
+                        style: context.appTextStyles.body.copyWith(
                           color: foreground,
                           fontWeight: FontWeight.w600,
                         ),
@@ -111,7 +111,9 @@ class PlaceCard extends StatelessWidget {
                           directionLabel,
                           place.radiusMeters,
                         ),
-                        style: context.typo.caption.copyWith(color: secondary),
+                        style: context.appTextStyles.caption.copyWith(
+                          color: secondary,
+                        ),
                       ),
                       // 시간대가 걸려 있으면 드러낸다 — 창 밖이라 안 울린
                       // 것을 알 방법이 없으면 사용자는 앱을 믿지 못한다
@@ -120,7 +122,7 @@ class PlaceCard extends StatelessWidget {
                         const SizedBox(height: 2),
                         Text(
                           describeSchedules(context.l10n, place.schedules),
-                          style: context.typo.caption.copyWith(
+                          style: context.appTextStyles.caption.copyWith(
                             color: secondary,
                           ),
                           maxLines: 1,
@@ -266,7 +268,7 @@ class _DeletePanel extends StatelessWidget {
       children: [
         Positioned.fill(
           child: CustomPaint(
-            painter: _DeletePanelPainter(progress, context.palette.danger),
+            painter: _DeletePanelPainter(progress, context.appColors.danger),
           ),
         ),
         Positioned.fill(
@@ -294,8 +296,8 @@ class _DeletePanel extends StatelessWidget {
                           size: AppIconSize.standard,
                           // 진해진 배경 위에서는 아이콘이 배경색과 섞이므로 밝게 바꾼다
                           color: Color.lerp(
-                            context.palette.danger,
-                            context.palette.textPrimary,
+                            context.appColors.danger,
+                            context.appColors.textPrimary,
                             t,
                           ),
                         ),

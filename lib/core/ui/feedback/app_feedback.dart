@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../text/keep_all.dart';
+import '../../text/keep_all.dart';
 
 /// 화면 하단에 문구만 띄우는 스낵바 (되돌리기 같은 액션이 있으면 직접 만든다)
 ///

@@ -2,8 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../../../core/domain/alert_schedule.dart';
-import '../../../core/theme/app_spacing.dart';
-import '../../../core/theme/app_palette.dart';
+import '../../../core/ui/foundation/app_spacing.dart';
+import '../../../core/ui/foundation/app_color_palette.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/text/keep_all.dart';
 import 'alert_schedule_summary.dart';
@@ -67,11 +67,13 @@ class _AlertScheduleSheetState extends State<_AlertScheduleSheet> {
         children: [
           Text(
             isEdit ? l10n.scheduleSheetEditTitle : l10n.scheduleSheetAddTitle,
-            style: context.typo.body.copyWith(fontWeight: FontWeight.w600),
+            style: context.appTextStyles.body.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
           ),
           const SizedBox(height: AppSpacing.md),
 
-          Text(l10n.scheduleDaysLabel, style: context.typo.caption),
+          Text(l10n.scheduleDaysLabel, style: context.appTextStyles.caption),
           const SizedBox(height: AppSpacing.xs),
           // 빠른 선택 — 평일/주말/매일은 손이 가장 자주 가는 조합이다
           Wrap(
@@ -118,12 +120,12 @@ class _AlertScheduleSheetState extends State<_AlertScheduleSheet> {
               context.keepAllText(
                 l10n.scheduleCrossesMidnight(describeSchedule(l10n, _current)),
               ),
-              style: context.typo.caption,
+              style: context.appTextStyles.caption,
             )
           else if (_start == _end)
             Text(
               context.keepAllText(l10n.scheduleSameStartEnd),
-              style: context.typo.caption,
+              style: context.appTextStyles.caption,
             ),
 
           const SizedBox(height: AppSpacing.lg),
@@ -170,7 +172,10 @@ class _AlertScheduleSheetState extends State<_AlertScheduleSheet> {
       onTap: onTap,
       child: InputDecorator(
         decoration: InputDecoration(labelText: label),
-        child: Text(describeMinuteOfDay(minuteOfDay), style: context.typo.body),
+        child: Text(
+          describeMinuteOfDay(minuteOfDay),
+          style: context.appTextStyles.body,
+        ),
       ),
     );
   }

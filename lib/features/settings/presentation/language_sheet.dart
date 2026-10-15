@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../../core/l10n/app_language.dart';
 import '../../../core/l10n/l10n.dart';
-import '../../../core/theme/app_spacing.dart';
-import '../../../core/theme/app_palette.dart';
+import '../../../core/ui/foundation/app_spacing.dart';
+import '../../../core/ui/foundation/app_color_palette.dart';
 
 /// 앱 언어 선택 시트 (이슈 #163)
 ///
@@ -60,14 +60,14 @@ class _LanguageSheet extends StatelessWidget {
                 const SizedBox(width: AppSpacing.sm),
                 Text(
                   l10n.settingsLanguageTitle,
-                  style: context.typo.body.copyWith(
+                  style: context.appTextStyles.body.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
                 ),
               ],
             ),
             const SizedBox(height: AppSpacing.xs),
-            Text(l10n.languageSheetHint, style: context.typo.caption),
+            Text(l10n.languageSheetHint, style: context.appTextStyles.caption),
             const SizedBox(height: AppSpacing.md),
             RadioGroup<AppLanguage>(
               groupValue: current,
@@ -82,11 +82,11 @@ class _LanguageSheet extends StatelessWidget {
                     secondary: const Icon(Icons.language_outlined),
                     title: Text(
                       l10n.languageFollowDevice,
-                      style: context.typo.body,
+                      style: context.appTextStyles.body,
                     ),
                     subtitle: Text(
                       l10n.languageFollowDeviceHint(deviceLanguageName),
-                      style: context.typo.caption,
+                      style: context.appTextStyles.caption,
                     ),
                     contentPadding: EdgeInsets.zero,
                   ),
@@ -97,7 +97,7 @@ class _LanguageSheet extends StatelessWidget {
                         // 각 언어의 자기 표기 — 번역하지 않는다
                         title: Text(
                           language.nativeName!,
-                          style: context.typo.body,
+                          style: context.appTextStyles.body,
                         ),
                         contentPadding: EdgeInsets.zero,
                       ),

@@ -26,7 +26,7 @@
 
 구현된 것: 도메인 로직(지오펜스 판정·오디오 경로·광고 빈도) · Drift 저장소 · 권한 온보딩 · 알림 발화/해제 + 알림 화면 · 전면광고 통합 · 위치 목록/등록/편집 · 플랫폼 권한 선언 · **백그라운드 감시** · **지도 홈·위치 선택 화면** · **알림음** · **진동 세기 조절** · **장소별 알림음·사용자 음원 등록** · **알림 화면 지도 카드** · **Pretendard 폰트**. 테스트 560건.
 
-**라이트·다크 두 벌이다 (#272, 결정 065).** 색은 `context.palette`, 글자는 `context.typo` 로 읽는다 — 화면에서 `AppColors.`·`AppTypography.` 를 쓰면 라이트에서 다크 색이 박혀 `design_system_test` 가 막는다. 주색은 민트(`accent`), 금색은 출발·경고(`warning`). 화면 모드는 설정 > 일반에서 고른다(기본 기기 따르기). **알림 화면은 항상 다크다** (`lib/app/alert_theme.dart`). 묶음은 `GroupedSection`, 선택은 `AppSegmentedControl`.
+**라이트·다크 두 벌이다 (#272, 결정 065).** 색은 `context.appColors`, 글자는 `context.appTextStyles` 로 읽는다 — 화면에서 `AppColors.`·`AppTypography.` 를 쓰면 라이트에서 다크 색이 박혀 `design_system_test` 가 막는다. 주색은 민트(`accent`), 금색은 출발·경고(`warning`). 화면 모드는 설정 > 일반에서 고른다(기본 기기 따르기). **알림 화면은 항상 다크다** (`lib/app/always_dark_alert_theme.dart`). 디자인 시스템은 `lib/core/ui/`(foundation · components · feedback) 한 계층이다 (#276).
 
 **알림 화면 가운데에 장소 지도가 있다 (#142·#144, 결정 033).** 지도 카드 400px, 해제 버튼은 340px 에서 **84px 로 줄였다.** 그 버튼은 버스에서 화면을 보지 않고 엄지로 누르는 용도라, **보이는 크기와 눌리는 범위를 분리했다** — 주변 여백까지 탭을 받는다. 더 줄이자는 변경이 오면 `alert_screen_map_test.dart` 가 막는다. 지도는 조작을 받지 않고 lite mode 로 그린다 (전력). **좌표는 `PendingAlert` → SharedPreferences → `take()` 경계를 건너오며, 반드시 `_clear` 앞에서 읽는다** (#125 가 났던 자리).
 

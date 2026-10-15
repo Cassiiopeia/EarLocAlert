@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 
-import '../text/keep_all.dart';
-import '../theme/app_palette.dart';
-import '../theme/app_spacing.dart';
+import '../../text/keep_all.dart';
+import '../foundation/app_color_palette.dart';
+import '../foundation/app_spacing.dart';
 
 /// iOS 설정 앱식 묶음 (이슈 #272)
 ///
 /// 회색 머리글 + 둥근 표면 카드 + 행 사이 가는 선. 화면마다 칸 제목과 목록을
 /// 따로 짜면 간격과 선 굵기가 제각각이 된다 — 묶음은 이것 하나로 만든다.
 /// 구분선은 아이콘 자리만큼 들여 쓴다 — iOS 목록처럼 글자 줄에 맞춘다.
-class GroupedSection extends StatelessWidget {
-  const GroupedSection({
+class GroupedListSection extends StatelessWidget {
+  const GroupedListSection({
     this.header,
     this.footer,
     required this.children,
@@ -27,7 +27,7 @@ class GroupedSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final palette = context.palette;
+    final palette = context.appColors;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
@@ -40,7 +40,7 @@ class GroupedSection extends StatelessWidget {
               AppSpacing.sm,
               AppSpacing.xs,
             ),
-            child: Text(header!, style: context.typo.caption),
+            child: Text(header!, style: context.appTextStyles.caption),
           ),
         // ListTile 의 물결이 둥근 모서리 밖으로 새지 않게 잘라낸다
         ClipRRect(
@@ -74,7 +74,7 @@ class GroupedSection extends StatelessWidget {
             ),
             child: Text(
               context.keepAllText(footer!),
-              style: context.typo.caption,
+              style: context.appTextStyles.caption,
             ),
           ),
       ],

@@ -1,5 +1,5 @@
-import 'package:ear_loc_alert/core/theme/app_theme.dart';
-import 'package:ear_loc_alert/core/widgets/grouped_section.dart';
+import 'package:ear_loc_alert/core/ui/foundation/app_theme.dart';
+import 'package:ear_loc_alert/core/ui/components/grouped_list_section.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -10,7 +10,7 @@ void main() {
       MaterialApp(
         theme: AppTheme.dark(),
         home: const Scaffold(
-          body: GroupedSection(
+          body: GroupedListSection(
             header: '알림',
             children: [Text('a'), Text('b'), Text('c')],
           ),
@@ -25,7 +25,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         theme: AppTheme.dark(),
-        home: const Scaffold(body: GroupedSection(children: [Text('a')])),
+        home: const Scaffold(body: GroupedListSection(children: [Text('a')])),
       ),
     );
     expect(find.byType(Divider), findsNothing);

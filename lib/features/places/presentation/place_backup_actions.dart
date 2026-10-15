@@ -9,7 +9,7 @@ import '../../../core/diagnostics/diagnostics.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/text/keep_all.dart';
 import '../../../core/text/two_digits.dart';
-import '../../../core/widgets/app_feedback.dart';
+import '../../../core/ui/feedback/app_feedback.dart';
 import '../domain/place_backup.dart';
 import '../domain/place_repository.dart';
 

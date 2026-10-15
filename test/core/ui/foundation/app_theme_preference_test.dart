@@ -1,4 +1,4 @@
-import 'package:ear_loc_alert/core/theme/app_theme_preference.dart';
+import 'package:ear_loc_alert/core/ui/foundation/app_theme_preference.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';

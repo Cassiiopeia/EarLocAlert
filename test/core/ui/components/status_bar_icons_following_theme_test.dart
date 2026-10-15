@@ -1,5 +1,5 @@
-import 'package:ear_loc_alert/core/theme/app_theme.dart';
-import 'package:ear_loc_alert/core/widgets/themed_status_bar.dart';
+import 'package:ear_loc_alert/core/ui/foundation/app_theme.dart';
+import 'package:ear_loc_alert/core/ui/components/status_bar_icons_following_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -12,7 +12,7 @@ Future<SystemUiOverlayStyle> _style(
   await tester.pumpWidget(
     MaterialApp(
       theme: theme,
-      home: const ThemedStatusBar(child: SizedBox()),
+      home: const StatusBarIconsFollowingTheme(child: SizedBox()),
     ),
   );
   return tester

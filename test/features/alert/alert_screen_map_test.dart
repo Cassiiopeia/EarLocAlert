@@ -1,6 +1,6 @@
 import 'package:ear_loc_alert/core/text/keep_all.dart';
 import 'package:ear_loc_alert/core/domain/alert_direction.dart';
-import 'package:ear_loc_alert/core/theme/app_theme.dart';
+import 'package:ear_loc_alert/core/ui/foundation/app_theme.dart';
 import 'package:ear_loc_alert/features/alert/domain/alert_session.dart';
 import 'package:ear_loc_alert/features/alert/domain/audio_route.dart';
 import 'package:ear_loc_alert/features/alert/presentation/alert_screen.dart';

@@ -1,5 +1,5 @@
-import 'package:ear_loc_alert/core/theme/app_colors.dart';
-import 'package:ear_loc_alert/core/theme/app_theme.dart';
+import 'package:ear_loc_alert/core/ui/foundation/app_colors.dart';
+import 'package:ear_loc_alert/core/ui/foundation/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 

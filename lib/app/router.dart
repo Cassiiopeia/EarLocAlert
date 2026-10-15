@@ -9,7 +9,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../core/di/providers.dart';
 import '../core/diagnostics/diagnostics.dart';
 import '../core/legal/legal_links.dart';
-import '../core/widgets/app_feedback.dart';
+import '../core/ui/feedback/app_feedback.dart';
 import '../core/domain/sound_preset_label.dart';
 import '../core/l10n/app_language_controller.dart';
 import 'geofence_providers.dart';
@@ -36,8 +36,8 @@ import '../features/diagnostics/presentation/diagnostics_screen.dart';
 import '../features/diagnostics/presentation/bug_report_sheet.dart';
 import '../features/places/presentation/place_backup_actions.dart';
 import '../features/places/presentation/place_search_provider.dart';
-import 'alert_theme.dart';
-import '../core/theme/app_theme_controller.dart';
+import 'always_dark_alert_theme.dart';
+import '../core/ui/foundation/app_theme_controller.dart';
 import '../features/settings/data/prefs_watch_guide_store.dart';
 import '../features/settings/presentation/settings_screen.dart';
 import '../features/settings/presentation/watch_guide_sheet.dart';
@@ -278,11 +278,11 @@ class _AlertRoute extends ConsumerWidget {
           Diagnostics.log('alert', 'empty alert redirect skipped path=$path');
         }
       });
-      return alertEmptyPlaceholder();
+      return alwaysDarkEmptyAlertPlaceholder();
     }
 
     // 알림 화면은 화면 모드와 무관하게 다크다 (이슈 #272)
-    return alertTheme(
+    return wrapWithAlwaysDarkAlertTheme(
       AlertScreen(
         session: session,
         soundFailed: ref.read(activeAlertProvider.notifier).soundFailed,

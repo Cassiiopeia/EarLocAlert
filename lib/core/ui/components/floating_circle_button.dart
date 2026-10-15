@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/theme/app_palette.dart';
+import '../foundation/app_color_palette.dart';
 
-import '../theme/app_spacing.dart';
+import '../foundation/app_spacing.dart';
 import 'hit_slop.dart';
 
 /// 지도 위에 떠 있는 원형 버튼 (docs/06-UX.md "지도 위에 떠 있는 조작 요소")
@@ -54,7 +54,7 @@ class FloatingCircleButton extends StatelessWidget {
         child: SizedBox.square(
           dimension: size,
           child: Material(
-            color: background ?? context.palette.surface,
+            color: background ?? context.appColors.surface,
             shape: const CircleBorder(),
             child: InkWell(
               onTap: onPressed,
@@ -62,7 +62,7 @@ class FloatingCircleButton extends StatelessWidget {
               child: Icon(
                 icon,
                 size: AppIconSize.standard,
-                color: foreground ?? context.palette.textPrimary,
+                color: foreground ?? context.appColors.textPrimary,
               ),
             ),
           ),

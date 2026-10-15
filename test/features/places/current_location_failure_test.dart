@@ -1,7 +1,7 @@
 import 'package:ear_loc_alert/core/l10n/l10n.dart';
 import 'package:ear_loc_alert/core/platform/channel_names.dart';
-import 'package:ear_loc_alert/core/theme/app_theme.dart';
-import 'package:ear_loc_alert/core/widgets/floating_circle_button.dart';
+import 'package:ear_loc_alert/core/ui/foundation/app_theme.dart';
+import 'package:ear_loc_alert/core/ui/components/floating_circle_button.dart';
 import 'package:ear_loc_alert/features/places/data/current_location_channel.dart';
 import 'package:ear_loc_alert/features/places/domain/alert_place.dart';
 import 'package:ear_loc_alert/features/places/presentation/place_list_controller.dart';

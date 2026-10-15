@@ -1,5 +1,5 @@
-import 'package:ear_loc_alert/core/theme/app_theme.dart';
-import 'package:ear_loc_alert/core/widgets/app_segmented_control.dart';
+import 'package:ear_loc_alert/core/ui/foundation/app_theme.dart';
+import 'package:ear_loc_alert/core/ui/components/icon_label_segmented_control.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -7,13 +7,17 @@ import 'package:flutter_test/flutter_test.dart';
 Widget _control(int selected, ValueChanged<int> onChanged) => MaterialApp(
   theme: AppTheme.light(),
   home: Scaffold(
-    body: AppSegmentedControl<int>(
+    body: IconLabelSegmentedControl<int>(
       selected: selected,
       onChanged: onChanged,
       segments: const [
-        AppSegment(value: 0, icon: Icons.where_to_vote_outlined, label: '도착'),
-        AppSegment(value: 1, icon: Icons.near_me_outlined, label: '출발'),
-        AppSegment(value: 2, icon: Icons.sync_alt_outlined, label: '둘 다'),
+        IconLabelSegment(
+          value: 0,
+          icon: Icons.where_to_vote_outlined,
+          label: '도착',
+        ),
+        IconLabelSegment(value: 1, icon: Icons.near_me_outlined, label: '출발'),
+        IconLabelSegment(value: 2, icon: Icons.sync_alt_outlined, label: '둘 다'),
       ],
     ),
   ),

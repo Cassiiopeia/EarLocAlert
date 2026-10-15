@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../core/theme/app_theme_controller.dart';
+import '../core/ui/foundation/app_theme_controller.dart';
 import '../core/config/build_info.dart';
 import '../core/config/dev_flag.dart';
 import '../core/diagnostics/diagnostics.dart';
@@ -14,7 +14,7 @@ import '../core/l10n/app_language_controller.dart';
 import '../core/l10n/l10n.dart';
 import '../core/l10n/locale_resolver.dart';
 import '../features/ads/domain/ad_unit_ids.dart';
-import '../core/theme/app_theme.dart';
+import '../core/ui/foundation/app_theme.dart';
 import '../features/ads/domain/ad_consent.dart';
 import '../features/ads/presentation/ads_providers.dart';
 import '../features/alert/data/alert_notifier_impl.dart';

@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app/app.dart';
-import 'core/theme/app_theme_controller.dart';
-import 'core/theme/app_theme_preference.dart';
+import 'core/ui/foundation/app_theme_controller.dart';
+import 'core/ui/foundation/app_theme_preference.dart';
 import 'core/l10n/app_language_controller.dart';
 import 'core/l10n/app_language_store.dart';
 import 'app/splash_overlay.dart';

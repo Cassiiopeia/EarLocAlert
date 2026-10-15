@@ -1,5 +1,5 @@
 import 'package:ear_loc_alert/core/l10n/l10n.dart';
-import 'package:ear_loc_alert/core/theme/app_theme.dart';
+import 'package:ear_loc_alert/core/ui/foundation/app_theme.dart';
 import 'package:ear_loc_alert/features/places/data/current_location_channel.dart';
 import 'package:ear_loc_alert/features/places/presentation/place_map_picker_screen.dart';
 import 'package:flutter/material.dart';

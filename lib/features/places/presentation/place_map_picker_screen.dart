@@ -9,13 +9,13 @@ import '../../../core/map/default_map_view.dart';
 import '../../../core/map/map_reveal_cover.dart';
 import '../../../core/map/map_style_guard.dart';
 import '../../../core/map/radius_zoom.dart';
-import '../../../core/theme/app_palette.dart';
-import '../../../core/theme/app_semantic_colors.dart';
-import '../../../core/theme/app_spacing.dart';
-import '../../../core/theme/map_style.dart';
+import '../../../core/ui/foundation/app_color_palette.dart';
+import '../../../core/ui/foundation/app_semantic_colors.dart';
+import '../../../core/ui/foundation/app_spacing.dart';
+import '../../../core/ui/foundation/map_style.dart';
 import '../../../core/text/keep_all.dart';
-import '../../../core/widgets/app_feedback.dart';
-import '../../../core/widgets/floating_circle_button.dart';
+import '../../../core/ui/feedback/app_feedback.dart';
+import '../../../core/ui/components/floating_circle_button.dart';
 import '../data/current_location_channel.dart';
 import '../domain/place_search.dart';
 import '../domain/place_validator.dart';
@@ -319,7 +319,7 @@ class _PlaceMapPickerScreenState extends State<PlaceMapPickerScreen> {
     final semantic = Theme.of(context).extension<AppSemanticColors>()!;
 
     return Scaffold(
-      backgroundColor: context.palette.background,
+      backgroundColor: context.appColors.background,
       appBar: AppBar(title: Text(context.l10n.placePickerTitle)),
       body: Stack(
         children: [
@@ -333,7 +333,9 @@ class _PlaceMapPickerScreenState extends State<PlaceMapPickerScreen> {
                   ensureMapStyle(
                     controller,
                     'picker',
-                    style: MapStyle.forBrightness(Theme.of(context).brightness),
+                    style: MapStyle.jsonForBrightness(
+                      Theme.of(context).brightness,
+                    ),
                   ),
                 );
                 // 다크 타일이 그려질 때까지 밝은 바탕을 가린다 (이슈 #143)
@@ -344,7 +346,7 @@ class _PlaceMapPickerScreenState extends State<PlaceMapPickerScreen> {
                 target: _initialCenter,
                 zoom: _initialZoom,
               ),
-              style: MapStyle.forBrightness(Theme.of(context).brightness),
+              style: MapStyle.jsonForBrightness(Theme.of(context).brightness),
               // 원의 중심이 카메라 중심이라, 화면에서는 핀 자리에 고정되어
               // 보이고 반경만 커졌다 작아진다
               circles: {
@@ -500,7 +502,7 @@ class _SearchOverlay extends StatelessWidget {
             SizedBox(
               height: AppControlSize.floating,
               child: Material(
-                color: context.palette.surface,
+                color: context.appColors.surface,
                 borderRadius: BorderRadius.circular(AppRadius.pill),
                 child: TextField(
                   textAlignVertical: TextAlignVertical.center,
@@ -511,10 +513,10 @@ class _SearchOverlay extends StatelessWidget {
                   // iOS 는 기본으로 내려주지 않는다
                   onTapOutside: (_) => focusNode.unfocus(),
                   textInputAction: TextInputAction.search,
-                  style: context.typo.body,
+                  style: context.appTextStyles.body,
                   decoration: InputDecoration(
                     hintText: context.l10n.placeSearchHint,
-                    hintStyle: context.typo.caption,
+                    hintStyle: context.appTextStyles.caption,
                     border: InputBorder.none,
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: AppSpacing.sm,
@@ -559,7 +561,7 @@ class _SearchOverlay extends StatelessWidget {
                 margin: const EdgeInsets.only(top: AppSpacing.xs),
                 constraints: const BoxConstraints(maxHeight: 280),
                 decoration: BoxDecoration(
-                  color: context.palette.surface,
+                  color: context.appColors.surface,
                   borderRadius: BorderRadius.circular(AppRadius.small),
                 ),
                 child: ListView.separated(
@@ -570,7 +572,7 @@ class _SearchOverlay extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
                   itemCount: results.length,
                   separatorBuilder: (_, _) =>
-                      Divider(height: 1, color: context.palette.elevated),
+                      Divider(height: 1, color: context.appColors.elevated),
                   itemBuilder: (context, index) {
                     final result = results[index];
                     return ListTile(
@@ -583,7 +585,7 @@ class _SearchOverlay extends StatelessWidget {
                         result.name.isEmpty
                             ? context.l10n.placeSearchUnnamed
                             : result.name,
-                        style: context.typo.body,
+                        style: context.appTextStyles.body,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -591,7 +593,7 @@ class _SearchOverlay extends StatelessWidget {
                           ? null
                           : Text(
                               result.address,
-                              style: context.typo.caption,
+                              style: context.appTextStyles.caption,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -617,10 +619,13 @@ class _SearchMessage extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.sm),
       decoration: BoxDecoration(
-        color: context.palette.surface,
+        color: context.appColors.surface,
         borderRadius: BorderRadius.circular(AppRadius.small),
       ),
-      child: Text(context.keepAllText(message), style: context.typo.caption),
+      child: Text(
+        context.keepAllText(message),
+        style: context.appTextStyles.caption,
+      ),
     );
   }
 }
@@ -645,7 +650,7 @@ class _PickerPanel extends StatelessWidget {
         margin: const EdgeInsets.all(AppSpacing.sm),
         padding: const EdgeInsets.all(AppSpacing.sm),
         decoration: BoxDecoration(
-          color: context.palette.surface,
+          color: context.appColors.surface,
           borderRadius: BorderRadius.circular(AppRadius.card),
         ),
         child: Column(
@@ -668,7 +673,7 @@ class _PickerPanel extends StatelessWidget {
             ),
             Text(
               context.keepAllText(context.l10n.placePickerPinHint),
-              style: context.typo.caption,
+              style: context.appTextStyles.caption,
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: AppSpacing.xs),

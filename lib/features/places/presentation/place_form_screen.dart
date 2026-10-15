@@ -12,10 +12,10 @@ import '../../../core/map/map_corner_mask.dart';
 import '../../../core/map/map_reveal_cover.dart';
 import '../../../core/map/map_style_guard.dart';
 import '../../../core/map/radius_zoom.dart';
-import '../../../core/theme/app_palette.dart';
-import '../../../core/theme/app_semantic_colors.dart';
-import '../../../core/theme/map_style.dart';
-import '../../../core/theme/app_spacing.dart';
+import '../../../core/ui/foundation/app_color_palette.dart';
+import '../../../core/ui/foundation/app_semantic_colors.dart';
+import '../../../core/ui/foundation/map_style.dart';
+import '../../../core/ui/foundation/app_spacing.dart';
 import '../../../core/domain/sound_preset_label.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/text/keep_all.dart';
@@ -27,9 +27,9 @@ import 'place_list_controller.dart';
 import 'place_empty_state.dart' show placeErrorMessage;
 import 'place_map_picker_screen.dart';
 import 'place_section_label.dart';
-import '../../../core/widgets/app_feedback.dart';
-import '../../../core/widgets/app_segmented_control.dart';
-import '../../../core/widgets/grouped_section.dart';
+import '../../../core/ui/feedback/app_feedback.dart';
+import '../../../core/ui/components/icon_label_segmented_control.dart';
+import '../../../core/ui/components/grouped_list_section.dart';
 
 /// 장소 등록/편집 폼 (docs/06-UX.md)
 ///
@@ -353,7 +353,7 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
                 else
                   Text(
                     context.keepAllText(l10n.placeFormNoLocation),
-                    style: context.typo.caption,
+                    style: context.appTextStyles.caption,
                   ),
 
                 // 좌표를 직접 아는 경우와, 지도 키 없이 빌드된 경우의 보조 경로.
@@ -365,7 +365,7 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
                     _hasCoordinates
                         ? l10n.placeFormCoordinates(_coordinateSummary)
                         : l10n.placeFormCoordinatesManual,
-                    style: context.typo.caption,
+                    style: context.appTextStyles.caption,
                   ),
                   tilePadding: EdgeInsets.zero,
                   // 펼칠 때 머티리얼 기본 구분선이 위아래로 생겨 지도 카드 밑에
@@ -433,21 +433,21 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
                 PlaceSectionLabel(l10n.placeFormTimingLabel),
                 // 도착은 핀, 출발은 나아가는 화살표, 둘 다는 오가는 화살표 —
                 // 선형 아이콘으로 통일해 작은 칸에서도 깔끔하게 (이슈 #272)
-                AppSegmentedControl<AlertDirection>(
+                IconLabelSegmentedControl<AlertDirection>(
                   selected: _direction,
                   onChanged: (value) => setState(() => _direction = value),
                   segments: [
-                    AppSegment(
+                    IconLabelSegment(
                       value: AlertDirection.enter,
                       icon: Icons.where_to_vote_outlined,
                       label: l10n.placeFormTimingEnter,
                     ),
-                    AppSegment(
+                    IconLabelSegment(
                       value: AlertDirection.exit,
                       icon: Icons.near_me_outlined,
                       label: l10n.placeFormTimingExit,
                     ),
-                    AppSegment(
+                    IconLabelSegment(
                       value: AlertDirection.both,
                       icon: Icons.sync_alt_outlined,
                       label: l10n.placeFormTimingBoth,
@@ -471,14 +471,14 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
                 // 담는다 (이슈 #272). 소리를 켠 다음에 무슨 소리인지 고르는 순서다
                 // (이슈 #121). 꺼져 있어도 숨기지 않는다 — 숨기면 스위치를 켤 때
                 // 화면이 튄다
-                GroupedSection(
+                GroupedListSection(
                   header: l10n.placeFormSoundTitle,
                   dividerIndent: AppSpacing.sm,
                   children: [
                     SwitchListTile(
                       title: Text(
                         context.keepAllText(l10n.placeFormSoundDescription),
-                        style: context.typo.caption,
+                        style: context.appTextStyles.caption,
                       ),
                       value: _soundEnabled,
                       onChanged: (value) =>
@@ -491,11 +491,11 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
                           leading: const Icon(Icons.music_note_outlined),
                           title: Text(
                             l10n.placeFormSoundLabel,
-                            style: context.typo.body,
+                            style: context.appTextStyles.body,
                           ),
                           subtitle: Text(
                             _soundLabel ?? _fallbackLabel(l10n, _sound),
-                            style: context.typo.caption,
+                            style: context.appTextStyles.caption,
                           ),
                           trailing: const Icon(Icons.chevron_right_outlined),
                           onTap: _soundEnabled ? _pickSound : null,
@@ -516,10 +516,10 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
                     icon: const Icon(Icons.delete_outlined),
                     label: Text(l10n.placeFormDelete),
                     style: TextButton.styleFrom(
-                      backgroundColor: context.palette.danger.withValues(
+                      backgroundColor: context.appColors.danger.withValues(
                         alpha: 0.12,
                       ),
-                      foregroundColor: context.palette.danger,
+                      foregroundColor: context.appColors.danger,
                     ),
                   ),
                 ],
@@ -543,8 +543,8 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                     colors: [
-                      context.palette.background.withValues(alpha: 0),
-                      context.palette.background,
+                      context.appColors.background.withValues(alpha: 0),
+                      context.appColors.background,
                     ],
                     stops: const [0, 0.45],
                   ),
@@ -882,7 +882,7 @@ class _LocationPreviewState extends State<_LocationPreview> {
                         ensureMapStyle(
                           controller,
                           'form',
-                          style: MapStyle.forBrightness(
+                          style: MapStyle.jsonForBrightness(
                             Theme.of(context).brightness,
                           ),
                         ),
@@ -894,7 +894,9 @@ class _LocationPreviewState extends State<_LocationPreview> {
                       target: target,
                       zoom: zoomForRadiusWider(widget.radiusMeters),
                     ),
-                    style: MapStyle.forBrightness(Theme.of(context).brightness),
+                    style: MapStyle.jsonForBrightness(
+                      Theme.of(context).brightness,
+                    ),
                     markers: {
                       Marker(
                         markerId: const MarkerId('picked'),
@@ -928,7 +930,7 @@ class _LocationPreviewState extends State<_LocationPreview> {
               IgnorePointer(
                 child: CustomPaint(
                   painter: MapCornerMask(
-                    color: context.palette.background,
+                    color: context.appColors.background,
                     radius: AppRadius.card,
                   ),
                 ),
@@ -939,7 +941,7 @@ class _LocationPreviewState extends State<_LocationPreview> {
               IgnorePointer(
                 child: DecoratedBox(
                   decoration: BoxDecoration(
-                    border: Border.all(color: context.palette.elevated),
+                    border: Border.all(color: context.appColors.elevated),
                     borderRadius: BorderRadius.circular(AppRadius.card),
                   ),
                 ),

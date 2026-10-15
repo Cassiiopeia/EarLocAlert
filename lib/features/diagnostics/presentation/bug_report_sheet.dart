@@ -5,8 +5,8 @@ import '../../../core/diagnostics/diagnostic_log_reader.dart';
 import '../../../core/diagnostics/diagnostics.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/text/keep_all.dart';
-import '../../../core/theme/app_spacing.dart';
-import '../../../core/theme/app_palette.dart';
+import '../../../core/ui/foundation/app_spacing.dart';
+import '../../../core/ui/foundation/app_color_palette.dart';
 import '../data/bug_report_sender.dart';
 
 /// 문제 신고 시트 (이슈 #255)
@@ -148,7 +148,7 @@ class _BugReportSheetState extends State<_BugReportSheet> {
                 const SizedBox(width: AppSpacing.sm),
                 Text(
                   l10n.reportSheetTitle,
-                  style: context.typo.body.copyWith(
+                  style: context.appTextStyles.body.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -157,7 +157,7 @@ class _BugReportSheetState extends State<_BugReportSheet> {
             const SizedBox(height: AppSpacing.xs),
             Text(
               context.keepAllText(l10n.reportSheetHint),
-              style: context.typo.caption,
+              style: context.appTextStyles.caption,
             ),
             const SizedBox(height: AppSpacing.md),
             CheckboxListTile(
@@ -167,14 +167,17 @@ class _BugReportSheetState extends State<_BugReportSheet> {
               onChanged: _hasLog && !_busy
                   ? (value) => setState(() => _attachLog = value ?? false)
                   : null,
-              title: Text(l10n.reportAttachLog, style: context.typo.body),
+              title: Text(
+                l10n.reportAttachLog,
+                style: context.appTextStyles.body,
+              ),
               subtitle: Text(
                 context.keepAllText(
                   _hasLog
                       ? l10n.reportAttachLogNote
                       : l10n.reportAttachLogEmpty,
                 ),
-                style: context.typo.caption,
+                style: context.appTextStyles.caption,
               ),
             ),
             const SizedBox(height: AppSpacing.md),

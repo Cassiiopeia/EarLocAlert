@@ -6,8 +6,8 @@ import 'package:flutter/services.dart';
 /// 상태바 색은 `AppBarTheme.systemOverlayStyle` 이 앱바가 있는 화면에서만
 /// 정한다. 지도 홈·온보딩처럼 앱바가 없으면 마지막 화면의 값이 남아,
 /// 라이트 모드에서 흰 아이콘이 밝은 바탕에 묻혔다.
-class ThemedStatusBar extends StatelessWidget {
-  const ThemedStatusBar({required this.child, super.key});
+class StatusBarIconsFollowingTheme extends StatelessWidget {
+  const StatusBarIconsFollowingTheme({required this.child, super.key});
 
   final Widget child;
 

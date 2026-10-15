@@ -1,4 +1,4 @@
-import 'package:ear_loc_alert/core/theme/app_theme.dart';
+import 'package:ear_loc_alert/core/ui/foundation/app_theme.dart';
 import 'package:ear_loc_alert/features/alert/domain/alert_effects.dart';
 import 'package:ear_loc_alert/features/alert/domain/vibration_intensity.dart';
 import 'package:ear_loc_alert/features/alert/presentation/alert_controller_provider.dart';

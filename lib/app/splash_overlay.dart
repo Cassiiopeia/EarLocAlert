@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/diagnostics/diagnostics.dart';
-import '../core/theme/app_colors.dart';
+import '../core/ui/foundation/app_colors.dart';
 import '../features/alert/presentation/alert_controller_provider.dart';
 
 /// 네이티브 스플래시에서 앱으로 넘어오는 순간을 잇는다 (이슈 #150)

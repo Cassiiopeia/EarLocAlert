@@ -7,10 +7,10 @@ import '../../../core/diagnostics/diagnostic_log_reader.dart';
 import '../../../core/diagnostics/file_diagnostic_logger.dart';
 import '../../../core/diagnostics/diagnostics.dart';
 import '../../../core/l10n/l10n.dart';
-import '../../../core/theme/app_palette.dart';
-import '../../../core/theme/app_spacing.dart';
+import '../../../core/ui/foundation/app_color_palette.dart';
+import '../../../core/ui/foundation/app_spacing.dart';
 import '../../../core/text/keep_all.dart';
-import '../../../core/widgets/app_feedback.dart';
+import '../../../core/ui/feedback/app_feedback.dart';
 import '../../../core/text/two_digits.dart';
 
 /// 진단 로그 화면 (이슈 #95)
@@ -245,7 +245,7 @@ class _Header extends StatelessWidget {
                   _formatSize(FileDiagnosticLogger.defaultMaxBytes),
                 ),
               ),
-              style: context.typo.caption,
+              style: context.appTextStyles.caption,
             ),
           ),
         ],
@@ -281,14 +281,14 @@ class _EmptyState extends StatelessWidget {
                     : context.l10n.diagnosticsEmpty,
               ),
               textAlign: TextAlign.center,
-              style: context.typo.body,
+              style: context.appTextStyles.body,
             ),
             if (failed) ...[
               const SizedBox(height: AppSpacing.sm),
               Text(
                 context.keepAllText(readError),
                 textAlign: TextAlign.center,
-                style: context.typo.caption,
+                style: context.appTextStyles.caption,
               ),
             ],
           ],
@@ -334,17 +334,17 @@ class _LogLine extends StatelessWidget {
                     vertical: 2,
                   ),
                   decoration: BoxDecoration(
-                    color: context.palette.elevated,
+                    color: context.appColors.elevated,
                     borderRadius: BorderRadius.circular(AppRadius.pill),
                   ),
-                  child: Text(tag, style: context.typo.caption),
+                  child: Text(tag, style: context.appTextStyles.caption),
                 ),
               const SizedBox(width: AppSpacing.xs),
-              Text(_shortTime(time), style: context.typo.caption),
+              Text(_shortTime(time), style: context.appTextStyles.caption),
             ],
           ),
           const SizedBox(height: 2),
-          SelectableText(message, style: context.typo.body),
+          SelectableText(message, style: context.appTextStyles.body),
         ],
       ),
     );

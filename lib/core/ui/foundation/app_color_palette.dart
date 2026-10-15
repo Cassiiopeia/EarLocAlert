@@ -4,12 +4,12 @@ import 'app_typography.dart';
 
 /// 라이트·다크 팔레트 (이슈 #272, docs/06-UX.md)
 ///
-/// 화면은 색 상수가 아니라 이 팔레트를 `context.palette` 로 읽는다. 상수를
+/// 화면은 색 상수가 아니라 이 팔레트를 `context.appColors` 로 읽는다. 상수를
 /// 직접 쓰면 라이트 모드에서도 다크 색이 박혀 흰 바탕에 흰 글자가 된다.
 /// 이름은 역할로 짓는다 — 색을 바꿔도 이름이 거짓말이 되지 않게.
 @immutable
-class AppPalette extends ThemeExtension<AppPalette> {
-  const AppPalette({
+class AppColorPalette extends ThemeExtension<AppColorPalette> {
+  const AppColorPalette({
     required this.background,
     required this.surface,
     required this.elevated,
@@ -52,7 +52,7 @@ class AppPalette extends ThemeExtension<AppPalette> {
   final Color danger;
 
   /// iOS 다크 그룹 배경 층위를 기준으로, 민트·금색 정체성을 남겼다
-  static const dark = AppPalette(
+  static const dark = AppColorPalette(
     background: Color(0xFF000000),
     surface: Color(0xFF1C1C1E),
     elevated: Color(0xFF2C2C2E),
@@ -68,7 +68,7 @@ class AppPalette extends ThemeExtension<AppPalette> {
 
   /// iOS 라이트 그룹 배경 기준. 민트·금색은 글자로도 쓰여 흰·회색 바탕에서
   /// 4.5:1 이 나오도록 진하게 잡았다 (#272 QA — 처음 값은 3.4:1 이었다)
-  static const light = AppPalette(
+  static const light = AppColorPalette(
     background: Color(0xFFF2F2F7),
     surface: Color(0xFFFFFFFF),
     elevated: Color(0xFFE5E5EA),
@@ -83,7 +83,7 @@ class AppPalette extends ThemeExtension<AppPalette> {
   );
 
   @override
-  AppPalette copyWith({
+  AppColorPalette copyWith({
     Color? background,
     Color? surface,
     Color? elevated,
@@ -96,7 +96,7 @@ class AppPalette extends ThemeExtension<AppPalette> {
     Color? onWarning,
     Color? danger,
   }) {
-    return AppPalette(
+    return AppColorPalette(
       background: background ?? this.background,
       surface: surface ?? this.surface,
       elevated: elevated ?? this.elevated,
@@ -112,10 +112,10 @@ class AppPalette extends ThemeExtension<AppPalette> {
   }
 
   @override
-  AppPalette lerp(ThemeExtension<AppPalette>? other, double t) {
-    if (other is! AppPalette) return this;
+  AppColorPalette lerp(ThemeExtension<AppColorPalette>? other, double t) {
+    if (other is! AppColorPalette) return this;
     Color mix(Color a, Color b) => Color.lerp(a, b, t)!;
-    return AppPalette(
+    return AppColorPalette(
       background: mix(background, other.background),
       surface: mix(surface, other.surface),
       elevated: mix(elevated, other.elevated),
@@ -138,7 +138,7 @@ class AppPalette extends ThemeExtension<AppPalette> {
 class AppTextStyles {
   const AppTextStyles(this._palette);
 
-  final AppPalette _palette;
+  final AppColorPalette _palette;
 
   TextStyle get alertPlaceName => AppTypography.alertPlaceName;
   TextStyle get displayLarge => AppTypography.displayLarge;
@@ -150,10 +150,10 @@ class AppTextStyles {
       AppTypography.caption.copyWith(color: _palette.textSecondary);
 }
 
-extension PaletteContext on BuildContext {
+extension AppColorsContext on BuildContext {
   /// 지금 테마의 팔레트. 테마에 없으면(테스트 등) 다크로 떨어진다
-  AppPalette get palette =>
-      Theme.of(this).extension<AppPalette>() ?? AppPalette.dark;
+  AppColorPalette get appColors =>
+      Theme.of(this).extension<AppColorPalette>() ?? AppColorPalette.dark;
 
-  AppTextStyles get typo => AppTextStyles(palette);
+  AppTextStyles get appTextStyles => AppTextStyles(appColors);
 }

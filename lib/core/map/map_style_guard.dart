@@ -15,7 +15,7 @@ library;
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../diagnostics/diagnostics.dart';
-import '../theme/map_style.dart';
+import '../ui/foundation/map_style.dart';
 
 /// 지도가 만들어진 직후 스타일을 **한 번 더 적용하고 결과를 남긴다.**
 ///

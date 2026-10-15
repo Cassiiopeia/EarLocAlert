@@ -50,7 +50,7 @@ void main() {
   group('색과 글자는 테마에서 읽는다 (#272)', () {
     // 화면 코드와 공용 위젯에서 색·글자 상수를 직접 쓰면 라이트 모드에서도
     // 다크 색이 박힌다 — 흰 바탕에 흰 글자가 된다
-    final widgets = Directory('lib/core/widgets')
+    final widgets = Directory('lib/core/ui/components')
         .listSync(recursive: true)
         .whereType<File>()
         .where((f) => f.path.endsWith('.dart'));
@@ -73,7 +73,7 @@ void main() {
           offenders,
           isEmpty,
           reason:
-              'context.palette / context.typo 를 쓴다 — 라이트 모드에서 색이 '
+              'context.appColors / context.appTextStyles 를 쓴다 — 라이트 모드에서 색이 '
               '고정된다.\n해당: $offenders',
         );
       });
