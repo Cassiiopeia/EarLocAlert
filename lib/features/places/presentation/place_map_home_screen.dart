@@ -26,7 +26,6 @@ import 'current_location_message.dart';
 import 'place_card.dart';
 import 'place_empty_state.dart';
 import 'place_list_controller.dart';
-import '../../../core/ui/feedback/app_feedback.dart';
 import '../../../core/map/marker_hue.dart';
 
 // 화면 조각은 파일을 나눴다 (아키텍처 검수 #276 — 한 파일 1000줄 안팎)
@@ -321,20 +320,12 @@ class _PlaceMapHomeScreenState extends ConsumerState<PlaceMapHomeScreen>
   Future<void> _moveToCurrentLocation() async {
     // 이미 그 위치라 지도가 움직이지 않아도 눌렸다는 걸 알려준다 (이슈 #218)
     unawaited(HapticFeedback.selectionClick());
-    final result = await widget.locationService.current();
-    if (!mounted) return;
-
-    final location = result.location;
-    if (location == null) {
-      // 권한 문제인지 측정 지연인지에 따라 안내가 다르다 (이슈 #227)
-      context.showToast(
-        currentLocationFailureMessage(
-          context.l10n,
-          result.failure ?? CurrentLocationFailure.measurementFailed,
-        ),
-      );
-      return;
-    }
+    final location = await fetchCurrentLocationOrShowReason(
+      context,
+      widget.locationService,
+      screenName: 'home',
+    );
+    if (location == null) return;
 
     await _map?.animateCamera(
       CameraUpdate.newLatLngZoom(

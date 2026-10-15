@@ -14,7 +14,6 @@ import '../../../core/ui/foundation/app_semantic_colors.dart';
 import '../../../core/ui/foundation/app_spacing.dart';
 import '../../../core/ui/foundation/map_style.dart';
 import '../../../core/text/keep_all.dart';
-import '../../../core/ui/feedback/app_feedback.dart';
 import '../../../core/ui/components/floating_circle_button.dart';
 import '../domain/current_location_service.dart';
 import '../domain/place_search.dart';
@@ -241,28 +240,15 @@ class _PlaceMapPickerScreenState extends State<PlaceMapPickerScreen> {
     _map?.animateCamera(CameraUpdate.zoomTo(_fitZoom(_center)));
   }
 
-  /// 현재 위치로 카메라를 옮긴다 (이슈 #152).
-  ///
-  /// 못 얻으면 아무것도 하지 않는다. 위치를 못 얻는 것은 정상적으로
-  /// 일어나는 상태다 — 오류 문구로 놀라게 할 일이 아니다.
+  /// 현재 위치로 카메라를 옮긴다 (이슈 #152). 못 얻으면 이유에 맞는 안내를
+  /// 띄운다 — 예전에는 아무 반응이 없어 버튼이 고장 난 것처럼 보였다 (이슈 #227)
   Future<void> _moveToCurrentLocation() async {
-    final result = await widget.locationService.current();
-    if (!mounted) return;
-    final here = result.location;
-    if (here == null) {
-      // 예전에는 아무 반응이 없어 버튼이 고장 난 것처럼 보였다 — 홈과 같은 안내를 띄운다 (이슈 #227)
-      context.showToast(
-        currentLocationFailureMessage(
-          context.l10n,
-          result.failure ?? CurrentLocationFailure.measurementFailed,
-        ),
-      );
-      return;
-    }
-    Diagnostics.log(
-      'picker',
-      'moved to my location ${here.latitude},${here.longitude}',
+    final here = await fetchCurrentLocationOrShowReason(
+      context,
+      widget.locationService,
+      screenName: 'picker',
     );
+    if (here == null) return;
     await _map?.animateCamera(
       CameraUpdate.newLatLngZoom(
         LatLng(here.latitude, here.longitude),
