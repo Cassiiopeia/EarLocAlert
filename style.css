@@ -194,3 +194,18 @@ footer { border-top: 1px solid var(--line); padding: 44px 0 64px; color: var(--d
   .doc table { font-size: 14px; }
   .doc th, .doc td { padding: 10px 8px; }
 }
+
+/* 스토어 배지 (#281) */
+.badges { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 28px; }
+.badges img { display: block; height: 50px; width: auto; }
+/* 자주 묻는 질문 — 접었다 펴는 목록 */
+.faq-item { border-bottom: 1px solid var(--surface-2); padding: 18px 0; }
+.faq-item summary { cursor: pointer; font-weight: 600; font-size: 17px; list-style: none; }
+.faq-item summary::-webkit-details-marker { display: none; }
+.faq-item summary::after { content: "+"; float: right; color: var(--mint); font-weight: 700; }
+.faq-item[open] summary::after { content: "−"; }
+.faq-item p { margin-top: 10px; color: var(--muted); line-height: 1.65; }
+/* 화면 섹션의 홍보 이미지 — 이미지 안에 휴대폰 테두리가 있어 둥근 모서리만 */
+.shots img.promo { display: block; width: 100%; height: auto; border-radius: 22px; }
+/* 홍보 영상 — 휴대폰 이미지와 같은 자리 */
+video.phone { display: block; background: #000; }
