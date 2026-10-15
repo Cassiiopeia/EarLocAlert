@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/l10n/l10n.dart';
-import '../../../core/text/keep_all.dart';
+import '../../../core/ui/components/bottom_sheet_with_header_layout.dart';
 import '../../../core/ui/foundation/app_color_palette.dart';
-import '../../../core/ui/foundation/app_spacing.dart';
 import '../../../core/ui/foundation/app_theme_preference.dart';
 
 /// 화면 모드 선택 시트 (이슈 #272)
@@ -14,10 +13,8 @@ Future<AppThemePreference?> showThemeModeSheet(
   BuildContext context, {
   required AppThemePreference current,
 }) {
-  return showModalBottomSheet<AppThemePreference>(
-    context: context,
-    showDragHandle: true,
-    isScrollControlled: true,
+  return showAppBottomSheet<AppThemePreference>(
+    context,
     builder: (_) => _ThemeModeSheet(current: current),
   );
 }
@@ -44,61 +41,31 @@ class _ThemeModeSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    return SafeArea(
-      child: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.only(
-            left: AppSpacing.md,
-            right: AppSpacing.md,
-            bottom: AppSpacing.lg,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  const Icon(Icons.contrast_outlined),
-                  const SizedBox(width: AppSpacing.sm),
-                  Text(
-                    l10n.settingsThemeTitle,
-                    style: context.appTextStyles.body.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: AppSpacing.xs),
-              // 알림 화면은 따라오지 않는다는 것을 미리 말한다 — 라이트로 바꿨는데
-              // 알림만 어두우면 고장으로 보인다
-              Text(
-                context.keepAllText(l10n.themeSheetHint),
-                style: context.appTextStyles.caption,
-              ),
-              const SizedBox(height: AppSpacing.md),
-              RadioGroup<AppThemePreference>(
-                groupValue: current,
-                onChanged: (value) {
-                  if (value != null) Navigator.of(context).pop(value);
-                },
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    for (final value in AppThemePreference.values)
-                      RadioListTile<AppThemePreference>(
-                        value: value,
-                        secondary: Icon(_icon(value)),
-                        title: Text(
-                          themePreferenceLabel(l10n, value),
-                          style: context.appTextStyles.body,
-                        ),
-                        contentPadding: EdgeInsets.zero,
-                      ),
-                  ],
+    // 알림 화면은 따라오지 않는다는 것을 미리 말한다 — 라이트로 바꿨는데
+    // 알림만 어두우면 고장으로 보인다
+    return BottomSheetWithHeaderLayout(
+      headerIcon: Icons.contrast_outlined,
+      title: l10n.settingsThemeTitle,
+      description: l10n.themeSheetHint,
+      body: RadioGroup<AppThemePreference>(
+        groupValue: current,
+        onChanged: (value) {
+          if (value != null) Navigator.of(context).pop(value);
+        },
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (final value in AppThemePreference.values)
+              RadioListTile<AppThemePreference>(
+                value: value,
+                secondary: Icon(_icon(value)),
+                title: Text(
+                  themePreferenceLabel(l10n, value),
+                  style: context.appTextStyles.body,
                 ),
+                contentPadding: EdgeInsets.zero,
               ),
-            ],
-          ),
+          ],
         ),
       ),
     );

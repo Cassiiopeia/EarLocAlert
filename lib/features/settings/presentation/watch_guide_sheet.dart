@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/l10n/l10n.dart';
+import '../../../core/ui/components/bottom_sheet_with_header_layout.dart';
 import '../../../core/text/keep_all.dart';
 import '../../../core/ui/foundation/app_color_palette.dart';
 import '../../../core/ui/foundation/app_spacing.dart';
@@ -20,10 +21,8 @@ Future<void> showWatchGuideSheet(
   BuildContext context, {
   required WatchGuidePlatform platform,
 }) {
-  return showModalBottomSheet<void>(
-    context: context,
-    showDragHandle: true,
-    isScrollControlled: true,
+  return showAppBottomSheet<void>(
+    context,
     builder: (_) => WatchGuideSheet(platform: platform),
   );
 }
@@ -50,83 +49,54 @@ class WatchGuideSheet extends StatelessWidget {
       ],
     };
 
-    // 글자를 크게 키운 기기에서는 시트 높이를 넘는다 — 넘치지 않고 스크롤되게 한다
-    return SafeArea(
-      child: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(
-            AppSpacing.md,
-            0,
-            AppSpacing.md,
-            AppSpacing.md,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
+    return BottomSheetWithHeaderLayout(
+      headerIcon: Icons.watch_outlined,
+      title: l10n.settingsWatchTitle,
+      description: l10n.watchGuideIntro,
+      body: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          for (var i = 0; i < steps.length; i++)
+            Padding(
+              padding: const EdgeInsets.only(bottom: AppSpacing.xs),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Icon(Icons.watch_outlined),
+                  // 번호 알약 — 순서대로 따라 하는 안내라는 것이 한눈에 보인다
+                  Container(
+                    width: 24,
+                    height: 24,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: context.appColors.elevated,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Text(
+                      '${i + 1}',
+                      style: context.appTextStyles.caption,
+                    ),
+                  ),
                   const SizedBox(width: AppSpacing.sm),
                   Expanded(
                     child: Text(
-                      l10n.settingsWatchTitle,
-                      style: context.appTextStyles.body.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
+                      context.keepAllText(steps[i]),
+                      style: context.appTextStyles.body,
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: AppSpacing.xs),
-              Text(
-                context.keepAllText(l10n.watchGuideIntro),
-                style: context.appTextStyles.caption,
-              ),
-              const SizedBox(height: AppSpacing.md),
-              for (var i = 0; i < steps.length; i++)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: AppSpacing.xs),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // 번호 알약 — 순서대로 따라 하는 안내라는 것이 한눈에 보인다
-                      Container(
-                        width: 24,
-                        height: 24,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          color: context.appColors.elevated,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Text(
-                          '${i + 1}',
-                          style: context.appTextStyles.caption,
-                        ),
-                      ),
-                      const SizedBox(width: AppSpacing.sm),
-                      Expanded(
-                        child: Text(
-                          context.keepAllText(steps[i]),
-                          style: context.appTextStyles.body,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              const SizedBox(height: AppSpacing.xs),
-              Text(
-                context.keepAllText(l10n.watchGuideNote),
-                style: context.appTextStyles.caption,
-              ),
-              const SizedBox(height: AppSpacing.md),
-              FilledButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: Text(l10n.watchGuideConfirm),
-              ),
-            ],
+            ),
+          const SizedBox(height: AppSpacing.xs),
+          Text(
+            context.keepAllText(l10n.watchGuideNote),
+            style: context.appTextStyles.caption,
           ),
-        ),
+        ],
+      ),
+      primaryAction: FilledButton(
+        onPressed: () => Navigator.of(context).pop(),
+        child: Text(l10n.watchGuideConfirm),
       ),
     );
   }

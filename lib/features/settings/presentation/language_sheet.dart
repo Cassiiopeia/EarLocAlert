@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/l10n/app_language.dart';
 import '../../../core/l10n/l10n.dart';
-import '../../../core/ui/foundation/app_spacing.dart';
+import '../../../core/ui/components/bottom_sheet_with_header_layout.dart';
 import '../../../core/ui/foundation/app_color_palette.dart';
 
 /// 앱 언어 선택 시트 (이슈 #163)
@@ -19,10 +19,8 @@ Future<AppLanguage?> showLanguageSheet(
   required AppLanguage current,
   required String deviceLanguageName,
 }) {
-  return showModalBottomSheet<AppLanguage>(
-    context: context,
-    showDragHandle: true,
-    isScrollControlled: true,
+  return showAppBottomSheet<AppLanguage>(
+    context,
     builder: (context) => _LanguageSheet(
       current: current,
       deviceLanguageName: deviceLanguageName,
@@ -42,68 +40,43 @@ class _LanguageSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.only(
-          left: AppSpacing.md,
-          right: AppSpacing.md,
-          bottom: AppSpacing.lg,
-        ),
+    // 문구를 못 읽어도 이 시트가 "언어"임을 알아볼 수 있게 지구본 아이콘을 둔다
+    return BottomSheetWithHeaderLayout(
+      headerIcon: Icons.language_outlined,
+      title: l10n.settingsLanguageTitle,
+      description: l10n.languageSheetHint,
+      body: RadioGroup<AppLanguage>(
+        groupValue: current,
+        onChanged: (value) {
+          if (value != null) Navigator.of(context).pop(value);
+        },
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                // 문구를 못 읽어도 이 시트가 "언어"임을 알아볼 수 있게 한다
-                const Icon(Icons.language_outlined),
-                const SizedBox(width: AppSpacing.sm),
-                Text(
-                  l10n.settingsLanguageTitle,
-                  style: context.appTextStyles.body.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: AppSpacing.xs),
-            Text(l10n.languageSheetHint, style: context.appTextStyles.caption),
-            const SizedBox(height: AppSpacing.md),
-            RadioGroup<AppLanguage>(
-              groupValue: current,
-              onChanged: (value) {
-                if (value != null) Navigator.of(context).pop(value);
-              },
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  RadioListTile<AppLanguage>(
-                    value: AppLanguage.system,
-                    secondary: const Icon(Icons.language_outlined),
-                    title: Text(
-                      l10n.languageFollowDevice,
-                      style: context.appTextStyles.body,
-                    ),
-                    subtitle: Text(
-                      l10n.languageFollowDeviceHint(deviceLanguageName),
-                      style: context.appTextStyles.caption,
-                    ),
-                    contentPadding: EdgeInsets.zero,
-                  ),
-                  for (final language in AppLanguage.values)
-                    if (language != AppLanguage.system)
-                      RadioListTile<AppLanguage>(
-                        value: language,
-                        // 각 언어의 자기 표기 — 번역하지 않는다
-                        title: Text(
-                          language.nativeName!,
-                          style: context.appTextStyles.body,
-                        ),
-                        contentPadding: EdgeInsets.zero,
-                      ),
-                ],
+            RadioListTile<AppLanguage>(
+              value: AppLanguage.system,
+              secondary: const Icon(Icons.language_outlined),
+              title: Text(
+                l10n.languageFollowDevice,
+                style: context.appTextStyles.body,
               ),
+              subtitle: Text(
+                l10n.languageFollowDeviceHint(deviceLanguageName),
+                style: context.appTextStyles.caption,
+              ),
+              contentPadding: EdgeInsets.zero,
             ),
+            for (final language in AppLanguage.values)
+              if (language != AppLanguage.system)
+                RadioListTile<AppLanguage>(
+                  value: language,
+                  // 각 언어의 자기 표기 — 번역하지 않는다
+                  title: Text(
+                    language.nativeName!,
+                    style: context.appTextStyles.body,
+                  ),
+                  contentPadding: EdgeInsets.zero,
+                ),
           ],
         ),
       ),
