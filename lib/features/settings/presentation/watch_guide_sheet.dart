@@ -51,76 +51,79 @@ class WatchGuideSheet extends StatelessWidget {
       ],
     };
 
+    // 글자를 크게 키운 기기에서는 시트 높이를 넘는다 — 넘치지 않고 스크롤되게 한다
     return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(
-          AppSpacing.md,
-          0,
-          AppSpacing.md,
-          AppSpacing.md,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                const Icon(Icons.watch_outlined),
-                const SizedBox(width: AppSpacing.sm),
-                Expanded(
-                  child: Text(
-                    l10n.settingsWatchTitle,
-                    style: AppTypography.body.copyWith(
-                      fontWeight: FontWeight.w600,
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.md,
+            0,
+            AppSpacing.md,
+            AppSpacing.md,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  const Icon(Icons.watch_outlined),
+                  const SizedBox(width: AppSpacing.sm),
+                  Expanded(
+                    child: Text(
+                      l10n.settingsWatchTitle,
+                      style: AppTypography.body.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: AppSpacing.xs),
-            Text(
-              context.keepAllText(l10n.watchGuideIntro),
-              style: AppTypography.caption,
-            ),
-            const SizedBox(height: AppSpacing.md),
-            for (var i = 0; i < steps.length; i++)
-              Padding(
-                padding: const EdgeInsets.only(bottom: AppSpacing.xs),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // 번호 알약 — 순서대로 따라 하는 안내라는 것이 한눈에 보인다
-                    Container(
-                      width: 24,
-                      height: 24,
-                      alignment: Alignment.center,
-                      decoration: const BoxDecoration(
-                        color: AppColors.bgElevated,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Text('${i + 1}', style: AppTypography.caption),
-                    ),
-                    const SizedBox(width: AppSpacing.sm),
-                    Expanded(
-                      child: Text(
-                        context.keepAllText(steps[i]),
-                        style: AppTypography.body,
-                      ),
-                    ),
-                  ],
-                ),
+                ],
               ),
-            const SizedBox(height: AppSpacing.xs),
-            Text(
-              context.keepAllText(l10n.watchGuideNote),
-              style: AppTypography.caption,
-            ),
-            const SizedBox(height: AppSpacing.md),
-            FilledButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text(l10n.watchGuideConfirm),
-            ),
-          ],
+              const SizedBox(height: AppSpacing.xs),
+              Text(
+                context.keepAllText(l10n.watchGuideIntro),
+                style: AppTypography.caption,
+              ),
+              const SizedBox(height: AppSpacing.md),
+              for (var i = 0; i < steps.length; i++)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: AppSpacing.xs),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // 번호 알약 — 순서대로 따라 하는 안내라는 것이 한눈에 보인다
+                      Container(
+                        width: 24,
+                        height: 24,
+                        alignment: Alignment.center,
+                        decoration: const BoxDecoration(
+                          color: AppColors.bgElevated,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Text('${i + 1}', style: AppTypography.caption),
+                      ),
+                      const SizedBox(width: AppSpacing.sm),
+                      Expanded(
+                        child: Text(
+                          context.keepAllText(steps[i]),
+                          style: AppTypography.body,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              const SizedBox(height: AppSpacing.xs),
+              Text(
+                context.keepAllText(l10n.watchGuideNote),
+                style: AppTypography.caption,
+              ),
+              const SizedBox(height: AppSpacing.md),
+              FilledButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text(l10n.watchGuideConfirm),
+              ),
+            ],
+          ),
         ),
       ),
     );
