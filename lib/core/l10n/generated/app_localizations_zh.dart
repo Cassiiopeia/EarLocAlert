@@ -731,6 +731,43 @@ class AppLocalizationsZh extends AppLocalizations {
   String get scheduleAddButton => '添加';
 
   @override
+  String get settingsWatchTitle => '在手表上接收提醒';
+
+  @override
+  String get settingsWatchSubtitle => '如何在智能手表上接收到达提醒';
+
+  @override
+  String get watchGuideIntro => '如果您佩戴智能手表，也可以在手表上收到提醒。请在手表一侧打开一次相关设置。';
+
+  @override
+  String get watchGuideAndroidStep1 => '在手机上打开 Galaxy Wearable 等手表应用';
+
+  @override
+  String get watchGuideAndroidStep2 => '进入手表设置 → 通知 → 应用通知';
+
+  @override
+  String watchGuideAndroidStep3(String appName) {
+    return '在列表中打开“$appName”';
+  }
+
+  @override
+  String get watchGuideIosStep1 => '在 iPhone 上打开 Watch 应用';
+
+  @override
+  String get watchGuideIosStep2 => '进入“通知”';
+
+  @override
+  String watchGuideIosStep3(String appName) {
+    return '如果看到“$appName”，请将其打开。iPhone 锁屏时提醒会发送到手表';
+  }
+
+  @override
+  String get watchGuideNote => '手表的振动方式可能因手表设置而异。';
+
+  @override
+  String get watchGuideConfirm => '知道了';
+
+  @override
   String get placeFormSaveFailed => '保存失败，请稍后重试。';
 
   @override

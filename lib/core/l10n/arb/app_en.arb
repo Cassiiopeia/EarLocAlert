@@ -224,6 +224,31 @@
   "scheduleSameStartEnd": "Start and end are the same. To alert all day, don't add a time range.",
   "scheduleSave": "Save",
   "scheduleAddButton": "Add",
+  "settingsWatchTitle": "Get alerts on your watch",
+  "settingsWatchSubtitle": "How to receive arrival alerts on a smartwatch",
+  "watchGuideIntro": "If you wear a smartwatch, you can get alerts on it too. Turn on one setting on the watch side.",
+  "watchGuideAndroidStep1": "On your phone, open your watch app, such as Galaxy Wearable",
+  "watchGuideAndroidStep2": "Go to Watch settings → Notifications → App notifications",
+  "watchGuideAndroidStep3": "Turn on \"{appName}\" in the list",
+  "@watchGuideAndroidStep3": {
+    "placeholders": {
+      "appName": {
+        "type": "String"
+      }
+    }
+  },
+  "watchGuideIosStep1": "On your iPhone, open the Watch app",
+  "watchGuideIosStep2": "Go to Notifications",
+  "watchGuideIosStep3": "Turn on \"{appName}\" if it appears. Alerts reach the watch while the iPhone is locked",
+  "@watchGuideIosStep3": {
+    "placeholders": {
+      "appName": {
+        "type": "String"
+      }
+    }
+  },
+  "watchGuideNote": "How the watch buzzes can vary with your watch settings.",
+  "watchGuideConfirm": "Got it",
   "placeFormSaveFailed": "Couldn't save. Please try again in a moment.",
   "scheduleCancel": "Cancel",
   "scheduleWindow": "{days} {start} ~ {end}",

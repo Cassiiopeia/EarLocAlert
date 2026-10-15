@@ -116,6 +116,7 @@ class SettingsScreen extends StatelessWidget {
     this.permissions = const [],
     this.lockScreenAlarm,
     this.vibrationCheck,
+    this.onOpenWatchGuide,
     this.onPreviewAlert,
     super.key,
   });
@@ -161,6 +162,10 @@ class SettingsScreen extends StatelessWidget {
   /// 진동 시험 (이슈 #237). **null 이면 줄을 숨긴다** — iOS 에만 있다. Android 는
   /// 앱이 진동 가능 여부를 직접 묻고 세기 미리보기로 바로 느낄 수 있다
   final SettingsVibrationCheck? vibrationCheck;
+
+  /// 워치로 알림 받는 방법 안내 (이슈 #270). 시트는 app 계층이 플랫폼에 맞춰 연다.
+  /// **null 이면 줄을 숨긴다**
+  final VoidCallback? onOpenWatchGuide;
 
   /// 알림 흐름 수동 확인 (실기기 스파이크용).
   /// 지오펜스 실기기 검증이 끝나면 제거한다 (docs/11-ROADMAP.md).
@@ -236,6 +241,14 @@ class SettingsScreen extends StatelessWidget {
             // 잠금 화면 알람과 같은 질문("도착하면 내가 알아챌까")이라 바로 아래에 둔다
             if (vibrationCheck != null)
               _VibrationCheckTile(check: vibrationCheck!),
+            // 폰 알림이 워치로 가려면 워치 쪽 토글을 켜야 한다 — 사용자가 알 길이 없어 안내한다
+            if (onOpenWatchGuide != null)
+              _SettingTile(
+                icon: Icons.watch_outlined,
+                title: context.l10n.settingsWatchTitle,
+                subtitle: context.l10n.settingsWatchSubtitle,
+                onTap: onOpenWatchGuide!,
+              ),
             if (onPreviewAlert != null)
               _SettingTile(
                 icon: Icons.notifications_active_outlined,

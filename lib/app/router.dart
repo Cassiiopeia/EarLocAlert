@@ -14,15 +14,12 @@ import '../core/domain/sound_preset_label.dart';
 import '../core/l10n/app_language_controller.dart';
 import 'geofence_providers.dart';
 import '../core/l10n/l10n.dart';
-import '../core/domain/alert_direction.dart';
 import '../core/domain/alert_sound.dart';
 import '../features/ads/presentation/ads_providers.dart';
-import '../features/alert/domain/alert_controller.dart';
 import '../features/alert/presentation/alert_controller_provider.dart';
 import '../features/alert/presentation/alert_screen.dart';
 import '../features/alert/presentation/alert_volume_sheet.dart';
 import '../features/alert/presentation/vibration_check_flow.dart';
-import '../features/alert/presentation/vibration_check_provider.dart';
 import '../features/alert/presentation/vibration_intensity_sheet.dart';
 import '../features/permission/domain/ios_notification_settings.dart';
 import '../features/permission/presentation/ios_notification_settings_provider.dart';
@@ -39,7 +36,9 @@ import '../features/diagnostics/presentation/diagnostics_screen.dart';
 import '../features/diagnostics/presentation/bug_report_sheet.dart';
 import '../features/places/presentation/place_backup_actions.dart';
 import '../features/places/presentation/place_search_provider.dart';
+import '../features/settings/data/prefs_watch_guide_store.dart';
 import '../features/settings/presentation/settings_screen.dart';
+import '../features/settings/presentation/watch_guide_sheet.dart';
 import '../features/sounds/presentation/sound_picker_sheet.dart';
 import '../features/app_update/domain/app_updater.dart';
 import '../features/app_update/presentation/app_update_providers.dart';
@@ -167,7 +166,7 @@ class _PlaceFormRoute extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return PlaceFormScreen(
       existing: existing,
-      onSaved: () => _leaveForm(context),
+      onSaved: () => _onPlaceSaved(context),
       onDeleted: () => _leaveForm(context),
       onPickOnMap: (args) => _pickOnMap(context, args),
       onPickSound: (current) => showSoundPickerSheet(context, current: current),
@@ -202,6 +201,27 @@ Future<MapPickResult?> _pickOnMap(BuildContext context, MapPickArgs args) {
 
 /// 장소 폼에서 빠져나온다 (이슈 #97).
 ///
+/// 장소를 저장한 뒤 — 첫 등록이면 워치 안내를 한 번 보여주고 폼을 나간다 (이슈 #270)
+///
+/// 안내를 **폼을 떠나기 전에** 띄운다. 떠난 뒤에는 이 context 가 사라져 시트를 열 수
+/// 없고, 홈에서 따로 띄우면 화면 전환과 겹친다. 시트는 폼 위에 뜨고, 닫히면 나간다.
+Future<void> _onPlaceSaved(BuildContext context) async {
+  const store = PrefsWatchGuideStore();
+  // 수정이 아니라 **첫** 등록에만 — 이미 본 사람은 다시 띄우지 않는다
+  if (!await store.wasSeen() && context.mounted) {
+    await store.markSeen();
+    if (context.mounted) {
+      await showWatchGuideSheet(
+        context,
+        platform: Platform.isIOS
+            ? WatchGuidePlatform.ios
+            : WatchGuidePlatform.android,
+      );
+    }
+  }
+  if (context.mounted) _leaveForm(context);
+}
+
 /// 홈에서 `push` 로 들어왔으면 `pop` 이 자연스럽다 — 스택이 유지되어
 /// 뒤로가기 동작과 결과가 같다.
 ///
@@ -457,19 +477,6 @@ class _SettingsRouteState extends ConsumerState<_SettingsRoute>
     };
   }
 
-  /// 설정 화면에 내려줄 진동 시험 줄 (이슈 #237). 읽는 중이면 "시험 안 함" 으로 보인다
-  SettingsVibrationCheck _vibrationCheck(BuildContext context) {
-    final last = ref.watch(vibrationCheckProvider).valueOrNull;
-    return SettingsVibrationCheck(
-      state: last == null
-          ? VibrationCheckState.untested
-          : last.felt
-          ? VibrationCheckState.felt
-          : VibrationCheckState.notFelt,
-      onTap: () => _runVibrationCheck(context, trigger: 'settings'),
-    );
-  }
-
   /// 설정에서 직접 누른 업데이트 확인 (이슈 #179)
   ///
   /// 자동 확인(6시간 간격)과 달리 바로 확인한다. 결과는 세 가지다 — 받아 두었다면
@@ -560,37 +567,19 @@ class _SettingsRouteState extends ConsumerState<_SettingsRoute>
           : _permissionRows(ref, snapshot, context.l10n),
       // 잠금 화면 알람 (이슈 #235) — iOS 에만 있다. Android 는 전체 화면 알림 권한이 같은 일을 한다
       lockScreenAlarm: Platform.isIOS ? _lockScreenAlarm() : null,
-      // 진동 시험 (이슈 #237) — iOS 는 진동 설정을 앱이 읽을 수 없다
-      vibrationCheck: Platform.isIOS ? _vibrationCheck(context) : null,
       // 앱 버전과 업데이트 확인 (이슈 #179) — 읽기 실패는 `-` 로 보여준다
       appVersion: ref.watch(appVersionProvider).valueOrNull ?? '-',
       // 앱 내 업데이트가 없는 플랫폼(iOS)은 버튼을 숨긴다 (이슈 #229)
       onCheckUpdate: ref.read(appUpdateGateProvider).isSupported
           ? () => _checkUpdateNow(context)
           : null,
-      // 백그라운드 감시 연결 전까지 알림 흐름을 확인하는 수단 (S-4·S-5).
-      // 지오펜스 실기기 검증이 끝나면 제거한다.
-      onPreviewAlert: () async {
-        await ref
-            .read(activeAlertProvider.notifier)
-            .fire(
-              AlertRequest(
-                placeId: previewPlaceId,
-                placeName: context.l10n.routePreviewPlaceName,
-                direction: AlertDirection.enter,
-                soundEnabled: true,
-                occurredAt: DateTime.now().toUtc(),
-                // 지도 카드까지 확인할 수 있어야 미리보기다 (이슈 #142).
-                // 좌표가 없으면 카드가 빠진 화면만 보게 된다
-                latitude: 37.5665,
-                longitude: 126.9780, // 서울시청
-                radiusMeters: 200,
-              ),
-            );
-        // 사용자가 해제할 때쯤 광고가 준비되어 있게 미리 불러둔다
-        unawaited(_preloadAd(ref));
-        if (context.mounted) context.go(AppRoutes.alert);
-      },
+      // 워치로 알림 받는 방법 (이슈 #270) — 플랫폼마다 켜는 곳이 달라 문구가 갈린다
+      onOpenWatchGuide: () => showWatchGuideSheet(
+        context,
+        platform: Platform.isIOS
+            ? WatchGuidePlatform.ios
+            : WatchGuidePlatform.android,
+      ),
     );
   }
 }
@@ -735,17 +724,4 @@ Future<void> _reofferReliability(BuildContext context, WidgetRef ref) async {
     // 아래 이동은 그대로 진행한다
   }
   if (context.mounted) context.go(AppRoutes.onboarding);
-}
-
-/// 광고 미리 로딩 — 알림 발화 시점에 부른다.
-///
-/// **반드시 unawaited 로 호출한다.** 로딩을 기다리면 알림 흐름이 막힌다
-/// (docs/02-ARCHITECTURE.md 규칙 4).
-Future<void> _preloadAd(WidgetRef ref) async {
-  try {
-    final coordinator = await ref.read(alertAdCoordinatorProvider.future);
-    await coordinator.onAlertFired();
-  } on Object {
-    // 미리 로딩 실패는 무시한다
-  }
 }

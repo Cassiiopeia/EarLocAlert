@@ -414,6 +414,31 @@
   "scheduleSameStartEnd": "시작과 종료가 같습니다. 하루 종일 알리려면 시간대를 만들지 않으면 됩니다.",
   "scheduleSave": "저장",
   "scheduleAddButton": "추가",
+  "settingsWatchTitle": "워치로 알림 받기",
+  "settingsWatchSubtitle": "스마트워치에서도 도착 알림을 받는 방법",
+  "watchGuideIntro": "스마트워치를 차고 있다면 워치에서도 알림을 받을 수 있어요. 워치 쪽 설정을 한 번만 켜 주세요.",
+  "watchGuideAndroidStep1": "폰에서 Galaxy Wearable 같은 워치 앱을 엽니다",
+  "watchGuideAndroidStep2": "워치 설정 → 알림 → 앱 알림으로 들어갑니다",
+  "watchGuideAndroidStep3": "목록에서 \"{appName}\"을 켭니다",
+  "@watchGuideAndroidStep3": {
+    "placeholders": {
+      "appName": {
+        "type": "String"
+      }
+    }
+  },
+  "watchGuideIosStep1": "iPhone 에서 Watch 앱을 엽니다",
+  "watchGuideIosStep2": "알림으로 들어갑니다",
+  "watchGuideIosStep3": "\"{appName}\"이 보이면 켭니다. iPhone 이 잠겨 있을 때 워치로 알림이 갑니다",
+  "@watchGuideIosStep3": {
+    "placeholders": {
+      "appName": {
+        "type": "String"
+      }
+    }
+  },
+  "watchGuideNote": "워치가 울리는 방식은 워치 설정에 따라 다를 수 있어요.",
+  "watchGuideConfirm": "알겠어요",
   "placeFormSaveFailed": "저장하지 못했습니다. 잠시 후 다시 시도해주세요.",
   "scheduleCancel": "취소",
   "scheduleWindow": "{days} {start} ~ {end}",

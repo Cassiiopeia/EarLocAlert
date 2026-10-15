@@ -736,6 +736,45 @@ class AppLocalizationsJa extends AppLocalizations {
   String get scheduleAddButton => '追加';
 
   @override
+  String get settingsWatchTitle => 'ウォッチで通知を受け取る';
+
+  @override
+  String get settingsWatchSubtitle => 'スマートウォッチで到着通知を受け取る方法';
+
+  @override
+  String get watchGuideIntro =>
+      'スマートウォッチを着けている場合、ウォッチでも通知を受け取れます。ウォッチ側の設定を一度オンにしてください。';
+
+  @override
+  String get watchGuideAndroidStep1 =>
+      'スマートフォンで Galaxy Wearable などのウォッチアプリを開きます';
+
+  @override
+  String get watchGuideAndroidStep2 => 'ウォッチ設定 → 通知 → アプリの通知を開きます';
+
+  @override
+  String watchGuideAndroidStep3(String appName) {
+    return '一覧の「$appName」をオンにします';
+  }
+
+  @override
+  String get watchGuideIosStep1 => 'iPhone で Watch アプリを開きます';
+
+  @override
+  String get watchGuideIosStep2 => '「通知」を開きます';
+
+  @override
+  String watchGuideIosStep3(String appName) {
+    return '「$appName」が表示されていればオンにします。iPhone がロック中にウォッチへ通知されます';
+  }
+
+  @override
+  String get watchGuideNote => 'ウォッチの振動はウォッチの設定によって異なる場合があります。';
+
+  @override
+  String get watchGuideConfirm => 'わかりました';
+
+  @override
   String get placeFormSaveFailed => '保存できませんでした。しばらくしてからもう一度お試しください。';
 
   @override

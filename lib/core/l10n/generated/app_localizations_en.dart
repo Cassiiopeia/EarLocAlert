@@ -767,6 +767,48 @@ class AppLocalizationsEn extends AppLocalizations {
   String get scheduleAddButton => 'Add';
 
   @override
+  String get settingsWatchTitle => 'Get alerts on your watch';
+
+  @override
+  String get settingsWatchSubtitle =>
+      'How to receive arrival alerts on a smartwatch';
+
+  @override
+  String get watchGuideIntro =>
+      'If you wear a smartwatch, you can get alerts on it too. Turn on one setting on the watch side.';
+
+  @override
+  String get watchGuideAndroidStep1 =>
+      'On your phone, open your watch app, such as Galaxy Wearable';
+
+  @override
+  String get watchGuideAndroidStep2 =>
+      'Go to Watch settings → Notifications → App notifications';
+
+  @override
+  String watchGuideAndroidStep3(String appName) {
+    return 'Turn on \"$appName\" in the list';
+  }
+
+  @override
+  String get watchGuideIosStep1 => 'On your iPhone, open the Watch app';
+
+  @override
+  String get watchGuideIosStep2 => 'Go to Notifications';
+
+  @override
+  String watchGuideIosStep3(String appName) {
+    return 'Turn on \"$appName\" if it appears. Alerts reach the watch while the iPhone is locked';
+  }
+
+  @override
+  String get watchGuideNote =>
+      'How the watch buzzes can vary with your watch settings.';
+
+  @override
+  String get watchGuideConfirm => 'Got it';
+
+  @override
   String get placeFormSaveFailed =>
       'Couldn\'t save. Please try again in a moment.';
 

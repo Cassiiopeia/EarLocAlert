@@ -1446,6 +1446,72 @@ abstract class AppLocalizations {
   /// **'추가'**
   String get scheduleAddButton;
 
+  /// No description provided for @settingsWatchTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'워치로 알림 받기'**
+  String get settingsWatchTitle;
+
+  /// No description provided for @settingsWatchSubtitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'스마트워치에서도 도착 알림을 받는 방법'**
+  String get settingsWatchSubtitle;
+
+  /// No description provided for @watchGuideIntro.
+  ///
+  /// In ko, this message translates to:
+  /// **'스마트워치를 차고 있다면 워치에서도 알림을 받을 수 있어요. 워치 쪽 설정을 한 번만 켜 주세요.'**
+  String get watchGuideIntro;
+
+  /// No description provided for @watchGuideAndroidStep1.
+  ///
+  /// In ko, this message translates to:
+  /// **'폰에서 Galaxy Wearable 같은 워치 앱을 엽니다'**
+  String get watchGuideAndroidStep1;
+
+  /// No description provided for @watchGuideAndroidStep2.
+  ///
+  /// In ko, this message translates to:
+  /// **'워치 설정 → 알림 → 앱 알림으로 들어갑니다'**
+  String get watchGuideAndroidStep2;
+
+  /// No description provided for @watchGuideAndroidStep3.
+  ///
+  /// In ko, this message translates to:
+  /// **'목록에서 \"{appName}\"을 켭니다'**
+  String watchGuideAndroidStep3(String appName);
+
+  /// No description provided for @watchGuideIosStep1.
+  ///
+  /// In ko, this message translates to:
+  /// **'iPhone 에서 Watch 앱을 엽니다'**
+  String get watchGuideIosStep1;
+
+  /// No description provided for @watchGuideIosStep2.
+  ///
+  /// In ko, this message translates to:
+  /// **'알림으로 들어갑니다'**
+  String get watchGuideIosStep2;
+
+  /// No description provided for @watchGuideIosStep3.
+  ///
+  /// In ko, this message translates to:
+  /// **'\"{appName}\"이 보이면 켭니다. iPhone 이 잠겨 있을 때 워치로 알림이 갑니다'**
+  String watchGuideIosStep3(String appName);
+
+  /// No description provided for @watchGuideNote.
+  ///
+  /// In ko, this message translates to:
+  /// **'워치가 울리는 방식은 워치 설정에 따라 다를 수 있어요.'**
+  String get watchGuideNote;
+
+  /// No description provided for @watchGuideConfirm.
+  ///
+  /// In ko, this message translates to:
+  /// **'알겠어요'**
+  String get watchGuideConfirm;
+
   /// No description provided for @placeFormSaveFailed.
   ///
   /// In ko, this message translates to:

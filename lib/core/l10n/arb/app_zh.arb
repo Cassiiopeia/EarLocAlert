@@ -224,6 +224,31 @@
   "scheduleSameStartEnd": "开始和结束相同。若要全天提醒，不设置时段即可。",
   "scheduleSave": "保存",
   "scheduleAddButton": "添加",
+  "settingsWatchTitle": "在手表上接收提醒",
+  "settingsWatchSubtitle": "如何在智能手表上接收到达提醒",
+  "watchGuideIntro": "如果您佩戴智能手表，也可以在手表上收到提醒。请在手表一侧打开一次相关设置。",
+  "watchGuideAndroidStep1": "在手机上打开 Galaxy Wearable 等手表应用",
+  "watchGuideAndroidStep2": "进入手表设置 → 通知 → 应用通知",
+  "watchGuideAndroidStep3": "在列表中打开“{appName}”",
+  "@watchGuideAndroidStep3": {
+    "placeholders": {
+      "appName": {
+        "type": "String"
+      }
+    }
+  },
+  "watchGuideIosStep1": "在 iPhone 上打开 Watch 应用",
+  "watchGuideIosStep2": "进入“通知”",
+  "watchGuideIosStep3": "如果看到“{appName}”，请将其打开。iPhone 锁屏时提醒会发送到手表",
+  "@watchGuideIosStep3": {
+    "placeholders": {
+      "appName": {
+        "type": "String"
+      }
+    }
+  },
+  "watchGuideNote": "手表的振动方式可能因手表设置而异。",
+  "watchGuideConfirm": "知道了",
   "placeFormSaveFailed": "保存失败，请稍后重试。",
   "scheduleCancel": "取消",
   "scheduleWindow": "{days} {start} ~ {end}",

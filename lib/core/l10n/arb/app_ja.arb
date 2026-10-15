@@ -224,6 +224,31 @@
   "scheduleSameStartEnd": "開始と終了が同じです。一日中通知するには、時間帯を設定しないでください。",
   "scheduleSave": "保存",
   "scheduleAddButton": "追加",
+  "settingsWatchTitle": "ウォッチで通知を受け取る",
+  "settingsWatchSubtitle": "スマートウォッチで到着通知を受け取る方法",
+  "watchGuideIntro": "スマートウォッチを着けている場合、ウォッチでも通知を受け取れます。ウォッチ側の設定を一度オンにしてください。",
+  "watchGuideAndroidStep1": "スマートフォンで Galaxy Wearable などのウォッチアプリを開きます",
+  "watchGuideAndroidStep2": "ウォッチ設定 → 通知 → アプリの通知を開きます",
+  "watchGuideAndroidStep3": "一覧の「{appName}」をオンにします",
+  "@watchGuideAndroidStep3": {
+    "placeholders": {
+      "appName": {
+        "type": "String"
+      }
+    }
+  },
+  "watchGuideIosStep1": "iPhone で Watch アプリを開きます",
+  "watchGuideIosStep2": "「通知」を開きます",
+  "watchGuideIosStep3": "「{appName}」が表示されていればオンにします。iPhone がロック中にウォッチへ通知されます",
+  "@watchGuideIosStep3": {
+    "placeholders": {
+      "appName": {
+        "type": "String"
+      }
+    }
+  },
+  "watchGuideNote": "ウォッチの振動はウォッチの設定によって異なる場合があります。",
+  "watchGuideConfirm": "わかりました",
   "placeFormSaveFailed": "保存できませんでした。しばらくしてからもう一度お試しください。",
   "scheduleCancel": "キャンセル",
   "scheduleWindow": "{days} {start} ~ {end}",

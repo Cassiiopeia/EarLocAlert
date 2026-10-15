@@ -738,6 +738,44 @@ class AppLocalizationsKo extends AppLocalizations {
   String get scheduleAddButton => '추가';
 
   @override
+  String get settingsWatchTitle => '워치로 알림 받기';
+
+  @override
+  String get settingsWatchSubtitle => '스마트워치에서도 도착 알림을 받는 방법';
+
+  @override
+  String get watchGuideIntro =>
+      '스마트워치를 차고 있다면 워치에서도 알림을 받을 수 있어요. 워치 쪽 설정을 한 번만 켜 주세요.';
+
+  @override
+  String get watchGuideAndroidStep1 => '폰에서 Galaxy Wearable 같은 워치 앱을 엽니다';
+
+  @override
+  String get watchGuideAndroidStep2 => '워치 설정 → 알림 → 앱 알림으로 들어갑니다';
+
+  @override
+  String watchGuideAndroidStep3(String appName) {
+    return '목록에서 \"$appName\"을 켭니다';
+  }
+
+  @override
+  String get watchGuideIosStep1 => 'iPhone 에서 Watch 앱을 엽니다';
+
+  @override
+  String get watchGuideIosStep2 => '알림으로 들어갑니다';
+
+  @override
+  String watchGuideIosStep3(String appName) {
+    return '\"$appName\"이 보이면 켭니다. iPhone 이 잠겨 있을 때 워치로 알림이 갑니다';
+  }
+
+  @override
+  String get watchGuideNote => '워치가 울리는 방식은 워치 설정에 따라 다를 수 있어요.';
+
+  @override
+  String get watchGuideConfirm => '알겠어요';
+
+  @override
   String get placeFormSaveFailed => '저장하지 못했습니다. 잠시 후 다시 시도해주세요.';
 
   @override
