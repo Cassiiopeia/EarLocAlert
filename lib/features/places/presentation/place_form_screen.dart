@@ -28,6 +28,8 @@ import 'place_empty_state.dart' show placeErrorMessage;
 import 'place_map_picker_screen.dart';
 import 'place_section_label.dart';
 import '../../../core/widgets/app_feedback.dart';
+import '../../../core/widgets/app_segmented_control.dart';
+import '../../../core/widgets/grouped_section.dart';
 
 /// 장소 등록/편집 폼 (docs/06-UX.md)
 ///
@@ -429,24 +431,26 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
                 const SizedBox(height: AppSpacing.md),
 
                 PlaceSectionLabel(l10n.placeFormTimingLabel),
-                _DirectionSelector(
+                // 도착은 핀, 출발은 나아가는 화살표, 둘 다는 오가는 화살표 —
+                // 선형 아이콘으로 통일해 작은 칸에서도 깔끔하게 (이슈 #272)
+                AppSegmentedControl<AlertDirection>(
                   selected: _direction,
                   onChanged: (value) => setState(() => _direction = value),
-                  options: [
-                    (
-                      AlertDirection.enter,
-                      Icons.login_outlined,
-                      l10n.placeFormTimingEnter,
+                  segments: [
+                    AppSegment(
+                      value: AlertDirection.enter,
+                      icon: Icons.where_to_vote_outlined,
+                      label: l10n.placeFormTimingEnter,
                     ),
-                    (
-                      AlertDirection.exit,
-                      Icons.logout_outlined,
-                      l10n.placeFormTimingExit,
+                    AppSegment(
+                      value: AlertDirection.exit,
+                      icon: Icons.near_me_outlined,
+                      label: l10n.placeFormTimingExit,
                     ),
-                    (
-                      AlertDirection.both,
-                      Icons.sync_alt_outlined,
-                      l10n.placeFormTimingBoth,
+                    AppSegment(
+                      value: AlertDirection.both,
+                      icon: Icons.sync_alt_outlined,
+                      label: l10n.placeFormTimingBoth,
                     ),
                   ],
                 ),
@@ -463,39 +467,42 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
                 // 소리 칸도 다른 칸과 같은 제목 줄을 쓴다 (이슈 #228). 예전엔 이
                 // 칸만 굵은 흰 제목이라 폼 안에서 위계가 갈렸다 — 제목은 회색
                 // 칸 제목, 스위치 줄에는 무엇이 켜지는지를 적는다
-                PlaceSectionLabel(l10n.placeFormSoundTitle),
-                SwitchListTile(
-                  title: Text(
-                    context.keepAllText(l10n.placeFormSoundDescription),
-                    style: context.typo.caption,
-                  ),
-                  value: _soundEnabled,
-                  onChanged: (value) => setState(() => _soundEnabled = value),
-                  contentPadding: EdgeInsets.zero,
-                ),
-
-                // 소리를 켠 다음에 무슨 소리인지 고르는 순서다 (이슈 #121).
-                // 꺼져 있어도 숨기지 않는다 — 숨기면 스위치를 켤 때 화면이 튄다
-                if (widget.onPickSound != null) ...[
-                  const SizedBox(height: AppSpacing.xs),
-                  Opacity(
-                    opacity: _soundEnabled ? 1 : 0.5,
-                    child: ListTile(
-                      contentPadding: EdgeInsets.zero,
-                      leading: const Icon(Icons.music_note_outlined),
+                // 소리 켜기와 음원 고르기는 한 묶음이다 — iOS 설정처럼 한 카드에
+                // 담는다 (이슈 #272). 소리를 켠 다음에 무슨 소리인지 고르는 순서다
+                // (이슈 #121). 꺼져 있어도 숨기지 않는다 — 숨기면 스위치를 켤 때
+                // 화면이 튄다
+                GroupedSection(
+                  header: l10n.placeFormSoundTitle,
+                  dividerIndent: AppSpacing.sm,
+                  children: [
+                    SwitchListTile(
                       title: Text(
-                        l10n.placeFormSoundLabel,
-                        style: context.typo.body,
-                      ),
-                      subtitle: Text(
-                        _soundLabel ?? _fallbackLabel(l10n, _sound),
+                        context.keepAllText(l10n.placeFormSoundDescription),
                         style: context.typo.caption,
                       ),
-                      trailing: const Icon(Icons.chevron_right_outlined),
-                      onTap: _soundEnabled ? _pickSound : null,
+                      value: _soundEnabled,
+                      onChanged: (value) =>
+                          setState(() => _soundEnabled = value),
                     ),
-                  ),
-                ],
+                    if (widget.onPickSound != null)
+                      Opacity(
+                        opacity: _soundEnabled ? 1 : 0.5,
+                        child: ListTile(
+                          leading: const Icon(Icons.music_note_outlined),
+                          title: Text(
+                            l10n.placeFormSoundLabel,
+                            style: context.typo.body,
+                          ),
+                          subtitle: Text(
+                            _soundLabel ?? _fallbackLabel(l10n, _sound),
+                            style: context.typo.caption,
+                          ),
+                          trailing: const Icon(Icons.chevron_right_outlined),
+                          onTap: _soundEnabled ? _pickSound : null,
+                        ),
+                      ),
+                  ],
+                ),
                 // 삭제는 편집 중인 장소에만 있다. 저장 버튼은 하단 고정 막대로 올라갔고,
                 // 삭제는 폼 맨 끝에 옅게 둔다 — 주 동작과 같은 무게로 놓으면 저장하려다
                 // 누른다 (이슈 #205). 스와이프를 모르는 사용자도 여기서 찾을 수 있다
@@ -517,6 +524,32 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
                   ),
                 ],
               ],
+            ),
+          ),
+          // 떠 있는 버튼 뒤로 글자가 비쳐 지저분했다 — 바탕색으로 서서히 덮는
+          // 띠를 깐다 (이슈 #272). 누름은 막지 않는다
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: IgnorePointer(
+              child: Container(
+                height:
+                    AppSpacing.md * 2 +
+                    56 +
+                    MediaQuery.paddingOf(context).bottom,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      context.palette.background.withValues(alpha: 0),
+                      context.palette.background,
+                    ],
+                    stops: const [0, 0.45],
+                  ),
+                ),
+              ),
             ),
           ),
           // 주 동작(저장)이 FilledButton 한 자리뿐이어야 위계가 갈리지 않는다
@@ -923,102 +956,3 @@ class _LocationPreviewState extends State<_LocationPreview> {
 ///
 /// 세 칸으로 나눈 폭이 좁아 영어 "Departure" 가 "Departur / e" 로 단어
 /// 중간에서 쪼개졌다. 줄을 바꾸지 않고, 넘치면 글자를 조금 줄인다.
-/// 알림 시점 선택 — 테두리 없는 알약 트랙 위에서 선택 칸만 채워진다.
-///
-/// 기본 `SegmentedButton` 은 칸마다 테두리가 있고 체크 아이콘이 붙어 답답했다.
-/// 칸 폭은 같게 두고, 라벨은 줄어들어도 한 줄을 지킨다.
-class _DirectionSelector extends StatelessWidget {
-  const _DirectionSelector({
-    required this.selected,
-    required this.onChanged,
-    required this.options,
-  });
-
-  final AlertDirection selected;
-  final ValueChanged<AlertDirection> onChanged;
-  final List<(AlertDirection, IconData, String)> options;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        color: context.palette.surface,
-        borderRadius: BorderRadius.circular(999),
-      ),
-      child: Row(
-        children: [
-          for (final (value, icon, label) in options)
-            Expanded(
-              child: _DirectionOption(
-                icon: icon,
-                label: label,
-                selected: value == selected,
-                onTap: () => onChanged(value),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-}
-
-class _DirectionOption extends StatelessWidget {
-  const _DirectionOption({
-    required this.icon,
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final color = selected
-        ? context.palette.onAccent
-        : context.palette.textSecondary;
-    return Semantics(
-      button: true,
-      selected: selected,
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 180),
-          curve: Curves.easeOut,
-          height: 48,
-          padding: const EdgeInsets.symmetric(horizontal: 8),
-          decoration: BoxDecoration(
-            color: selected ? context.palette.accent : Colors.transparent,
-            borderRadius: BorderRadius.circular(999),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(icon, size: AppIconSize.inline, color: color),
-              const SizedBox(width: 6),
-              Flexible(
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Text(
-                    label,
-                    maxLines: 1,
-                    softWrap: false,
-                    style: context.typo.body.copyWith(
-                      color: color,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}

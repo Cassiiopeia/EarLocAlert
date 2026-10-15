@@ -52,7 +52,16 @@ void main() {
     );
     await scrollToEnd(tester);
 
+    // 묶음 카드 끝에 걸치면 탭이 빗나간다 — 완전히 보이게 맞춘다 (#272)
+
+    await tester.ensureVisible(find.text('이용약관'));
+
+    await tester.pumpAndSettle();
+
     await tester.tap(find.text('이용약관'));
+    // 묶음 카드 끝에 걸치면 탭이 빗나간다 — 완전히 보이게 맞춘다 (#272)
+    await tester.ensureVisible(find.text('개인정보처리방침'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('개인정보처리방침'));
 
     expect(terms, 1);
@@ -70,6 +79,12 @@ void main() {
     var opened = 0;
     await tester.pumpWidget(app(onAdPrivacy: () => opened++));
     await scrollToEnd(tester);
+
+    // 묶음 카드 끝에 걸치면 탭이 빗나간다 — 완전히 보이게 맞춘다 (#272)
+
+    await tester.ensureVisible(find.text('광고 개인정보 설정'));
+
+    await tester.pumpAndSettle();
 
     await tester.tap(find.text('광고 개인정보 설정'));
 

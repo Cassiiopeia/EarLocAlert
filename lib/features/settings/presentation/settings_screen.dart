@@ -7,6 +7,7 @@ import '../../../core/l10n/l10n.dart';
 import '../../../core/l10n/locale_resolver.dart';
 import 'language_sheet.dart';
 import 'theme_mode_sheet.dart';
+import '../../../core/widgets/grouped_section.dart';
 import '../../../core/theme/app_theme_preference.dart';
 
 import '../../../core/theme/app_palette.dart';
@@ -250,139 +251,175 @@ class SettingsScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: Text(context.l10n.settingsTitle)),
       body: SafeArea(
+        // iOS 설정 앱처럼 묶음마다 둥근 카드에 담는다 (이슈 #272)
         child: ListView(
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.sm,
+            AppSpacing.xs,
+            AppSpacing.sm,
+            AppSpacing.lg,
+          ),
           children: [
-            _SectionLabel(context.l10n.settingsSectionAlert),
-            _SettingTile(
-              icon: Icons.vibration_outlined,
-              title: context.l10n.settingsVibrationTitle,
-              subtitle: context.l10n.settingsVibrationSubtitle,
-              onTap: onOpenVibrationSettings,
+            GroupedSection(
+              header: context.l10n.settingsSectionAlert,
+              children: [
+                _SettingTile(
+                  icon: Icons.vibration_outlined,
+                  title: context.l10n.settingsVibrationTitle,
+                  subtitle: context.l10n.settingsVibrationSubtitle,
+                  onTap: onOpenVibrationSettings,
+                ),
+                _SettingTile(
+                  icon: Icons.tune_outlined,
+                  title: context.l10n.settingsVolumeTitle,
+                  subtitle: context.l10n.settingsVolumeSubtitle,
+                  onTap: onOpenVolumeSettings,
+                ),
+                // 화면이 꺼진 채 도착했을 때 무엇이 보이는지를 정하는 항목이라 알림 묶음에 둔다
+                if (lockScreenAlarm != null)
+                  _LockScreenAlarmTile(alarm: lockScreenAlarm!),
+                // 잠금 화면 알람과 같은 질문("도착하면 내가 알아챌까")이라 바로 아래에 둔다
+                if (vibrationCheck != null)
+                  _VibrationCheckTile(check: vibrationCheck!),
+                // 폰 알림이 워치로 가려면 워치 쪽 토글을 켜야 한다 — 사용자가 알 길이 없어 안내한다
+                if (onOpenWatchGuide != null)
+                  _SettingTile(
+                    icon: Icons.watch_outlined,
+                    title: context.l10n.settingsWatchTitle,
+                    subtitle: context.l10n.settingsWatchSubtitle,
+                    onTap: onOpenWatchGuide!,
+                  ),
+                if (onPreviewAlert != null)
+                  _SettingTile(
+                    icon: Icons.notifications_active_outlined,
+                    title: context.l10n.settingsPreviewTitle,
+                    subtitle: context.l10n.settingsPreviewSubtitle,
+                    onTap: onPreviewAlert!,
+                  ),
+              ],
             ),
-            _SettingTile(
-              icon: Icons.tune_outlined,
-              title: context.l10n.settingsVolumeTitle,
-              subtitle: context.l10n.settingsVolumeSubtitle,
-              onTap: onOpenVolumeSettings,
-            ),
-            // 화면이 꺼진 채 도착했을 때 무엇이 보이는지를 정하는 항목이라 알림 묶음에 둔다
-            if (lockScreenAlarm != null)
-              _LockScreenAlarmTile(alarm: lockScreenAlarm!),
-            // 잠금 화면 알람과 같은 질문("도착하면 내가 알아챌까")이라 바로 아래에 둔다
-            if (vibrationCheck != null)
-              _VibrationCheckTile(check: vibrationCheck!),
-            // 폰 알림이 워치로 가려면 워치 쪽 토글을 켜야 한다 — 사용자가 알 길이 없어 안내한다
-            if (onOpenWatchGuide != null)
-              _SettingTile(
-                icon: Icons.watch_outlined,
-                title: context.l10n.settingsWatchTitle,
-                subtitle: context.l10n.settingsWatchSubtitle,
-                onTap: onOpenWatchGuide!,
-              ),
-            if (onPreviewAlert != null)
-              _SettingTile(
-                icon: Icons.notifications_active_outlined,
-                title: context.l10n.settingsPreviewTitle,
-                subtitle: context.l10n.settingsPreviewSubtitle,
-                onTap: onPreviewAlert!,
-              ),
 
             if (permissions.isNotEmpty) ...[
-              _SectionLabel(context.l10n.settingsSectionReach),
-              for (final row in permissions) _PermissionTile(row: row),
+              const SizedBox(height: AppSpacing.md),
+              GroupedSection(
+                header: context.l10n.settingsSectionReach,
+                children: [
+                  for (final row in permissions) _PermissionTile(row: row),
+                ],
+              ),
             ],
 
             // 언어는 "문제 해결" 이 아니라 일반 설정이다 (이슈 #229). 자주 바꾸는 값이
             // 아니라 알림 묶음 뒤에 둔다 (#163). 지구본 아이콘을 달아 문구를 못
             // 읽는 언어가 되어도 알아볼 수 있게 하고, 바꾼 직후에는 되돌리기가 뜬다
-            _SectionLabel(context.l10n.settingsSectionGeneral),
-            _SettingTile(
-              icon: Icons.language_outlined,
-              title: context.l10n.settingsLanguageTitle,
-              subtitle: _languageSubtitle(context),
-              onTap: () => _openLanguage(context),
-            ),
-            _SettingTile(
-              icon: Icons.contrast_outlined,
-              title: context.l10n.settingsThemeTitle,
-              subtitle: themePreferenceLabel(context.l10n, themePreference),
-              onTap: () => _openTheme(context),
-            ),
-
-            _SectionLabel(context.l10n.settingsSectionTroubleshoot),
-            _SettingTile(
-              icon: Icons.receipt_long_outlined,
-              title: context.l10n.settingsDiagnosticsTitle,
-              subtitle: context.l10n.settingsDiagnosticsSubtitle,
-              onTap: onOpenDiagnostics,
-            ),
-            _SettingTile(
-              icon: Icons.mail_outlined,
-              title: context.l10n.settingsReportTitle,
-              subtitle: context.l10n.settingsReportSubtitle,
-              onTap: onReportProblem,
+            const SizedBox(height: AppSpacing.md),
+            GroupedSection(
+              header: context.l10n.settingsSectionGeneral,
+              children: [
+                _SettingTile(
+                  icon: Icons.language_outlined,
+                  title: context.l10n.settingsLanguageTitle,
+                  subtitle: _languageSubtitle(context),
+                  onTap: () => _openLanguage(context),
+                ),
+                _SettingTile(
+                  icon: Icons.contrast_outlined,
+                  title: context.l10n.settingsThemeTitle,
+                  subtitle: themePreferenceLabel(context.l10n, themePreference),
+                  onTap: () => _openTheme(context),
+                ),
+              ],
             ),
 
-            _SectionLabel(context.l10n.settingsSectionBackup),
-            _SettingTile(
-              icon: Icons.upload_file_outlined,
-              title: context.l10n.settingsBackupExportTitle,
-              subtitle: context.l10n.settingsBackupExportSubtitle,
-              onTap: onExportPlaces,
+            const SizedBox(height: AppSpacing.md),
+            GroupedSection(
+              header: context.l10n.settingsSectionTroubleshoot,
+              children: [
+                _SettingTile(
+                  icon: Icons.receipt_long_outlined,
+                  title: context.l10n.settingsDiagnosticsTitle,
+                  subtitle: context.l10n.settingsDiagnosticsSubtitle,
+                  onTap: onOpenDiagnostics,
+                ),
+                _SettingTile(
+                  icon: Icons.mail_outlined,
+                  title: context.l10n.settingsReportTitle,
+                  subtitle: context.l10n.settingsReportSubtitle,
+                  onTap: onReportProblem,
+                ),
+              ],
             ),
-            _SettingTile(
-              icon: Icons.file_open_outlined,
-              title: context.l10n.settingsBackupImportTitle,
-              subtitle: context.l10n.settingsBackupImportSubtitle,
-              onTap: onImportPlaces,
+
+            const SizedBox(height: AppSpacing.md),
+            GroupedSection(
+              header: context.l10n.settingsSectionBackup,
+              children: [
+                _SettingTile(
+                  icon: Icons.upload_file_outlined,
+                  title: context.l10n.settingsBackupExportTitle,
+                  subtitle: context.l10n.settingsBackupExportSubtitle,
+                  onTap: onExportPlaces,
+                ),
+                _SettingTile(
+                  icon: Icons.file_open_outlined,
+                  title: context.l10n.settingsBackupImportTitle,
+                  subtitle: context.l10n.settingsBackupImportSubtitle,
+                  onTap: onImportPlaces,
+                ),
+              ],
             ),
 
             // 약관과 방침은 스토어 심사 항목이고, 사용자가 찾는 자리다 (이슈 #188)
-            _SectionLabel(context.l10n.settingsSectionAbout),
-            _SettingTile(
-              icon: Icons.description_outlined,
-              title: context.l10n.settingsTermsTitle,
-              onTap: onOpenTerms,
-            ),
-            _SettingTile(
-              icon: Icons.privacy_tip_outlined,
-              title: context.l10n.settingsPrivacyTitle,
-              onTap: onOpenPrivacy,
-            ),
-            if (onOpenAdPrivacy != null)
-              _SettingTile(
-                icon: Icons.ads_click_outlined,
-                title: context.l10n.settingsAdPrivacyTitle,
-                subtitle: context.l10n.settingsAdPrivacySubtitle,
-                onTap: onOpenAdPrivacy!,
-              ),
-            _SettingTile(
-              icon: Icons.gavel_outlined,
-              title: context.l10n.settingsLicensesTitle,
-              onTap: () => showLicensePage(
-                context: context,
-                applicationName: context.l10n.appName,
-              ),
-            ),
-
-            // 맨 끝의 읽기 전용 줄 (이슈 #179). 눌러서 업데이트를 바로 확인한다
-            // 다른 줄과 같은 아이콘색·글자 스타일을 쓴다 — 이 줄만 밝게 튀었다
-            ListTile(
-              leading: Icon(
-                Icons.info_outlined,
-                color: context.palette.textSecondary,
-              ),
-              title: Text(
-                context.l10n.settingsVersionTitle,
-                style: context.typo.body,
-              ),
-              subtitle: Text(appVersion, style: context.typo.caption),
-              trailing: onCheckUpdate == null
-                  ? null
-                  : TextButton(
-                      onPressed: onCheckUpdate,
-                      child: Text(context.l10n.settingsVersionCheck),
-                    ),
+            // 맨 끝의 버전 줄도 같은 묶음에 둔다 (이슈 #179)
+            const SizedBox(height: AppSpacing.md),
+            GroupedSection(
+              header: context.l10n.settingsSectionAbout,
+              children: [
+                _SettingTile(
+                  icon: Icons.description_outlined,
+                  title: context.l10n.settingsTermsTitle,
+                  onTap: onOpenTerms,
+                ),
+                _SettingTile(
+                  icon: Icons.privacy_tip_outlined,
+                  title: context.l10n.settingsPrivacyTitle,
+                  onTap: onOpenPrivacy,
+                ),
+                if (onOpenAdPrivacy != null)
+                  _SettingTile(
+                    icon: Icons.ads_click_outlined,
+                    title: context.l10n.settingsAdPrivacyTitle,
+                    subtitle: context.l10n.settingsAdPrivacySubtitle,
+                    onTap: onOpenAdPrivacy!,
+                  ),
+                _SettingTile(
+                  icon: Icons.gavel_outlined,
+                  title: context.l10n.settingsLicensesTitle,
+                  onTap: () => showLicensePage(
+                    context: context,
+                    applicationName: context.l10n.appName,
+                  ),
+                ),
+                // 맨 끝의 읽기 전용 줄 (이슈 #179). 눌러서 업데이트를 바로 확인한다
+                // 다른 줄과 같은 아이콘색·글자 스타일을 쓴다 — 이 줄만 밝게 튀었다
+                ListTile(
+                  leading: Icon(
+                    Icons.info_outlined,
+                    color: context.palette.textSecondary,
+                  ),
+                  title: Text(
+                    context.l10n.settingsVersionTitle,
+                    style: context.typo.body,
+                  ),
+                  subtitle: Text(appVersion, style: context.typo.caption),
+                  trailing: onCheckUpdate == null
+                      ? null
+                      : TextButton(
+                          onPressed: onCheckUpdate,
+                          child: Text(context.l10n.settingsVersionCheck),
+                        ),
+                ),
+              ],
             ),
           ],
         ),
@@ -513,25 +550,6 @@ class _VibrationCheckTile extends StatelessWidget {
       ),
       trailing: const Icon(Icons.chevron_right_outlined),
       onTap: check.onTap,
-    );
-  }
-}
-
-class _SectionLabel extends StatelessWidget {
-  const _SectionLabel(this.text);
-
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.md,
-        AppSpacing.md,
-        AppSpacing.md,
-        AppSpacing.xs,
-      ),
-      child: Text(text, style: context.typo.caption),
     );
   }
 }

@@ -55,6 +55,9 @@ void main() {
       _screen(version: '1.20.3 (113)', onCheck: () => checks++),
     );
     await tester.scrollUntilVisible(find.text('업데이트 확인'), 300);
+    // 묶음 카드 끝에 걸치면 탭이 빗나간다 — 완전히 보이게 맞춘다 (#272)
+    await tester.ensureVisible(find.text('업데이트 확인'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('업데이트 확인'));
 
     expect(checks, 1);
