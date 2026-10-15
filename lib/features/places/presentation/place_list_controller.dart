@@ -121,7 +121,14 @@ class PlaceActions extends _$PlaceActions {
   }
 
   /// undo — 삭제했던 장소를 그대로 되살린다
-  Future<void> restore(AlertPlace place) {
-    return ref.read(placeRepositoryProvider).save(place);
+  Future<void> restore(AlertPlace place) async {
+    await ref.read(placeRepositoryProvider).save(place);
+    // 되돌리기도 장소 추가다 — 판정 로그와 대조하려면 id·좌표가 있어야 한다 (#274)
+    Diagnostics.log(
+      'place',
+      'place restored id=${shortId(place.id)} name=${place.name} '
+          'lat=${place.latitude} lng=${place.longitude} '
+          'radius=${place.radiusMeters}m direction=${place.direction.name}',
+    );
   }
 }

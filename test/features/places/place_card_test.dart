@@ -102,6 +102,28 @@ void main() {
       expect(find.text('회사'), findsNothing);
     });
 
+    testWidgets('지운 자리에 다른 장소가 들어오면 그 카드는 보인다 (#274)', (tester) async {
+      // 홈 목록에서 가운데 카드를 지우면 아래 카드가 그 자리로 올라온다.
+      // 지운 카드의 "접힘" 상태가 그 자리에 남으면 아래 카드가 빈 칸이 됐다
+      Widget card(String id, String name) => wrap(
+        PlaceCard(
+          place: makePlace(id: id).copyWith(name: name),
+          onTap: () {},
+          onToggle: (_) {},
+          onDelete: () {},
+        ),
+      );
+
+      await tester.pumpWidget(card('p1', '회사'));
+      await tester.fling(find.text('회사'), const Offset(-500, 0), 2000);
+      await tester.pumpAndSettle();
+      expect(find.text('회사'), findsNothing);
+
+      await tester.pumpWidget(card('p2', '집'));
+      await tester.pumpAndSettle();
+      expect(find.text('집'), findsOneWidget);
+    });
+
     testWidgets('조금만 밀고 놓으면 제자리로 돌아온다 — 실수로 지워지지 않는다', (tester) async {
       var deleted = false;
       await tester.pumpWidget(
@@ -359,10 +381,7 @@ void main() {
             )
             .first,
       );
-      expect(
-        (container.decoration! as BoxDecoration).color,
-        AppColors.surface,
-      );
+      expect((container.decoration! as BoxDecoration).color, AppColors.surface);
     });
 
     testWidgets('방향별 문구가 카드에 그대로 나온다', (tester) async {

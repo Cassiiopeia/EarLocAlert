@@ -140,6 +140,9 @@ class PlaceCard extends StatelessWidget {
     );
 
     return _SwipeToDelete(
+      // 장소마다 밀기 상태를 따로 둔다 (#274). 키가 없으면 지운 카드의 "접힘"
+      // 상태가 그 자리로 올라온 다음 카드에 남아 빈 칸으로 그려졌다
+      key: ValueKey(place.id),
       semanticLabel: context.l10n.placeSwipeDeleteLabel,
       onDelete: onDelete,
       child: card,
@@ -159,6 +162,7 @@ class PlaceCard extends StatelessWidget {
 /// 되돌릴 수 없는 삭제(알림음·진단 기록)는 확인 창을 그대로 유지한다.
 class _SwipeToDelete extends StatefulWidget {
   const _SwipeToDelete({
+    super.key,
     required this.child,
     required this.onDelete,
     required this.semanticLabel,

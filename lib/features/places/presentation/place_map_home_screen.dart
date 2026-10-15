@@ -976,6 +976,9 @@ class _PlaceSheet extends ConsumerWidget {
       itemBuilder: (context, index) {
         final place = places[index];
         return PlaceCard(
+          // 지우거나 되돌릴 때 카드가 자리를 옮긴다 — 장소로 짝지어야 상태가
+          // 다른 카드로 넘어가지 않는다 (#274)
+          key: ValueKey(place.id),
           place: place,
           selected: place.id == selectedPlaceId,
           onTap: () => onEditPlace?.call(place),
