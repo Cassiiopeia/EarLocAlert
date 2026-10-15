@@ -111,8 +111,8 @@ class PlaceActions extends _$PlaceActions {
     if (place == null) return null;
 
     await repo.delete(id);
-    // 장소가 사라지면 지오펜스 상태도 함께 지운다 (docs/03-DOMAIN.md)
-    await ref.read(geofenceStateRepositoryProvider).remove(id);
+    // 지오펜스 상태는 목록이 바뀌면 app 계층 동기화가 지운다 (#276) —
+    // places 가 geofence 저장소를 직접 부르지 않는다
     Diagnostics.log(
       'place',
       'place deleted id=${shortId(id)} name=${place.name}',

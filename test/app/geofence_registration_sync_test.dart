@@ -76,6 +76,18 @@ void main() {
     expect(monitor.lastSynced.map((t) => t.placeId), ['a']);
   });
 
+  test('목록에서 사라진 장소의 상태는 지운다 — 등록돼 있지 않았던 장소도 (#276)', () async {
+    // 장소 삭제 때 places 기능이 지오펜스 상태를 직접 지우던 것을 동기화가
+    // 맡는다. 꺼 둔 채 지운 장소는 OS 등록이 없어 위 규칙만으로는 안 지워진다
+    monitor.registered = ['a'];
+    states.states['gone'] = GeofenceState.outside;
+    places.items = [place('a')];
+
+    await sync.start();
+
+    expect(states.states.containsKey('gone'), isFalse);
+  });
+
   test('목록 변경 스트림에 반응한다', () async {
     places.items = [place('a')];
     await sync.start();

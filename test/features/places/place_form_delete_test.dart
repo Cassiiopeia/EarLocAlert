@@ -118,8 +118,7 @@ void main() {
     expect(find.byType(PlaceFormScreen), findsOneWidget);
   });
 
-  testWidgets('삭제하면 저장소와 지오펜스 상태에서 지우고 화면이 닫힌다', (tester) async {
-    states.states['p1'] = GeofenceState.inside;
+  testWidgets('삭제하면 저장소에서 지우고 화면이 닫힌다', (tester) async {
     await pumpPushed(tester, place: existing);
 
     await tapDelete(tester);
@@ -127,8 +126,8 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(repo.deleted, ['p1']);
-    // 장소가 사라지면 지오펜스 상태도 함께 지운다 (docs/03-DOMAIN.md)
-    expect(states.states.containsKey('p1'), isFalse);
+    // 지오펜스 상태 정리는 app 계층 동기화가 맡는다 (#276,
+    // geofence_registration_sync_test '목록에서 사라진 장소의 상태는 지운다')
     expect(deletedCallbacks, 1);
     expect(find.byType(PlaceFormScreen), findsNothing);
   });

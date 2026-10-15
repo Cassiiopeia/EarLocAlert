@@ -126,6 +126,21 @@ class GeofenceRegistrationSync {
       }
     }
 
+    // 목록에서 아예 사라진 장소의 상태도 지운다 (#276). 장소 삭제 때 places
+    // 기능이 지오펜스 저장소를 직접 부르던 것을 여기로 옮겼다 — feature 끼리
+    // 직접 의존하지 않는다 (docs/02-ARCHITECTURE.md 규칙 1). 꺼 둔 채 지운
+    // 장소는 OS 등록이 없어 위 규칙에 걸리지 않는다
+    final existingIds = {for (final p in places) p.id};
+    for (final staleId in (await _states.allStates()).keys) {
+      if (!existingIds.contains(staleId)) {
+        await _states.remove(staleId);
+        Diagnostics.log(
+          'sync',
+          'state removed place=${shortId(staleId)} reason=place_deleted',
+        );
+      }
+    }
+
     await _monitor.sync(targets);
 
     // 초기값을 정할 장소를 고른다 (이슈 #231) — 새로 들어왔거나(unknown),
