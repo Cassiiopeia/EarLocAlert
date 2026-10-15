@@ -809,6 +809,28 @@ class AppLocalizationsEn extends AppLocalizations {
   String get watchGuideConfirm => 'Got it';
 
   @override
+  String get settingsThemeTitle => 'Appearance';
+
+  @override
+  String get themeSystem => 'Match device';
+
+  @override
+  String get themeLight => 'Light';
+
+  @override
+  String get themeDark => 'Dark';
+
+  @override
+  String get themeSheetHint =>
+      'The alert screen always stays dark so it never glares.';
+
+  @override
+  String get themeChanged => 'Appearance changed';
+
+  @override
+  String get themeUndo => 'Undo';
+
+  @override
   String get placeFormSaveFailed =>
       'Couldn\'t save. Please try again in a moment.';
 

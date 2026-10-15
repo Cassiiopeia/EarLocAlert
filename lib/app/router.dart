@@ -37,6 +37,7 @@ import '../features/diagnostics/presentation/bug_report_sheet.dart';
 import '../features/places/presentation/place_backup_actions.dart';
 import '../features/places/presentation/place_search_provider.dart';
 import 'alert_theme.dart';
+import '../core/theme/app_theme_controller.dart';
 import '../features/settings/data/prefs_watch_guide_store.dart';
 import '../features/settings/presentation/settings_screen.dart';
 import '../features/settings/presentation/watch_guide_sheet.dart';
@@ -555,6 +556,10 @@ class _SettingsRouteState extends ConsumerState<_SettingsRoute>
           ? () => unawaited(ref.read(adConsentProvider).showPrivacyOptions())
           : null,
       // 앱 언어 (이슈 #163) — 고르면 바로 적용되고 저장된다
+      // 화면 모드 (이슈 #272) — 고르면 바로 적용되고 저장된다
+      themePreference: ref.watch(appThemeControllerProvider),
+      onThemeChanged: (next) =>
+          unawaited(ref.read(appThemeControllerProvider.notifier).select(next)),
       language: ref.watch(appLanguageControllerProvider),
       onLanguageChanged: (next) async {
         await ref.read(appLanguageControllerProvider.notifier).select(next);

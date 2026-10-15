@@ -1512,6 +1512,48 @@ abstract class AppLocalizations {
   /// **'알겠어요'**
   String get watchGuideConfirm;
 
+  /// No description provided for @settingsThemeTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'화면 모드'**
+  String get settingsThemeTitle;
+
+  /// No description provided for @themeSystem.
+  ///
+  /// In ko, this message translates to:
+  /// **'기기 설정 따르기'**
+  String get themeSystem;
+
+  /// No description provided for @themeLight.
+  ///
+  /// In ko, this message translates to:
+  /// **'라이트'**
+  String get themeLight;
+
+  /// No description provided for @themeDark.
+  ///
+  /// In ko, this message translates to:
+  /// **'다크'**
+  String get themeDark;
+
+  /// No description provided for @themeSheetHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'알림이 울리는 화면은 눈부시지 않게 항상 어둡게 보여요.'**
+  String get themeSheetHint;
+
+  /// No description provided for @themeChanged.
+  ///
+  /// In ko, this message translates to:
+  /// **'화면 모드를 바꿨어요'**
+  String get themeChanged;
+
+  /// No description provided for @themeUndo.
+  ///
+  /// In ko, this message translates to:
+  /// **'되돌리기'**
+  String get themeUndo;
+
   /// No description provided for @placeFormSaveFailed.
   ///
   /// In ko, this message translates to:

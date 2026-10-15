@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:ear_loc_alert/core/theme/app_theme_preference.dart';
+
 import 'package:ear_loc_alert/core/l10n/app_language.dart';
 import 'package:ear_loc_alert/core/l10n/l10n.dart';
 import 'package:ear_loc_alert/features/settings/presentation/settings_screen.dart';
@@ -21,6 +23,8 @@ Widget _screen(SettingsLockScreenAlarm? alarm) {
       onImportPlaces: () {},
       language: AppLanguage.ko,
       onLanguageChanged: (_) {},
+      themePreference: AppThemePreference.system,
+      onThemeChanged: (_) {},
       appVersion: '1.0.0',
       onOpenTerms: () {},
       onOpenPrivacy: () {},

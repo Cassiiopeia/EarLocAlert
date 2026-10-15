@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:ear_loc_alert/core/theme/app_theme_preference.dart';
+
 import 'package:ear_loc_alert/core/l10n/app_language.dart';
 import 'package:ear_loc_alert/features/settings/presentation/settings_screen.dart';
 import 'package:ear_loc_alert/core/l10n/l10n.dart';
@@ -21,6 +23,8 @@ Widget _screen({required String version, required VoidCallback? onCheck}) {
       onImportPlaces: () {},
       language: AppLanguage.ko,
       onLanguageChanged: (_) {},
+      themePreference: AppThemePreference.system,
+      onThemeChanged: (_) {},
       appVersion: version,
       onCheckUpdate: onCheck,
       onOpenTerms: () {},

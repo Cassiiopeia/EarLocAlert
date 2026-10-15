@@ -6,6 +6,8 @@ import '../../../core/l10n/app_language.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/l10n/locale_resolver.dart';
 import 'language_sheet.dart';
+import 'theme_mode_sheet.dart';
+import '../../../core/theme/app_theme_preference.dart';
 
 import '../../../core/theme/app_palette.dart';
 import '../../../core/theme/app_semantic_colors.dart';
@@ -107,6 +109,8 @@ class SettingsScreen extends StatelessWidget {
     required this.onReportProblem,
     required this.language,
     required this.onLanguageChanged,
+    required this.themePreference,
+    required this.onThemeChanged,
     required this.appVersion,
     this.onCheckUpdate,
     required this.onOpenTerms,
@@ -136,6 +140,10 @@ class SettingsScreen extends StatelessWidget {
   /// 지금 고른 앱 언어와 바꾸는 방법 (이슈 #163). app 계층이 값을 내려준다
   final AppLanguage language;
   final ValueChanged<AppLanguage> onLanguageChanged;
+
+  /// 화면 모드 (이슈 #272). app 계층이 값을 내려주고, 고르면 바로 적용된다
+  final AppThemePreference themePreference;
+  final ValueChanged<AppThemePreference> onThemeChanged;
 
   /// 설치된 앱 버전과 업데이트 확인 (이슈 #179). app 계층이 값과 동작을 내려준다.
   /// 버전은 읽기 전에도 `-` 로 자리를 지킨다 — 줄이 깜빡이며 생기지 않게 한다
@@ -214,6 +222,29 @@ class SettingsScreen extends StatelessWidget {
       );
   }
 
+  Future<void> _openTheme(BuildContext context) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = context.l10n;
+    final picked = await showThemeModeSheet(context, current: themePreference);
+    if (picked == null || picked == themePreference) return;
+
+    onThemeChanged(picked);
+
+    // 실수로 눌렀을 때 바로 되돌릴 수 있게 한다 — 언어 설정과 같은 방식
+    messenger
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(l10n.themeChanged),
+          duration: const Duration(seconds: 8),
+          action: SnackBarAction(
+            label: l10n.themeUndo,
+            onPressed: () => onThemeChanged(themePreference),
+          ),
+        ),
+      );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -270,6 +301,12 @@ class SettingsScreen extends StatelessWidget {
               title: context.l10n.settingsLanguageTitle,
               subtitle: _languageSubtitle(context),
               onTap: () => _openLanguage(context),
+            ),
+            _SettingTile(
+              icon: Icons.contrast_outlined,
+              title: context.l10n.settingsThemeTitle,
+              subtitle: themePreferenceLabel(context.l10n, themePreference),
+              onTap: () => _openTheme(context),
             ),
 
             _SectionLabel(context.l10n.settingsSectionTroubleshoot),

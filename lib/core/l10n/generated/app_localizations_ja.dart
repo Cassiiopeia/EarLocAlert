@@ -775,6 +775,27 @@ class AppLocalizationsJa extends AppLocalizations {
   String get watchGuideConfirm => 'わかりました';
 
   @override
+  String get settingsThemeTitle => '画面モード';
+
+  @override
+  String get themeSystem => '端末の設定に従う';
+
+  @override
+  String get themeLight => 'ライト';
+
+  @override
+  String get themeDark => 'ダーク';
+
+  @override
+  String get themeSheetHint => 'アラート画面はまぶしくならないよう常に暗く表示されます。';
+
+  @override
+  String get themeChanged => '画面モードを変更しました';
+
+  @override
+  String get themeUndo => '元に戻す';
+
+  @override
   String get placeFormSaveFailed => '保存できませんでした。しばらくしてからもう一度お試しください。';
 
   @override

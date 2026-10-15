@@ -768,6 +768,27 @@ class AppLocalizationsZh extends AppLocalizations {
   String get watchGuideConfirm => '知道了';
 
   @override
+  String get settingsThemeTitle => '显示模式';
+
+  @override
+  String get themeSystem => '跟随系统';
+
+  @override
+  String get themeLight => '浅色';
+
+  @override
+  String get themeDark => '深色';
+
+  @override
+  String get themeSheetHint => '提醒界面始终保持深色，避免刺眼。';
+
+  @override
+  String get themeChanged => '已更改显示模式';
+
+  @override
+  String get themeUndo => '撤销';
+
+  @override
   String get placeFormSaveFailed => '保存失败，请稍后重试。';
 
   @override

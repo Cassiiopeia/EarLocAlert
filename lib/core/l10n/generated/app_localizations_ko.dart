@@ -776,6 +776,27 @@ class AppLocalizationsKo extends AppLocalizations {
   String get watchGuideConfirm => '알겠어요';
 
   @override
+  String get settingsThemeTitle => '화면 모드';
+
+  @override
+  String get themeSystem => '기기 설정 따르기';
+
+  @override
+  String get themeLight => '라이트';
+
+  @override
+  String get themeDark => '다크';
+
+  @override
+  String get themeSheetHint => '알림이 울리는 화면은 눈부시지 않게 항상 어둡게 보여요.';
+
+  @override
+  String get themeChanged => '화면 모드를 바꿨어요';
+
+  @override
+  String get themeUndo => '되돌리기';
+
+  @override
   String get placeFormSaveFailed => '저장하지 못했습니다. 잠시 후 다시 시도해주세요.';
 
   @override

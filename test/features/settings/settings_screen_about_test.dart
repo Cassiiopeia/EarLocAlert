@@ -4,6 +4,8 @@ import 'package:ear_loc_alert/features/settings/presentation/settings_screen.dar
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:ear_loc_alert/core/theme/app_theme_preference.dart';
+
 /// 설정의 정보 섹션 (이슈 #188)
 ///
 /// 약관·방침은 스토어 심사 항목이다. 항목이 조용히 빠지면 심사에서 반려된다.
@@ -26,6 +28,8 @@ void main() {
         onImportPlaces: () {},
         language: AppLanguage.system,
         onLanguageChanged: (_) {},
+        themePreference: AppThemePreference.system,
+        onThemeChanged: (_) {},
         appVersion: '1.0.0 (1)',
         onCheckUpdate: () {},
         onOpenTerms: onTerms ?? () {},
