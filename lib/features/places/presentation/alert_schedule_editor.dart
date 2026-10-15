@@ -7,7 +7,9 @@ import '../../../core/l10n/l10n.dart';
 import '../../../core/text/keep_all.dart';
 import 'alert_schedule_sheet.dart';
 import 'alert_schedule_summary.dart';
-import 'place_section_label.dart';
+import '../../../core/ui/components/grouped_list_row.dart';
+import '../../../core/ui/components/grouped_list_section.dart';
+import '../../../core/ui/components/section_title_with_trailing_value.dart';
 
 /// 장소의 알림 시간대 목록 편집 (이슈 #81)
 ///
@@ -32,7 +34,7 @@ class AlertScheduleEditor extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // 폼의 다른 칸과 같은 제목 줄 (이슈 #228)
-        PlaceSectionLabel(context.l10n.scheduleTitle),
+        SectionTitleWithTrailingValue(context.l10n.scheduleTitle),
 
         if (schedules.isEmpty)
           Text(
@@ -40,12 +42,17 @@ class AlertScheduleEditor extends StatelessWidget {
             style: context.appTextStyles.caption,
           )
         else
-          for (final (index, schedule) in schedules.indexed)
-            _ScheduleTile(
-              schedule: schedule,
-              onEdit: () => _edit(context, index),
-              onRemove: () => _remove(index),
-            ),
+          // 시간대 여러 개를 한 묶음 카드에 담는다 (#276) — 설정 목록과 같은 결
+          GroupedListSection(
+            children: [
+              for (final (index, schedule) in schedules.indexed)
+                _ScheduleTile(
+                  schedule: schedule,
+                  onEdit: () => _edit(context, index),
+                  onRemove: () => _remove(index),
+                ),
+            ],
+          ),
 
         const SizedBox(height: AppSpacing.xs),
         OutlinedButton.icon(
@@ -93,14 +100,9 @@ class _ScheduleTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      contentPadding: EdgeInsets.zero,
-      dense: true,
-      leading: const Icon(Icons.schedule_outlined),
-      title: Text(
-        describeSchedule(context.l10n, schedule),
-        style: context.appTextStyles.body,
-      ),
+    return GroupedListRow.withTrailing(
+      icon: Icons.schedule_outlined,
+      title: describeSchedule(context.l10n, schedule),
       trailing: IconButton(
         icon: const Icon(Icons.close_outlined),
         tooltip: context.l10n.scheduleRemove,

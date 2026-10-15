@@ -20,7 +20,7 @@ import '../domain/current_location_service.dart';
 import '../domain/place_search.dart';
 import '../domain/place_validator.dart';
 import 'current_location_message.dart';
-import 'place_section_label.dart';
+import '../../../core/ui/components/section_title_with_trailing_value.dart';
 
 /// 지도에서 고른 결과 — 위치와 반경을 함께 돌려준다.
 ///
@@ -659,7 +659,7 @@ class _PickerPanel extends StatelessWidget {
           children: [
             // 폼의 반경 칸과 같은 제목 줄 — 같은 값을 두 화면이 다른 모양으로
             // 보여주고 있었다 (이슈 #228)
-            PlaceSectionLabel(
+            SectionTitleWithTrailingValue(
               context.l10n.placeFormRadiusLabel,
               trailing: context.l10n.placeFormRadiusValue(radius.round()),
             ),

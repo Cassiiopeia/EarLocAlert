@@ -80,6 +80,42 @@ void main() {
     }
   });
 
+  group('화면은 공통 UI 부품을 조립한다 (#276)', () {
+    test('바텀시트는 showAppBottomSheet 로만 띄운다', () {
+      final offenders = [
+        for (final file in presentation)
+          if (file.readAsStringSync().contains('showModalBottomSheet('))
+            file.path,
+      ];
+      expect(
+        offenders,
+        isEmpty,
+        reason:
+            '손잡이·키보드 높이·스크롤이 시트마다 달라진다 — '
+            'core/ui/components 의 showAppBottomSheet + BottomSheetWithHeaderLayout 을 쓴다.\n'
+            '해당: $offenders',
+      );
+    });
+
+    test('목록 한 줄은 GroupedListRow 로 그린다', () {
+      // 검색 결과처럼 두 줄 말줄임이 필요한 목록만 예외로 둔다
+      const allowed = {'place_map_picker_screen.dart'};
+      final offenders = [
+        for (final file in presentation)
+          if (!allowed.contains(file.uri.pathSegments.last) &&
+              RegExp(r'\bListTile\(').hasMatch(file.readAsStringSync()))
+            file.path,
+      ];
+      expect(
+        offenders,
+        isEmpty,
+        reason:
+            '아이콘 색·부제 줄바꿈이 화면마다 제각각이 된다 — GroupedListRow 를 쓴다.\n'
+            '해당: $offenders',
+      );
+    });
+  });
+
   group('주 액션은 하단 한 자리뿐이다', () {
     test('한 화면에 FilledButton 이 둘 이상이면 위계가 갈린다', () {
       final offenders = <String>[];
@@ -110,9 +146,13 @@ void main() {
     test('보조 동작이 주 버튼 자리를 차지하지 않는다', () {
       // 주 버튼에 오면 안 되는 낱말 — 안 해도 화면의 목적은 달성된다
       const secondaryWords = ['추가', '미리듣기', '내보내기', '삭제'];
+      // 그 화면의 목적 자체가 그 동작인 곳 — 시간대 시트는 "시간대를 추가"하려고
+      // 여는 시트라 주 버튼이 "추가" 다 (#276 에서 시트를 공통 틀로 옮기며 드러남)
+      const purposeIsThatAction = {'alert_schedule_sheet.dart'};
       final offenders = <String>[];
 
       for (final file in presentation) {
+        if (purposeIsThatAction.contains(file.uri.pathSegments.last)) continue;
         final source = file.readAsStringSync();
         for (final match in RegExp(
           r'FilledButton[^;]{0,400}?;',

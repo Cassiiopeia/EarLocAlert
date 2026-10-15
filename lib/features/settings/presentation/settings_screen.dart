@@ -7,13 +7,13 @@ import '../../../core/l10n/l10n.dart';
 import '../../../core/l10n/locale_resolver.dart';
 import 'language_sheet.dart';
 import 'theme_mode_sheet.dart';
+import '../../../core/ui/components/grouped_list_row.dart';
 import '../../../core/ui/components/grouped_list_section.dart';
 import '../../../core/ui/foundation/app_theme_preference.dart';
 
 import '../../../core/ui/foundation/app_color_palette.dart';
 import '../../../core/ui/foundation/app_semantic_colors.dart';
 import '../../../core/ui/foundation/app_spacing.dart';
-import '../../../core/text/keep_all.dart';
 
 /// 설정 화면이 보여줄 권한 한 줄 (이슈 #102)
 ///
@@ -218,13 +218,13 @@ class SettingsScreen extends StatelessWidget {
             GroupedListSection(
               header: context.l10n.settingsSectionAlert,
               children: [
-                _SettingTile(
+                GroupedListRow.navigation(
                   icon: Icons.vibration_outlined,
                   title: context.l10n.settingsVibrationTitle,
                   subtitle: context.l10n.settingsVibrationSubtitle,
                   onTap: onOpenVibrationSettings,
                 ),
-                _SettingTile(
+                GroupedListRow.navigation(
                   icon: Icons.tune_outlined,
                   title: context.l10n.settingsVolumeTitle,
                   subtitle: context.l10n.settingsVolumeSubtitle,
@@ -235,7 +235,7 @@ class SettingsScreen extends StatelessWidget {
                   _LockScreenAlarmTile(alarm: lockScreenAlarm!),
                 // 폰 알림이 워치로 가려면 워치 쪽 토글을 켜야 한다 — 사용자가 알 길이 없어 안내한다
                 if (onOpenWatchGuide != null)
-                  _SettingTile(
+                  GroupedListRow.navigation(
                     icon: Icons.watch_outlined,
                     title: context.l10n.settingsWatchTitle,
                     subtitle: context.l10n.settingsWatchSubtitle,
@@ -261,13 +261,13 @@ class SettingsScreen extends StatelessWidget {
             GroupedListSection(
               header: context.l10n.settingsSectionGeneral,
               children: [
-                _SettingTile(
+                GroupedListRow.navigation(
                   icon: Icons.language_outlined,
                   title: context.l10n.settingsLanguageTitle,
                   subtitle: _languageSubtitle(context),
                   onTap: () => _openLanguage(context),
                 ),
-                _SettingTile(
+                GroupedListRow.navigation(
                   icon: Icons.contrast_outlined,
                   title: context.l10n.settingsThemeTitle,
                   subtitle: themePreferenceLabel(context.l10n, themePreference),
@@ -280,13 +280,13 @@ class SettingsScreen extends StatelessWidget {
             GroupedListSection(
               header: context.l10n.settingsSectionTroubleshoot,
               children: [
-                _SettingTile(
+                GroupedListRow.navigation(
                   icon: Icons.receipt_long_outlined,
                   title: context.l10n.settingsDiagnosticsTitle,
                   subtitle: context.l10n.settingsDiagnosticsSubtitle,
                   onTap: onOpenDiagnostics,
                 ),
-                _SettingTile(
+                GroupedListRow.navigation(
                   icon: Icons.mail_outlined,
                   title: context.l10n.settingsReportTitle,
                   subtitle: context.l10n.settingsReportSubtitle,
@@ -299,13 +299,13 @@ class SettingsScreen extends StatelessWidget {
             GroupedListSection(
               header: context.l10n.settingsSectionBackup,
               children: [
-                _SettingTile(
+                GroupedListRow.navigation(
                   icon: Icons.upload_file_outlined,
                   title: context.l10n.settingsBackupExportTitle,
                   subtitle: context.l10n.settingsBackupExportSubtitle,
                   onTap: onExportPlaces,
                 ),
-                _SettingTile(
+                GroupedListRow.navigation(
                   icon: Icons.file_open_outlined,
                   title: context.l10n.settingsBackupImportTitle,
                   subtitle: context.l10n.settingsBackupImportSubtitle,
@@ -320,24 +320,24 @@ class SettingsScreen extends StatelessWidget {
             GroupedListSection(
               header: context.l10n.settingsSectionAbout,
               children: [
-                _SettingTile(
+                GroupedListRow.navigation(
                   icon: Icons.description_outlined,
                   title: context.l10n.settingsTermsTitle,
                   onTap: onOpenTerms,
                 ),
-                _SettingTile(
+                GroupedListRow.navigation(
                   icon: Icons.privacy_tip_outlined,
                   title: context.l10n.settingsPrivacyTitle,
                   onTap: onOpenPrivacy,
                 ),
                 if (onOpenAdPrivacy != null)
-                  _SettingTile(
+                  GroupedListRow.navigation(
                     icon: Icons.ads_click_outlined,
                     title: context.l10n.settingsAdPrivacyTitle,
                     subtitle: context.l10n.settingsAdPrivacySubtitle,
                     onTap: onOpenAdPrivacy!,
                   ),
-                _SettingTile(
+                GroupedListRow.navigation(
                   icon: Icons.gavel_outlined,
                   title: context.l10n.settingsLicensesTitle,
                   onTap: () => showLicensePage(
@@ -347,19 +347,11 @@ class SettingsScreen extends StatelessWidget {
                 ),
                 // 맨 끝의 읽기 전용 줄 (이슈 #179). 눌러서 업데이트를 바로 확인한다
                 // 다른 줄과 같은 아이콘색·글자 스타일을 쓴다 — 이 줄만 밝게 튀었다
-                ListTile(
-                  leading: Icon(
-                    Icons.info_outlined,
-                    color: context.appColors.textSecondary,
-                  ),
-                  title: Text(
-                    context.l10n.settingsVersionTitle,
-                    style: context.appTextStyles.body,
-                  ),
-                  subtitle: Text(
-                    appVersion,
-                    style: context.appTextStyles.caption,
-                  ),
+                GroupedListRow.withTrailing(
+                  icon: Icons.info_outlined,
+                  title: context.l10n.settingsVersionTitle,
+                  subtitle: appVersion,
+                  keepSubtitleWordsTogether: false,
                   trailing: onCheckUpdate == null
                       ? null
                       : TextButton(
@@ -391,22 +383,14 @@ class _PermissionTile extends StatelessWidget {
     final grantedColor =
         semantic?.statusActive ?? context.appColors.textSecondary;
 
-    return ListTile(
-      leading: Icon(
-        row.granted ? Icons.check_circle_outlined : Icons.error_outlined,
-        color: row.granted ? grantedColor : context.appColors.textSecondary,
-      ),
-      title: Text(row.title, style: context.appTextStyles.body),
-      subtitle: Text(
-        context.keepAllText(
-          row.granted
-              ? context.l10n.settingsPermissionGranted
-              : row.description,
-        ),
-        style: context.appTextStyles.caption,
-      ),
-      // 이미 허용된 권한도 열 수 있게 둔다 — 사용자가 끄고 싶을 수 있다
-      trailing: const Icon(Icons.chevron_right_outlined),
+    // 이미 허용된 권한도 열 수 있게 둔다 — 사용자가 끄고 싶을 수 있다
+    return GroupedListRow.navigation(
+      icon: row.granted ? Icons.check_circle_outlined : Icons.error_outlined,
+      iconColor: row.granted ? grantedColor : null,
+      title: row.title,
+      subtitle: row.granted
+          ? context.l10n.settingsPermissionGranted
+          : row.description,
       onTap: row.onTap,
     );
   }
@@ -440,53 +424,15 @@ class _LockScreenAlarmTile extends StatelessWidget {
     };
     final on = alarm.state == LockScreenAlarmState.on;
 
-    return ListTile(
-      leading: Icon(
-        on ? Icons.check_circle_outlined : Icons.alarm_outlined,
-        color: on ? onColor : context.appColors.textSecondary,
-      ),
-      title: Text(
-        l10n.settingsLockAlarmTitle,
-        style: context.appTextStyles.body,
-      ),
-      subtitle: Text(
-        context.keepAllText(subtitle),
-        style: context.appTextStyles.caption,
-      ),
+    return GroupedListRow.withTrailing(
+      icon: on ? Icons.check_circle_outlined : Icons.alarm_outlined,
+      iconColor: on ? onColor : null,
+      title: l10n.settingsLockAlarmTitle,
+      subtitle: subtitle,
       trailing: actionLabel == null || alarm.onAction == null
           ? null
           : TextButton(onPressed: alarm.onAction, child: Text(actionLabel)),
       onTap: actionLabel == null ? null : alarm.onAction,
-    );
-  }
-}
-
-class _SettingTile extends StatelessWidget {
-  const _SettingTile({
-    required this.icon,
-    required this.title,
-    this.subtitle,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final String title;
-  final String? subtitle;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      leading: Icon(icon, color: context.appColors.textSecondary),
-      title: Text(title, style: context.appTextStyles.body),
-      subtitle: subtitle == null
-          ? null
-          : Text(
-              context.keepAllText(subtitle!),
-              style: context.appTextStyles.caption,
-            ),
-      trailing: const Icon(Icons.chevron_right_outlined),
-      onTap: onTap,
     );
   }
 }

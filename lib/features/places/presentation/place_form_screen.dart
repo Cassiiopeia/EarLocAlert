@@ -26,9 +26,10 @@ import 'place_card.dart' show showPlaceDeletedSnack;
 import 'place_list_controller.dart';
 import 'place_empty_state.dart' show placeErrorMessage;
 import 'place_map_picker_screen.dart';
-import 'place_section_label.dart';
+import '../../../core/ui/components/section_title_with_trailing_value.dart';
 import '../../../core/ui/feedback/app_feedback.dart';
 import '../../../core/ui/components/icon_label_segmented_control.dart';
+import '../../../core/ui/components/grouped_list_row.dart';
 import '../../../core/ui/components/grouped_list_section.dart';
 
 /// 장소 등록/편집 폼 (docs/06-UX.md)
@@ -320,7 +321,7 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
                 ),
                 const SizedBox(height: AppSpacing.md),
 
-                PlaceSectionLabel(
+                SectionTitleWithTrailingValue(
                   l10n.placeFormLocationLabel,
                   key: _locationKey,
                 ),
@@ -417,7 +418,7 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
                 // 제목은 다른 칸(위치·알림 시점)과 같은 작은 회색, 값만 오른쪽에
                 // 굵게 둔다 — 예전엔 이 제목만 굵은 흰 글자라 위계가 섞였다
                 // (디자인 리뷰 #155). 알림음 크기 시트와 같은 배치다
-                PlaceSectionLabel(
+                SectionTitleWithTrailingValue(
                   l10n.placeFormRadiusLabel,
                   trailing: l10n.placeFormRadiusValue(_radius.round()),
                 ),
@@ -430,7 +431,7 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
                 ),
                 const SizedBox(height: AppSpacing.md),
 
-                PlaceSectionLabel(l10n.placeFormTimingLabel),
+                SectionTitleWithTrailingValue(l10n.placeFormTimingLabel),
                 // 도착은 핀, 출발은 나아가는 화살표, 둘 다는 오가는 화살표 —
                 // 선형 아이콘으로 통일해 작은 칸에서도 깔끔하게 (이슈 #272)
                 IconLabelSegmentedControl<AlertDirection>(
@@ -475,31 +476,20 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
                   header: l10n.placeFormSoundTitle,
                   dividerIndent: AppSpacing.sm,
                   children: [
-                    SwitchListTile(
-                      title: Text(
-                        context.keepAllText(l10n.placeFormSoundDescription),
-                        style: context.appTextStyles.caption,
-                      ),
+                    GroupedListRow.toggle(
+                      title: l10n.placeFormSoundDescription,
                       value: _soundEnabled,
                       onChanged: (value) =>
                           setState(() => _soundEnabled = value),
                     ),
                     if (widget.onPickSound != null)
-                      Opacity(
-                        opacity: _soundEnabled ? 1 : 0.5,
-                        child: ListTile(
-                          leading: const Icon(Icons.music_note_outlined),
-                          title: Text(
-                            l10n.placeFormSoundLabel,
-                            style: context.appTextStyles.body,
-                          ),
-                          subtitle: Text(
-                            _soundLabel ?? _fallbackLabel(l10n, _sound),
-                            style: context.appTextStyles.caption,
-                          ),
-                          trailing: const Icon(Icons.chevron_right_outlined),
-                          onTap: _soundEnabled ? _pickSound : null,
-                        ),
+                      GroupedListRow.navigation(
+                        icon: Icons.music_note_outlined,
+                        title: l10n.placeFormSoundLabel,
+                        subtitle: _soundLabel ?? _fallbackLabel(l10n, _sound),
+                        onTap: _pickSound,
+                        // 소리를 끄면 음원 고르기도 흐려지고 눌리지 않는다
+                        enabled: _soundEnabled,
                       ),
                   ],
                 ),
