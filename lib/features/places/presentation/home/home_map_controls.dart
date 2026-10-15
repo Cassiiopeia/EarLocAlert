@@ -32,6 +32,15 @@ class _MapControls extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // 시트를 끝까지 올리면 버튼이 시트를 따라 상단 막대까지 올라가 설정 버튼을
+    // 덮었다 — 설정을 누르면 장소 등록이 열렸다 (#280). 닿으면 숨기고 눌리지
+    // 않게 한다. 시트를 내리면 다시 나타난다
+    final hidden = mapControlsReachTopBar(
+      screenHeight: MediaQuery.sizeOf(context).height,
+      sheetFraction: bottomFraction,
+      topSafePadding: MediaQuery.paddingOf(context).top,
+    );
+
     // 보조(내 위치 48)가 위, 주(장소 추가 56)가 아래 — 엄지에 가장 가까운
     // 자리를 주 동작이 쓴다. 둘 다 원이고 **세로 중심을 맞춘다**
     // (디자인 리뷰 #155 — 예전엔 크기·모양이 다르고 오른쪽 끝에 붙어 어긋나
@@ -47,28 +56,57 @@ class _MapControls extends StatelessWidget {
           MediaQuery.sizeOf(context).height * bottomFraction +
           AppSpacing.sm -
           _slop,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          FloatingCircleButton(
-            icon: Icons.my_location_outlined,
-            onPressed: onMyLocation,
-            semanticLabel: context.l10n.placeMyLocation,
-            slop: const EdgeInsets.fromLTRB(_slop, _slop, _slop, gapHalf),
+      child: IgnorePointer(
+        ignoring: hidden,
+        child: AnimatedOpacity(
+          opacity: hidden ? 0 : 1,
+          duration: const Duration(milliseconds: 150),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              FloatingCircleButton(
+                icon: Icons.my_location_outlined,
+                onPressed: onMyLocation,
+                semanticLabel: context.l10n.placeMyLocation,
+                slop: const EdgeInsets.fromLTRB(_slop, _slop, _slop, gapHalf),
+              ),
+              FloatingCircleButton(
+                icon: Icons.add_outlined,
+                onPressed: onAddPlace,
+                semanticLabel: context.l10n.placeHomeAddPlace,
+                size: AppControlSize.primary,
+                background: context.appColors.accent,
+                foreground: context.appColors.onAccent,
+                slop: const EdgeInsets.fromLTRB(_slop, gapHalf, _slop, _slop),
+              ),
+            ],
           ),
-          FloatingCircleButton(
-            icon: Icons.add_outlined,
-            onPressed: onAddPlace,
-            semanticLabel: context.l10n.placeHomeAddPlace,
-            size: AppControlSize.primary,
-            background: context.appColors.accent,
-            foreground: context.appColors.onAccent,
-            slop: const EdgeInsets.fromLTRB(_slop, gapHalf, _slop, _slop),
-          ),
-        ],
+        ),
       ),
     );
   }
+}
+
+/// 지도 위 버튼 묶음(내 위치 48 + 틈 8 + 장소 추가 56)이 상단 막대에 닿는가 (#280)
+///
+/// 버튼은 시트 윗변에서 [AppSpacing.sm] 위에 선다. 상단 막대는 안전 영역 아래
+/// [AppSpacing.sm] 여백 + 높이 [AppControlSize.floating] 이고, 그 아래로 한 칸
+/// 더 띄워야 겹쳐 보이지 않는다.
+@visibleForTesting
+bool mapControlsReachTopBar({
+  required double screenHeight,
+  required double sheetFraction,
+  required double topSafePadding,
+}) {
+  const controlsHeight =
+      AppControlSize.floating + AppSpacing.xs + AppControlSize.primary;
+  final controlsTop =
+      screenHeight -
+      (screenHeight * sheetFraction + AppSpacing.sm) -
+      controlsHeight;
+  final topBarBottom =
+      topSafePadding + AppSpacing.sm + AppControlSize.floating + AppSpacing.sm;
+  return controlsTop < topBarBottom;
 }
 
 /// 떠 있는 버튼이 보이는 모양보다 넓게 받는 폭
