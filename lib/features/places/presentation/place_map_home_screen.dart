@@ -18,6 +18,7 @@ import '../../../core/theme/app_semantic_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/map_style.dart';
 import '../../../core/text/keep_all.dart';
+import '../../../core/widgets/themed_status_bar.dart';
 import '../../../core/widgets/floating_circle_button.dart';
 import '../data/current_location_channel.dart';
 import '../domain/alert_place.dart';
@@ -162,110 +163,115 @@ class _PlaceMapHomeScreenState extends ConsumerState<PlaceMapHomeScreen>
       WidgetsBinding.instance.addPostFrameCallback((_) => _fitCamera(places));
     }
 
-    return Scaffold(
-      backgroundColor: context.palette.background,
-      body: Stack(
-        children: [
-          MapRevealCover(
-            screen: 'home',
-            builder: (attach) => GoogleMap(
-              initialCameraPosition: CameraPosition(
-                target: places.isEmpty
-                    ? _fallback.target
-                    : LatLng(places.first.latitude, places.first.longitude),
-                zoom: places.isEmpty ? _fallback.zoom : 14,
+    // 앱바가 없는 화면 — 상태바 아이콘색을 직접 맞춘다 (이슈 #272)
+    return ThemedStatusBar(
+      child: Scaffold(
+        backgroundColor: context.palette.background,
+        body: Stack(
+          children: [
+            MapRevealCover(
+              screen: 'home',
+              builder: (attach) => GoogleMap(
+                initialCameraPosition: CameraPosition(
+                  target: places.isEmpty
+                      ? _fallback.target
+                      : LatLng(places.first.latitude, places.first.longitude),
+                  zoom: places.isEmpty ? _fallback.zoom : 14,
+                ),
+                style: MapStyle.forBrightness(Theme.of(context).brightness),
+                markers: _markers(places),
+                circles: _circles(places, semantic),
+                onMapCreated: (controller) {
+                  _map = controller;
+                  // 다크 스타일이 조용히 사라지는 일이 있다 (이슈 #143)
+                  unawaited(
+                    ensureMapStyle(
+                      controller,
+                      'home',
+                      style: MapStyle.forBrightness(
+                        Theme.of(context).brightness,
+                      ),
+                    ),
+                  );
+                  // 다크 타일이 그려질 때까지 밝은 바탕을 가린다 (이슈 #143)
+                  attach(controller);
+                  if (places.isNotEmpty) _fitCamera(places);
+                  // 장소가 없으면 기기 지역 기본 위치가 아니라 내 위치에서 시작한다 (이슈 #218)
+                  if (places.isEmpty) unawaited(_startAtCurrentLocation());
+                },
+                // 빈 곳을 누르면 선택을 푼다 — 강조가 계속 남아 있으면
+                // 무엇을 보고 있는지 헷갈린다
+                onTap: (_) => _select(null),
+                myLocationEnabled: true,
+                // **SDK 기본 버튼을 끈다** (이슈 #98). 그 버튼은 우상단 고정이라
+                // 상태 알약이 위를 덮어 잘려 보였고, 사용자가 존재 자체를 몰랐다.
+                // 커스텀 버튼으로 대체한다 — 장소 추가 위, 오른쪽 스택 (#155).
+                //
+                // 예전에는 "직접 만들면 현재 위치를 알아낼 방법이 없다"는 이유로
+                // SDK 버튼을 썼는데, 이슈 #93 에서 play-services-location 을
+                // 넣으면서 그 제약이 사라졌다.
+                myLocationButtonEnabled: false,
+                zoomControlsEnabled: false,
+                mapToolbarEnabled: false,
+                // 시트가 지도 하단을 덮는다. padding 을 주면 구글 로고와
+                // 내 위치 버튼이 시트 위로 올라온다.
+                //
+                // 시트 높이를 실시간으로 따라가게 하면 드래그할 때마다 지도가
+                // 다시 배치돼 버벅인다. 접힌 높이 기준으로 고정한다.
+                padding: EdgeInsets.only(
+                  bottom: MediaQuery.sizeOf(context).height * _sheetMin,
+                ),
               ),
-              style: MapStyle.forBrightness(Theme.of(context).brightness),
-              markers: _markers(places),
-              circles: _circles(places, semantic),
-              onMapCreated: (controller) {
-                _map = controller;
-                // 다크 스타일이 조용히 사라지는 일이 있다 (이슈 #143)
-                unawaited(
-                  ensureMapStyle(
-                    controller,
-                    'home',
-                    style: MapStyle.forBrightness(Theme.of(context).brightness),
-                  ),
-                );
-                // 다크 타일이 그려질 때까지 밝은 바탕을 가린다 (이슈 #143)
-                attach(controller);
-                if (places.isNotEmpty) _fitCamera(places);
-                // 장소가 없으면 기기 지역 기본 위치가 아니라 내 위치에서 시작한다 (이슈 #218)
-                if (places.isEmpty) unawaited(_startAtCurrentLocation());
+            ),
+
+            _StatusBar(
+              isMonitoring: widget.isMonitoring,
+              isStatusKnown: widget.isStatusKnown,
+              // 켜진 장소가 없어서 감시가 안 도는 것은 고장이 아니다 —
+              // 경고 대신 안내로 보여야 한다
+              hasEnabledPlaces: places.any((place) => place.enabled),
+              isHeadphoneConnected: widget.isHeadphoneConnected,
+              canAlertReliably: widget.canAlertReliably,
+              missingReliability: widget.missingReliability,
+              onFixMonitoring: widget.onFixMonitoring,
+              onFixReliability: widget.onFixReliability,
+              onOpenSettings: widget.onOpenSettings,
+            ),
+
+            _MapControls(
+              bottomFraction: _sheetExtent,
+              onMyLocation: _moveToCurrentLocation,
+              onAddPlace: widget.onAddPlace,
+            ),
+
+            NotificationListener<DraggableScrollableNotification>(
+              onNotification: (notification) {
+                // 시트가 움직이는 동안 FAB 이 따라 올라간다
+                if (notification.extent != _sheetExtent) {
+                  setState(() => _sheetExtent = notification.extent);
+                }
+                return false;
               },
-              // 빈 곳을 누르면 선택을 푼다 — 강조가 계속 남아 있으면
-              // 무엇을 보고 있는지 헷갈린다
-              onTap: (_) => _select(null),
-              myLocationEnabled: true,
-              // **SDK 기본 버튼을 끈다** (이슈 #98). 그 버튼은 우상단 고정이라
-              // 상태 알약이 위를 덮어 잘려 보였고, 사용자가 존재 자체를 몰랐다.
-              // 커스텀 버튼으로 대체한다 — 장소 추가 위, 오른쪽 스택 (#155).
-              //
-              // 예전에는 "직접 만들면 현재 위치를 알아낼 방법이 없다"는 이유로
-              // SDK 버튼을 썼는데, 이슈 #93 에서 play-services-location 을
-              // 넣으면서 그 제약이 사라졌다.
-              myLocationButtonEnabled: false,
-              zoomControlsEnabled: false,
-              mapToolbarEnabled: false,
-              // 시트가 지도 하단을 덮는다. padding 을 주면 구글 로고와
-              // 내 위치 버튼이 시트 위로 올라온다.
-              //
-              // 시트 높이를 실시간으로 따라가게 하면 드래그할 때마다 지도가
-              // 다시 배치돼 버벅인다. 접힌 높이 기준으로 고정한다.
-              padding: EdgeInsets.only(
-                bottom: MediaQuery.sizeOf(context).height * _sheetMin,
+              child: DraggableScrollableSheet(
+                controller: _sheet,
+                initialChildSize: _sheetInitial,
+                minChildSize: _sheetMin,
+                maxChildSize: 0.85,
+                snap: true,
+                snapSizes: const [_sheetInitial],
+                builder: (context, scrollController) => _PlaceSheet(
+                  scrollController: scrollController,
+                  places: places,
+                  loading: placesAsync.isLoading,
+                  failed: placesAsync.hasError,
+                  selectedPlaceId: _selectedPlaceId,
+                  onAddPlace: widget.onAddPlace,
+                  onEditPlace: widget.onEditPlace,
+                ),
               ),
             ),
-          ),
-
-          _StatusBar(
-            isMonitoring: widget.isMonitoring,
-            isStatusKnown: widget.isStatusKnown,
-            // 켜진 장소가 없어서 감시가 안 도는 것은 고장이 아니다 —
-            // 경고 대신 안내로 보여야 한다
-            hasEnabledPlaces: places.any((place) => place.enabled),
-            isHeadphoneConnected: widget.isHeadphoneConnected,
-            canAlertReliably: widget.canAlertReliably,
-            missingReliability: widget.missingReliability,
-            onFixMonitoring: widget.onFixMonitoring,
-            onFixReliability: widget.onFixReliability,
-            onOpenSettings: widget.onOpenSettings,
-          ),
-
-          _MapControls(
-            bottomFraction: _sheetExtent,
-            onMyLocation: _moveToCurrentLocation,
-            onAddPlace: widget.onAddPlace,
-          ),
-
-          NotificationListener<DraggableScrollableNotification>(
-            onNotification: (notification) {
-              // 시트가 움직이는 동안 FAB 이 따라 올라간다
-              if (notification.extent != _sheetExtent) {
-                setState(() => _sheetExtent = notification.extent);
-              }
-              return false;
-            },
-            child: DraggableScrollableSheet(
-              controller: _sheet,
-              initialChildSize: _sheetInitial,
-              minChildSize: _sheetMin,
-              maxChildSize: 0.85,
-              snap: true,
-              snapSizes: const [_sheetInitial],
-              builder: (context, scrollController) => _PlaceSheet(
-                scrollController: scrollController,
-                places: places,
-                loading: placesAsync.isLoading,
-                failed: placesAsync.hasError,
-                selectedPlaceId: _selectedPlaceId,
-                onAddPlace: widget.onAddPlace,
-                onEditPlace: widget.onEditPlace,
-              ),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

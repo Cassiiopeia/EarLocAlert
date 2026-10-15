@@ -32,6 +32,11 @@ void main() {
       expect(_contrast(p.warning, p.background), greaterThanOrEqualTo(4.5));
     });
 
+    test('$name 삭제 글자 대비 4.5:1 이상', () {
+      expect(_contrast(p.danger, p.background), greaterThanOrEqualTo(4.5));
+      expect(_contrast(p.danger, p.surface), greaterThanOrEqualTo(4.5));
+    });
+
     test('$name 주 버튼 글자 대비 3:1 이상', () {
       expect(_contrast(p.onAccent, p.accent), greaterThanOrEqualTo(3));
       expect(_contrast(p.onWarning, p.warning), greaterThanOrEqualTo(3));

@@ -79,7 +79,7 @@ class AppPalette extends ThemeExtension<AppPalette> {
     onAccent: Color(0xFFFFFFFF),
     warning: Color(0xFF8F5C0E),
     onWarning: Color(0xFFFFFFFF),
-    danger: Color(0xFFE5484D),
+    danger: Color(0xFFB3261E),
   );
 
   @override

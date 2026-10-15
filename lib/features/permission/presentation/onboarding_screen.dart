@@ -1,6 +1,8 @@
 import 'dart:io' show Platform;
 
 import 'package:flutter/material.dart';
+
+import '../../../core/widgets/themed_status_bar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/di/providers.dart';
@@ -116,68 +118,73 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
     // 신뢰성 권한을 이미 권했는지 (이슈 #74).
     final asyncPromptSeen = ref.watch(reliabilityPromptProvider);
 
-    return Scaffold(
-      body: SafeArea(
-        child: asyncSnapshot.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (error, _) => _ErrorView(
-            onRetry: () =>
-                ref.read(permissionControllerProvider.notifier).refresh(),
+    // 앱바가 없는 화면 — 상태바 아이콘색을 직접 맞춘다 (이슈 #272)
+    return ThemedStatusBar(
+      child: Scaffold(
+        body: SafeArea(
+          child: asyncSnapshot.when(
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (error, _) => _ErrorView(
+              onRetry: () =>
+                  ref.read(permissionControllerProvider.notifier).refresh(),
+            ),
+            data: (snapshot) {
+              // **읽지 못한 값을 추측하지 않는다** (이슈 #90).
+              //
+              // 권한 조회와 이 저장값은 각각 끝난다. 예전에는 저장값을 아직
+              // 못 읽었으면 "이미 권했다"로 보고 넘어갔는데, 권한이 이미
+              // 허용된 사용자는 권한 조회가 먼저 끝나므로 안내 화면이
+              // 통째로 사라졌다. 기록도 남지 않아 다음 실행에서도 반복됐다.
+              if (!asyncPromptSeen.hasValue && asyncPromptSeen.isLoading) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              // 읽기에 실패했으면 "아직 안 권했다"로 본다 — 저장소 구현과
+              // 같은 기본값이다. 한 번 더 묻는 쪽이 영영 안 묻는 쪽보다 낫다.
+              final promptSeen = asyncPromptSeen.valueOrNull ?? false;
+
+              final step = gate.nextStep(
+                snapshot,
+                reliabilityPromptSeen: promptSeen,
+              );
+
+              if (step != OnboardingStep.done) {
+                _sawIncompleteStep = true;
+              } else if (!_sawIncompleteStep && !_autoFinished) {
+                // 재방문 사용자 — 완료 화면을 건너뛰고 곧장 홈으로
+                _autoFinished = true;
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (mounted) widget.onFinished?.call();
+                });
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              return _StepView(
+                step: step,
+                snapshot: snapshot,
+                onAction: () async {
+                  Diagnostics.log(
+                    'permission',
+                    'onboarding tap step=${step.name}',
+                  );
+                  if (step == OnboardingStep.done) {
+                    widget.onFinished?.call();
+                    return;
+                  }
+                  _requestedSteps.add(step);
+                  await ref
+                      .read(permissionControllerProvider.notifier)
+                      .proceed();
+                },
+                // **나갈 길은 남긴다** (A-12, 이슈 #90) — 단 시스템 권한 단계는
+                // 요청을 한 번 거친 뒤에만 (이슈 #211, [_requestedSteps]).
+                // 무엇이 안 되는지는 홈에서 상시 표시하고 켜러 갈 길을 준다.
+                onSkip: _canSkip(step) ? () => _skip(step) : null,
+                onTestVibration: step == OnboardingStep.done
+                    ? widget.onTestVibration
+                    : null,
+              );
+            },
           ),
-          data: (snapshot) {
-            // **읽지 못한 값을 추측하지 않는다** (이슈 #90).
-            //
-            // 권한 조회와 이 저장값은 각각 끝난다. 예전에는 저장값을 아직
-            // 못 읽었으면 "이미 권했다"로 보고 넘어갔는데, 권한이 이미
-            // 허용된 사용자는 권한 조회가 먼저 끝나므로 안내 화면이
-            // 통째로 사라졌다. 기록도 남지 않아 다음 실행에서도 반복됐다.
-            if (!asyncPromptSeen.hasValue && asyncPromptSeen.isLoading) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            // 읽기에 실패했으면 "아직 안 권했다"로 본다 — 저장소 구현과
-            // 같은 기본값이다. 한 번 더 묻는 쪽이 영영 안 묻는 쪽보다 낫다.
-            final promptSeen = asyncPromptSeen.valueOrNull ?? false;
-
-            final step = gate.nextStep(
-              snapshot,
-              reliabilityPromptSeen: promptSeen,
-            );
-
-            if (step != OnboardingStep.done) {
-              _sawIncompleteStep = true;
-            } else if (!_sawIncompleteStep && !_autoFinished) {
-              // 재방문 사용자 — 완료 화면을 건너뛰고 곧장 홈으로
-              _autoFinished = true;
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                if (mounted) widget.onFinished?.call();
-              });
-              return const Center(child: CircularProgressIndicator());
-            }
-
-            return _StepView(
-              step: step,
-              snapshot: snapshot,
-              onAction: () async {
-                Diagnostics.log(
-                  'permission',
-                  'onboarding tap step=${step.name}',
-                );
-                if (step == OnboardingStep.done) {
-                  widget.onFinished?.call();
-                  return;
-                }
-                _requestedSteps.add(step);
-                await ref.read(permissionControllerProvider.notifier).proceed();
-              },
-              // **나갈 길은 남긴다** (A-12, 이슈 #90) — 단 시스템 권한 단계는
-              // 요청을 한 번 거친 뒤에만 (이슈 #211, [_requestedSteps]).
-              // 무엇이 안 되는지는 홈에서 상시 표시하고 켜러 갈 길을 준다.
-              onSkip: _canSkip(step) ? () => _skip(step) : null,
-              onTestVibration: step == OnboardingStep.done
-                  ? widget.onTestVibration
-                  : null,
-            );
-          },
         ),
       ),
     );

@@ -278,7 +278,7 @@ class _AlertRoute extends ConsumerWidget {
           Diagnostics.log('alert', 'empty alert redirect skipped path=$path');
         }
       });
-      return const Scaffold(body: SizedBox.shrink());
+      return alertEmptyPlaceholder();
     }
 
     // 알림 화면은 화면 모드와 무관하게 다크다 (이슈 #272)

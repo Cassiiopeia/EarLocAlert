@@ -40,7 +40,7 @@
 | `onAccent` | `#000000` | `#FFFFFF` | 주 버튼 글자 |
 | `warning` | `#F2B85B` | `#8F5C0E` | 출발, 감시 중지 |
 | `onWarning` | `#000000` | `#FFFFFF` | 금색 바탕 위 글자 |
-| `danger` | `#FF453A` | `#E5484D` | 삭제만 |
+| `danger` | `#FF453A` | `#B3261E` | 삭제만 |
 
 의미 색(`AppSemanticColors`)은 팔레트에서 파생한다:
 `alertEnter = accent`, `alertExit = warning`, `statusActive = accent`,
