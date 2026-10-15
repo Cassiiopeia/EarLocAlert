@@ -23,7 +23,9 @@
       var(--bg);
     display: flex; flex-direction: column; align-items: center;
   }
-  .copy { width: 100%; padding: calc(var(--h) * 0.06) calc(var(--w) * 0.08) 0; text-align: center; }
+  .copy { width: 100%; padding: calc(var(--h) * 0.06) calc(var(--w) * 0.08) 0; text-align: center;
+         /* 문구 영역 높이 고정 (문구 줄 수와 무관하게 휴대폰 크기 동일) */
+         height: calc(var(--h) * 0.30); flex-shrink: 0; }
   .eyebrow {
     display: inline-block; font-weight: 600; color: var(--accent);
     font-size: calc(var(--w) * 0.032); letter-spacing: 0.02em;

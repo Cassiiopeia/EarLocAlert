@@ -29,8 +29,10 @@ def prepare_shot(src: Path, dst: Path, banner_top: int | None) -> float:
     """배너를 덮은 사본을 만들고 화면 비율(가로/세로)을 돌려준다."""
     image = Image.open(src).convert("RGB")
     if banner_top is not None:
+        # 배너 바로 위 화면 바탕색으로 덮음 (라이트 화면에 검은 띠 방지)
+        background = image.getpixel((8, banner_top - 12))
         ImageDraw.Draw(image).rectangle(
-            [0, banner_top - 3, image.width, image.height], fill=(0, 0, 0)
+            [0, banner_top - 3, image.width, image.height], fill=background
         )
     image.save(dst)
     return image.width / image.height
