@@ -16,7 +16,7 @@ import '../../../core/ui/foundation/map_style.dart';
 import '../../../core/text/keep_all.dart';
 import '../../../core/ui/feedback/app_feedback.dart';
 import '../../../core/ui/components/floating_circle_button.dart';
-import '../data/current_location_channel.dart';
+import '../domain/current_location_service.dart';
 import '../domain/place_search.dart';
 import '../domain/place_validator.dart';
 import 'current_location_message.dart';
@@ -70,7 +70,7 @@ class PlaceMapPickerScreen extends StatefulWidget {
     required this.args,
     this.onPicked,
     this.searchService,
-    this.locationService = const CurrentLocationChannel(),
+    required this.locationService,
     super.key,
   });
 

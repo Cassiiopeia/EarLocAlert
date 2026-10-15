@@ -20,7 +20,7 @@ import '../../../core/ui/foundation/map_style.dart';
 import '../../../core/text/keep_all.dart';
 import '../../../core/ui/components/status_bar_icons_following_theme.dart';
 import '../../../core/ui/components/floating_circle_button.dart';
-import '../data/current_location_channel.dart';
+import '../domain/current_location_service.dart';
 import '../domain/alert_place.dart';
 import 'current_location_message.dart';
 import 'place_card.dart';
@@ -49,7 +49,7 @@ class PlaceMapHomeScreen extends ConsumerStatefulWidget {
     this.onFixReliability,
     this.onOpenSettings,
     this.onRefreshStatus,
-    this.locationService = const CurrentLocationChannel(),
+    required this.locationService,
     super.key,
   });
 

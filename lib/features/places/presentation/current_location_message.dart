@@ -1,5 +1,5 @@
 import '../../../core/l10n/l10n.dart';
-import '../data/current_location_channel.dart';
+import '../domain/current_location_service.dart';
 
 /// "내 위치" 실패 안내 문구 (이슈 #227).
 ///

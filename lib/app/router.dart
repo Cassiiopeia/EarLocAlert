@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../features/places/data/current_location_channel.dart';
 import '../features/places/data/place_repository_provider.dart';
 import '../features/sounds/data/custom_sound_repository_provider.dart';
 import '../core/diagnostics/diagnostics.dart';
@@ -34,6 +35,7 @@ import '../features/places/presentation/place_form_screen.dart';
 import '../features/places/presentation/place_map_home_screen.dart';
 import '../features/places/presentation/place_map_picker_screen.dart';
 import '../features/diagnostics/presentation/diagnostics_screen.dart';
+import '../features/diagnostics/data/bug_report_sender.dart';
 import '../features/diagnostics/presentation/bug_report_sheet.dart';
 import '../features/places/presentation/place_backup_actions.dart';
 import '../features/places/presentation/place_search_provider.dart';
@@ -45,6 +47,7 @@ import '../features/settings/presentation/watch_guide_sheet.dart';
 import '../features/sounds/presentation/sound_picker_sheet.dart';
 import '../features/app_update/domain/app_updater.dart';
 import '../features/app_update/presentation/app_update_providers.dart';
+import 'alert_ad_coordinator_provider.dart';
 import 'alert_dismiss_flow.dart';
 import 'app_version_provider.dart';
 import 'arrival_alarm_providers.dart';
@@ -143,6 +146,8 @@ class _MapPickerRoute extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return PlaceMapPickerScreen(
+      // 플랫폼 구현은 app 이 넣는다 — 화면은 인터페이스만 안다 (규칙 3)
+      locationService: const CurrentLocationChannel(),
       args: args,
       searchService: ref.watch(placeSearchServiceProvider),
       onPicked: (result) => context.pop(result),
@@ -332,6 +337,7 @@ class _HomeRoute extends ConsumerWidget {
         ref.watch(homeStatusProvider).valueOrNull ?? HomeStatus.unknown;
 
     return PlaceMapHomeScreen(
+      locationService: const CurrentLocationChannel(),
       isMonitoring: status.isMonitoring,
       isStatusKnown: status.isKnown,
       isHeadphoneConnected: status.isHeadphoneConnected,
@@ -536,6 +542,8 @@ class _SettingsRouteState extends ConsumerState<_SettingsRoute>
       // 문제 신고 (이슈 #255) — 메일 앱을 열고 기록을 첨부한다
       onReportProblem: () => showBugReportSheet(
         context,
+        // 메일·공유 플러그인 구현은 app 이 넣는다 (규칙 3)
+        sender: BugReportSender(),
         appVersion: ref.read(appVersionProvider).valueOrNull ?? '-',
       ),
       // 약관·방침 (이슈 #188) — 한국어는 한국어 문서, 나머지는 영어 문서

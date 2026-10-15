@@ -10,6 +10,7 @@ import 'package:ear_loc_alert/features/places/presentation/place_map_picker_scre
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:ear_loc_alert/features/places/data/current_location_channel.dart';
 
 /// 장소 폼의 입력 피드백 (이슈 #228)
 ///
@@ -244,6 +245,7 @@ void main() {
             radiusMeters: 100,
           ),
           searchService: _FakeSearchService(),
+          locationService: const UnavailableCurrentLocationService(),
           onPicked: (result) => picked = result,
         ),
       ),

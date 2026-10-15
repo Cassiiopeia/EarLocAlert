@@ -7,7 +7,7 @@ import '../../../core/l10n/l10n.dart';
 import '../../../core/text/keep_all.dart';
 import '../../../core/ui/foundation/app_spacing.dart';
 import '../../../core/ui/foundation/app_color_palette.dart';
-import '../data/bug_report_sender.dart';
+import '../domain/bug_report_sending.dart';
 
 /// 문제 신고 시트 (이슈 #255)
 ///
@@ -16,16 +16,13 @@ import '../data/bug_report_sender.dart';
 Future<void> showBugReportSheet(
   BuildContext context, {
   required String appVersion,
-  BugReportSender? sender,
+  required BugReportSending sender,
 }) {
   return showModalBottomSheet<void>(
     context: context,
     showDragHandle: true,
     isScrollControlled: true,
-    builder: (_) => _BugReportSheet(
-      appVersion: appVersion,
-      sender: sender ?? BugReportSender(),
-    ),
+    builder: (_) => _BugReportSheet(appVersion: appVersion, sender: sender),
   );
 }
 
@@ -33,7 +30,7 @@ class _BugReportSheet extends StatefulWidget {
   const _BugReportSheet({required this.appVersion, required this.sender});
 
   final String appVersion;
-  final BugReportSender sender;
+  final BugReportSending sender;
 
   @override
   State<_BugReportSheet> createState() => _BugReportSheetState();
@@ -102,7 +99,7 @@ class _BugReportSheetState extends State<_BugReportSheet> {
       '\n\n',
       '----',
       l10n.reportMailInfoHeader,
-      BugReportSender.deviceInfo(
+      widget.sender.describeDevice(
         appVersion: widget.appVersion,
         locale: locale,
         device: BuildInfo.deviceLabel,

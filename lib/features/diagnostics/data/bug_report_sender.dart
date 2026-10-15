@@ -5,21 +5,9 @@ import 'package:flutter_email_sender/flutter_email_sender.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../../core/diagnostics/diagnostics.dart';
+import '../domain/bug_report_sending.dart';
 
-/// 문제 신고를 받는 주소 (이슈 #255)
-const bugReportAddress = 'chan4760@naver.com';
-
-/// 신고 메일이 어디로 열렸는가
-enum BugReportOutcome {
-  /// 받는 사람·제목·본문·첨부가 채워진 메일 작성 화면
-  mailComposer,
-
-  /// 메일 계정이 없어 공유 시트로 대신 열었다 — 받는 사람은 비어 있다
-  shareSheet,
-
-  /// 둘 다 열지 못했다
-  failed,
-}
+export '../domain/bug_report_sending.dart';
 
 typedef EmailSend = Future<void> Function(Email email);
 typedef ShareFiles =
@@ -37,7 +25,7 @@ typedef ShareFiles =
 /// 시뮬레이터와, 기본 메일 앱을 쓰지 않는 사용자가 여기 해당한다. 그래서
 /// 실패하면 조용히 끝내지 않고 **공유 시트로 물러난다** — 첨부 파일은
 /// 그대로 가고, 받는 사람만 본문에 적어 둔다.
-class BugReportSender {
+class BugReportSender implements BugReportSending {
   BugReportSender({EmailSend? sendEmail, ShareFiles? shareFiles})
     : _sendEmail = sendEmail ?? FlutterEmailSender.send,
       _shareFiles = shareFiles ?? _defaultShare;
@@ -61,7 +49,7 @@ class BugReportSender {
     );
   }
 
-  /// [attachmentPath] 가 null 이면 기록 없이 본문만 보낸다
+  @override
   Future<BugReportOutcome> send({
     required String subject,
     required String body,
@@ -115,6 +103,13 @@ class BugReportSender {
   ///
   /// [device] 는 네이티브가 모은 기기·앱 기본 정보 한 줄이다(이슈 #260).
   /// 못 읽었거나(`?`) 비어 있으면 줄을 넣지 않는다.
+  @override
+  String describeDevice({
+    required String appVersion,
+    String? locale,
+    String? device,
+  }) => deviceInfo(appVersion: appVersion, locale: locale, device: device);
+
   static String deviceInfo({
     required String appVersion,
     String? locale,
