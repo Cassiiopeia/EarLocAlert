@@ -48,6 +48,8 @@ Not connected                                    →  vibration only. The speake
 | Earphone detection | Checks the connection at the moment the alert fires |
 | Local storage | **Your location data never leaves the device** |
 | Languages | English, Korean, Japanese, Chinese |
+| Light & dark | Follow the device or pick light or dark in Settings. The alert screen always stays dark so it never glares |
+| Smartwatch | A guide shows how to mirror alerts to Galaxy Watch or Apple Watch |
 
 ---
 
