@@ -50,12 +50,6 @@ class _SoundPickerSheetState extends ConsumerState<_SoundPickerSheet>
     with WidgetsBindingObserver {
   late AlertSound _selected = widget.current;
 
-  /// null 이면 아직 읽는 중
-  List<CustomSound>? _customSounds;
-
-  /// null 이면 아직 판정 전
-  bool? _headphonesConnected;
-
   bool _busy = false;
 
   /// **dispose 에서 `ref` 를 쓸 수 없다.**
@@ -73,8 +67,6 @@ class _SoundPickerSheetState extends ConsumerState<_SoundPickerSheet>
     _previewPlayer = ref.read(soundPreviewPlayerProvider);
     // 시트가 열려 있는 동안 이어폰을 꽂을 수 있다 — 앱이 재개될 때 다시 본다
     WidgetsBinding.instance.addObserver(this);
-    _loadSounds();
-    _checkHeadphones();
   }
 
   @override
@@ -88,29 +80,16 @@ class _SoundPickerSheetState extends ConsumerState<_SoundPickerSheet>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) _checkHeadphones();
-  }
-
-  Future<void> _loadSounds() async {
-    try {
-      final sounds = await ref.read(customSoundRepositoryProvider).findAll();
-      if (mounted) setState(() => _customSounds = sounds);
-    } on Object {
-      // 목록을 못 읽어도 프리셋은 고를 수 있어야 한다
-      if (mounted) setState(() => _customSounds = const []);
+    // 시트가 열려 있는 동안 이어폰을 꽂을 수 있다 — 앞으로 오면 다시 본다
+    if (state == AppLifecycleState.resumed) {
+      ref.invalidate(headphoneConnectionProvider);
     }
   }
 
-  Future<void> _checkHeadphones() async {
-    try {
-      final connected = await ref.read(headphoneDetectorProvider).isConnected();
-      if (mounted) setState(() => _headphonesConnected = connected);
-    } on Object catch (error) {
-      // 확인하지 못했으면 연결되지 않은 것으로 본다 —
-      // 확인 못 한 상태로 재생하면 스피커로 샐 수 있다
-      Diagnostics.log('sound', 'headphone check failed error=$error');
-      if (mounted) setState(() => _headphonesConnected = false);
-    }
+  /// 추가·삭제 뒤 목록을 다시 읽는다 — 끝날 때까지 기다려 바로 고를 수 있게 한다
+  Future<void> _reloadCustomSounds() async {
+    ref.invalidate(customSoundListProvider);
+    await ref.read(customSoundListProvider.future);
   }
 
   Future<void> _preview(AlertSound sound) async {
@@ -129,7 +108,8 @@ class _SoundPickerSheetState extends ConsumerState<_SoundPickerSheet>
     );
     if (!mounted) return;
     if (!connected) {
-      setState(() => _headphonesConnected = false);
+      // 화면의 미리듣기 버튼도 다시 확인한 값으로 맞춘다
+      ref.invalidate(headphoneConnectionProvider);
       _showMessage(context.l10n.volumePreviewNoHeadphones);
       return;
     }
@@ -167,7 +147,7 @@ class _SoundPickerSheetState extends ConsumerState<_SoundPickerSheet>
         case SoundImportCancelled():
           break;
         case SoundImported(:final sound):
-          await _loadSounds();
+          await _reloadCustomSounds();
           // 방금 넣은 것을 바로 쓰게 한다 — 목록에서 다시 찾게 하지 않는다
           if (mounted) setState(() => _selected = CustomSoundRef(sound.id));
         case SoundImportRejected(:final error):
@@ -193,7 +173,7 @@ class _SoundPickerSheetState extends ConsumerState<_SoundPickerSheet>
 
     await _previewPlayer.stop();
     await ref.read(customSoundRepositoryProvider).delete(sound.id);
-    await _loadSounds();
+    await _reloadCustomSounds();
 
     // 지운 음원을 고른 상태로 두면 저장했을 때 없는 것을 가리킨다
     if (mounted && _selected == CustomSoundRef(sound.id)) {
@@ -205,8 +185,9 @@ class _SoundPickerSheetState extends ConsumerState<_SoundPickerSheet>
 
   @override
   Widget build(BuildContext context) {
-    final customSounds = _customSounds;
-    final canPreview = _headphonesConnected ?? false;
+    final customSounds = ref.watch(customSoundListProvider).valueOrNull;
+    final canPreview =
+        ref.watch(headphoneConnectionProvider).valueOrNull ?? false;
 
     return BottomSheetWithHeaderLayout(
       headerIcon: Icons.music_note_outlined,
