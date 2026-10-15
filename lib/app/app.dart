@@ -30,6 +30,9 @@ import 'background/notification_action_handler.dart';
 import 'background/pending_alert.dart';
 import 'background/pending_alert_store.dart';
 import 'background_alert_ringer.dart';
+import '../features/geofence/data/drift_geofence_event_repository.dart';
+import '../core/di/providers.dart';
+import 'geofence_event_retention.dart';
 import 'geofence_providers.dart';
 import 'notification_dismiss_action.dart';
 import 'pending_alert_resumer.dart';
@@ -240,6 +243,13 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
       // 초기화 실패는 알림 탭 라우팅만 잃는다 — 감시는 계속 시도한다
       Diagnostics.log('app', 'notification plugin init failed $error');
     }
+    // 90일 지난 진입 기록을 지운다 — 기다리지 않는다, 감시 시작이 먼저다
+    unawaited(
+      deleteGeofenceEventsPastRetention(
+        events: DriftGeofenceEventRepository(ref.read(appDatabaseProvider)),
+        now: DateTime.now().toUtc(),
+      ),
+    );
     try {
       await ref.read(geofenceRegistrationSyncProvider).start();
       Diagnostics.log('app', 'geofence sync started');
