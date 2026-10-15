@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/domain/alert_schedule.dart';
 import '../../../core/theme/app_spacing.dart';
-import '../../../core/theme/app_typography.dart';
+import '../../../core/theme/app_palette.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/text/keep_all.dart';
 import 'alert_schedule_sheet.dart';
@@ -37,7 +37,7 @@ class AlertScheduleEditor extends StatelessWidget {
         if (schedules.isEmpty)
           Text(
             context.keepAllText(context.l10n.scheduleAlwaysHint),
-            style: AppTypography.caption,
+            style: context.typo.caption,
           )
         else
           for (final (index, schedule) in schedules.indexed)
@@ -99,7 +99,7 @@ class _ScheduleTile extends StatelessWidget {
       leading: const Icon(Icons.schedule_outlined),
       title: Text(
         describeSchedule(context.l10n, schedule),
-        style: AppTypography.body,
+        style: context.typo.body,
       ),
       trailing: IconButton(
         icon: const Icon(Icons.close_outlined),

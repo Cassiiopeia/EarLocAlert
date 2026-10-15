@@ -8,10 +8,9 @@ import '../../../core/l10n/l10n.dart';
 import '../../../core/map/map_style_guard.dart';
 import '../../../core/map/map_corner_mask.dart';
 import '../../../core/map/radius_zoom.dart';
-import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_palette.dart';
 import '../../../core/theme/app_semantic_colors.dart';
 import '../../../core/theme/app_spacing.dart';
-import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/map_style.dart';
 import '../../../core/text/keep_all.dart';
 import '../domain/alert_session.dart';
@@ -68,7 +67,7 @@ class AlertScreen extends StatelessWidget {
     final accent = _isExit ? semantic.alertExit : semantic.alertEnter;
 
     return Scaffold(
-      backgroundColor: AppColors.bgBase,
+      backgroundColor: context.palette.background,
       body: SafeArea(
         child: Column(
           children: [
@@ -154,7 +153,7 @@ class _AlertInfo extends StatelessWidget {
           // 가장 큰 글자 — 여러 곳을 등록했으면 "어디인지"가 첫 정보다
           Text(
             context.keepAllText(session.placeName),
-            style: AppTypography.alertPlaceName,
+            style: context.typo.alertPlaceName,
             textAlign: TextAlign.center,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
@@ -164,14 +163,14 @@ class _AlertInfo extends StatelessWidget {
             isExit
                 ? context.l10n.alertScreenLeft
                 : context.l10n.alertScreenArrived,
-            style: AppTypography.screenTitle.copyWith(color: accent),
+            style: context.typo.screenTitle.copyWith(color: accent),
           ),
           const SizedBox(height: AppSpacing.sm),
           // **언제 울렸는지는 장소 다음으로 중요하다** (이슈 #142).
           // caption 이라 눈에 안 들어온다는 지적을 받고 키웠다.
           Text(
             _formatTime(context, session.startedAt),
-            style: AppTypography.alertTime,
+            style: context.typo.alertTime,
           ),
 
           const SizedBox(height: AppSpacing.lg),
@@ -222,7 +221,7 @@ class _AudioRouteBadge extends StatelessWidget {
         vertical: AppSpacing.xs,
       ),
       decoration: BoxDecoration(
-        color: AppColors.bgSurface,
+        color: context.palette.surface,
         borderRadius: BorderRadius.circular(AppRadius.pill),
       ),
       child: Row(
@@ -233,13 +232,13 @@ class _AudioRouteBadge extends StatelessWidget {
             size: AppIconSize.inline,
             color: isHeadphones
                 ? semantic.audioBluetooth
-                : AppColors.textSecondary,
+                : context.palette.textSecondary,
           ),
           const SizedBox(width: AppSpacing.xs),
           Flexible(
             child: Text(
               context.keepAllText(label),
-              style: AppTypography.caption,
+              style: context.typo.caption,
             ),
           ),
         ],
@@ -275,16 +274,16 @@ class _DismissButton extends StatelessWidget {
           child: FilledButton(
             onPressed: onPressed,
             style: FilledButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              foregroundColor: AppColors.textOnPrimary,
+              backgroundColor: context.palette.accent,
+              foregroundColor: context.palette.onAccent,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(AppRadius.card),
               ),
             ),
             child: Text(
               context.l10n.alertScreenDismiss,
-              style: AppTypography.displayLarge.copyWith(
-                color: AppColors.textOnPrimary,
+              style: context.typo.displayLarge.copyWith(
+                color: context.palette.onAccent,
               ),
             ),
           ),
@@ -335,7 +334,7 @@ class _PlaceMapCard extends StatelessWidget {
                 child: GoogleMap(
                   // 다크 스타일이 조용히 사라지는 일이 있다 (이슈 #143)
                   onMapCreated: (controller) =>
-                      unawaited(ensureDarkMapStyle(controller, 'alert')),
+                      unawaited(ensureMapStyle(controller, 'alert')),
                   initialCameraPosition: CameraPosition(
                     target: target,
                     zoom: zoomForRadius(radiusMeters.toDouble()),
@@ -391,10 +390,10 @@ class _PlaceMapCard extends StatelessWidget {
               child: IgnorePointer(
                 child: CustomPaint(
                   painter: MapCornerMask(
-                    color: AppColors.bgBase,
+                    color: context.palette.background,
                     radius: AppRadius.card,
                     // 다크 지도와 배경이 같은 검정이라 윤곽선이 없으면 각져 보인다 (#229)
-                    borderColor: AppColors.bgElevated,
+                    borderColor: context.palette.elevated,
                   ),
                 ),
               ),
@@ -420,12 +419,12 @@ class _RadiusChip extends StatelessWidget {
         vertical: 6,
       ),
       decoration: BoxDecoration(
-        color: AppColors.bgBase.withValues(alpha: 0.78),
+        color: context.palette.background.withValues(alpha: 0.78),
         borderRadius: BorderRadius.circular(AppRadius.pill),
       ),
       child: Text(
         context.l10n.alertScreenRadius(radiusMeters),
-        style: AppTypography.caption,
+        style: context.typo.caption,
       ),
     );
   }

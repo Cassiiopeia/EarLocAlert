@@ -6,9 +6,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/di/providers.dart';
 import '../../../core/diagnostics/diagnostics.dart';
 import '../../../core/l10n/l10n.dart';
-import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_palette.dart';
 import '../../../core/theme/app_spacing.dart';
-import '../../../core/theme/app_typography.dart';
 import '../../../core/text/keep_all.dart';
 import '../domain/permission_gate.dart';
 import '../domain/permission_kind.dart';
@@ -220,10 +219,10 @@ class _StepView extends StatelessWidget {
           ],
           Text(
             context.keepAllText(copy.title),
-            style: AppTypography.screenTitle,
+            style: context.typo.screenTitle,
           ),
           const SizedBox(height: AppSpacing.sm),
-          Text(context.keepAllText(copy.body), style: AppTypography.body),
+          Text(context.keepAllText(copy.body), style: context.typo.body),
           if (step == OnboardingStep.openSettings) ...[
             const SizedBox(height: AppSpacing.md),
             _SettingsChecklist(snapshot: snapshot),
@@ -233,16 +232,16 @@ class _StepView extends StatelessWidget {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(
+                Icon(
                   Icons.lock_outlined,
                   size: AppIconSize.inline,
-                  color: AppColors.textSecondary,
+                  color: context.palette.textSecondary,
                 ),
                 const SizedBox(width: AppSpacing.xs),
                 Expanded(
                   child: Text(
                     context.keepAllText(copy.footnote!),
-                    style: AppTypography.caption,
+                    style: context.typo.caption,
                   ),
                 ),
               ],
@@ -284,7 +283,7 @@ class _VibrationTestCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
-        color: AppColors.bgSurface,
+        color: context.palette.surface,
         borderRadius: BorderRadius.circular(AppRadius.card),
       ),
       child: Column(
@@ -292,16 +291,16 @@ class _VibrationTestCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Icon(
+              Icon(
                 Icons.vibration_outlined,
                 size: AppIconSize.inline,
-                color: AppColors.primary,
+                color: context.palette.accent,
               ),
               const SizedBox(width: AppSpacing.xs),
               Expanded(
                 child: Text(
                   context.keepAllText(l10n.onboardingVibrationCardTitle),
-                  style: AppTypography.body.copyWith(
+                  style: context.typo.body.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -311,7 +310,7 @@ class _VibrationTestCard extends StatelessWidget {
           const SizedBox(height: AppSpacing.xs),
           Text(
             context.keepAllText(l10n.onboardingVibrationCardBody),
-            style: AppTypography.caption,
+            style: context.typo.caption,
           ),
           const SizedBox(height: AppSpacing.sm),
           OutlinedButton(
@@ -359,16 +358,16 @@ class _SettingsChecklist extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(
+                Icon(
                   Icons.radio_button_unchecked_outlined,
                   size: AppIconSize.inline,
-                  color: AppColors.primary,
+                  color: context.palette.warning,
                 ),
                 const SizedBox(width: AppSpacing.xs),
                 Expanded(
                   child: Text(
                     context.keepAllText(row),
-                    style: AppTypography.body,
+                    style: context.typo.body,
                   ),
                 ),
               ],
@@ -378,10 +377,10 @@ class _SettingsChecklist extends StatelessWidget {
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Icon(
+            Icon(
               Icons.info_outlined,
               size: AppIconSize.inline,
-              color: AppColors.textSecondary,
+              color: context.palette.textSecondary,
             ),
             const SizedBox(width: AppSpacing.xs),
             Expanded(
@@ -391,7 +390,7 @@ class _SettingsChecklist extends StatelessWidget {
                       ? l10n.permissionSettingsReturnHintAndroid
                       : l10n.permissionSettingsReturnHintIos,
                 ),
-                style: AppTypography.caption,
+                style: context.typo.caption,
               ),
             ),
           ],
@@ -419,8 +418,8 @@ class _ProgressDots extends StatelessWidget {
               height: 4,
               decoration: BoxDecoration(
                 color: snapshot.statusOf(kind).isGranted
-                    ? AppColors.secondary
-                    : AppColors.bgElevated,
+                    ? context.palette.accent
+                    : context.palette.elevated,
                 borderRadius: BorderRadius.circular(AppRadius.pill),
               ),
             ),
@@ -445,12 +444,12 @@ class _ErrorView extends StatelessWidget {
         children: [
           Text(
             context.keepAllText(context.l10n.onboardingErrorTitle),
-            style: AppTypography.screenTitle,
+            style: context.typo.screenTitle,
           ),
           const SizedBox(height: AppSpacing.sm),
           Text(
             context.keepAllText(context.l10n.onboardingErrorHint),
-            style: AppTypography.caption,
+            style: context.typo.caption,
           ),
           const SizedBox(height: AppSpacing.md),
           FilledButton(

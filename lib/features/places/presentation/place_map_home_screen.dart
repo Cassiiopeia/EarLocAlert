@@ -13,10 +13,9 @@ import '../../../core/map/default_map_view.dart';
 import '../../../core/map/map_reveal_cover.dart';
 import '../../../core/map/map_style_guard.dart';
 import '../../../core/map/radius_zoom.dart';
-import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_palette.dart';
 import '../../../core/theme/app_semantic_colors.dart';
 import '../../../core/theme/app_spacing.dart';
-import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/map_style.dart';
 import '../../../core/text/keep_all.dart';
 import '../../../core/widgets/floating_circle_button.dart';
@@ -164,7 +163,7 @@ class _PlaceMapHomeScreenState extends ConsumerState<PlaceMapHomeScreen>
     }
 
     return Scaffold(
-      backgroundColor: AppColors.bgBase,
+      backgroundColor: context.palette.background,
       body: Stack(
         children: [
           MapRevealCover(
@@ -176,13 +175,19 @@ class _PlaceMapHomeScreenState extends ConsumerState<PlaceMapHomeScreen>
                     : LatLng(places.first.latitude, places.first.longitude),
                 zoom: places.isEmpty ? _fallback.zoom : 14,
               ),
-              style: MapStyle.dark,
+              style: MapStyle.forBrightness(Theme.of(context).brightness),
               markers: _markers(places),
               circles: _circles(places, semantic),
               onMapCreated: (controller) {
                 _map = controller;
                 // 다크 스타일이 조용히 사라지는 일이 있다 (이슈 #143)
-                unawaited(ensureDarkMapStyle(controller, 'home'));
+                unawaited(
+                  ensureMapStyle(
+                    controller,
+                    'home',
+                    style: MapStyle.forBrightness(Theme.of(context).brightness),
+                  ),
+                );
                 // 다크 타일이 그려질 때까지 밝은 바탕을 가린다 (이슈 #143)
                 attach(controller);
                 if (places.isNotEmpty) _fitCamera(places);
@@ -508,7 +513,7 @@ class _StatusBar extends StatelessWidget {
         ? semantic.statusActive
         : _isBroken
         ? semantic.statusInactive
-        : AppColors.textSecondary; // 정상 대기 — 경고색을 쓰지 않는다
+        : context.palette.textSecondary; // 정상 대기 — 경고색을 쓰지 않는다
 
     // 설정 버튼은 보이는 원보다 탭 영역이 크다. 그 차이만큼 바깥 여백에서
     // 빼야 **보이는 원이 예전 자리 그대로** 오른쪽 끝·알약과 같은 높이에
@@ -571,7 +576,7 @@ class _StatusBar extends StatelessWidget {
     Color statusColor,
   ) {
     return Material(
-      color: AppColors.bgSurface,
+      color: context.palette.surface,
       borderRadius: BorderRadius.circular(AppRadius.pill),
       child: InkWell(
         // 고장일 때만 해결 경로(권한 화면)로 보낸다.
@@ -641,7 +646,7 @@ class _StatusBar extends StatelessWidget {
                       : _isChecking
                       ? context.l10n.placeHomeStatusChecking
                       : context.l10n.placeHomeStatusIdle,
-                  style: AppTypography.body.copyWith(color: statusColor),
+                  style: context.typo.body.copyWith(color: statusColor),
                   maxLines: 1,
                   softWrap: false,
                 ),
@@ -658,8 +663,8 @@ class _StatusBar extends StatelessWidget {
                 const SizedBox(width: AppSpacing.xs),
                 Text(
                   '·',
-                  style: AppTypography.body.copyWith(
-                    color: AppColors.textSecondary.withValues(alpha: 0.5),
+                  style: context.typo.body.copyWith(
+                    color: context.palette.textSecondary.withValues(alpha: 0.5),
                   ),
                 ),
                 const SizedBox(width: AppSpacing.xs),
@@ -671,7 +676,7 @@ class _StatusBar extends StatelessWidget {
                   size: AppIconSize.control,
                   color: isHeadphoneConnected
                       ? semantic.audioBluetooth
-                      : AppColors.textSecondary,
+                      : context.palette.textSecondary,
                 ),
                 const SizedBox(width: AppSpacing.xs),
                 Flexible(
@@ -679,7 +684,7 @@ class _StatusBar extends StatelessWidget {
                     isHeadphoneConnected
                         ? context.l10n.placeHomeAudioHeadphones
                         : context.l10n.placeHomeAudioVibrationOnly,
-                    style: AppTypography.body,
+                    style: context.typo.body,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -714,7 +719,7 @@ class _WeakAlertBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const accent = AppColors.primary;
+    final accent = context.palette.warning;
 
     // **불투명해야 한다.** 지도 위에 뜨는 배너라 반투명이면 도로와 지명이
     // 글자 뒤로 비쳐 읽히지 않는다. 표면색에 강조색을 섞어 경고 기운은
@@ -722,7 +727,7 @@ class _WeakAlertBanner extends StatelessWidget {
     return Material(
       color: Color.alphaBlend(
         accent.withValues(alpha: 0.22),
-        AppColors.bgSurface,
+        context.palette.surface,
       ),
       borderRadius: BorderRadius.circular(AppRadius.card),
       child: InkWell(
@@ -739,7 +744,7 @@ class _WeakAlertBanner extends StatelessWidget {
           ),
           child: Row(
             children: [
-              const Icon(Icons.warning_amber_outlined, color: accent),
+              Icon(Icons.warning_amber_outlined, color: accent),
               const SizedBox(width: AppSpacing.sm),
               Expanded(
                 child: Column(
@@ -748,7 +753,7 @@ class _WeakAlertBanner extends StatelessWidget {
                   children: [
                     Text(
                       context.l10n.placeHomeWeakTitle,
-                      style: AppTypography.body.copyWith(
+                      style: context.typo.body.copyWith(
                         fontWeight: FontWeight.w700,
                         color: accent,
                       ),
@@ -764,7 +769,7 @@ class _WeakAlertBanner extends StatelessWidget {
                                 missing.join(' · '),
                               ),
                       ),
-                      style: AppTypography.caption,
+                      style: context.typo.caption,
                       // **두 줄까지 보여준다** — 한 줄로 자르면 정작 무엇이
                       // 꺼졌는지가 잘려 나간다
                       maxLines: 2,
@@ -774,7 +779,7 @@ class _WeakAlertBanner extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: AppSpacing.xs),
-              const Icon(Icons.chevron_right_outlined, color: accent),
+              Icon(Icons.chevron_right_outlined, color: accent),
             ],
           ),
         ),
@@ -842,8 +847,8 @@ class _MapControls extends StatelessWidget {
             onPressed: onAddPlace,
             semanticLabel: context.l10n.placeHomeAddPlace,
             size: AppControlSize.primary,
-            background: AppColors.primary,
-            foreground: AppColors.textOnPrimary,
+            background: context.palette.accent,
+            foreground: context.palette.onAccent,
             slop: const EdgeInsets.fromLTRB(_slop, gapHalf, _slop, _slop),
           ),
         ],
@@ -878,8 +883,8 @@ class _PlaceSheet extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Container(
-      decoration: const BoxDecoration(
-        color: AppColors.bgBase,
+      decoration: BoxDecoration(
+        color: context.palette.background,
         borderRadius: BorderRadius.vertical(
           top: Radius.circular(AppRadius.card),
         ),
@@ -893,7 +898,7 @@ class _PlaceSheet extends ConsumerWidget {
               width: 36,
               height: 4,
               decoration: BoxDecoration(
-                color: AppColors.textSecondary,
+                color: context.palette.textSecondary,
                 borderRadius: BorderRadius.circular(AppRadius.pill),
               ),
             ),
@@ -922,7 +927,7 @@ class _PlaceSheet extends ConsumerWidget {
             padding: const EdgeInsets.all(AppSpacing.md),
             child: Text(
               context.l10n.placeHomeLoadFailed,
-              style: AppTypography.caption,
+              style: context.typo.caption,
               textAlign: TextAlign.center,
             ),
           ),

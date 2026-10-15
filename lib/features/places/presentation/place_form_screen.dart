@@ -12,11 +12,10 @@ import '../../../core/map/map_corner_mask.dart';
 import '../../../core/map/map_reveal_cover.dart';
 import '../../../core/map/map_style_guard.dart';
 import '../../../core/map/radius_zoom.dart';
-import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_palette.dart';
 import '../../../core/theme/app_semantic_colors.dart';
 import '../../../core/theme/map_style.dart';
 import '../../../core/theme/app_spacing.dart';
-import '../../../core/theme/app_typography.dart';
 import '../../../core/domain/sound_preset_label.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/text/keep_all.dart';
@@ -352,7 +351,7 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
                 else
                   Text(
                     context.keepAllText(l10n.placeFormNoLocation),
-                    style: AppTypography.caption,
+                    style: context.typo.caption,
                   ),
 
                 // 좌표를 직접 아는 경우와, 지도 키 없이 빌드된 경우의 보조 경로.
@@ -364,7 +363,7 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
                     _hasCoordinates
                         ? l10n.placeFormCoordinates(_coordinateSummary)
                         : l10n.placeFormCoordinatesManual,
-                    style: AppTypography.caption,
+                    style: context.typo.caption,
                   ),
                   tilePadding: EdgeInsets.zero,
                   // 펼칠 때 머티리얼 기본 구분선이 위아래로 생겨 지도 카드 밑에
@@ -468,7 +467,7 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
                 SwitchListTile(
                   title: Text(
                     context.keepAllText(l10n.placeFormSoundDescription),
-                    style: AppTypography.caption,
+                    style: context.typo.caption,
                   ),
                   value: _soundEnabled,
                   onChanged: (value) => setState(() => _soundEnabled = value),
@@ -486,11 +485,11 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
                       leading: const Icon(Icons.music_note_outlined),
                       title: Text(
                         l10n.placeFormSoundLabel,
-                        style: AppTypography.body,
+                        style: context.typo.body,
                       ),
                       subtitle: Text(
                         _soundLabel ?? _fallbackLabel(l10n, _sound),
-                        style: AppTypography.caption,
+                        style: context.typo.caption,
                       ),
                       trailing: const Icon(Icons.chevron_right_outlined),
                       onTap: _soundEnabled ? _pickSound : null,
@@ -510,8 +509,10 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
                     icon: const Icon(Icons.delete_outlined),
                     label: Text(l10n.placeFormDelete),
                     style: TextButton.styleFrom(
-                      backgroundColor: AppColors.danger.withValues(alpha: 0.12),
-                      foregroundColor: AppColors.danger,
+                      backgroundColor: context.palette.danger.withValues(
+                        alpha: 0.12,
+                      ),
+                      foregroundColor: context.palette.danger,
                     ),
                   ),
                 ],
@@ -844,7 +845,15 @@ class _LocationPreviewState extends State<_LocationPreview> {
                     onMapCreated: (controller) {
                       _map = controller;
                       // 다크 스타일이 조용히 사라지는 일이 있다 (이슈 #143)
-                      unawaited(ensureDarkMapStyle(controller, 'form'));
+                      unawaited(
+                        ensureMapStyle(
+                          controller,
+                          'form',
+                          style: MapStyle.forBrightness(
+                            Theme.of(context).brightness,
+                          ),
+                        ),
+                      );
                       // 다크 타일이 그려질 때까지 밝은 바탕을 가린다 (이슈 #143)
                       attach(controller);
                     },
@@ -852,7 +861,7 @@ class _LocationPreviewState extends State<_LocationPreview> {
                       target: target,
                       zoom: zoomForRadiusWider(widget.radiusMeters),
                     ),
-                    style: MapStyle.dark,
+                    style: MapStyle.forBrightness(Theme.of(context).brightness),
                     markers: {
                       Marker(
                         markerId: const MarkerId('picked'),
@@ -885,8 +894,8 @@ class _LocationPreviewState extends State<_LocationPreview> {
               // `ClipRRect` 가 네이티브 지도 뷰를 자르지 못한다 (이슈 #142)
               IgnorePointer(
                 child: CustomPaint(
-                  painter: const MapCornerMask(
-                    color: AppColors.bgBase,
+                  painter: MapCornerMask(
+                    color: context.palette.background,
                     radius: AppRadius.card,
                   ),
                 ),
@@ -897,7 +906,7 @@ class _LocationPreviewState extends State<_LocationPreview> {
               IgnorePointer(
                 child: DecoratedBox(
                   decoration: BoxDecoration(
-                    border: Border.all(color: AppColors.bgElevated),
+                    border: Border.all(color: context.palette.elevated),
                     borderRadius: BorderRadius.circular(AppRadius.card),
                   ),
                 ),
@@ -934,7 +943,7 @@ class _DirectionSelector extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: AppColors.bgSurface,
+        color: context.palette.surface,
         borderRadius: BorderRadius.circular(999),
       ),
       child: Row(
@@ -969,7 +978,9 @@ class _DirectionOption extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = selected ? AppColors.textOnPrimary : AppColors.textSecondary;
+    final color = selected
+        ? context.palette.onAccent
+        : context.palette.textSecondary;
     return Semantics(
       button: true,
       selected: selected,
@@ -982,7 +993,7 @@ class _DirectionOption extends StatelessWidget {
           height: 48,
           padding: const EdgeInsets.symmetric(horizontal: 8),
           decoration: BoxDecoration(
-            color: selected ? AppColors.secondary : Colors.transparent,
+            color: selected ? context.palette.accent : Colors.transparent,
             borderRadius: BorderRadius.circular(999),
           ),
           child: Row(
@@ -997,7 +1008,7 @@ class _DirectionOption extends StatelessWidget {
                     label,
                     maxLines: 1,
                     softWrap: false,
-                    style: AppTypography.body.copyWith(
+                    style: context.typo.body.copyWith(
                       color: color,
                       fontWeight: FontWeight.w600,
                     ),

@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/l10n/l10n.dart';
 import '../../../core/theme/app_spacing.dart';
-import '../../../core/theme/app_typography.dart';
+import '../../../core/theme/app_palette.dart';
 import '../../../core/text/keep_all.dart';
 import '../domain/alert_effects.dart';
 import '../domain/vibration_intensity.dart';
@@ -102,12 +102,12 @@ class _VibrationIntensitySheetState
         children: [
           Text(
             context.l10n.vibrationTitle,
-            style: AppTypography.body.copyWith(fontWeight: FontWeight.w600),
+            style: context.typo.body.copyWith(fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: AppSpacing.xs),
           Text(
             context.keepAllText(context.l10n.vibrationDescription),
-            style: AppTypography.caption,
+            style: context.typo.caption,
           ),
           const SizedBox(height: AppSpacing.md),
 
@@ -127,11 +127,11 @@ class _VibrationIntensitySheetState
                       value: intensity,
                       title: Text(
                         _label(context, intensity),
-                        style: AppTypography.body,
+                        style: context.typo.body,
                       ),
                       subtitle: Text(
                         context.keepAllText(_hint(context, intensity)),
-                        style: AppTypography.caption,
+                        style: context.typo.caption,
                       ),
                       contentPadding: EdgeInsets.zero,
                     ),

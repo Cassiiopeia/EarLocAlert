@@ -7,9 +7,8 @@ import '../../../core/diagnostics/diagnostic_log_reader.dart';
 import '../../../core/diagnostics/file_diagnostic_logger.dart';
 import '../../../core/diagnostics/diagnostics.dart';
 import '../../../core/l10n/l10n.dart';
-import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_palette.dart';
 import '../../../core/theme/app_spacing.dart';
-import '../../../core/theme/app_typography.dart';
 import '../../../core/text/keep_all.dart';
 import '../../../core/widgets/app_feedback.dart';
 import '../../../core/text/two_digits.dart';
@@ -246,7 +245,7 @@ class _Header extends StatelessWidget {
                   _formatSize(FileDiagnosticLogger.defaultMaxBytes),
                 ),
               ),
-              style: AppTypography.caption,
+              style: context.typo.caption,
             ),
           ),
         ],
@@ -282,14 +281,14 @@ class _EmptyState extends StatelessWidget {
                     : context.l10n.diagnosticsEmpty,
               ),
               textAlign: TextAlign.center,
-              style: AppTypography.body,
+              style: context.typo.body,
             ),
             if (failed) ...[
               const SizedBox(height: AppSpacing.sm),
               Text(
                 context.keepAllText(readError),
                 textAlign: TextAlign.center,
-                style: AppTypography.caption,
+                style: context.typo.caption,
               ),
             ],
           ],
@@ -335,17 +334,17 @@ class _LogLine extends StatelessWidget {
                     vertical: 2,
                   ),
                   decoration: BoxDecoration(
-                    color: AppColors.bgElevated,
+                    color: context.palette.elevated,
                     borderRadius: BorderRadius.circular(AppRadius.pill),
                   ),
-                  child: Text(tag, style: AppTypography.caption),
+                  child: Text(tag, style: context.typo.caption),
                 ),
               const SizedBox(width: AppSpacing.xs),
-              Text(_shortTime(time), style: AppTypography.caption),
+              Text(_shortTime(time), style: context.typo.caption),
             ],
           ),
           const SizedBox(height: 2),
-          SelectableText(message, style: AppTypography.body),
+          SelectableText(message, style: context.typo.body),
         ],
       ),
     );

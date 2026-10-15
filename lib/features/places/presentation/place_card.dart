@@ -5,10 +5,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/domain/alert_direction.dart';
 import '../../../core/l10n/l10n.dart';
-import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_palette.dart';
 import '../../../core/theme/app_semantic_colors.dart';
 import '../../../core/theme/app_spacing.dart';
-import '../../../core/theme/app_typography.dart';
 import '../domain/alert_place.dart';
 import 'alert_schedule_summary.dart';
 import 'place_list_controller.dart';
@@ -50,11 +49,13 @@ class PlaceCard extends StatelessWidget {
     final semantic = Theme.of(context).extension<AppSemanticColors>()!;
     final enabled = place.enabled;
 
-    final background = enabled ? AppColors.bgElevated : AppColors.bgSurface;
+    final background = enabled
+        ? context.palette.elevated
+        : context.palette.surface;
     final foreground = enabled
-        ? AppColors.textPrimary
-        : AppColors.textSecondary;
-    final secondary = AppColors.textSecondary;
+        ? context.palette.textPrimary
+        : context.palette.textSecondary;
+    final secondary = context.palette.textSecondary;
 
     final (directionIcon, directionLabel, directionColor) = describeDirection(
       place.direction,
@@ -86,7 +87,9 @@ class PlaceCard extends StatelessWidget {
                 // "울리는 장소"로 오독된다
                 Icon(
                   directionIcon,
-                  color: enabled ? directionColor : AppColors.textSecondary,
+                  color: enabled
+                      ? directionColor
+                      : context.palette.textSecondary,
                 ),
                 const SizedBox(width: AppSpacing.sm),
                 Expanded(
@@ -95,7 +98,7 @@ class PlaceCard extends StatelessWidget {
                     children: [
                       Text(
                         place.name,
-                        style: AppTypography.body.copyWith(
+                        style: context.typo.body.copyWith(
                           color: foreground,
                           fontWeight: FontWeight.w600,
                         ),
@@ -108,7 +111,7 @@ class PlaceCard extends StatelessWidget {
                           directionLabel,
                           place.radiusMeters,
                         ),
-                        style: AppTypography.caption.copyWith(color: secondary),
+                        style: context.typo.caption.copyWith(color: secondary),
                       ),
                       // 시간대가 걸려 있으면 드러낸다 — 창 밖이라 안 울린
                       // 것을 알 방법이 없으면 사용자는 앱을 믿지 못한다
@@ -117,7 +120,7 @@ class PlaceCard extends StatelessWidget {
                         const SizedBox(height: 2),
                         Text(
                           describeSchedules(context.l10n, place.schedules),
-                          style: AppTypography.caption.copyWith(
+                          style: context.typo.caption.copyWith(
                             color: secondary,
                           ),
                           maxLines: 1,
@@ -258,7 +261,9 @@ class _DeletePanel extends StatelessWidget {
       clipBehavior: Clip.none,
       children: [
         Positioned.fill(
-          child: CustomPaint(painter: _DeletePanelPainter(progress)),
+          child: CustomPaint(
+            painter: _DeletePanelPainter(progress, context.palette.danger),
+          ),
         ),
         Positioned.fill(
           child: ValueListenableBuilder<double>(
@@ -285,8 +290,8 @@ class _DeletePanel extends StatelessWidget {
                           size: AppIconSize.standard,
                           // 진해진 배경 위에서는 아이콘이 배경색과 섞이므로 밝게 바꾼다
                           color: Color.lerp(
-                            AppColors.danger,
-                            AppColors.textPrimary,
+                            context.palette.danger,
+                            context.palette.textPrimary,
                             t,
                           ),
                         ),
@@ -326,9 +331,12 @@ Rect? deletePanelRect(Size size, double progress) {
 }
 
 class _DeletePanelPainter extends CustomPainter {
-  _DeletePanelPainter(this.progress) : super(repaint: progress);
+  _DeletePanelPainter(this.progress, this.color) : super(repaint: progress);
 
   final ValueListenable<double> progress;
+
+  /// 그리는 쪽엔 context 가 없어 테마 색을 받아 둔다
+  final Color color;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -337,13 +345,13 @@ class _DeletePanelPainter extends CustomPainter {
     final t = deleteSwipeIntensity(progress.value);
     canvas.drawRRect(
       RRect.fromRectAndRadius(rect, const Radius.circular(AppRadius.card)),
-      Paint()..color = AppColors.danger.withValues(alpha: 0.14 + 0.5 * t),
+      Paint()..color = color.withValues(alpha: 0.14 + 0.5 * t),
     );
   }
 
   @override
   bool shouldRepaint(_DeletePanelPainter oldDelegate) =>
-      oldDelegate.progress != progress;
+      oldDelegate.progress != progress || oldDelegate.color != color;
 }
 
 /// 알림 방향의 아이콘·문구·색.

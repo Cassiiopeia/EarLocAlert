@@ -3,8 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/l10n/l10n.dart';
 import '../../../core/theme/app_spacing.dart';
-import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/app_typography.dart';
+import '../../../core/theme/app_palette.dart';
 import '../../../core/text/keep_all.dart';
 import '../domain/alert_effects.dart';
 import 'alert_controller_provider.dart';
@@ -83,7 +82,7 @@ class _AlertVolumeSheetState extends ConsumerState<_AlertVolumeSheet> {
               Expanded(
                 child: Text(
                   context.l10n.volumeTitle,
-                  style: AppTypography.body.copyWith(
+                  style: context.typo.body.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -91,9 +90,9 @@ class _AlertVolumeSheetState extends ConsumerState<_AlertVolumeSheet> {
               if (volume != null)
                 Text(
                   '${(volume * 100).round()}%',
-                  style: AppTypography.body.copyWith(
+                  style: context.typo.body.copyWith(
                     fontWeight: FontWeight.w600,
-                    color: AppColors.primary,
+                    color: context.palette.accent,
                   ),
                   maxLines: 1,
                 ),
@@ -102,7 +101,7 @@ class _AlertVolumeSheetState extends ConsumerState<_AlertVolumeSheet> {
           const SizedBox(height: AppSpacing.xs),
           Text(
             context.keepAllText(context.l10n.volumeDescription),
-            style: AppTypography.caption,
+            style: context.typo.caption,
           ),
           const SizedBox(height: AppSpacing.md),
 
@@ -136,7 +135,7 @@ class _AlertVolumeSheetState extends ConsumerState<_AlertVolumeSheet> {
           if (_previewNotice != null)
             Text(
               context.keepAllText(_previewNotice!),
-              style: AppTypography.caption,
+              style: context.typo.caption,
             ),
 
           const SizedBox(height: AppSpacing.sm),

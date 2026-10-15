@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'app_colors.dart';
+import 'app_palette.dart';
 
 /// 의미 색 토큰 — 두 주색에서 파생한다 (docs/06-UX.md)
 ///
@@ -31,12 +31,20 @@ class AppSemanticColors extends ThemeExtension<AppSemanticColors> {
   /// 이어폰 연결됨
   final Color audioBluetooth;
 
-  static const AppSemanticColors dark = AppSemanticColors(
-    alertEnter: AppColors.secondary,
-    alertExit: AppColors.primary,
-    statusActive: AppColors.secondary,
-    statusInactive: AppColors.primary,
-    audioBluetooth: AppColors.secondary,
+  /// 팔레트에서 파생한다 (이슈 #272) — 진입은 주색(민트), 이탈·중지는 금색
+  factory AppSemanticColors.fromPalette(AppPalette p) => AppSemanticColors(
+    alertEnter: p.accent,
+    alertExit: p.warning,
+    statusActive: p.accent,
+    statusInactive: p.warning,
+    audioBluetooth: p.accent,
+  );
+
+  static final AppSemanticColors dark = AppSemanticColors.fromPalette(
+    AppPalette.dark,
+  );
+  static final AppSemanticColors light = AppSemanticColors.fromPalette(
+    AppPalette.light,
   );
 
   @override

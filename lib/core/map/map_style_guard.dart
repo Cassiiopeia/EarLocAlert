@@ -27,16 +27,19 @@ import '../theme/map_style.dart';
 ///
 /// **실패해도 던지지 않는다.** 지도 색이 틀린 것보다 화면이 깨지는 쪽이
 /// 훨씬 나쁘다.
-Future<void> ensureDarkMapStyle(
+Future<void> ensureMapStyle(
   GoogleMapController controller,
-  String where,
-) async {
+  String where, {
+
+  /// 화면 모드에 맞춘 스타일 (이슈 #272). 알림 화면은 항상 다크다
+  String style = MapStyle.dark,
+}) async {
   try {
     // `GoogleMap.style` 을 쓰라는 안내가 붙어 있지만, **우리는 이미 그것을
     // 쓰고 있고 실패한 것이 바로 그 경로다.** 위젯을 다시 만들지 않고
     // 스타일만 되살릴 수 있는 방법은 이 호출뿐이라 의도적으로 쓴다.
     // ignore: deprecated_member_use
-    await controller.setMapStyle(MapStyle.dark);
+    await controller.setMapStyle(style);
 
     // 파싱 오류가 있으면 SDK 가 알려준다. 위 호출이 성공해도 스타일이
     // 거부됐을 수 있으므로 반드시 확인한다.

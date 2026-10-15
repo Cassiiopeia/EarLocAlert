@@ -7,10 +7,9 @@ import '../../../core/l10n/l10n.dart';
 import '../../../core/l10n/locale_resolver.dart';
 import 'language_sheet.dart';
 
-import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_palette.dart';
 import '../../../core/theme/app_semantic_colors.dart';
 import '../../../core/theme/app_spacing.dart';
-import '../../../core/theme/app_typography.dart';
 import '../../../core/text/keep_all.dart';
 
 /// 설정 화면이 보여줄 권한 한 줄 (이슈 #102)
@@ -332,15 +331,15 @@ class SettingsScreen extends StatelessWidget {
             // 맨 끝의 읽기 전용 줄 (이슈 #179). 눌러서 업데이트를 바로 확인한다
             // 다른 줄과 같은 아이콘색·글자 스타일을 쓴다 — 이 줄만 밝게 튀었다
             ListTile(
-              leading: const Icon(
+              leading: Icon(
                 Icons.info_outlined,
-                color: AppColors.textSecondary,
+                color: context.palette.textSecondary,
               ),
               title: Text(
                 context.l10n.settingsVersionTitle,
-                style: AppTypography.body,
+                style: context.typo.body,
               ),
-              subtitle: Text(appVersion, style: AppTypography.caption),
+              subtitle: Text(appVersion, style: context.typo.caption),
               trailing: onCheckUpdate == null
                   ? null
                   : TextButton(
@@ -367,21 +366,22 @@ class _PermissionTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final semantic = Theme.of(context).extension<AppSemanticColors>();
-    final grantedColor = semantic?.statusActive ?? AppColors.textSecondary;
+    final grantedColor =
+        semantic?.statusActive ?? context.palette.textSecondary;
 
     return ListTile(
       leading: Icon(
         row.granted ? Icons.check_circle_outlined : Icons.error_outlined,
-        color: row.granted ? grantedColor : AppColors.textSecondary,
+        color: row.granted ? grantedColor : context.palette.textSecondary,
       ),
-      title: Text(row.title, style: AppTypography.body),
+      title: Text(row.title, style: context.typo.body),
       subtitle: Text(
         context.keepAllText(
           row.granted
               ? context.l10n.settingsPermissionGranted
               : row.description,
         ),
-        style: AppTypography.caption,
+        style: context.typo.caption,
       ),
       // 이미 허용된 권한도 열 수 있게 둔다 — 사용자가 끄고 싶을 수 있다
       trailing: const Icon(Icons.chevron_right_outlined),
@@ -403,7 +403,7 @@ class _LockScreenAlarmTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final semantic = Theme.of(context).extension<AppSemanticColors>();
-    final onColor = semantic?.statusActive ?? AppColors.textSecondary;
+    final onColor = semantic?.statusActive ?? context.palette.textSecondary;
 
     final subtitle = switch (alarm.state) {
       LockScreenAlarmState.on => l10n.settingsLockAlarmOn,
@@ -421,12 +421,12 @@ class _LockScreenAlarmTile extends StatelessWidget {
     return ListTile(
       leading: Icon(
         on ? Icons.check_circle_outlined : Icons.alarm_outlined,
-        color: on ? onColor : AppColors.textSecondary,
+        color: on ? onColor : context.palette.textSecondary,
       ),
-      title: Text(l10n.settingsLockAlarmTitle, style: AppTypography.body),
+      title: Text(l10n.settingsLockAlarmTitle, style: context.typo.body),
       subtitle: Text(
         context.keepAllText(subtitle),
-        style: AppTypography.caption,
+        style: context.typo.caption,
       ),
       trailing: actionLabel == null || alarm.onAction == null
           ? null
@@ -448,7 +448,7 @@ class _VibrationCheckTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final semantic = Theme.of(context).extension<AppSemanticColors>();
-    final feltColor = semantic?.statusActive ?? AppColors.textSecondary;
+    final feltColor = semantic?.statusActive ?? context.palette.textSecondary;
 
     final subtitle = switch (check.state) {
       VibrationCheckState.untested => l10n.settingsVibrationTestUntested,
@@ -457,19 +457,22 @@ class _VibrationCheckTile extends StatelessWidget {
     };
     final (icon, color) = switch (check.state) {
       VibrationCheckState.felt => (Icons.check_circle_outlined, feltColor),
-      VibrationCheckState.notFelt => (Icons.error_outlined, AppColors.primary),
+      VibrationCheckState.notFelt => (
+        Icons.error_outlined,
+        context.palette.warning,
+      ),
       VibrationCheckState.untested => (
         Icons.vibration_outlined,
-        AppColors.textSecondary,
+        context.palette.textSecondary,
       ),
     };
 
     return ListTile(
       leading: Icon(icon, color: color),
-      title: Text(l10n.settingsVibrationTestTitle, style: AppTypography.body),
+      title: Text(l10n.settingsVibrationTestTitle, style: context.typo.body),
       subtitle: Text(
         context.keepAllText(subtitle),
-        style: AppTypography.caption,
+        style: context.typo.caption,
       ),
       trailing: const Icon(Icons.chevron_right_outlined),
       onTap: check.onTap,
@@ -491,7 +494,7 @@ class _SectionLabel extends StatelessWidget {
         AppSpacing.md,
         AppSpacing.xs,
       ),
-      child: Text(text, style: AppTypography.caption),
+      child: Text(text, style: context.typo.caption),
     );
   }
 }
@@ -512,11 +515,11 @@ class _SettingTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      leading: Icon(icon, color: AppColors.textSecondary),
-      title: Text(title, style: AppTypography.body),
+      leading: Icon(icon, color: context.palette.textSecondary),
+      title: Text(title, style: context.typo.body),
       subtitle: subtitle == null
           ? null
-          : Text(context.keepAllText(subtitle!), style: AppTypography.caption),
+          : Text(context.keepAllText(subtitle!), style: context.typo.caption),
       trailing: const Icon(Icons.chevron_right_outlined),
       onTap: onTap,
     );

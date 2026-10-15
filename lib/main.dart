@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app/app.dart';
+import 'core/theme/app_theme_controller.dart';
+import 'core/theme/app_theme_preference.dart';
 import 'core/l10n/app_language_controller.dart';
 import 'core/l10n/app_language_store.dart';
 import 'app/splash_overlay.dart';
@@ -20,10 +22,15 @@ Future<void> main() async {
   // 앱 언어를 첫 프레임 전에 읽는다 (이슈 #163). 비동기로 읽으면 기기 언어로
   // 그려졌다가 바뀌는 깜빡임이 생긴다. 읽기에 실패해도 기기 언어로 뜬다.
   final language = await const AppLanguageStore().read();
+  // 화면 모드도 같은 이유로 첫 프레임 전에 읽는다 (이슈 #272)
+  final themePreference = await const AppThemeStore().read();
 
   runApp(
     ProviderScope(
-      overrides: [appLanguageInitialProvider.overrideWithValue(language)],
+      overrides: [
+        appLanguageInitialProvider.overrideWithValue(language),
+        appThemeInitialProvider.overrideWithValue(themePreference),
+      ],
       child: const EarLocAlertApp(),
     ),
   );

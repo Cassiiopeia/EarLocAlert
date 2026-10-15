@@ -11,8 +11,8 @@ void main() {
   test('스낵바는 한 층 위 배경이고 액션은 주색이다', () {
     final theme = AppTheme.dark().snackBarTheme;
 
-    expect(theme.backgroundColor, AppColors.bgElevated);
-    expect(theme.actionTextColor, AppColors.primary);
+    expect(theme.backgroundColor, AppColors.elevated);
+    expect(theme.actionTextColor, AppColors.accent);
     expect(theme.behavior, SnackBarBehavior.floating);
     // 스타일을 덮어써도 앱 글꼴(Pretendard)이 빠지면 안 된다
     expect(theme.contentTextStyle?.fontFamily, 'Pretendard');
@@ -48,6 +48,6 @@ void main() {
           )
           .first,
     );
-    expect(material.color, AppColors.bgElevated);
+    expect(material.color, AppColors.elevated);
   });
 }

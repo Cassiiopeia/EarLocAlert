@@ -1,31 +1,26 @@
 import 'dart:ui';
 
-/// 앱 전체 색 토큰 (docs/06-UX.md)
+import 'app_palette.dart';
+
+/// 다크 팔레트 값의 정적 사본 (docs/06-UX.md)
 ///
-/// 화면에서 색 값을 직접 쓰지 않는다 — 반드시 이 토큰을 거친다.
-/// 값을 조정하면 docs/06-UX.md 의 표도 함께 고친다.
+/// **화면에서 쓰지 않는다** (이슈 #272) — 화면은 `context.palette` 로 지금
+/// 테마의 색을 읽는다. 이 상수를 쓰면 라이트 모드에서도 다크 색이 박힌다.
+/// `design_system_test` 가 화면 코드의 사용을 막는다. 테마 밖에서 색이
+/// 필요한 드문 자리(네이티브 경계 등)를 위해서만 남긴다.
 abstract final class AppColors {
-  // 배경 — 층은 그림자가 아니라 명도 차이로 구분한다
-  static const Color bgBase = Color(0xFF0D0D0D);
-  static const Color bgSurface = Color(0xFF1A1A1A);
-  static const Color bgElevated = Color(0xFF262626);
-
-  // 텍스트
+  static const Color background = Color(0xFF000000);
+  static const Color surface = Color(0xFF1C1C1E);
+  static const Color elevated = Color(0xFF2C2C2E);
+  static const Color separator = Color(0xFF38383A);
   static const Color textPrimary = Color(0xFFFFFFFF);
-  static const Color textSecondary = Color(0xFF9E9E9E);
+  static const Color textSecondary = Color(0xFF98989F);
+  static const Color accent = Color(0xFF6FE3D3);
+  static const Color onAccent = Color(0xFF000000);
+  static const Color warning = Color(0xFFF2B85B);
+  static const Color onWarning = Color(0xFF000000);
+  static const Color danger = Color(0xFFFF453A);
 
-  // 주색 2개 — 여기서 모든 의미 색이 파생된다. 새 색을 추가하지 않는다
-  static const Color primary = Color(0xFFE5B65C);
-  static const Color secondary = Color(0xFF7FE8D8);
-
-  /// 삭제처럼 **되돌리기 어려운 동작**의 색 (이슈 #205).
-  ///
-  /// 주색 두 개에서 파생되지 않는 유일한 색이다. 금색·민트 어느 쪽도
-  /// "지운다"를 말하지 못해, 삭제만 별도로 둔다. 쓰는 곳은 삭제 동작
-  /// 하나로 한정한다 — 다른 의미로 번지면 이 색의 뜻이 흐려진다.
-  /// (디자이너 확정 전 잠정값 — 이슈 #205 질문)
-  static const Color danger = Color(0xFFFF6B6B);
-
-  /// 주색 위에 올라가는 텍스트 (버튼 라벨 등)
-  static const Color textOnPrimary = Color(0xFF0D0D0D);
+  /// 다크 팔레트와 값이 어긋나지 않았는지 테스트가 비교한다
+  static const AppPalette palette = AppPalette.dark;
 }

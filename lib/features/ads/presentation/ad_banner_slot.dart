@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 import '../../../core/diagnostics/diagnostics.dart';
-import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_palette.dart';
 import '../domain/ad_unit_ids.dart';
 import 'ads_providers.dart';
 
@@ -116,9 +116,9 @@ class _AdBannerSlotState extends ConsumerState<AdBannerSlot> {
 
     // 앱 콘텐츠와 색·선으로 갈라 광고임을 알아보게 한다. 눌림 요소와 붙지 않는다
     return DecoratedBox(
-      decoration: const BoxDecoration(
-        color: AppColors.bgSurface,
-        border: Border(top: BorderSide(color: AppColors.bgElevated)),
+      decoration: BoxDecoration(
+        color: context.palette.surface,
+        border: Border(top: BorderSide(color: context.palette.elevated)),
       ),
       child: SafeArea(
         top: false,

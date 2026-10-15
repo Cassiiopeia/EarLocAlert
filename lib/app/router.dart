@@ -36,6 +36,7 @@ import '../features/diagnostics/presentation/diagnostics_screen.dart';
 import '../features/diagnostics/presentation/bug_report_sheet.dart';
 import '../features/places/presentation/place_backup_actions.dart';
 import '../features/places/presentation/place_search_provider.dart';
+import 'alert_theme.dart';
 import '../features/settings/data/prefs_watch_guide_store.dart';
 import '../features/settings/presentation/settings_screen.dart';
 import '../features/settings/presentation/watch_guide_sheet.dart';
@@ -279,38 +280,41 @@ class _AlertRoute extends ConsumerWidget {
       return const Scaffold(body: SizedBox.shrink());
     }
 
-    return AlertScreen(
-      session: session,
-      soundFailed: ref.read(activeAlertProvider.notifier).soundFailed,
-      onDismiss: () {
-        // 이 화면은 곧 사라진다 — 광고는 그 뒤에 시도되므로 화면의 ref·context 가
-        // 아니라 앱 수명의 라우터·컨테이너를 붙잡는다
-        final router = GoRouter.of(context);
-        final container = ProviderScope.containerOf(context, listen: false);
-        unawaited(
-          AlertDismissFlow(
-            dismiss: () =>
-                container.read(activeAlertProvider.notifier).dismiss(),
-            isRinging: () => container.read(activeAlertProvider) != null,
-            goHome: () => router.go(AppRoutes.home),
-            // `go` 로 설정만 띄우면 뒤로 갈 곳이 없다 — 홈이 세워진 뒤(다음
-            // 프레임)에 push 해야 스택이 [홈, 설정] 으로 잡힌다 (이슈 #229)
-            returnToSettings: () =>
-                WidgetsBinding.instance.addPostFrameCallback(
-                  (_) => unawaited(router.push(AppRoutes.settings)),
-                ),
-            // 옮겨 간 화면 위에 띄운다 — 알림 화면의 context 는 이미 없다
-            showDismissedToast: () =>
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  final target =
-                      router.routerDelegate.navigatorKey.currentContext;
-                  if (target == null || !target.mounted) return;
-                  target.showToast(target.l10n.alertDismissedTitle);
-                }),
-            tryShowAd: () => _tryShowAd(container),
-          ).run(fromPreview: session.placeId == previewPlaceId),
-        );
-      },
+    // 알림 화면은 화면 모드와 무관하게 다크다 (이슈 #272)
+    return alertTheme(
+      AlertScreen(
+        session: session,
+        soundFailed: ref.read(activeAlertProvider.notifier).soundFailed,
+        onDismiss: () {
+          // 이 화면은 곧 사라진다 — 광고는 그 뒤에 시도되므로 화면의 ref·context 가
+          // 아니라 앱 수명의 라우터·컨테이너를 붙잡는다
+          final router = GoRouter.of(context);
+          final container = ProviderScope.containerOf(context, listen: false);
+          unawaited(
+            AlertDismissFlow(
+              dismiss: () =>
+                  container.read(activeAlertProvider.notifier).dismiss(),
+              isRinging: () => container.read(activeAlertProvider) != null,
+              goHome: () => router.go(AppRoutes.home),
+              // `go` 로 설정만 띄우면 뒤로 갈 곳이 없다 — 홈이 세워진 뒤(다음
+              // 프레임)에 push 해야 스택이 [홈, 설정] 으로 잡힌다 (이슈 #229)
+              returnToSettings: () =>
+                  WidgetsBinding.instance.addPostFrameCallback(
+                    (_) => unawaited(router.push(AppRoutes.settings)),
+                  ),
+              // 옮겨 간 화면 위에 띄운다 — 알림 화면의 context 는 이미 없다
+              showDismissedToast: () =>
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    final target =
+                        router.routerDelegate.navigatorKey.currentContext;
+                    if (target == null || !target.mounted) return;
+                    target.showToast(target.l10n.alertDismissedTitle);
+                  }),
+              tryShowAd: () => _tryShowAd(container),
+            ).run(fromPreview: session.placeId == previewPlaceId),
+          );
+        },
+      ),
     );
   }
 

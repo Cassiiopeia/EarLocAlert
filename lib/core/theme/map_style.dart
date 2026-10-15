@@ -1,3 +1,5 @@
+import 'dart:ui' show Brightness;
+
 /// Google Maps 다크 스타일 (docs/06-UX.md)
 ///
 /// **기본 지도는 흰색이다.** 다크 앱 안에 하얀 판이 박히면 그것만으로
@@ -35,4 +37,39 @@ abstract final class MapStyle {
    "stylers":[{"color":"#4a5560"}]}
 ]
 ''';
+
+  /// 라이트 모드 지도 (이슈 #272). 다크와 같은 규칙 — 아이콘·POI·대중교통을
+  /// 숨겨 반경 원과 핀이 주인공이 되게 한다. 바탕은 iOS 그룹 배경과 맞춘다
+  static const light = '''
+[
+  {"elementType":"geometry","stylers":[{"color":"#f2f2f7"}]},
+  {"elementType":"labels.icon","stylers":[{"visibility":"off"}]},
+  {"elementType":"labels.text.fill","stylers":[{"color":"#6c6c70"}]},
+  {"elementType":"labels.text.stroke","stylers":[{"color":"#f2f2f7"}]},
+  {"featureType":"administrative","elementType":"geometry",
+   "stylers":[{"visibility":"off"}]},
+  {"featureType":"administrative.locality","elementType":"labels.text.fill",
+   "stylers":[{"color":"#3a3a3c"}]},
+  {"featureType":"poi","elementType":"labels","stylers":[{"visibility":"off"}]},
+  {"featureType":"poi.park","elementType":"geometry",
+   "stylers":[{"color":"#dcefe4"}]},
+  {"featureType":"road","elementType":"geometry",
+   "stylers":[{"color":"#ffffff"}]},
+  {"featureType":"road","elementType":"labels.text.fill",
+   "stylers":[{"color":"#8e8e93"}]},
+  {"featureType":"road.arterial","elementType":"geometry",
+   "stylers":[{"color":"#ffffff"}]},
+  {"featureType":"road.highway","elementType":"geometry",
+   "stylers":[{"color":"#e5e5ea"}]},
+  {"featureType":"transit","stylers":[{"visibility":"off"}]},
+  {"featureType":"water","elementType":"geometry",
+   "stylers":[{"color":"#c9e4f2"}]},
+  {"featureType":"water","elementType":"labels.text.fill",
+   "stylers":[{"color":"#5a7a8c"}]}
+]
+''';
+
+  /// 화면 밝기에 맞는 스타일. 알림 화면은 항상 다크라 [dark] 를 직접 쓴다
+  static String forBrightness(Brightness brightness) =>
+      brightness == Brightness.dark ? dark : light;
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../theme/app_colors.dart';
+import '../../../core/theme/app_palette.dart';
+
 import '../theme/app_spacing.dart';
 import 'hit_slop.dart';
 
@@ -19,8 +20,8 @@ class FloatingCircleButton extends StatelessWidget {
     required this.onPressed,
     required this.semanticLabel,
     this.size = AppControlSize.floating,
-    this.background = AppColors.bgSurface,
-    this.foreground = AppColors.textPrimary,
+    this.background,
+    this.foreground,
     this.slop = const EdgeInsets.all(AppSpacing.xs),
     super.key,
   });
@@ -35,8 +36,9 @@ class FloatingCircleButton extends StatelessWidget {
   /// [AppControlSize.primary]
   final double size;
 
-  final Color background;
-  final Color foreground;
+  /// 비우면 테마의 표면색·글자색을 쓴다 — 라이트·다크를 따라간다 (이슈 #272)
+  final Color? background;
+  final Color? foreground;
 
   /// 보이는 원 바깥으로 탭을 더 받는 폭
   final EdgeInsets slop;
@@ -52,12 +54,16 @@ class FloatingCircleButton extends StatelessWidget {
         child: SizedBox.square(
           dimension: size,
           child: Material(
-            color: background,
+            color: background ?? context.palette.surface,
             shape: const CircleBorder(),
             child: InkWell(
               onTap: onPressed,
               customBorder: const CircleBorder(),
-              child: Icon(icon, size: AppIconSize.standard, color: foreground),
+              child: Icon(
+                icon,
+                size: AppIconSize.standard,
+                color: foreground ?? context.palette.textPrimary,
+              ),
             ),
           ),
         ),

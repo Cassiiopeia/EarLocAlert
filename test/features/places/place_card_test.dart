@@ -334,7 +334,7 @@ void main() {
       final decoration = container.decoration! as BoxDecoration;
       expect(
         decoration.color,
-        AppColors.bgElevated,
+        AppColors.elevated,
         reason: '흰 카드는 다크 화면에서 혼자 뜬다 — 활성은 명도 한 층 위다',
       );
     });
@@ -361,7 +361,7 @@ void main() {
       );
       expect(
         (container.decoration! as BoxDecoration).color,
-        AppColors.bgSurface,
+        AppColors.surface,
       );
     });
 

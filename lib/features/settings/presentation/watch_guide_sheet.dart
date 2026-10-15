@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../../core/l10n/l10n.dart';
 import '../../../core/text/keep_all.dart';
-import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_palette.dart';
 import '../../../core/theme/app_spacing.dart';
-import '../../../core/theme/app_typography.dart';
 
 /// 안내가 어느 플랫폼 기준인지 (이슈 #270)
 ///
@@ -72,7 +71,7 @@ class WatchGuideSheet extends StatelessWidget {
                   Expanded(
                     child: Text(
                       l10n.settingsWatchTitle,
-                      style: AppTypography.body.copyWith(
+                      style: context.typo.body.copyWith(
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -82,7 +81,7 @@ class WatchGuideSheet extends StatelessWidget {
               const SizedBox(height: AppSpacing.xs),
               Text(
                 context.keepAllText(l10n.watchGuideIntro),
-                style: AppTypography.caption,
+                style: context.typo.caption,
               ),
               const SizedBox(height: AppSpacing.md),
               for (var i = 0; i < steps.length; i++)
@@ -96,17 +95,17 @@ class WatchGuideSheet extends StatelessWidget {
                         width: 24,
                         height: 24,
                         alignment: Alignment.center,
-                        decoration: const BoxDecoration(
-                          color: AppColors.bgElevated,
+                        decoration: BoxDecoration(
+                          color: context.palette.elevated,
                           shape: BoxShape.circle,
                         ),
-                        child: Text('${i + 1}', style: AppTypography.caption),
+                        child: Text('${i + 1}', style: context.typo.caption),
                       ),
                       const SizedBox(width: AppSpacing.sm),
                       Expanded(
                         child: Text(
                           context.keepAllText(steps[i]),
-                          style: AppTypography.body,
+                          style: context.typo.body,
                         ),
                       ),
                     ],
@@ -115,7 +114,7 @@ class WatchGuideSheet extends StatelessWidget {
               const SizedBox(height: AppSpacing.xs),
               Text(
                 context.keepAllText(l10n.watchGuideNote),
-                style: AppTypography.caption,
+                style: context.typo.caption,
               ),
               const SizedBox(height: AppSpacing.md),
               FilledButton(

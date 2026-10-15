@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_spacing.dart';
-import '../../../core/theme/app_typography.dart';
+import '../../../core/theme/app_palette.dart';
 
 /// 장소 화면(폼·지도 선택 패널)의 칸 제목 (이슈 #228)
 ///
@@ -25,11 +25,11 @@ class PlaceSectionLabel extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Flexible(child: Text(text, style: AppTypography.caption)),
+          Flexible(child: Text(text, style: context.typo.caption)),
           if (value != null)
             Text(
               value,
-              style: AppTypography.body.copyWith(fontWeight: FontWeight.w600),
+              style: context.typo.body.copyWith(fontWeight: FontWeight.w600),
             ),
         ],
       ),

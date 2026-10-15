@@ -6,9 +6,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/diagnostics/diagnostics.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/text/keep_all.dart';
-import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_palette.dart';
 import '../../../core/theme/app_spacing.dart';
-import '../../../core/theme/app_typography.dart';
 import '../../../core/widgets/app_feedback.dart';
 import 'vibration_check_provider.dart';
 
@@ -36,7 +35,7 @@ Future<void> runVibrationCheck(
       title: Text(dialogContext.l10n.vibrationTestQuestion),
       content: Text(
         dialogContext.keepAllText(dialogContext.l10n.vibrationTestQuestionBody),
-        style: AppTypography.body,
+        style: context.typo.body,
       ),
       actions: [
         TextButton(
@@ -122,12 +121,12 @@ class _VibrationGuideSheet extends StatelessWidget {
           children: [
             Text(
               context.keepAllText(l10n.vibrationGuideTitle),
-              style: AppTypography.body.copyWith(fontWeight: FontWeight.w600),
+              style: context.typo.body.copyWith(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: AppSpacing.xs),
             Text(
               context.keepAllText(l10n.vibrationGuideBody),
-              style: AppTypography.caption,
+              style: context.typo.caption,
             ),
             const SizedBox(height: AppSpacing.md),
             // 순서대로 확인하면 되게 번호를 붙인다 — 첫 항목이 꺼져 있으면 나머지와
@@ -140,15 +139,15 @@ class _VibrationGuideSheet extends StatelessWidget {
                   children: [
                     Text(
                       '${index + 1}.',
-                      style: AppTypography.body.copyWith(
-                        color: AppColors.primary,
+                      style: context.typo.body.copyWith(
+                        color: context.palette.accent,
                       ),
                     ),
                     const SizedBox(width: AppSpacing.xs),
                     Expanded(
                       child: Text(
                         context.keepAllText(step),
-                        style: AppTypography.body,
+                        style: context.typo.body,
                       ),
                     ),
                   ],
@@ -158,16 +157,16 @@ class _VibrationGuideSheet extends StatelessWidget {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(
+                Icon(
                   Icons.info_outlined,
                   size: AppIconSize.inline,
-                  color: AppColors.textSecondary,
+                  color: context.palette.textSecondary,
                 ),
                 const SizedBox(width: AppSpacing.xs),
                 Expanded(
                   child: Text(
                     context.keepAllText(l10n.vibrationGuideHint),
-                    style: AppTypography.caption,
+                    style: context.typo.caption,
                   ),
                 ),
               ],

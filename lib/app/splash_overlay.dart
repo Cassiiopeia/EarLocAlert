@@ -163,7 +163,8 @@ class _SplashOverlayState extends ConsumerState<SplashOverlay>
     return Opacity(
       opacity: 1 - fade,
       child: ColoredBox(
-        color: AppColors.bgBase,
+        // 네이티브 스플래시와 이어지는 판이라 모드와 무관하게 다크다 (이슈 #272)
+        color: AppColors.background,
         child: Center(
           child: Transform.scale(
             scale: scale,

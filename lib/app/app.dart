@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../core/theme/app_theme_controller.dart';
 import '../core/config/build_info.dart';
 import '../core/config/dev_flag.dart';
 import '../core/diagnostics/diagnostics.dart';
@@ -463,7 +464,10 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       localeListResolutionCallback: (deviceLocales, supported) =>
           resolveAppLocale(language, deviceLocales ?? const []),
-      theme: AppTheme.dark(),
+      // 라이트·다크 두 벌 (이슈 #272). 사용자가 설정에서 고르고, 기본은 기기를 따른다
+      theme: AppTheme.light(),
+      darkTheme: AppTheme.dark(),
+      themeMode: ref.watch(appThemeControllerProvider).themeMode,
       debugShowCheckedModeBanner: false,
       routerConfig: _router,
       scaffoldMessengerKey: _messengerKey,

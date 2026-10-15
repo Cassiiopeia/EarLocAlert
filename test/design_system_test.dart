@@ -47,6 +47,39 @@ void main() {
     expect(presentation, isNotEmpty, reason: '화면 파일을 하나도 못 찾았다면 경로 규칙이 바뀐 것이다');
   });
 
+  group('색과 글자는 테마에서 읽는다 (#272)', () {
+    // 화면 코드와 공용 위젯에서 색·글자 상수를 직접 쓰면 라이트 모드에서도
+    // 다크 색이 박힌다 — 흰 바탕에 흰 글자가 된다
+    final widgets = Directory('lib/core/widgets')
+        .listSync(recursive: true)
+        .whereType<File>()
+        .where((f) => f.path.endsWith('.dart'));
+
+    for (final (name, pattern) in [
+      ('AppColors', RegExp(r'\bAppColors\.')),
+      ('AppTypography', RegExp(r'\bAppTypography\.')),
+    ]) {
+      test('$name 를 화면에서 직접 쓰지 않는다', () {
+        final offenders = <String>[];
+        for (final file in [...presentation, ...widgets]) {
+          final lines = file.readAsLinesSync();
+          for (var i = 0; i < lines.length; i++) {
+            if (pattern.hasMatch(lines[i])) {
+              offenders.add('${file.path}:${i + 1}');
+            }
+          }
+        }
+        expect(
+          offenders,
+          isEmpty,
+          reason:
+              'context.palette / context.typo 를 쓴다 — 라이트 모드에서 색이 '
+              '고정된다.\n해당: $offenders',
+        );
+      });
+    }
+  });
+
   group('주 액션은 하단 한 자리뿐이다', () {
     test('한 화면에 FilledButton 이 둘 이상이면 위계가 갈린다', () {
       final offenders = <String>[];
