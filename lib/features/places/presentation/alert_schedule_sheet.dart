@@ -221,7 +221,11 @@ class _TimeWheelSheetState extends State<_TimeWheelSheet> {
           SizedBox(
             height: 216,
             child: CupertinoTheme(
-              data: const CupertinoThemeData(brightness: Brightness.dark),
+              // 휠 글자색은 밝기를 따라야 한다 — 다크로 박아 두면 라이트에서 흰 바탕에
+              // 흰 글자가 된다 (#272 QA)
+              data: CupertinoThemeData(
+                brightness: Theme.of(context).brightness,
+              ),
               child: CupertinoDatePicker(
                 mode: CupertinoDatePickerMode.time,
                 use24hFormat: false,

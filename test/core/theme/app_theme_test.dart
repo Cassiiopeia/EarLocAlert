@@ -24,6 +24,14 @@ void main() {
       expect(_contrast(p.textSecondary, p.surface), greaterThanOrEqualTo(4.5));
     });
 
+    // 주색·금색은 글자(감시 중·경고 배너)로도 쓰인다 — 본문 기준을 맞춘다 (#272 QA)
+    test('$name 주색·금색 글자 대비 4.5:1 이상', () {
+      expect(_contrast(p.accent, p.surface), greaterThanOrEqualTo(4.5));
+      expect(_contrast(p.accent, p.background), greaterThanOrEqualTo(4.5));
+      expect(_contrast(p.warning, p.surface), greaterThanOrEqualTo(4.5));
+      expect(_contrast(p.warning, p.background), greaterThanOrEqualTo(4.5));
+    });
+
     test('$name 주 버튼 글자 대비 3:1 이상', () {
       expect(_contrast(p.onAccent, p.accent), greaterThanOrEqualTo(3));
       expect(_contrast(p.onWarning, p.warning), greaterThanOrEqualTo(3));
@@ -51,6 +59,14 @@ void main() {
       ),
     );
     expect(caption.color, AppPalette.light.textSecondary);
+  });
+
+  test('선택된 칩 글자는 본문색이다 — 흰 글자가 연한 바탕에 묻히지 않게', () {
+    for (final theme in [AppTheme.light(), AppTheme.dark()]) {
+      final p = theme.extension<AppPalette>()!;
+      expect(theme.colorScheme.onSecondaryContainer, p.textPrimary);
+      expect(theme.chipTheme.checkmarkColor, p.textPrimary);
+    }
   });
 
   test('밝기별 지도 스타일', () {

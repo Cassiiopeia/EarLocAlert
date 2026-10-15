@@ -36,9 +36,9 @@
 | `separator` | `#38383A` | `#C6C6C8` | 목록 행 사이 선 |
 | `textPrimary` | `#FFFFFF` | `#1C1C1E` | 본문 |
 | `textSecondary` | `#98989F` | `#6C6C70` | 보조 설명 |
-| `accent` | `#6FE3D3` | `#0F9D8C` | 주 버튼, 선택, 도착, 감시 중 |
+| `accent` | `#6FE3D3` | `#0A7A6D` | 주 버튼, 선택, 도착, 감시 중 |
 | `onAccent` | `#000000` | `#FFFFFF` | 주 버튼 글자 |
-| `warning` | `#F2B85B` | `#B7791F` | 출발, 감시 중지 |
+| `warning` | `#F2B85B` | `#8F5C0E` | 출발, 감시 중지 |
 | `onWarning` | `#000000` | `#FFFFFF` | 금색 바탕 위 글자 |
 | `danger` | `#FF453A` | `#E5484D` | 삭제만 |
 

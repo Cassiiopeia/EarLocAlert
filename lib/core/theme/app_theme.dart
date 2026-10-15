@@ -33,6 +33,9 @@ abstract final class AppTheme {
       onSurface: p.textPrimary,
       onSurfaceVariant: p.textSecondary,
       surfaceContainerHighest: p.elevated,
+      // 선택된 칩·세그먼트 바탕과 글자. 비워 두면 흰 글자가 연한 바탕에 묻힌다
+      secondaryContainer: p.accent.withValues(alpha: 0.2),
+      onSecondaryContainer: p.textPrimary,
       outline: p.separator,
       outlineVariant: p.separator,
     );
@@ -184,6 +187,8 @@ abstract final class AppTheme {
       chipTheme: ChipThemeData(
         backgroundColor: p.elevated,
         selectedColor: p.accent.withValues(alpha: 0.2),
+        checkmarkColor: p.textPrimary,
+        labelStyle: TextStyle(color: p.textPrimary),
         side: BorderSide.none,
         shape: const StadiumBorder(),
       ),

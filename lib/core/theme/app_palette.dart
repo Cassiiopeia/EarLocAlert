@@ -66,7 +66,8 @@ class AppPalette extends ThemeExtension<AppPalette> {
     danger: Color(0xFFFF453A),
   );
 
-  /// iOS 라이트 그룹 배경 기준. 민트·금색은 흰 바탕 대비를 위해 한 톤 진하다
+  /// iOS 라이트 그룹 배경 기준. 민트·금색은 글자로도 쓰여 흰·회색 바탕에서
+  /// 4.5:1 이 나오도록 진하게 잡았다 (#272 QA — 처음 값은 3.4:1 이었다)
   static const light = AppPalette(
     background: Color(0xFFF2F2F7),
     surface: Color(0xFFFFFFFF),
@@ -74,9 +75,9 @@ class AppPalette extends ThemeExtension<AppPalette> {
     separator: Color(0xFFC6C6C8),
     textPrimary: Color(0xFF1C1C1E),
     textSecondary: Color(0xFF6C6C70),
-    accent: Color(0xFF0F9D8C),
+    accent: Color(0xFF0A7A6D),
     onAccent: Color(0xFFFFFFFF),
-    warning: Color(0xFFB7791F),
+    warning: Color(0xFF8F5C0E),
     onWarning: Color(0xFFFFFFFF),
     danger: Color(0xFFE5484D),
   );
