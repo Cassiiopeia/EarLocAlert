@@ -5,6 +5,7 @@ import '../../../core/domain/alert_schedule.dart';
 import '../../../core/ui/foundation/app_spacing.dart';
 import '../../../core/ui/foundation/app_color_palette.dart';
 import '../../../core/l10n/l10n.dart';
+import '../../../core/ui/components/bottom_sheet_with_header_layout.dart';
 import '../../../core/text/keep_all.dart';
 import 'alert_schedule_summary.dart';
 
@@ -15,10 +16,8 @@ Future<AlertSchedule?> showAlertScheduleSheet(
   BuildContext context, {
   AlertSchedule? initial,
 }) {
-  return showModalBottomSheet<AlertSchedule>(
-    context: context,
-    isScrollControlled: true,
-    showDragHandle: true,
+  return showAppBottomSheet<AlertSchedule>(
+    context,
     builder: (context) => _AlertScheduleSheet(initial: initial),
   );
 }
@@ -55,24 +54,13 @@ class _AlertScheduleSheetState extends State<_AlertScheduleSheet> {
     final isEdit = widget.initial != null;
     final l10n = context.l10n;
 
-    return Padding(
-      padding: EdgeInsets.only(
-        left: AppSpacing.md,
-        right: AppSpacing.md,
-        bottom: MediaQuery.of(context).viewInsets.bottom + AppSpacing.lg,
-      ),
-      child: Column(
+    return BottomSheetWithHeaderLayout(
+      headerIcon: Icons.schedule_outlined,
+      title: isEdit ? l10n.scheduleSheetEditTitle : l10n.scheduleSheetAddTitle,
+      body: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            isEdit ? l10n.scheduleSheetEditTitle : l10n.scheduleSheetAddTitle,
-            style: context.appTextStyles.body.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          const SizedBox(height: AppSpacing.md),
-
           Text(l10n.scheduleDaysLabel, style: context.appTextStyles.caption),
           const SizedBox(height: AppSpacing.xs),
           // 빠른 선택 — 평일/주말/매일은 손이 가장 자주 가는 조합이다
@@ -127,29 +115,15 @@ class _AlertScheduleSheetState extends State<_AlertScheduleSheet> {
               context.keepAllText(l10n.scheduleSameStartEnd),
               style: context.appTextStyles.caption,
             ),
-
-          const SizedBox(height: AppSpacing.lg),
-          // 주 버튼은 전체 폭 pill 이다 (docs/06-UX.md). 테마가 그것을
-          // `minimumSize: Size.fromHeight(56)` 으로 강제하는데, 이 값은
-          // **최소 너비가 무한대**라는 뜻이다. Column 은 자식에게 화면 폭을
-          // 물려주므로 문제가 없지만, Row 는 폭을 제한하지 않아 버튼이
-          // 무한히 넓어져 화면 밖으로 밀려난다 — 실제로 취소만 보이고
-          // 추가 버튼이 사라졌다. 두 버튼을 세로로 쌓아 폭을 되돌린다.
-          FilledButton(
-            onPressed: _isValid
-                ? () => Navigator.of(context).pop(_current)
-                : null,
-            child: Text(isEdit ? l10n.scheduleSave : l10n.scheduleAddButton),
-          ),
-          const SizedBox(height: AppSpacing.xs),
-          SizedBox(
-            width: double.infinity,
-            child: TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text(l10n.scheduleCancel),
-            ),
-          ),
         ],
+      ),
+      primaryAction: FilledButton(
+        onPressed: _isValid ? () => Navigator.of(context).pop(_current) : null,
+        child: Text(isEdit ? l10n.scheduleSave : l10n.scheduleAddButton),
+      ),
+      secondaryAction: TextButton(
+        onPressed: () => Navigator.of(context).pop(),
+        child: Text(l10n.scheduleCancel),
       ),
     );
   }
@@ -181,21 +155,21 @@ class _AlertScheduleSheetState extends State<_AlertScheduleSheet> {
   }
 
   Future<void> _pickStart() async {
-    final picked = await _pickTime(_start);
+    final picked = await _pickTime(_start, context.l10n.scheduleStart);
     if (picked != null) setState(() => _start = picked);
   }
 
   Future<void> _pickEnd() async {
-    final picked = await _pickTime(_end);
+    final picked = await _pickTime(_end, context.l10n.scheduleEnd);
     if (picked != null) setState(() => _end = picked);
   }
 
   /// 휠로 시·분을 고른다. 시계 다이얼은 손가락으로 돌려 맞추기 불편해
   /// 오전/오후·시·분 세 칸을 위아래로 넘기는 방식을 쓴다.
-  Future<int?> _pickTime(int minuteOfDay) {
-    return showModalBottomSheet<int>(
-      context: context,
-      builder: (_) => _TimeWheelSheet(initial: minuteOfDay),
+  Future<int?> _pickTime(int minuteOfDay, String title) {
+    return showAppBottomSheet<int>(
+      context,
+      builder: (_) => _TimeWheelSheet(initial: minuteOfDay, title: title),
     );
   }
 }
@@ -204,9 +178,12 @@ class _AlertScheduleSheetState extends State<_AlertScheduleSheet> {
 ///
 /// 시간 창 시트와 별개 위젯이다 — 한 위젯에 주 버튼이 둘이면 위계가 갈린다.
 class _TimeWheelSheet extends StatefulWidget {
-  const _TimeWheelSheet({required this.initial});
+  const _TimeWheelSheet({required this.initial, required this.title});
 
   final int initial;
+
+  /// 어느 시각을 고르는지 — 시작 / 종료
+  final String title;
 
   @override
   State<_TimeWheelSheet> createState() => _TimeWheelSheetState();
@@ -219,49 +196,38 @@ class _TimeWheelSheetState extends State<_TimeWheelSheet> {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    return SafeArea(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          SizedBox(
-            height: 216,
-            child: CupertinoTheme(
-              // 휠 글자색은 밝기를 따라야 한다 — 다크로 박아 두면 라이트에서 흰 바탕에
-              // 흰 글자가 된다 (#272 QA)
-              data: CupertinoThemeData(
-                brightness: Theme.of(context).brightness,
-              ),
-              child: CupertinoDatePicker(
-                mode: CupertinoDatePickerMode.time,
-                use24hFormat: false,
-                // 날짜는 쓰지 않는다 — 시·분만 뽑아 쓴다
-                initialDateTime: DateTime(
-                  2000,
-                  1,
-                  1,
-                  widget.initial ~/ 60,
-                  widget.initial % 60,
-                ),
-                onDateTimeChanged: (value) =>
-                    _selected = value.hour * 60 + value.minute,
-              ),
+    return BottomSheetWithHeaderLayout(
+      headerIcon: Icons.schedule_outlined,
+      title: widget.title,
+      body: SizedBox(
+        height: 216,
+        child: CupertinoTheme(
+          // 휠 글자색은 밝기를 따라야 한다 — 다크로 박아 두면 라이트에서 흰 바탕에
+          // 흰 글자가 된다 (#272 QA)
+          data: CupertinoThemeData(brightness: Theme.of(context).brightness),
+          child: CupertinoDatePicker(
+            mode: CupertinoDatePickerMode.time,
+            use24hFormat: false,
+            // 날짜는 쓰지 않는다 — 시·분만 뽑아 쓴다
+            initialDateTime: DateTime(
+              2000,
+              1,
+              1,
+              widget.initial ~/ 60,
+              widget.initial % 60,
             ),
+            onDateTimeChanged: (value) =>
+                _selected = value.hour * 60 + value.minute,
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.md,
-              vertical: AppSpacing.xs,
-            ),
-            child: FilledButton(
-              onPressed: () => Navigator.of(context).pop(_selected),
-              child: Text(l10n.scheduleSave),
-            ),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text(l10n.scheduleCancel),
-          ),
-        ],
+        ),
+      ),
+      primaryAction: FilledButton(
+        onPressed: () => Navigator.of(context).pop(_selected),
+        child: Text(l10n.scheduleSave),
+      ),
+      secondaryAction: TextButton(
+        onPressed: () => Navigator.of(context).pop(),
+        child: Text(l10n.scheduleCancel),
       ),
     );
   }
