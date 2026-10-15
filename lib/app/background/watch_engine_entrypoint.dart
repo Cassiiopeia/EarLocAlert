@@ -143,17 +143,17 @@ Future<void> _restoreGeofences(
 
     await channel.invokeMethod<void>('syncGeofences', {
       'geofences': [
-        for (final p in enabled)
+        for (final place in enabled)
           {
-            'placeId': p.id,
-            'latitude': p.latitude,
-            'longitude': p.longitude,
-            'radiusMeters': p.radiusMeters.toDouble(),
+            'placeId': place.id,
+            'latitude': place.latitude,
+            'longitude': place.longitude,
+            'radiusMeters': place.radiusMeters.toDouble(),
             'proximityRadiusMeters': androidProximityRadiusMeters(
-              p.radiusMeters,
+              place.radiusMeters,
             ),
-            'outerRadiusMeters': androidOuterRadiusMeters(p.radiusMeters),
-            'scheduleWindows': encodeScheduleWindows(p.schedules),
+            'outerRadiusMeters': androidOuterRadiusMeters(place.radiusMeters),
+            'scheduleWindows': encodeScheduleWindows(place.schedules),
           },
       ],
     });

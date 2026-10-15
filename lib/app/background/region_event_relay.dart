@@ -146,12 +146,13 @@ class RegionCallbackHandler {
   /// 이벤트들을 큐에 넣고, **이 isolate 의 모든 작업이 끝날 때까지** 기다린다.
   Future<void> handle(List<RegionEvent> events) async {
     await Future.wait([
-      for (final event in events) _queue.run(() => _handleOne(event)),
+      for (final event in events)
+        _queue.run(() => _relaySingleRegionEvent(event)),
     ]);
     await _queue.whenIdle(grace: idleGrace);
   }
 
-  Future<void> _handleOne(RegionEvent event) async {
+  Future<void> _relaySingleRegionEvent(RegionEvent event) async {
     final id = shortId(event.placeId);
     try {
       if (await _relay(event)) {

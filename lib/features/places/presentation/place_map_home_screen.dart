@@ -912,13 +912,13 @@ class _PlaceSheet extends ConsumerWidget {
               ),
             ),
           ),
-          Expanded(child: _body(context, ref)),
+          Expanded(child: _buildPlaceListOrEmptyState(context, ref)),
         ],
       ),
     );
   }
 
-  Widget _body(BuildContext context, WidgetRef ref) {
+  Widget _buildPlaceListOrEmptyState(BuildContext context, WidgetRef ref) {
     // **여백을 직접 정한다** (이슈 #228). `ListView` 는 padding 이 없으면
     // 화면의 안전 영역(상태바 높이)을 위 여백으로 넣는다 — 이 목록은 화면
     // 맨 아래 시트 안이라 상태바와 무관한데, 빈 화면 문구가 손잡이 아래로

@@ -274,11 +274,11 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
         if (!mounted) return;
         navigator.pop();
       },
-      child: _buildForm(isNew),
+      child: _buildPlaceFormScaffold(isNew),
     );
   }
 
-  Widget _buildForm(bool isNew) {
+  Widget _buildPlaceFormScaffold(bool isNew) {
     final l10n = context.l10n;
     return Scaffold(
       appBar: AppBar(

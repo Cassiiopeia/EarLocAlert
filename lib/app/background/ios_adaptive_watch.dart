@@ -207,9 +207,10 @@ class IosAdaptiveWatch implements AlertWatchService {
   }
 
   /// 네이티브 측정 하나 (이슈 #231)
-  Future<void> onFix(PositionSample sample) => _queue.run(() => _onFix(sample));
+  Future<void> onFix(PositionSample sample) =>
+      _queue.run(() => _handlePositionFix(sample));
 
-  Future<void> _onFix(PositionSample sample) async {
+  Future<void> _handlePositionFix(PositionSample sample) async {
     _lastFix = sample;
     final gap = nearestRingGapMeters(sample, await _targets());
     final next = await _applyTier(sample, gap, at: sample.timestamp);

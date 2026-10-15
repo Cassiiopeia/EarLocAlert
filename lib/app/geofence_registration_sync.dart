@@ -57,7 +57,7 @@ class GeofenceRegistrationSync {
   ///
   /// **위치나 반경이 바뀐 장소의 옛 상태는 의미가 없다.** 옛 자리 기준
   /// `inside` 가 남으면 새 자리의 첫 도착이 "이미 안"으로 걸러진다.
-  Map<String, _Geometry> _geometry = const {};
+  Map<String, _PlaceGeofenceGeometry> _geometry = const {};
 
   /// 감시를 시작한다 — 현재 목록으로 1회 동기화 후 변경을 구독한다.
   Future<void> start() async {
@@ -118,7 +118,7 @@ class GeofenceRegistrationSync {
     // 감시에서 빠지는 장소는 상태를 unknown 으로 되돌린다 — 남겨두면
     // 재활성화 때 묵은 상태(outside)와 initialTrigger(ENTER)가 만나
     // 그 자리에서 가짜 진입 알림이 터진다 (unknown→inside 는 무알림)
-    final targetIds = {for (final t in targets) t.placeId};
+    final targetIds = {for (final target in targets) target.placeId};
     final registered = await _monitor.registeredPlaceIds();
     for (final id in registered) {
       if (!targetIds.contains(id)) {
@@ -130,7 +130,7 @@ class GeofenceRegistrationSync {
     // 기능이 지오펜스 저장소를 직접 부르던 것을 여기로 옮겼다 — feature 끼리
     // 직접 의존하지 않는다 (docs/02-ARCHITECTURE.md 규칙 1). 꺼 둔 채 지운
     // 장소는 OS 등록이 없어 위 규칙에 걸리지 않는다
-    final existingIds = {for (final p in places) p.id};
+    final existingIds = {for (final place in places) place.id};
     for (final staleId in (await _states.allStates()).keys) {
       if (!existingIds.contains(staleId)) {
         await _states.remove(staleId);
@@ -146,11 +146,15 @@ class GeofenceRegistrationSync {
     // 초기값을 정할 장소를 고른다 (이슈 #231) — 새로 들어왔거나(unknown),
     // 위치·반경이 바뀐 장소. 이미 판정된 장소는 건드리지 않는다
     final previous = _geometry;
-    _geometry = {for (final t in targets) t.placeId: _Geometry.of(t)};
+    _geometry = {
+      for (final target in targets)
+        target.placeId: _PlaceGeofenceGeometry.of(target),
+    };
     final toSeed = <GeofenceTarget>[];
     for (final target in targets) {
       final before = previous[target.placeId];
-      final moved = before != null && before != _Geometry.of(target);
+      final moved =
+          before != null && before != _PlaceGeofenceGeometry.of(target);
       if (moved) {
         await _states.remove(target.placeId);
         Diagnostics.log(
@@ -210,7 +214,7 @@ class GeofenceRegistrationSync {
       final id = shortId(target.placeId);
       // 위치를 재는 사이 장소가 또 바뀌었다 — 옛 위치·반경으로 계산한
       // 값을 쓰면 안 된다. 새 동기화가 다시 정한다
-      if (_geometry[target.placeId] != _Geometry.of(target)) {
+      if (_geometry[target.placeId] != _PlaceGeofenceGeometry.of(target)) {
         Diagnostics.log(
           'sync',
           'state seed skipped place=$id reason=superseded',
@@ -253,11 +257,19 @@ class GeofenceRegistrationSync {
 }
 
 /// 상태가 유효한 기준 — 위치와 반경 (이슈 #231)
-class _Geometry {
-  const _Geometry(this.latitude, this.longitude, this.radiusMeters);
+class _PlaceGeofenceGeometry {
+  const _PlaceGeofenceGeometry(
+    this.latitude,
+    this.longitude,
+    this.radiusMeters,
+  );
 
-  factory _Geometry.of(GeofenceTarget target) =>
-      _Geometry(target.latitude, target.longitude, target.radiusMeters);
+  factory _PlaceGeofenceGeometry.of(GeofenceTarget target) =>
+      _PlaceGeofenceGeometry(
+        target.latitude,
+        target.longitude,
+        target.radiusMeters,
+      );
 
   final double latitude;
   final double longitude;
@@ -265,7 +277,7 @@ class _Geometry {
 
   @override
   bool operator ==(Object other) =>
-      other is _Geometry &&
+      other is _PlaceGeofenceGeometry &&
       other.latitude == latitude &&
       other.longitude == longitude &&
       other.radiusMeters == radiusMeters;
