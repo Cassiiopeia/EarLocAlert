@@ -8,6 +8,7 @@ import '../data/custom_sound_repository_provider.dart';
 import '../../../core/domain/alert_sound.dart';
 import '../../../core/domain/sound_preset_label.dart';
 import '../../../core/l10n/l10n.dart';
+import '../../../core/ui/components/bottom_sheet_with_header_layout.dart';
 import '../../../core/ui/foundation/app_spacing.dart';
 import '../../../core/ui/foundation/app_color_palette.dart';
 import '../../../core/text/keep_all.dart';
@@ -29,11 +30,9 @@ Future<AlertSound?> showSoundPickerSheet(
   BuildContext context, {
   required AlertSound current,
 }) {
-  return showModalBottomSheet<AlertSound>(
-    context: context,
-    showDragHandle: true,
-    // 음원이 늘면 목록이 길어진다 — 화면을 넘기면 스크롤되어야 한다
-    isScrollControlled: true,
+  // 음원이 늘면 목록이 길어진다 — 공통 시트 틀이 스크롤을 맡는다
+  return showAppBottomSheet<AlertSound>(
+    context,
     builder: (context) => _SoundPickerSheet(current: current),
   );
 }
@@ -207,141 +206,114 @@ class _SoundPickerSheetState extends ConsumerState<_SoundPickerSheet>
     final customSounds = _customSounds;
     final canPreview = _headphonesConnected ?? false;
 
-    return SafeArea(
-      child: Padding(
-        padding: EdgeInsets.only(
-          left: AppSpacing.md,
-          right: AppSpacing.md,
-          bottom: MediaQuery.of(context).viewInsets.bottom + AppSpacing.lg,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              context.l10n.soundPickerTitle,
-              style: context.appTextStyles.body.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(height: AppSpacing.xs),
+    return BottomSheetWithHeaderLayout(
+      headerIcon: Icons.music_note_outlined,
+      title: context.l10n.soundPickerTitle,
+      body: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (!canPreview) const _HeadphoneNotice(),
+          RadioGroup<AlertSound>(
+            groupValue: _selected,
+            // **탭은 고르기만 한다.** 예전에는 탭이 선택과 재생을
+            // 동시에 해서 무엇이 일어난 것인지 모호했다 — 역할을
+            // 가른다: 행은 고르기, ▶ 는 들어보기.
+            //
+            // 닫지 않는 이유는 **여러 개를 들어보며 고르는 화면**이기
+            // 때문이다. 탭 즉시 닫으면 스크롤 중 잘못 눌린 것이 그대로
+            // 저장되고, 되돌리려면 다시 열어야 한다.
+            onChanged: (value) {
+              if (value == null) return;
+              setState(() => _selected = value);
+            },
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: AppSpacing.xs),
+                Text(
+                  context.l10n.soundPickerPresetHeader,
+                  style: context.appTextStyles.caption,
+                ),
+                for (final preset in SoundPreset.values)
+                  _SoundTile(
+                    value: PresetSound(preset),
+                    title: preset.localizedLabel(context.l10n),
+                    canPreview: canPreview,
+                    onPreview: () => _preview(PresetSound(preset)),
+                  ),
 
-            if (!canPreview) const _HeadphoneNotice(),
+                const SizedBox(height: AppSpacing.md),
+                Text(
+                  context.l10n.soundPickerCustomHeader(
+                    customSounds?.length ?? 0,
+                    SoundLimits.maxCount,
+                  ),
+                  style: context.appTextStyles.caption,
+                ),
 
-            Flexible(
-              child: SingleChildScrollView(
-                child: RadioGroup<AlertSound>(
-                  groupValue: _selected,
-                  // **탭은 고르기만 한다.** 예전에는 탭이 선택과 재생을
-                  // 동시에 해서 무엇이 일어난 것인지 모호했다 — 역할을
-                  // 가른다: 행은 고르기, ▶ 는 들어보기.
-                  //
-                  // 닫지 않는 이유는 **여러 개를 들어보며 고르는 화면**이기
-                  // 때문이다. 탭 즉시 닫으면 스크롤 중 잘못 눌린 것이 그대로
-                  // 저장되고, 되돌리려면 다시 열어야 한다.
-                  onChanged: (value) {
-                    if (value == null) return;
-                    setState(() => _selected = value);
-                  },
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SizedBox(height: AppSpacing.xs),
-                      Text(
-                        context.l10n.soundPickerPresetHeader,
-                        style: context.appTextStyles.caption,
-                      ),
-                      for (final preset in SoundPreset.values)
-                        _SoundTile(
-                          value: PresetSound(preset),
-                          title: preset.localizedLabel(context.l10n),
-                          canPreview: canPreview,
-                          onPreview: () => _preview(PresetSound(preset)),
-                        ),
+                if (customSounds == null)
+                  const Padding(
+                    padding: EdgeInsets.all(AppSpacing.md),
+                    child: Center(child: CircularProgressIndicator()),
+                  )
+                else if (customSounds.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: AppSpacing.xs,
+                    ),
+                    child: Text(
+                      context.keepAllText(context.l10n.soundPickerCustomEmpty),
+                      style: context.appTextStyles.caption,
+                    ),
+                  )
+                else
+                  for (final sound in customSounds)
+                    _SoundTile(
+                      value: CustomSoundRef(sound.id),
+                      title: sound.displayName,
+                      subtitle:
+                          '${formatDuration(context.l10n, sound.duration)} · '
+                          '${formatBytes(sound.sizeBytes)}',
+                      canPreview: canPreview,
+                      onPreview: () => _preview(CustomSoundRef(sound.id)),
+                      onDelete: () => _deleteSound(sound),
+                    ),
 
-                      const SizedBox(height: AppSpacing.md),
-                      Text(
-                        context.l10n.soundPickerCustomHeader(
-                          customSounds?.length ?? 0,
-                          SoundLimits.maxCount,
-                        ),
-                        style: context.appTextStyles.caption,
-                      ),
-
-                      if (customSounds == null)
-                        const Padding(
-                          padding: EdgeInsets.all(AppSpacing.md),
-                          child: Center(child: CircularProgressIndicator()),
-                        )
-                      else if (customSounds.isEmpty)
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: AppSpacing.xs,
-                          ),
-                          child: Text(
-                            context.keepAllText(
-                              context.l10n.soundPickerCustomEmpty,
-                            ),
-                            style: context.appTextStyles.caption,
-                          ),
-                        )
-                      else
-                        for (final sound in customSounds)
-                          _SoundTile(
-                            value: CustomSoundRef(sound.id),
-                            title: sound.displayName,
-                            subtitle:
-                                '${formatDuration(context.l10n, sound.duration)} · '
-                                '${formatBytes(sound.sizeBytes)}',
-                            canPreview: canPreview,
-                            onPreview: () => _preview(CustomSoundRef(sound.id)),
-                            onDelete: () => _deleteSound(sound),
-                          ),
-
-                      const SizedBox(height: AppSpacing.md),
-                      SizedBox(
-                        width: double.infinity,
-                        child: OutlinedButton.icon(
-                          onPressed: _busy ? null : _addSound,
-                          icon: _busy
-                              ? const SizedBox(
-                                  width: 16,
-                                  height: 16,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                  ),
-                                )
-                              : const Icon(Icons.add_outlined),
-                          label: Text(
-                            _busy
-                                ? context.l10n.soundPickerChecking
-                                : context.l10n.soundPickerAdd,
-                          ),
-                        ),
-                      ),
-                    ],
+                const SizedBox(height: AppSpacing.md),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: _busy ? null : _addSound,
+                    icon: _busy
+                        ? const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.add_outlined),
+                    label: Text(
+                      _busy
+                          ? context.l10n.soundPickerChecking
+                          : context.l10n.soundPickerAdd,
+                    ),
                   ),
                 ),
-              ),
+              ],
             ),
-
-            // **확정은 하단 주 버튼이 받는다** (docs/06-UX.md 주 액션 규칙).
-            //
-            // 이 시트는 순수한 단일 선택이 아니라 **관리 화면**이다 —
-            // 추가·삭제·미리듣기가 함께 있다. 그리고 여러 개를 들어보며
-            // 고르는 흐름이라, 탭 즉시 적용·닫기는 잘못 누른 것을 그대로
-            // 저장해버린다. 확정 지점이 있어야 한다.
-            const SizedBox(height: AppSpacing.sm),
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton(
-                onPressed: () => Navigator.of(context).pop(_selected),
-                child: Text(context.l10n.soundDone),
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
+      ),
+      // **확정은 하단 주 버튼이 받는다** (docs/06-UX.md 주 액션 규칙).
+      //
+      // 이 시트는 순수한 단일 선택이 아니라 **관리 화면**이다 —
+      // 추가·삭제·미리듣기가 함께 있다. 그리고 여러 개를 들어보며
+      // 고르는 흐름이라, 탭 즉시 적용·닫기는 잘못 누른 것을 그대로
+      // 저장해버린다. 확정 지점이 있어야 한다.
+      primaryAction: FilledButton(
+        onPressed: () => Navigator.of(context).pop(_selected),
+        child: Text(context.l10n.soundDone),
       ),
     );
   }
