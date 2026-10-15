@@ -163,7 +163,8 @@ class AlertController {
     if (store == null) return VibrationIntensity.normal;
     try {
       return await store.intensity();
-    } on Object {
+    } on Object catch (error) {
+      Diagnostics.log('alert', 'vibration intensity read failed error=$error');
       return VibrationIntensity.normal;
     }
   }
@@ -239,9 +240,14 @@ class AlertController {
     var connected = false;
     try {
       connected = await _sound.isHeadphoneConnected();
-    } on Object {
+    } on Object catch (error) {
       // 연결 확인이 실패하면 연결되지 않은 것으로 본다.
       // 확인 못 한 상태로 재생하면 스피커로 샐 수 있다.
+      // "미연결"과 "확인 실패"는 로그에서 갈려야 한다 (아키텍처 검수 #276)
+      Diagnostics.log(
+        'alert',
+        'headphone check failed reason=check_failed error=$error',
+      );
       connected = false;
     }
 
@@ -271,8 +277,9 @@ class AlertController {
       var volume = AlertVolumeStore.defaultVolume;
       try {
         volume = await _volumeStore.volume();
-      } on Object {
+      } on Object catch (error) {
         // 기본값 유지
+        Diagnostics.log('alert', 'volume read failed error=$error');
       }
 
       // 시스템 볼륨이 0 이면 앱 볼륨을 아무리 올려도 무음이다 (이슈 #86).

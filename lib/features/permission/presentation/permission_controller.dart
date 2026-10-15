@@ -133,8 +133,12 @@ class PermissionController extends _$PermissionController {
       if (snapshot.statusOf(kind).isGranted) continue;
       try {
         snapshot = await service.request(kind);
-      } on Object {
-        // 설정 화면을 못 열었다 — 다음 권한으로 넘어간다
+      } on Object catch (error) {
+        // 설정 화면을 못 열었다 — 다음 권한으로 넘어간다. 왜 안 켜졌는지 남긴다
+        Diagnostics.log(
+          'permission',
+          'permission request failed kind=${kind.name} error=$error',
+        );
       }
     }
 

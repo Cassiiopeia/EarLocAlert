@@ -99,9 +99,13 @@ void watchEngineMain() {
         default:
           return null;
       }
-    } on Object {
-      // 인자가 깨져 있어도 감시는 계속되어야 한다.
-      // 좌표가 담길 수 있으므로 로그도 남기지 않는다 (docs/04-CONVENTIONS.md)
+    } on Object catch (error) {
+      // 인자가 깨져 있어도 감시는 계속되어야 한다. 삼키되 기록은 남긴다 —
+      // 좌표 금지 규칙은 #95 로 폐기됐고, 이 경계에서 사라진 판정은 재현이 안 된다
+      Diagnostics.log(
+        'watch',
+        'engine call rejected method=${call.method} reason=bad_args error=$error',
+      );
       return const {'shouldAlert': false};
     }
   });

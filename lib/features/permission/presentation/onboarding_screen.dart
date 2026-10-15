@@ -103,8 +103,12 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
         await ref
             .read(permissionControllerProvider.notifier)
             .skipReliabilityPrompt();
-      } on Object {
-        // 기록 실패는 넘어간다
+      } on Object catch (error) {
+        // 기록 실패는 넘어간다 — 다음 실행에서 한 번 더 권하게 된다
+        Diagnostics.log(
+          'permission',
+          'reliability skip save failed error=$error',
+        );
       }
       if (!mounted) return;
     }

@@ -447,8 +447,9 @@ class _PlaceMapHomeScreenState extends ConsumerState<PlaceMapHomeScreen>
           AppSpacing.lg,
         ),
       );
-    } on Object {
+    } on Object catch (error) {
       // 지도 크기가 아직 확정되지 않으면 실패한다. 기본 위치로 둔다
+      Diagnostics.log('map', 'fit places camera failed error=$error');
     }
   }
 }

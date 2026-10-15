@@ -38,8 +38,9 @@ class VibrationCheck extends _$VibrationCheck {
     var intensity = VibrationIntensity.normal;
     try {
       intensity = await ref.read(vibrationIntensityStoreProvider).intensity();
-    } on Object {
+    } on Object catch (error) {
       // 세기를 못 읽으면 기본 세기로 떤다 — 시험 자체를 포기하지 않는다
+      Diagnostics.log('vibration', 'intensity read failed error=$error');
     }
     Diagnostics.log(
       'vibration',
