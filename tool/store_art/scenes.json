@@ -1,0 +1,181 @@
+{
+  "_comment": "스토어 홍보 이미지 장면 (#281). 순서가 스토어 노출 순서다. 문구는 언어별(ko·en·ja·zh). shot 은 언어별 원본 폴더 안 파일 이름. adBanner=true 인 화면만 하단 테스트 광고 배너를 덮는다. sub_ios 가 있으면 iOS 이미지에서 sub 대신 쓴다 — iOS 는 앱이 꺼져 있으면 알림 화면 대신 알림·진동(iOS 26+ 잠금화면 알람)으로 알린다",
+  "targets": {
+    "ios": {
+      "width": 1320,
+      "height": 2868,
+      "out": "docs/store/promo/{lang}/ios-6.9"
+    },
+    "android": {
+      "width": 1080,
+      "height": 1920,
+      "out": "docs/store/promo/{lang}/android-phone"
+    }
+  },
+  "wide": {
+    "app_name": {
+      "ko": "이어폰위치알림",
+      "en": "EarLocAlert",
+      "ja": "イヤホン位置通知",
+      "zh": "耳机位置提醒"
+    },
+    "headline": {
+      "ko": "내릴 곳,<br><em>놓치지 않게</em>",
+      "en": "Never miss<br><em>your stop</em>",
+      "ja": "降りる場所を、<br><em>見逃さない</em>",
+      "zh": "到站提醒，<br><em>不再坐过站</em>"
+    },
+    "sub": {
+      "ko": "도착하면 진동으로, 이어폰으로만 조용히",
+      "en": "Vibration on arrival. Sound only through earphones.",
+      "ja": "到着したら振動で。音はイヤホンだけで。",
+      "zh": "到达时振动提醒，只通过耳机发声"
+    }
+  },
+  "scenes": [
+    {
+      "id": "01",
+      "shot": "01_alert_dark.png",
+      "adBanner": false,
+      "eyebrow": {
+        "ko": "도착 알림",
+        "en": "Arrival alert",
+        "ja": "到着通知",
+        "zh": "到站提醒"
+      },
+      "headline": {
+        "ko": "내릴 곳,<br><em>놓치지 않게</em>",
+        "en": "Never miss<br><em>your stop</em>",
+        "ja": "降りる場所を、<br><em>見逃さない</em>",
+        "zh": "再也<br><em>不会坐过站</em>"
+      },
+      "sub": {
+        "ko": "버스에서 졸아도 도착하면 진동으로 깨워 드려요",
+        "en": "Doze off on the bus — your phone buzzes when you arrive",
+        "ja": "バスで居眠りしても、到着したら振動で起こします",
+        "zh": "在公交上打瞌睡也没关系，到站就振动叫醒你"
+      },
+      "sub_ios": {
+        "ko": "버스에서 졸아도 도착하면 알림과 진동으로 깨워 드려요",
+        "en": "Doze off on the bus — a notification and vibration wake you on arrival",
+        "ja": "バスで居眠りしても、到着したら通知と振動で起こします",
+        "zh": "在公交上打瞌睡也没关系，到站就用通知和振动叫醒你"
+      }
+    },
+    {
+      "id": "02",
+      "shot": "07_sound_dark.png",
+      "adBanner": false,
+      "eyebrow": {
+        "ko": "조용한 알림",
+        "en": "Quiet by design",
+        "ja": "静かな通知",
+        "zh": "安静提醒"
+      },
+      "headline": {
+        "ko": "이어폰으로만<br><em>울려요</em>",
+        "en": "Sound only<br><em>in your earphones</em>",
+        "ja": "鳴るのは<br><em>イヤホンだけ</em>",
+        "zh": "只在<br><em>耳机里响</em>"
+      },
+      "sub": {
+        "ko": "이어폰이 없으면 진동만. 스피커로는 절대 소리가 나지 않아요",
+        "en": "No earphones? Just vibration. Never through the speaker",
+        "ja": "イヤホンがなければ振動だけ。スピーカーからは鳴りません",
+        "zh": "没戴耳机就只振动，绝不会从扬声器外放"
+      }
+    },
+    {
+      "id": "03",
+      "shot": "03_form_dark.png",
+      "adBanner": true,
+      "eyebrow": {
+        "ko": "간단한 등록",
+        "en": "Easy setup",
+        "ja": "かんたん登録",
+        "zh": "轻松设置"
+      },
+      "headline": {
+        "ko": "지도에서 찍고<br><em>반경만 정하면 끝</em>",
+        "en": "Pin it on the map,<br><em>set the radius</em>",
+        "ja": "地図で選んで<br><em>半径を決めるだけ</em>",
+        "zh": "地图上选点，<br><em>设好半径就行</em>"
+      },
+      "sub": {
+        "ko": "50m부터 2km까지, 원을 보면서 정해요",
+        "en": "From 50 m to 2 km, shown as a circle",
+        "ja": "50mから2kmまで、円で見ながら",
+        "zh": "50 米到 2 公里，看着圆圈来设定"
+      }
+    },
+    {
+      "id": "04",
+      "shot": "04_home_dark.png",
+      "adBanner": true,
+      "eyebrow": {
+        "ko": "알림 시점",
+        "en": "When to alert",
+        "ja": "通知のタイミング",
+        "zh": "提醒时机"
+      },
+      "headline": {
+        "ko": "도착 · 출발 · <em>둘 다</em>",
+        "en": "Arrive · Leave · <em>Both</em>",
+        "ja": "到着・出発・<em>両方</em>",
+        "zh": "到达 · 离开 · <em>都提醒</em>"
+      },
+      "sub": {
+        "ko": "장소마다 언제 알릴지 따로 정해요",
+        "en": "Choose for each place",
+        "ja": "場所ごとに通知タイミングを設定",
+        "zh": "每个地点单独设置"
+      }
+    },
+    {
+      "id": "05",
+      "shot": "05_schedule_dark.png",
+      "adBanner": false,
+      "eyebrow": {
+        "ko": "알림 시간대",
+        "en": "Active hours",
+        "ja": "通知する時間帯",
+        "zh": "提醒时段"
+      },
+      "headline": {
+        "ko": "평일 <em>출근 시간</em>에만",
+        "en": "Only on your<br><em>weekday commute</em>",
+        "ja": "平日の<br><em>通勤時間だけ</em>",
+        "zh": "只在<br><em>工作日通勤时</em>"
+      },
+      "sub": {
+        "ko": "요일과 시간대를 정해 두면 그때만 알려요",
+        "en": "Set days and hours, get alerts only then",
+        "ja": "曜日と時間帯を決めておけばその時だけ",
+        "zh": "设好日期和时段，只在那时提醒"
+      }
+    },
+    {
+      "id": "06",
+      "shot": "06_settings_light.png",
+      "adBanner": true,
+      "eyebrow": {
+        "ko": "내 방식대로",
+        "en": "Your way",
+        "ja": "自分好みに",
+        "zh": "随心设置"
+      },
+      "headline": {
+        "ko": "라이트 · 다크,<br><em>워치까지</em>",
+        "en": "Light, dark,<br><em>and your watch</em>",
+        "ja": "ライト・ダーク、<br><em>ウォッチにも</em>",
+        "zh": "浅色 · 深色，<br><em>手表也能收到</em>"
+      },
+      "sub": {
+        "ko": "화면 모드를 고르고 스마트워치로도 받아요",
+        "en": "Pick a theme and get alerts on your smartwatch",
+        "ja": "画面モードを選んで、スマートウォッチでも受け取れます",
+        "zh": "选择显示模式，智能手表也能收到提醒"
+      }
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="{{lang}}">
+<head>
+<meta charset="utf-8">
+<!-- 가로형 홍보 이미지(Play 그래픽 이미지 · 링크 공유 이미지) 틀 (#281) -->
+<style>
+  @font-face { font-family: Pretendard; font-weight: 400; src: url("{{font_dir}}/Pretendard-Regular.otf"); }
+  @font-face { font-family: Pretendard; font-weight: 700; src: url("{{font_dir}}/Pretendard-Bold.otf"); }
+  :root { --w: {{width}}px; --h: {{height}}px; --accent: #6fe3d3; --sub: #98989f; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: var(--w); height: var(--h); overflow: hidden; }
+  body {
+    font-family: Pretendard, "Hiragino Sans", "PingFang SC", sans-serif; color: #fff; display: flex; align-items: center;
+    background:
+      radial-gradient(ellipse 60% 90% at 85% 50%, rgba(111, 227, 211, 0.20), transparent 70%),
+      #000;
+  }
+  .copy { flex: 1; padding-left: calc(var(--w) * 0.07); }
+  .brand { display: flex; align-items: center; gap: calc(var(--h) * 0.03);
+           font-weight: 700; font-size: calc(var(--h) * 0.07); color: var(--accent); }
+  .brand img { height: calc(var(--h) * 0.1); }
+  h1 { margin-top: calc(var(--h) * 0.05); font-weight: 700; font-size: calc(var(--h) * 0.13);
+       line-height: 1.18; letter-spacing: -0.02em; word-break: keep-all; }
+  h1 em { font-style: normal; color: var(--accent); }
+  p { margin-top: calc(var(--h) * 0.04); color: var(--sub); font-size: calc(var(--h) * 0.055);
+      word-break: keep-all; }
+  .phones { position: relative; width: calc(var(--w) * 0.42); height: 100%; }
+  /* 일반 휴대폰 모양 두 대 — 뒤 화면은 살짝 기울여 깊이를 준다 */
+  .phone { position: absolute; width: calc(var(--h) * 0.52); border-radius: calc(var(--h) * 0.06);
+           padding: calc(var(--h) * 0.012); background: linear-gradient(160deg, #3a3a3c, #2c2c2e 40%, #1c1c1e);
+           box-shadow: 0 calc(var(--h) * 0.03) calc(var(--h) * 0.08) rgba(0,0,0,.6); }
+  .phone .screen { width: 100%; aspect-ratio: {{shot_aspect}}; border-radius: calc(var(--h) * 0.048);
+                   background: #000 center top / cover no-repeat; }
+  .back { right: calc(var(--w) * 0.03); top: calc(var(--h) * 0.18); transform: rotate(8deg); opacity: .9; }
+  .front { right: calc(var(--w) * 0.17); top: calc(var(--h) * 0.08); transform: rotate(-4deg); }
+</style>
+</head>
+<body>
+  <div class="copy">
+    <div class="brand"><img src="{{logo}}" alt="">{{app_name}}</div>
+    <h1>{{headline}}</h1>
+    <p>{{sub}}</p>
+  </div>
+  <div class="phones">
+    <div class="phone back"><div class="screen" style="background-image:url('{{shot_back}}')"></div></div>
+    <div class="phone front"><div class="screen" style="background-image:url('{{shot_front}}')"></div></div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="{{lang}}">
+<head>
+<meta charset="utf-8">
+<!-- 스토어 홍보 이미지 한 장의 틀 (#281). render.py 가 {{…}} 를 채워 Chrome 헤드리스로 찍는다 -->
+<style>
+  @font-face { font-family: Pretendard; font-weight: 400; src: url("{{font_dir}}/Pretendard-Regular.otf"); }
+  @font-face { font-family: Pretendard; font-weight: 600; src: url("{{font_dir}}/Pretendard-SemiBold.otf"); }
+  @font-face { font-family: Pretendard; font-weight: 700; src: url("{{font_dir}}/Pretendard-Bold.otf"); }
+  :root {
+    --w: {{width}}px; --h: {{height}}px;
+    /* 앱 다크 팔레트와 같은 값 (lib/core/ui/foundation/app_color_palette.dart) */
+    --bg: #000000; --text: #ffffff; --sub: #98989f; --accent: #6fe3d3; --frame: #2c2c2e;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: var(--w); height: var(--h); overflow: hidden; background: var(--bg); }
+  body {
+    font-family: Pretendard, "Hiragino Sans", "PingFang SC", sans-serif; color: var(--text);
+    /* 화면 위쪽에 민트 빛이 은은하게 번지게 — 검정 바탕이 밋밋하지 않게 */
+    background:
+      radial-gradient(ellipse 80% 45% at 50% 0%, rgba(111, 227, 211, 0.22), transparent 70%),
+      radial-gradient(ellipse 70% 40% at 50% 100%, rgba(111, 227, 211, 0.10), transparent 70%),
+      var(--bg);
+    display: flex; flex-direction: column; align-items: center;
+  }
+  .copy { width: 100%; padding: calc(var(--h) * 0.06) calc(var(--w) * 0.08) 0; text-align: center; }
+  .eyebrow {
+    display: inline-block; font-weight: 600; color: var(--accent);
+    font-size: calc(var(--w) * 0.032); letter-spacing: 0.02em;
+    padding: calc(var(--w) * 0.012) calc(var(--w) * 0.03);
+    border: 2px solid rgba(111, 227, 211, 0.45); border-radius: 999px;
+    margin-bottom: calc(var(--h) * 0.022);
+  }
+  h1 {
+    font-weight: 700; font-size: calc(var(--w) * 0.085); line-height: 1.22;
+    letter-spacing: -0.02em; word-break: keep-all;
+  }
+  h1 em { font-style: normal; color: var(--accent); }
+  p.sub {
+    margin-top: calc(var(--h) * 0.016); color: var(--sub);
+    font-size: calc(var(--w) * 0.042); line-height: 1.45; word-break: keep-all;
+  }
+  /* 문구 아래 남은 높이에 휴대폰 전체가 들어가게 한다 — 아래가 잘려 보이지 않게 */
+  .stage {
+    flex: 1; min-height: 0; width: 100%;
+    display: flex; justify-content: center; align-items: flex-start;
+    padding: calc(var(--h) * 0.04) 0 calc(var(--h) * 0.045);
+  }
+  /* 일반 휴대폰 모양 — 특정 회사의 기기 이미지·상표는 쓰지 않는다 */
+  .phone {
+    height: 100%;
+    border-radius: calc(var(--w) * 0.085);
+    padding: calc(var(--w) * 0.018);
+    background: linear-gradient(160deg, #3a3a3c, var(--frame) 40%, #1c1c1e);
+    box-shadow: 0 calc(var(--w) * 0.03) calc(var(--w) * 0.09) rgba(0, 0, 0, 0.6),
+                0 0 0 2px rgba(255, 255, 255, 0.06) inset;
+  }
+  .screen {
+    height: 100%; aspect-ratio: {{shot_aspect}};
+    border-radius: calc(var(--w) * 0.068);
+    background: #000 url("{{shot}}") top center / cover no-repeat;
+  }
+</style>
+</head>
+<body>
+  <div class="copy">
+    {{eyebrow_html}}
+    <h1>{{headline}}</h1>
+    <p class="sub">{{sub}}</p>
+  </div>
+  <div class="stage"><div class="phone"><div class="screen"></div></div></div>
+</body>
+</html>
