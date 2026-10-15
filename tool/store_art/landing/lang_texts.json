@@ -1,0 +1,260 @@
+{
+ "_comment": "소개 페이지 번역 사전 (#281). make_lang_pages.py 가 읽는다. T 의 대문자 키(LEAD·PITCH·F1~F6·P1~P4 등)는 한국어 페이지에서 뽑은 긴 문장 자리",
+ "_korean_faq_questions": [
+  "버스나 지하철에서 졸아도 내릴 곳을 알려주나요?",
+  "이어폰이 없으면 소리가 나나요?",
+  "배터리를 많이 쓰나요?",
+  "위치 정보가 서버로 전송되나요?",
+  "스마트워치로도 알림을 받을 수 있나요?",
+  "무료인가요?"
+ ],
+ "en": {
+  "title": "EarLocAlert — Location alarm for your bus or subway stop, vibration and earphones only",
+  "desc": "Never miss your stop. Pin a place on the map and EarLocAlert vibrates when you arrive, or plays a sound only through connected earphones — never the speaker. Free on iPhone and Android. Your location never leaves your phone.",
+  "keywords": "location alarm, arrival alert, bus stop alarm, subway stop alarm, geofence alarm, wake me up at my stop, earphone alarm, vibration alarm",
+  "og_title": "EarLocAlert — Never miss your stop",
+  "og_desc": "Vibration on arrival, sound only through earphones. A quiet location alarm for buses and subways.",
+  "app_name": "EarLocAlert",
+  "currency": "USD",
+  "ld_desc": "A location alarm that vibrates when you arrive at a saved place such as a bus stop or subway station, and plays sound only through connected earphones.",
+  "play_badge_alt": "Get it on Google Play",
+  "faq": [
+   [
+    "Can it wake me up before my bus or subway stop?",
+    "Yes. Save your stop or station on the map and your phone vibrates the moment you enter that radius — even with the app closed and the screen off."
+   ],
+   [
+    "Does it make a sound without earphones?",
+    "No. It plays a sound only after confirming wired, USB-C or Bluetooth earphones are connected. Otherwise it only vibrates and never uses the speaker."
+   ],
+   [
+    "Does it drain the battery?",
+    "It does not keep GPS on. Far from your places it relies on the system’s geofencing, and only checks precisely when you get close."
+   ],
+   [
+    "Is my location sent to a server?",
+    "No. Arrival is detected on your phone, and your places and history stay on the device. There is no account."
+   ],
+   [
+    "Can I get alerts on my smartwatch?",
+    "Yes. If your Galaxy Watch or Apple Watch mirrors phone notifications, arrival alerts reach your wrist. Settings › Get alerts on your watch shows how."
+   ],
+   [
+    "Is it free?",
+    "Yes. It includes ads, but never on the screen that is alerting you."
+   ]
+  ],
+  "T": {
+   "기능": "Features",
+   "자주 묻는 질문": "FAQ",
+   "개인정보": "Privacy",
+   "진동으로, 또는 이어폰으로만": "Vibration, or earphones only",
+   "내릴 곳을 놓치지 않게,": "Never miss your stop,",
+   "조용히": "quietly",
+   "알려드립니다": "every time",
+   "LEAD": "Ever dozed off on the bus and missed your stop? Pin a place on the map and your phone vibrates when you arrive. With earphones in, you also get a sound — never through the speaker.",
+   "App Store 에서 다운로드": "Download on the App Store",
+   "Google Play 에서 다운로드": "Get it on Google Play",
+   "NOTE": "Free on iPhone and Android · English · 한국어 · 日本語 · 中文",
+   "HERO_ALT": "Arrival alert screen showing the place name, arrival time, a nearby map and a large dismiss button.",
+   "도서관에서 스피커가 한 번 울리면,": "One beep from the speaker in a library,",
+   "이 앱은 존재 이유를 잃습니다.": "and this app has failed its one job.",
+   "그래서": "So it",
+   "이어폰이 연결됐는지 확인한 뒤에만": "checks that earphones are connected first,",
+   "PITCH": "and only then plays a sound. Wired, USB-C and Bluetooth earphones are all treated the same; if none is confirmed, it only vibrates. Devices that leak sound, such as car audio, are excluded.",
+   "무엇을 하나요": "What it does",
+   "알림 하나를 제대로 하기 위한 기능만 있습니다.": "Only what it takes to get one alert right.",
+   "지도에서 찍어 등록": "Pin it on the map",
+   "F1": "Search by name or move the map. You set the radius while seeing it as a circle, so there is no guessing how far 100 m is.",
+   "장소마다 다른 알림음": "A sound for every place",
+   "F2": "Pick from five built-in sounds or add your own audio file, so you can tell where you arrived just by the sound.",
+   "앱을 열지 않아도": "Works in the background",
+   "F3": "It alerts you even with the screen off or while you use other apps, without keeping GPS on all the time.",
+   "진동 세기 조절": "Adjustable vibration",
+   "F4": "Without earphones, vibration is all you have. Choose weak, normal or strong.",
+   "라이트 · 다크 모드": "Light and dark mode",
+   "F5": "Follow your device or choose in Settings. The alert screen always stays dark so it never glares on a night bus.",
+   "스마트워치로도": "On your smartwatch too",
+   "F6": "The app shows how to get alerts on Galaxy Watch or Apple Watch, so your wrist knows when you arrive.",
+   "화면": "Screens",
+   "어두운 곳에서 눈이 부시지 않게, 급할 때 헷갈리지 않게 만들었습니다.": "Easy on the eyes in the dark, impossible to misread in a hurry.",
+   "위치 정보는 기기 밖으로 나가지 않습니다": "Your location never leaves your phone",
+   "PRIV": "Arrival is detected entirely on your phone. No coordinates or movement history are sent to any server — not even the developer can know where you have been.",
+   "P1": "No sign-up. No name, email or phone number.",
+   "P2": "Your places and arrival history are stored only on the device.",
+   "P3": "Diagnostic logs stay in the app’s private storage and leave only when you tap “Export”.",
+   "P4": "Delete the app and everything goes with it.",
+   "처리방침 전문 읽기": "Read the full privacy policy",
+   "이어폰위치알림 · 서새찬": "EarLocAlert · Saechan Suh",
+   "개인정보 처리방침": "Privacy Policy",
+   "문의": "Contact",
+   "이어폰위치알림": "EarLocAlert"
+  }
+ },
+ "ja": {
+  "title": "イヤホン位置通知 — バス・電車の降りる駅を到着通知、振動とイヤホンだけで",
+  "desc": "バスで居眠りしても降りる停留所を逃さない。地図に場所を登録すると、到着したときに振動で、イヤホン接続中だけ音で知らせる無料の位置通知アプリです。スピーカーからは鳴らず、位置情報は端末の外に出ません。",
+  "keywords": "到着通知, 降りる駅 通知, バス停 アラーム, 電車 寝過ごし防止, 位置情報 アラーム, ジオフェンス, イヤホン アラーム, 振動 アラーム",
+  "og_title": "イヤホン位置通知 — 降りる場所を、見逃さない",
+  "og_desc": "到着したら振動で。音はイヤホンだけで。バス・電車の降りる場所の通知アプリ。",
+  "app_name": "イヤホン位置通知",
+  "currency": "JPY",
+  "ld_desc": "バス停や駅など登録した場所に到着すると振動で知らせ、イヤホン接続中だけ音を鳴らす位置通知アプリ。",
+  "play_badge_alt": "Google Play で手に入れよう",
+  "faq": [
+   [
+    "バスや電車で寝過ごしても降りる場所を教えてくれますか？",
+    "はい。降りる停留所や駅を地図で登録しておけば、その半径に入った瞬間に振動で起こします。アプリを開いていなくても、画面が消えていても動作します。"
+   ],
+   [
+    "イヤホンがないと音が鳴りますか？",
+    "いいえ。有線・USB-C・Bluetooth イヤホンの接続を確認してから音を鳴らします。接続されていなければ振動だけで、スピーカーからは鳴りません。"
+   ],
+   [
+    "バッテリーを多く使いますか？",
+    "位置情報を常にオンにはしません。場所から遠いときは OS のジオフェンスに任せ、近づいたときだけ精密に確認します。"
+   ],
+   [
+    "位置情報はサーバーに送られますか？",
+    "送られません。到着の判定はすべて端末の中で行い、登録した場所や記録も端末にだけ保存されます。会員登録もありません。"
+   ],
+   [
+    "スマートウォッチでも通知を受け取れますか？",
+    "Galaxy Watch や Apple Watch でスマートフォンの通知を受け取る設定にすれば、ウォッチにも到着通知が届きます。アプリの設定 › ウォッチで通知を受け取る で手順を案内します。"
+   ],
+   [
+    "無料ですか？",
+    "無料です。広告が含まれますが、通知が鳴っている画面には広告を表示しません。"
+   ]
+  ],
+  "T": {
+   "기능": "機能",
+   "자주 묻는 질문": "よくある質問",
+   "개인정보": "プライバシー",
+   "진동으로, 또는 이어폰으로만": "振動で、またはイヤホンだけで",
+   "내릴 곳을 놓치지 않게,": "降りる場所を見逃さないように、",
+   "조용히": "静かに",
+   "알려드립니다": "お知らせします",
+   "LEAD": "バスで居眠りして降りる場所を通り過ぎたことはありませんか。地図に場所を登録しておけば、到着したときに振動で起こします。イヤホンをしていれば音でも知らせます。",
+   "App Store 에서 다운로드": "App Store からダウンロード",
+   "Google Play 에서 다운로드": "Google Play で手に入れよう",
+   "NOTE": "iPhone · Android 無料 · 日本語 · English · 한국어 · 中文",
+   "HERO_ALT": "到着通知画面。場所の名前と到着時刻、周辺の地図、大きな通知停止ボタン。",
+   "도서관에서 스피커가 한 번 울리면,": "図書館でスピーカーが一度でも鳴れば、",
+   "이 앱은 존재 이유를 잃습니다.": "このアプリの存在意義はなくなります。",
+   "그래서": "だから",
+   "이어폰이 연결됐는지 확인한 뒤에만": "イヤホンの接続を確認してから",
+   "PITCH": "音を鳴らします。有線・USB-C・Bluetooth をすべて同じように扱い、確認できなければ振動だけ。車のオーディオのように外に漏れる機器は対象外です。",
+   "무엇을 하나요": "できること",
+   "알림 하나를 제대로 하기 위한 기능만 있습니다.": "ひとつの通知をきちんと届けるための機能だけ。",
+   "지도에서 찍어 등록": "地図で選んで登録",
+   "F1": "名前で検索するか地図を動かして決めます。半径を円で見ながら決めるので、100m がどのくらいか迷いません。",
+   "장소마다 다른 알림음": "場所ごとに違う通知音",
+   "F2": "5 種類の内蔵サウンドから選ぶか、手持ちの音源を登録できます。どこに着いたか音で分かります。",
+   "앱을 열지 않아도": "アプリを開かなくても",
+   "F3": "画面が消えていても、ほかのアプリを使っていても到着を知らせます。位置情報を常にオンにはしません。",
+   "진동 세기 조절": "振動の強さを調整",
+   "F4": "イヤホンがないときは振動が唯一の手段。弱・中・強の 3 段階から選べます。",
+   "라이트 · 다크 모드": "ライト・ダークモード",
+   "F5": "端末の設定に従うか、設定で選びます。通知画面は夜のバスでもまぶしくないよう常に暗く表示されます。",
+   "스마트워치로도": "スマートウォッチでも",
+   "F6": "Galaxy Watch・Apple Watch で通知を受け取る方法をアプリが案内します。手首でも到着が分かります。",
+   "화면": "画面",
+   "어두운 곳에서 눈이 부시지 않게, 급할 때 헷갈리지 않게 만들었습니다.": "暗い場所でもまぶしくなく、急いでいても迷わない作りです。",
+   "위치 정보는 기기 밖으로 나가지 않습니다": "位置情報は端末の外に出ません",
+   "PRIV": "到着の判定はすべてスマートフォンの中で行います。座標や移動履歴をどのサーバーにも送らず、開発者もあなたがどこにいたか知ることはできません。",
+   "P1": "会員登録なし。名前・メール・電話番号を受け取りません。",
+   "P2": "登録した場所と到着履歴は端末にだけ保存されます。",
+   "P3": "動作記録はアプリ専用の領域にあり、自分で「書き出し」を押したときだけ外に出ます。",
+   "P4": "アプリを削除すると保存されたものはすべて消えます。",
+   "처리방침 전문 읽기": "プライバシーポリシー全文",
+   "이어폰위치알림 · 서새찬": "イヤホン位置通知 · 서새찬",
+   "개인정보 처리방침": "プライバシーポリシー",
+   "문의": "お問い合わせ",
+   "이어폰위치알림": "イヤホン位置通知"
+  }
+ },
+ "zh": {
+  "title": "耳机位置提醒 — 公交地铁到站提醒，只用振动和耳机",
+  "desc": "在公交上打瞌睡也不会坐过站。在地图上登记地点，到达时用振动提醒，连接耳机时才发出声音的免费位置提醒应用。绝不会从扬声器外放，位置信息不会离开你的设备。",
+  "keywords": "到站提醒, 下车提醒, 公交到站提醒, 地铁坐过站, 位置闹钟, 地理围栏提醒, 耳机闹钟, 振动闹钟",
+  "og_title": "耳机位置提醒 — 再也不会坐过站",
+  "og_desc": "到达时振动提醒，只通过耳机发声。公交地铁到站提醒应用。",
+  "app_name": "耳机位置提醒",
+  "currency": "CNY",
+  "ld_desc": "到达公交站、地铁站等已登记地点时振动提醒，只在连接耳机时发出声音的位置提醒应用。",
+  "play_badge_alt": "下载应用，请到 Google Play",
+  "faq": [
+   [
+    "在公交或地铁上睡着了也能提醒我下车吗？",
+    "可以。在地图上登记要下车的车站，进入该范围的那一刻就会振动叫醒你。即使没有打开应用、屏幕关闭也能工作。"
+   ],
+   [
+    "没戴耳机会发出声音吗？",
+    "不会。只有确认连接了有线、USB-C 或蓝牙耳机后才会发声。没有连接时只振动，绝不会从扬声器外放。"
+   ],
+   [
+    "耗电多吗？",
+    "不会一直开启定位。离地点较远时交给系统的地理围栏，只有靠近时才精确确认，以减少耗电。"
+   ],
+   [
+    "位置信息会上传到服务器吗？",
+    "不会。到站判断全部在手机里完成，登记的地点和记录只保存在设备上，也无需注册账号。"
+   ],
+   [
+    "智能手表也能收到提醒吗？",
+    "只要在 Galaxy Watch 或 Apple Watch 上设置接收手机通知，到站提醒也会发到手表。应用的设置 › 在手表上接收提醒 中有说明。"
+   ],
+   [
+    "免费吗？",
+    "免费。应用含有广告，但正在提醒的界面上不会显示广告。"
+   ]
+  ],
+  "T": {
+   "기능": "功能",
+   "자주 묻는 질문": "常见问题",
+   "개인정보": "隐私",
+   "진동으로, 또는 이어폰으로만": "振动提醒，或只用耳机",
+   "내릴 곳을 놓치지 않게,": "不错过要下车的地方，",
+   "조용히": "安静地",
+   "알려드립니다": "提醒你",
+   "LEAD": "你是否在公交上打瞌睡坐过了站？在地图上标记地点，到达时用振动叫醒你。戴着耳机时还会用声音提醒。",
+   "App Store 에서 다운로드": "在 App Store 下载",
+   "Google Play 에서 다운로드": "下载应用，请到 Google Play",
+   "NOTE": "iPhone · Android 免费 · 中文 · English · 한국어 · 日本語",
+   "HERO_ALT": "到站提醒界面，显示地点名称、到达时间、周边地图和大的关闭提醒按钮。",
+   "도서관에서 스피커가 한 번 울리면,": "在图书馆里扬声器只要响一次，",
+   "이 앱은 존재 이유를 잃습니다.": "这个应用就失去了存在的意义。",
+   "그래서": "所以",
+   "이어폰이 연결됐는지 확인한 뒤에만": "只有确认连接了耳机后",
+   "PITCH": "才会发声。有线、USB-C、蓝牙耳机都一视同仁；确认不了就只振动。车载音响等会外放的设备不在列表中。",
+   "무엇을 하나요": "能做什么",
+   "알림 하나를 제대로 하기 위한 기능만 있습니다.": "只做好一件事：准确提醒。",
+   "지도에서 찍어 등록": "在地图上标记",
+   "F1": "按名称搜索或移动地图来设定。看着圆圈设置半径，不用猜 100 米有多远。",
+   "장소마다 다른 알림음": "每个地点不同的提示音",
+   "F2": "从 5 种内置声音中选择，或添加自己的音频，听声音就知道到了哪里。",
+   "앱을 열지 않아도": "无需打开应用",
+   "F3": "屏幕关闭或在用其他应用时也会提醒，不会一直开着定位。",
+   "진동 세기 조절": "振动强度可调",
+   "F4": "没戴耳机时振动是唯一的提醒方式。可选弱、中、强三档。",
+   "라이트 · 다크 모드": "浅色 · 深色模式",
+   "F5": "跟随系统或在设置中选择。提醒界面始终保持深色，夜间公交上也不刺眼。",
+   "스마트워치로도": "智能手表也能收到",
+   "F6": "应用会指导你在 Galaxy Watch、Apple Watch 上接收提醒，手腕也能知道已到站。",
+   "화면": "界面",
+   "어두운 곳에서 눈이 부시지 않게, 급할 때 헷갈리지 않게 만들었습니다.": "暗处不刺眼，着急时也不会看错。",
+   "위치 정보는 기기 밖으로 나가지 않습니다": "位置信息不会离开你的设备",
+   "PRIV": "到站判断全部在手机里完成。不会把坐标或行动记录发送到任何服务器，连开发者也不知道你去过哪里。",
+   "P1": "无需注册，不收集姓名、邮箱、电话。",
+   "P2": "登记的地点和到站记录只保存在设备上。",
+   "P3": "运行记录保存在应用专属空间，只有你点击“导出”时才会离开设备。",
+   "P4": "删除应用后，所有数据一并删除。",
+   "처리방침 전문 읽기": "阅读完整隐私政策",
+   "이어폰위치알림 · 서새찬": "耳机位置提醒 · 서새찬",
+   "개인정보 처리방침": "隐私政策",
+   "문의": "联系我们",
+   "이어폰위치알림": "耳机位置提醒"
+  }
+ }
+}
