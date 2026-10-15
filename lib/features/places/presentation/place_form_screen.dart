@@ -479,9 +479,12 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
                 GroupedListSection(
                   header: l10n.placeFormSoundTitle,
                   dividerIndent: AppSpacing.sm,
+                  // 위 칸 제목(알림 시점·시간대)과 나란히 맞춘다
+                  headerIndent: 0,
                   children: [
                     GroupedListRow.toggle(
                       title: l10n.placeFormSoundDescription,
+                      keepTitleWordsTogether: true,
                       value: _soundEnabled,
                       onChanged: (value) =>
                           setState(() => _soundEnabled = value),

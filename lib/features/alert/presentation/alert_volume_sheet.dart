@@ -67,6 +67,8 @@ class _AlertVolumeSheetState extends ConsumerState<_AlertVolumeSheet> {
     // Pretendard 로 '100%' 가 41px 이라 여유가 3px 뿐이었고, 시스템 글자
     // 크기를 한 단계만 키워도 '100' / '%' 로 쪼개졌다
     return BottomSheetWithHeaderLayout(
+      // 설정 화면의 알림음 크기 줄과 같은 아이콘 — 다른 시트와 머리 모양을 맞춘다
+      headerIcon: Icons.tune_outlined,
       title: context.l10n.volumeTitle,
       headerTrailing: volume == null
           ? null

@@ -15,6 +15,7 @@ class GroupedListSection extends StatelessWidget {
     this.footer,
     required this.children,
     this.dividerIndent = 56,
+    this.headerIndent = AppSpacing.sm,
     super.key,
   });
 
@@ -25,6 +26,10 @@ class GroupedListSection extends StatelessWidget {
   final List<Widget> children;
   final double dividerIndent;
 
+  /// 머리글 왼쪽 여백. 설정처럼 목록만 있는 화면은 카드 안쪽 글자에 맞추고(기본),
+  /// 폼처럼 다른 칸 제목과 나란한 곳은 0 으로 둔다
+  final double headerIndent;
+
   @override
   Widget build(BuildContext context) {
     final palette = context.appColors;
@@ -34,8 +39,8 @@ class GroupedListSection extends StatelessWidget {
       children: [
         if (header != null)
           Padding(
-            padding: const EdgeInsets.fromLTRB(
-              AppSpacing.sm,
+            padding: EdgeInsets.fromLTRB(
+              headerIndent,
               0,
               AppSpacing.sm,
               AppSpacing.xs,

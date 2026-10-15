@@ -16,6 +16,7 @@ class GroupedListRow extends StatelessWidget {
     this.icon,
     this.iconColor,
     required this.title,
+    this.keepTitleWordsTogether = false,
     this.subtitle,
     this.keepSubtitleWordsTogether = true,
     required this.onTap,
@@ -32,6 +33,7 @@ class GroupedListRow extends StatelessWidget {
     this.icon,
     this.iconColor,
     required this.title,
+    this.keepTitleWordsTogether = false,
     this.subtitle,
     this.keepSubtitleWordsTogether = true,
     required bool value,
@@ -50,6 +52,7 @@ class GroupedListRow extends StatelessWidget {
     this.icon,
     this.iconColor,
     required this.title,
+    this.keepTitleWordsTogether = false,
     this.subtitle,
     this.keepSubtitleWordsTogether = true,
     required this.valueText,
@@ -66,6 +69,7 @@ class GroupedListRow extends StatelessWidget {
     this.icon,
     this.iconColor,
     required this.title,
+    this.keepTitleWordsTogether = false,
     this.subtitle,
     this.keepSubtitleWordsTogether = true,
     required Widget? trailing,
@@ -83,6 +87,10 @@ class GroupedListRow extends StatelessWidget {
   /// 아이콘 색. 비우면 보조색 — 권한 허용처럼 상태를 색으로도 보일 때만 준다
   final Color? iconColor;
   final String title;
+
+  /// 제목이 이름이 아니라 **문장**일 때 켠다(장소 폼 소리 칸 설명) — 한국어
+  /// 낱말 중간에서 줄이 끊기지 않게 한다. 짧은 이름에는 필요 없다
+  final bool keepTitleWordsTogether;
   final String? subtitle;
 
   /// 부제의 한글 낱말 중간에서 줄이 끊기지 않게 한다. 버전 번호처럼 문장이
@@ -102,7 +110,10 @@ class GroupedListRow extends StatelessWidget {
     final leading = icon == null
         ? null
         : Icon(icon, color: iconColor ?? colors.textSecondary);
-    final titleText = Text(title, style: context.appTextStyles.body);
+    final titleText = Text(
+      keepTitleWordsTogether ? context.keepAllText(title) : title,
+      style: context.appTextStyles.body,
+    );
     final subtitleText = subtitle == null
         ? null
         : Text(

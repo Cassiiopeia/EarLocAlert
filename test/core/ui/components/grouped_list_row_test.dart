@@ -1,3 +1,4 @@
+import 'package:ear_loc_alert/core/l10n/l10n.dart';
 import 'package:ear_loc_alert/core/ui/components/grouped_list_row.dart';
 import 'package:ear_loc_alert/core/ui/foundation/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -70,5 +71,29 @@ void main() {
     );
     await tester.tap(find.text('알림음'));
     expect(taps, 0);
+  });
+
+  testWidgets('문장 제목은 한국어 낱말 중간에서 줄이 끊기지 않게 한다 (#276 회귀)', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        // 줄바꿈 처리는 한국어에서만 켜진다 — 언어를 확정하려면 위임자가 필요하다
+        locale: const Locale('ko'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        theme: AppTheme.light(),
+        home: const Scaffold(
+          body: GroupedListRow.toggle(
+            title: '이어폰이 연결된 경우에만 소리가 납니다',
+            keepTitleWordsTogether: true,
+            value: true,
+            onChanged: null,
+          ),
+        ),
+      ),
+    );
+    final title = tester.widget<Text>(
+      find.byWidgetPredicate((w) => w is Text && (w.data ?? '').contains('이')),
+    );
+    expect(title.data, contains('\u2060'));
   });
 }
