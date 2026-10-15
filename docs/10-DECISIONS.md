@@ -1657,6 +1657,22 @@ Play 자동 업데이트(029)만으로는 사용자가 새 버전을 받는 시�
 
 **남는 한계** — 네이티브 스플래시와 네이티브 알림은 다크 그대로다. 스플래시에서 라이트 앱으로 넘어갈 때 어두운 판이 잠깐 보인다.
 
+## 066. 디자인 시스템을 `core/ui` 한 계층으로 모으고, 화면은 그 부품만 조립한다 — 계층 경계는 테스트가 막는다
+
+**날짜** — 2026-10-15 · **이슈** — #276 · **설계** — `docs/superpowers/specs/2026-10-15-ui-component-layer-design.md`
+
+**배경** — #272 로 색·글자는 테마에서 읽게 됐지만, 바텀시트 9개가 머리·여백·스크롤을 각자 짜고 목록 한 줄을 화면마다 따로 만들었다. 아키텍처 검수에서 계층 위반(core 가 features 를 import, 광고 provider 의 app 역참조, 화면의 data 직접 참조, places 가 geofence 저장소를 직접 호출)과 90일 이력 삭제 미연결, 알림음 미리듣기의 이어폰 재확인 누락이 나왔다. 문서에는 "lint 로 잡는다"고 적었지만 실제 규칙이 없었다.
+
+**결정**
+
+1. `lib/core/ui/`(foundation · components · feedback)에 디자인 시스템을 모은다. 공통 부품: `BottomSheetWithHeaderLayout` · `GroupedListSection` · `GroupedListRow` · `SectionTitleWithTrailingValue` · `IconLabelSegmentedControl` · `StatusBarIconsFollowingTheme` · `showSnackBarWithActionButton` · `AlertDirectionAppearance`.
+2. **이름은 길어도 이름만 보고 역할을 알 수 있게** 짓는다(사용자 요청) — `context.palette` → `context.appColors`, `context.typo` → `context.appTextStyles` 등.
+3. 계층 경계를 `test/architecture_boundary_test.dart` 로, 부품 사용을 `design_system_test` 로 강제한다.
+4. `core/di` 를 앱 데이터베이스와 기능별 저장소 provider 로 나눈다. 장소 삭제 때의 지오펜스 상태 정리는 app 계층 동기화가 맡는다.
+5. 700~1000줄 파일(라우터 · 지도 홈 · 장소 폼)은 `part` 파일로 나눈다 — 비공개 위젯을 공개로 바꾸지 않고 책임만 가른다.
+
+**남는 것** — 알림음 선택 시트의 목록 상태를 Riverpod 으로 옮기는 일, "내 위치" 흐름·지도 준비 코드의 공통화, 광고 단위 ID 의 domain 이 Flutter foundation 을 쓰는 것은 다음으로 미뤘다.
+
 ## 미결 — 결정하지 않은 것들
 
 **결정하지 않았다는 사실을 기록한다.** 나중에 "왜 이건 안 정했지"를 헤매지 않기 위해서다.

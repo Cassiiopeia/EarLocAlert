@@ -34,16 +34,19 @@
 ```
 lib/
 ├── main.dart                 진입점. 초기화 후 App 실행만 한다
-├── app/                      앱 조립 — 라우터 · 테마 · 전역 Provider · 부트스트랩
+├── app/                      앱 조립 — 라우터(routes/ 로 라우트별 분리) · 전역 Provider · 부트스트랩
 ├── core/                     공통 기반. features 를 모른다
 │   ├── domain/               공유 어휘 (AlertDirection 등 — 여러 feature 가 쓰는 enum/값 타입)
-│   ├── theme/                디자인 토큰 · ThemeExtension (docs/06-UX.md)
+│   ├── database/             앱 데이터베이스와 그 provider (저장소 provider 는 각 feature data 에)
+│   ├── ui/                   디자인 시스템 계층 (#276, docs/06-UX.md)
+│   │   ├── foundation/       색 팔레트(라이트·다크) · 글자 · 간격 · 테마 · 화면 모드 · 지도 스타일
+│   │   ├── components/       공통 부품 — 바텀시트 틀 · 묶음 목록 · 목록 한 줄 · 칸 제목 · 세그먼트 …
+│   │   └── feedback/         토스트 · 버튼 달린 스낵바 · 확인 창
 │   ├── result/               Result · Failure
 │   ├── logging/              로거
 │   ├── error/                예외 정의
 │   ├── extensions/
-│   ├── constants/
-│   └── widgets/              공용 위젯
+│   └── constants/
 └── features/
     ├── places/               위치 등록 · 목록 · 편집
     ├── geofence/             백그라운드 모니터링 · 진입/이탈 판정
@@ -112,6 +115,24 @@ import '../domain/place_repository.dart';               // O
 
 화면은 인터페이스만 본다. 구현 교체(Drift → 다른 저장소)가 화면 코드를 건드리지 않아야 하고, 테스트에서 가짜 리포지토리를 넣을 수 있어야 한다.
 
+**예외 — provider 조립 파일.** `*_provider.dart` · `*_providers.dart` 는 구현체를 인터페이스에 묶는 DI 코드라 `data` 를 import 한다. 화면 파일은 그 provider 를 통해 인터페이스만 받는다. 플랫폼 구현을 화면 생성자로 넘겨야 할 때(`CurrentLocationService`, `BugReportSending`)는 `app` 라우트가 구현체를 넣는다.
+
+### 규칙 3.5 — 화면은 디자인 시스템 부품을 조립한다 (#276)
+
+화면(`features/*/presentation`)은 `core/ui` 의 부품만 조립한다.
+
+| 하려는 것 | 쓰는 것 |
+|---|---|
+| 바텀시트 | `showAppBottomSheet` + `BottomSheetWithHeaderLayout` (머리 · 스크롤 본문 · 아래 주 버튼) |
+| 묶음 목록 | `GroupedListSection` + `GroupedListRow.navigation / .toggle / .value / .withTrailing` |
+| 칸 제목 | `SectionTitleWithTrailingValue` |
+| 하나 고르기 | `IconLabelSegmentedControl` |
+| 색 · 글자 | `context.appColors` · `context.appTextStyles` |
+| 알림 방향 아이콘 · 색 | `AlertDirection.outlinedIcon` · `.colorFrom(semantic)` |
+| 되돌리기 스낵바 | `showSnackBarWithActionButton` |
+
+`showModalBottomSheet` · `ListTile` · `AppColors.` · `AppTypography.` 를 화면에서 직접 쓰면 `design_system_test` 가 실패한다. 이름은 **길어도 이름만 보고 역할을 알 수 있게** 짓는다.
+
 ## 규칙 4 — `alert` 는 `ads` 를 기다리지 않는다
 
 **이 프로젝트에서 가장 중요한 규칙이다.**
@@ -151,7 +172,9 @@ await alertController.dismiss();          // 그 뒤에야 알림이 멈춘다
 | 수단 | 잡는 것 |
 |---|---|
 | `custom_lint` + `riverpod_lint` | Riverpod 오용, Provider 누락 |
-| `analysis_options.yaml` 의 import 규칙 | feature 간 직접 import, core → features 역참조 |
-| `domain` 에 flutter import 금지 검사 | 도메인 계층 오염 |
+| `test/architecture_boundary_test.dart` (#276) | feature 간 직접 import, core → features·app 역참조, presentation → data(조립 파일 제외), domain → data·presentation·Flutter 화면 |
+| `test/design_system_test.dart` | 화면의 원본 시트·ListTile·색·글자 상수 직접 사용, 주 버튼 두 개, 아이콘 규격 |
+
+예전 표에는 `analysis_options.yaml` 의 import 규칙이 적혀 있었지만 실제 규칙이 없어 위반이 쌓였다(아키텍처 검수 #276). 지금은 테스트가 import 줄을 읽어 막는다.
 
 lint 로 잡히지 않는 규칙 4(광고 대기)는 **테스트로 잡는다.** 광고 로딩을 무한 지연시키는 가짜 구현을 넣고도 해제가 즉시 완료되는지 검증한다 → [04-CONVENTIONS](04-CONVENTIONS.md)
