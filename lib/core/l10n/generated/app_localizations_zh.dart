@@ -145,12 +145,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsVolumeSubtitle => '耳机中播放的音量大小';
 
   @override
-  String get settingsPreviewTitle => '预览提醒';
-
-  @override
-  String get settingsPreviewSubtitle => '立即查看提醒界面和振动效果';
-
-  @override
   String get settingsSectionReach => '确保提醒送达的权限';
 
   @override
@@ -235,9 +229,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get routeDeletedSound => '音源已删除（将使用默认提示音）';
-
-  @override
-  String get routePreviewPlaceName => '测试地点';
 
   @override
   String get notificationChannelName => '到达·离开提醒';
@@ -879,15 +870,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get settingsVibrationTestTitle => '振动测试';
-
-  @override
-  String get settingsVibrationTestUntested => '点按以确认这台 iPhone 是否真的会振动';
-
-  @override
-  String get settingsVibrationTestFelt => '上次测试中感觉到了振动';
-
-  @override
-  String get settingsVibrationTestNotFelt => '上次测试中没有感觉到振动。点按再次确认';
 
   @override
   String get vibrationTestQuestion => '感觉到振动了吗？';

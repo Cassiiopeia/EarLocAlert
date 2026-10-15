@@ -64,42 +64,7 @@ class SettingsLockScreenAlarm {
   final VoidCallback? onAction;
 }
 
-/// 진동 시험의 마지막 답 (이슈 #237)
-enum VibrationCheckState {
-  /// 시험한 적이 없다
-  untested,
-
-  /// 마지막 시험에서 느껴졌다
-  felt,
-
-  /// 마지막 시험에서 느껴지지 않았다 — 홈에도 경고가 떠 있다
-  notFelt,
-}
-
-/// 설정 화면이 보여줄 진동 시험 한 줄 (이슈 #237)
-///
-/// [SettingsLockScreenAlarm] 과 같은 이유로 값으로 받는다 — 시험 흐름은 alert
-/// feature 것이고 app 계층이 잇는다 (docs/02-ARCHITECTURE.md 규칙 1).
-class SettingsVibrationCheck {
-  const SettingsVibrationCheck({required this.state, required this.onTap});
-
-  final VibrationCheckState state;
-  final VoidCallback onTap;
-}
-
-/// 설정 화면 (이슈 #98, #102)
-///
-/// **왜 만들었나** — 홈 상태 바에 아이콘이 셋(알림음 크기·알림 미리보기·
-/// 진단 기록) 늘어서면서 정작 중요한 감시 상태가 묻혔다. 상태 바는
-/// "지금 감시 중인가"를 보여주는 곳이지 설정 모음이 아니다.
-///
-/// 평소에 쓸 일이 없는 것부터 여기로 내린다. 진단 기록은 문제가 생겼을
-/// 때만 여는 화면이라 홈 최상단을 차지할 자리가 아니었다.
-///
-/// **권한 항목이 여기 있어야 하는 이유** (이슈 #102) — 알림 신뢰성 권한은
-/// 온보딩의 선택 단계라 한 번 지나가면 다시 묻지 않는다. 그런데 그것을
-/// 나중에 켤 자리가 앱 어디에도 없어서, 놓친 사용자는 "권한을 다 줬는데
-/// 왜 알림 화면이 안 뜨는가"에 갇혔다.
+/// 설정 화면 — 값과 동작은 app 계층이 내려준다 (docs/02-ARCHITECTURE.md 규칙 1)
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({
     required this.onOpenVolumeSettings,
@@ -119,9 +84,7 @@ class SettingsScreen extends StatelessWidget {
     this.onOpenAdPrivacy,
     this.permissions = const [],
     this.lockScreenAlarm,
-    this.vibrationCheck,
     this.onOpenWatchGuide,
-    this.onPreviewAlert,
     super.key,
   });
 
@@ -167,17 +130,9 @@ class SettingsScreen extends StatelessWidget {
   /// 잠금 화면 알람 (이슈 #235). **null 이면 줄을 숨긴다** — Android 에는 없다
   final SettingsLockScreenAlarm? lockScreenAlarm;
 
-  /// 진동 시험 (이슈 #237). **null 이면 줄을 숨긴다** — iOS 에만 있다. Android 는
-  /// 앱이 진동 가능 여부를 직접 묻고 세기 미리보기로 바로 느낄 수 있다
-  final SettingsVibrationCheck? vibrationCheck;
-
   /// 워치로 알림 받는 방법 안내 (이슈 #270). 시트는 app 계층이 플랫폼에 맞춰 연다.
   /// **null 이면 줄을 숨긴다**
   final VoidCallback? onOpenWatchGuide;
-
-  /// 알림 흐름 수동 확인 (실기기 스파이크용).
-  /// 지오펜스 실기기 검증이 끝나면 제거한다 (docs/11-ROADMAP.md).
-  final VoidCallback? onPreviewAlert;
 
   /// 기기 언어를 따를 때 지금 어느 언어로 보이는지
   static String get _deviceLanguageName {
@@ -278,9 +233,6 @@ class SettingsScreen extends StatelessWidget {
                 // 화면이 꺼진 채 도착했을 때 무엇이 보이는지를 정하는 항목이라 알림 묶음에 둔다
                 if (lockScreenAlarm != null)
                   _LockScreenAlarmTile(alarm: lockScreenAlarm!),
-                // 잠금 화면 알람과 같은 질문("도착하면 내가 알아챌까")이라 바로 아래에 둔다
-                if (vibrationCheck != null)
-                  _VibrationCheckTile(check: vibrationCheck!),
                 // 폰 알림이 워치로 가려면 워치 쪽 토글을 켜야 한다 — 사용자가 알 길이 없어 안내한다
                 if (onOpenWatchGuide != null)
                   _SettingTile(
@@ -288,13 +240,6 @@ class SettingsScreen extends StatelessWidget {
                     title: context.l10n.settingsWatchTitle,
                     subtitle: context.l10n.settingsWatchSubtitle,
                     onTap: onOpenWatchGuide!,
-                  ),
-                if (onPreviewAlert != null)
-                  _SettingTile(
-                    icon: Icons.notifications_active_outlined,
-                    title: context.l10n.settingsPreviewTitle,
-                    subtitle: context.l10n.settingsPreviewSubtitle,
-                    onTap: onPreviewAlert!,
                   ),
               ],
             ),
@@ -512,53 +457,6 @@ class _LockScreenAlarmTile extends StatelessWidget {
           ? null
           : TextButton(onPressed: alarm.onAction, child: Text(actionLabel)),
       onTap: actionLabel == null ? null : alarm.onAction,
-    );
-  }
-}
-
-/// 진동 시험 한 줄 (이슈 #237)
-///
-/// 마지막 답을 부제로 보여준다 — "느껴지지 않았다"면 홈 경고의 이유가 여기 있다.
-class _VibrationCheckTile extends StatelessWidget {
-  const _VibrationCheckTile({required this.check});
-
-  final SettingsVibrationCheck check;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    final semantic = Theme.of(context).extension<AppSemanticColors>();
-    final feltColor = semantic?.statusActive ?? context.appColors.textSecondary;
-
-    final subtitle = switch (check.state) {
-      VibrationCheckState.untested => l10n.settingsVibrationTestUntested,
-      VibrationCheckState.felt => l10n.settingsVibrationTestFelt,
-      VibrationCheckState.notFelt => l10n.settingsVibrationTestNotFelt,
-    };
-    final (icon, color) = switch (check.state) {
-      VibrationCheckState.felt => (Icons.check_circle_outlined, feltColor),
-      VibrationCheckState.notFelt => (
-        Icons.error_outlined,
-        context.appColors.warning,
-      ),
-      VibrationCheckState.untested => (
-        Icons.vibration_outlined,
-        context.appColors.textSecondary,
-      ),
-    };
-
-    return ListTile(
-      leading: Icon(icon, color: color),
-      title: Text(
-        l10n.settingsVibrationTestTitle,
-        style: context.appTextStyles.body,
-      ),
-      subtitle: Text(
-        context.keepAllText(subtitle),
-        style: context.appTextStyles.caption,
-      ),
-      trailing: const Icon(Icons.chevron_right_outlined),
-      onTap: check.onTap,
     );
   }
 }

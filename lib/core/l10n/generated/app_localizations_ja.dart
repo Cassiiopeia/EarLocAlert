@@ -146,12 +146,6 @@ class AppLocalizationsJa extends AppLocalizations {
   String get settingsVolumeSubtitle => 'イヤホンで聞こえる音の大きさ';
 
   @override
-  String get settingsPreviewTitle => 'アラートのプレビュー';
-
-  @override
-  String get settingsPreviewSubtitle => 'アラート画面とバイブレーションを今すぐ確認します';
-
-  @override
   String get settingsSectionReach => 'アラートを届けるための権限';
 
   @override
@@ -236,9 +230,6 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get routeDeletedSound => '削除された音源（標準音で通知）';
-
-  @override
-  String get routePreviewPlaceName => 'テスト用の場所';
 
   @override
   String get notificationChannelName => '到着・出発アラート';
@@ -887,16 +878,6 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get settingsVibrationTestTitle => 'バイブレーションのテスト';
-
-  @override
-  String get settingsVibrationTestUntested => 'タップして、このiPhoneが実際に振動するか確認します';
-
-  @override
-  String get settingsVibrationTestFelt => '前回のテストで振動を感じました';
-
-  @override
-  String get settingsVibrationTestNotFelt =>
-      '前回のテストで振動を感じませんでした。タップしてもう一度確認します';
 
   @override
   String get vibrationTestQuestion => '振動を感じましたか？';

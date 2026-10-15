@@ -360,18 +360,6 @@ abstract class AppLocalizations {
   /// **'이어폰으로 들릴 소리 크기'**
   String get settingsVolumeSubtitle;
 
-  /// No description provided for @settingsPreviewTitle.
-  ///
-  /// In ko, this message translates to:
-  /// **'알림 미리보기'**
-  String get settingsPreviewTitle;
-
-  /// No description provided for @settingsPreviewSubtitle.
-  ///
-  /// In ko, this message translates to:
-  /// **'알림 화면과 진동을 지금 확인합니다'**
-  String get settingsPreviewSubtitle;
-
   /// No description provided for @settingsSectionReach.
   ///
   /// In ko, this message translates to:
@@ -539,12 +527,6 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'삭제된 음원 (기본음으로 알림)'**
   String get routeDeletedSound;
-
-  /// No description provided for @routePreviewPlaceName.
-  ///
-  /// In ko, this message translates to:
-  /// **'테스트 장소'**
-  String get routePreviewPlaceName;
 
   /// No description provided for @notificationChannelName.
   ///
@@ -1715,24 +1697,6 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'진동 시험'**
   String get settingsVibrationTestTitle;
-
-  /// No description provided for @settingsVibrationTestUntested.
-  ///
-  /// In ko, this message translates to:
-  /// **'눌러서 이 iPhone 에서 진동이 느껴지는지 확인해요'**
-  String get settingsVibrationTestUntested;
-
-  /// No description provided for @settingsVibrationTestFelt.
-  ///
-  /// In ko, this message translates to:
-  /// **'마지막 시험에서 진동이 느껴졌어요'**
-  String get settingsVibrationTestFelt;
-
-  /// No description provided for @settingsVibrationTestNotFelt.
-  ///
-  /// In ko, this message translates to:
-  /// **'마지막 시험에서 진동이 느껴지지 않았어요. 눌러서 다시 확인해요'**
-  String get settingsVibrationTestNotFelt;
 
   /// No description provided for @vibrationTestQuestion.
   ///

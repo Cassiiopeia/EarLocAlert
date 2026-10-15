@@ -43,7 +43,6 @@ void main() {
     },
     isRinging: () => ringing,
     goHome: () => events.add('home'),
-    returnToSettings: () => events.add('settings'),
     showDismissedToast: () => events.add('toast'),
     tryShowAd:
         ad ??
@@ -54,7 +53,7 @@ void main() {
   );
 
   test('끄면 곧장 홈으로 가고 토스트를 띄운다 — 확인 화면이 없다', () async {
-    await flow().run(fromPreview: false);
+    await flow().run();
 
     expect(events, ['dismiss', 'home', 'toast']);
   });
@@ -65,7 +64,7 @@ void main() {
     await flow(
       ad: () => never.future,
       adDelay: Duration.zero,
-    ).run(fromPreview: false).timeout(const Duration(milliseconds: 200));
+    ).run().timeout(const Duration(milliseconds: 200));
     await Future<void>.delayed(const Duration(milliseconds: 10));
 
     expect(events.first, 'dismiss', reason: '진동·소리가 먼저 멈춘다');
@@ -73,9 +72,7 @@ void main() {
   });
 
   test('광고는 홈이 뜬 뒤 잠깐 쉬고 나서 시도한다 — 해제하던 엄지가 누르지 않게', () async {
-    await flow(
-      adDelay: const Duration(milliseconds: 60),
-    ).run(fromPreview: false);
+    await flow(adDelay: const Duration(milliseconds: 60)).run();
 
     expect(events, isNot(contains('ad')), reason: '쉬는 시간 전에는 내지 않는다');
     await Future<void>.delayed(const Duration(milliseconds: 120));
@@ -91,7 +88,7 @@ void main() {
   });
 
   test('쉬는 사이 다른 알림이 울리면 광고를 내지 않는다 — 알림 화면에 겹치지 않는다', () async {
-    await flow().run(fromPreview: false);
+    await flow().run();
     ringing = true; // 다음 알림이 도착했다
 
     await Future<void>.delayed(const Duration(milliseconds: 80));
@@ -107,28 +104,21 @@ void main() {
       },
       isRinging: () => true,
       goHome: () => events.add('home'),
-      returnToSettings: () => events.add('settings'),
       showDismissedToast: () => events.add('toast'),
       tryShowAd: () async => events.add('ad'),
       adDelay: Duration.zero,
     );
 
-    await target.run(fromPreview: false);
+    await target.run();
     await Future<void>.delayed(const Duration(milliseconds: 20));
 
     expect(events, ['dismiss']);
   });
 
-  test('미리보기는 설정으로 돌아간다 (이슈 #229)', () async {
-    await flow().run(fromPreview: true);
-
-    expect(events, ['dismiss', 'home', 'settings', 'toast']);
-  });
-
   test('이미 꺼져 있었으면 홈으로만 간다 — 토스트도 광고도 없다', () async {
     dismissed = null;
 
-    await flow(adDelay: Duration.zero).run(fromPreview: false);
+    await flow(adDelay: Duration.zero).run();
     await Future<void>.delayed(const Duration(milliseconds: 20));
 
     expect(events, ['dismiss', 'home']);
@@ -138,7 +128,7 @@ void main() {
     await flow(
       ad: () async => throw StateError('ad sdk'),
       adDelay: Duration.zero,
-    ).run(fromPreview: false);
+    ).run();
 
     await Future<void>.delayed(const Duration(milliseconds: 20));
     expect(events, ['dismiss', 'home', 'toast']);

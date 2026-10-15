@@ -156,13 +156,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsVolumeSubtitle => 'How loud it plays in your earphones';
 
   @override
-  String get settingsPreviewTitle => 'Preview alert';
-
-  @override
-  String get settingsPreviewSubtitle =>
-      'Check the alert screen and vibration now';
-
-  @override
   String get settingsSectionReach => 'Permissions for reliable alerts';
 
   @override
@@ -253,9 +246,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get routeDeletedSound => 'Deleted sound (plays the default)';
-
-  @override
-  String get routePreviewPlaceName => 'Test place';
 
   @override
   String get notificationChannelName => 'Arrival and departure alerts';
@@ -927,17 +917,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsVibrationTestTitle => 'Vibration test';
-
-  @override
-  String get settingsVibrationTestUntested =>
-      'Tap to check that this iPhone actually vibrates';
-
-  @override
-  String get settingsVibrationTestFelt => 'Vibration was felt in the last test';
-
-  @override
-  String get settingsVibrationTestNotFelt =>
-      'No vibration was felt in the last test. Tap to check again';
 
   @override
   String get vibrationTestQuestion => 'Did you feel a vibration?';

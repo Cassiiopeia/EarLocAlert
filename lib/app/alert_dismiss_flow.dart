@@ -22,14 +22,12 @@ class AlertDismissFlow {
     required Future<AlertSession?> Function() dismiss,
     required bool Function() isRinging,
     required void Function() goHome,
-    required void Function() returnToSettings,
     required void Function() showDismissedToast,
     required Future<void> Function() tryShowAd,
     this.adDelay = defaultAdDelay,
   }) : _dismiss = dismiss,
        _isRinging = isRinging,
        _goHome = goHome,
-       _returnToSettings = returnToSettings,
        _showDismissedToast = showDismissedToast,
        _tryShowAd = tryShowAd;
 
@@ -39,16 +37,15 @@ class AlertDismissFlow {
   final Future<AlertSession?> Function() _dismiss;
   final bool Function() _isRinging;
   final void Function() _goHome;
-  final void Function() _returnToSettings;
   final void Function() _showDismissedToast;
   final Future<void> Function() _tryShowAd;
   final Duration adDelay;
 
-  /// 해제 버튼을 눌렀다. [fromPreview] 는 설정의 미리보기에서 시작한 세션인가.
+  /// 해제 버튼을 눌렀다.
   ///
   /// 반환되는 순간 진동·소리는 이미 멈춰 있고 화면 전환도 끝났다. 광고는 이
   /// Future 와 무관하게 뒤에서 시도된다.
-  Future<void> run({required bool fromPreview}) async {
+  Future<void> run() async {
     // 1) 해제가 먼저다. 광고와 무관하게 여기서 진동·소리가 멈춘다
     final dismissed = await _dismiss();
 
@@ -58,11 +55,6 @@ class AlertDismissFlow {
     _goHome();
     if (dismissed == null) return;
 
-    // 미리보기는 설정에서 시작했으니 설정으로 돌려보낸다 (이슈 #229)
-    if (fromPreview) {
-      Diagnostics.log('alert', 'preview dismissed return=settings');
-      _returnToSettings();
-    }
     Diagnostics.log(
       'alert',
       'dismissed, returned home place=${dismissed.placeName} '

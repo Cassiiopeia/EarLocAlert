@@ -147,12 +147,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get settingsVolumeSubtitle => '이어폰으로 들릴 소리 크기';
 
   @override
-  String get settingsPreviewTitle => '알림 미리보기';
-
-  @override
-  String get settingsPreviewSubtitle => '알림 화면과 진동을 지금 확인합니다';
-
-  @override
   String get settingsSectionReach => '알림 도달 권한';
 
   @override
@@ -237,9 +231,6 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get routeDeletedSound => '삭제된 음원 (기본음으로 알림)';
-
-  @override
-  String get routePreviewPlaceName => '테스트 장소';
 
   @override
   String get notificationChannelName => '도착·출발 알림';
@@ -889,16 +880,6 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get settingsVibrationTestTitle => '진동 시험';
-
-  @override
-  String get settingsVibrationTestUntested => '눌러서 이 iPhone 에서 진동이 느껴지는지 확인해요';
-
-  @override
-  String get settingsVibrationTestFelt => '마지막 시험에서 진동이 느껴졌어요';
-
-  @override
-  String get settingsVibrationTestNotFelt =>
-      '마지막 시험에서 진동이 느껴지지 않았어요. 눌러서 다시 확인해요';
 
   @override
   String get vibrationTestQuestion => '진동이 느껴졌나요?';

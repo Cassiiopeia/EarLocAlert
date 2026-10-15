@@ -241,8 +241,6 @@ void _leaveForm(BuildContext context) {
 
 /// 설정의 알림 미리보기가 쓰는 장소 id. 실제 장소 id 는 uuid 라 겹치지 않는다
 @visibleForTesting
-const previewPlaceId = 'preview';
-
 /// 세션 없는 알림 화면에서 홈으로 돌릴지 (이슈 #222).
 ///
 /// 아직 알림 화면에 머물러 있을 때만 돌린다. 해제 흐름이 이미 홈(미리보기면
@@ -297,12 +295,6 @@ class _AlertRoute extends ConsumerWidget {
                   container.read(activeAlertProvider.notifier).dismiss(),
               isRinging: () => container.read(activeAlertProvider) != null,
               goHome: () => router.go(AppRoutes.home),
-              // `go` 로 설정만 띄우면 뒤로 갈 곳이 없다 — 홈이 세워진 뒤(다음
-              // 프레임)에 push 해야 스택이 [홈, 설정] 으로 잡힌다 (이슈 #229)
-              returnToSettings: () =>
-                  WidgetsBinding.instance.addPostFrameCallback(
-                    (_) => unawaited(router.push(AppRoutes.settings)),
-                  ),
               // 옮겨 간 화면 위에 띄운다 — 알림 화면의 context 는 이미 없다
               showDismissedToast: () =>
                   WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -312,7 +304,7 @@ class _AlertRoute extends ConsumerWidget {
                     target.showToast(target.l10n.alertDismissedTitle);
                   }),
               tryShowAd: () => _tryShowAd(container),
-            ).run(fromPreview: session.placeId == previewPlaceId),
+            ).run(),
           );
         },
       ),
