@@ -27,6 +27,20 @@ APP_STORE_ID = "6755805664"
 ALLOWED_KOREAN_WORDS = {"한국어", "서새찬"}
 
 
+# 홍보 영상: 소리 없이 자동 반복 (iOS 인라인 재생을 위해 playsinline), 못 불러오면 포스터
+HERO_VIDEO_HTML = (
+    '<video class="phone" width="486" height="1054" autoplay muted loop playsinline preload="metadata" '
+    'poster="video/promo_poster.jpg" aria-label="장소를 등록하고 도착하면 알림이 울리는 과정을 보여주는 영상">'
+    '<source src="video/promo.mp4" type="video/mp4"></video>'
+)
+
+
+HERO_IMAGE_HTML = (
+    '<img class="phone" src="shots/ko/alert.jpg" width="486" height="1054" '
+    'alt="도착 알림 화면. 장소 이름과 도착 시각, 주변 지도, 화면 아래 알림 끄기 버튼이 보인다.">'
+)
+
+
 def app_store_url(lang):
     return f"https://apps.apple.com/{APP_STORE_COUNTRY_BY_LANG[lang]}/app/id{APP_STORE_ID}"
 
@@ -172,11 +186,16 @@ def main():
     # 한국어 원본: 화면 섹션만 홍보 이미지로 맞춘다
     korean_path = SITE_DIR / "index.html"
     korean_page = korean_path.read_text(encoding="utf-8")
+    # 다시 돌려도 같은 결과가 나오게 — 이전에 넣은 영상을 도착 알림 이미지로 되돌리고 시작
+    korean_page = korean_page.replace(HERO_VIDEO_HTML, HERO_IMAGE_HTML)
     korean_page = re.sub(r'<div class="shots">.*?\n    </div>', lambda m: screens_section_html("ko", scenes), korean_page, count=1, flags=re.S)
+    # 다른 언어 페이지는 영상 넣기 전 본문에서 만든다 (영상은 한국어 화면이라 한국어 페이지에만)
+    korean_page_for_translation = korean_page
+    korean_page = re.sub(r'<img class="phone" src="shots/ko/alert\.jpg"[^>]*>', HERO_VIDEO_HTML, korean_page, count=1)
     korean_path.write_text(korean_page, encoding="utf-8")
 
     for lang in ["en", "ja", "zh"]:
-        page = build_language_page(korean_page, lang, texts_by_lang[lang], korean_faq_questions)
+        page = build_language_page(korean_page_for_translation, lang, texts_by_lang[lang], korean_faq_questions)
         page = re.sub(r'<div class="shots">.*?\n    </div>', lambda m: screens_section_html(lang, scenes), page, count=1, flags=re.S)
         (SITE_DIR / PAGE_BY_LANG[lang]).write_text(page, encoding="utf-8")
         # 검증 (본문에 남은 한국어, 구조화 데이터 구문)
