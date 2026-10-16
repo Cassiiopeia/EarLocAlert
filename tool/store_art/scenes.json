@@ -2,9 +2,9 @@
   "_comment": "스토어 홍보 이미지 장면 (#281). 순서가 스토어 노출 순서다. 문구는 언어별(ko·en·ja·zh). shot 은 언어별 원본 폴더 안 파일 이름. adBanner=true 인 화면만 하단 테스트 광고 배너를 덮는다. sub_ios 가 있으면 iOS 이미지에서 sub 대신 쓴다 — iOS 는 앱이 꺼져 있으면 알림 화면 대신 알림·진동(iOS 26+ 잠금화면 알람)으로 알린다",
   "targets": {
     "ios": {
-      "width": 1320,
-      "height": 2868,
-      "out": "docs/store/promo/{lang}/ios-6.9"
+      "width": 1206,
+      "height": 2622,
+      "out": "docs/store/promo/{lang}/ios-6.3"
     },
     "android": {
       "width": 1080,
