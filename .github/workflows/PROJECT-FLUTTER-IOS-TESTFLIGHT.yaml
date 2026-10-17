@@ -124,8 +124,9 @@ env:
   # CHANGELOG 한 버전 항목만으로는 실제 변경과 어긋나기 쉽다.
   # 이 값은 TestFlight 'What to Test'(내부 테스터용)에는 영향이 없다 — 거기는 항상 CHANGELOG 를 쓴다.
   # 수동 실행 입력 whats_new_override 에 값을 주면 그 실행만 그 문구가 우선한다.
-  # Android(PROJECT-FLUTTER-ANDROID-PLAYSTORE-CICD.yaml)에도 같은 이름의 설정이 있다. 두 곳을 함께 바꾼다.
-  STORE_WHATS_NEW_OVERRIDE: "더 안정적으로 사용하실 수 있도록 알림 동작을 개선하고 여러 오류를 수정했습니다."
+  # Android(PROJECT-FLUTTER-ANDROID-PLAYSTORE-CICD.yaml)에는 이 설정이 없다 — Play 릴리스 노트는 CHANGELOG 에서 만든다.
+  # 언어별로 나누지 않고 영어 한 문구를 모든 언어에 쓴다 (version.yml 의 store_locales 를 비워 두었다 — #281).
+  STORE_WHATS_NEW_OVERRIDE: "We've improved how alerts work and fixed several bugs so the app runs more reliably."
 
 jobs:
   prepare-build:
