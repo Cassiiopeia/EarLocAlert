@@ -88,6 +88,7 @@ class WatchEngine(private val context: Context) {
             // 엔진을 못 띄워도 서비스는 살아있다. 폴백 경로(실제 반경
             // 지오펜스)는 이 엔진 없이 판정할 수 없으므로 알림이 약해지지만,
             // 다음 이벤트에서 재시도된다.
+            DiagnosticLog.write(context, "engine", "flutter engine create failed $error")
             return
         }
 

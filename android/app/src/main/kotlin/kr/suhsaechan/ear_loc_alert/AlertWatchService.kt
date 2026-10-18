@@ -413,7 +413,8 @@ class AlertWatchService : Service() {
             true
         } catch (error: Exception) {
             // API 34+ 는 위치 권한이 없으면 location 타입 승격이 SecurityException 이다.
-            // 권한을 받기 전에 호출된 경우가 여기다 — 조용히 물러난다.
+            // 권한을 받기 전에 호출된 경우가 여기다 — 기록만 남기고 물러난다
+            DiagnosticLog.write(this, "watch", "foreground promotion failed $error")
             false
         }
     }
@@ -919,6 +920,7 @@ class AlertWatchService : Service() {
             )
         } catch (error: Exception) {
             // 실패하면 지울 수 없는 알림이 남는다 — 앱을 열면 정리된다
+            DiagnosticLog.write(this, "alert", "notification release failed $error")
         }
     }
 
@@ -1036,7 +1038,8 @@ class AlertWatchService : Service() {
         try {
             vibrator.cancel()
         } catch (error: Exception) {
-            // 중단 실패를 삼킨다 — 해제는 언제나 완료되어야 한다
+            // 중단 실패를 삼킨다 — 해제는 언제나 완료되어야 한다 (기록만 남김)
+            DiagnosticLog.write(this, "alert", "vibration stop failed $error")
         }
     }
 

@@ -68,7 +68,7 @@ object DiagnosticLog {
                 file.appendText(line)
                 rotateIfNeeded(file)
             } catch (error: Exception) {
-                // 로그를 못 남기는 것은 불편이지 고장이 아니다
+                // 로그 파일 자신의 실패라 다시 기록하면 재귀가 된다 — 로그를 못 남기는 것은 불편이지 고장이 아니다
             }
         }
     }
@@ -110,7 +110,7 @@ object DiagnosticLog {
             }
             file.writeText(kept.joinToString("\n", postfix = "\n"))
         } catch (error: Exception) {
-            // 회전 실패는 파일이 조금 커지는 문제일 뿐이다
+            // 로그 파일 자신의 실패라 다시 기록하면 재귀가 된다 — 회전 실패는 파일이 조금 커지는 문제일 뿐이다
         }
     }
 
@@ -132,6 +132,7 @@ object DiagnosticLog {
             file.writeText("")
             true
         } catch (error: Exception) {
+            // 로그 파일 자신의 실패라 다시 기록하면 재귀가 된다 — 호출부가 잘라내기로 떨어진다
             false
         }
     }

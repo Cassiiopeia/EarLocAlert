@@ -30,6 +30,7 @@ object AppLocale {
                 .getString(KEY, null)
         } catch (error: Exception) {
             // 읽지 못해도 알림은 나가야 한다 — 기기 언어로 떨어진다
+            DiagnosticLog.write(context, "locale", "stored language unreadable, using device language $error")
             null
         }
 

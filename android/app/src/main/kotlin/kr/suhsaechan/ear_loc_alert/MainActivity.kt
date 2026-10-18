@@ -178,6 +178,7 @@ class MainActivity : FlutterActivity() {
                         startForegroundService(intent)
                     } catch (error: Exception) {
                         // 서비스를 못 띄우면 등록도 못 한다 — 다음 목록 변경에서 재시도된다
+                        DiagnosticLog.write(this, "sync", "geofence sync service start failed $error")
                     }
                     result.success(null)
                 }
@@ -212,6 +213,7 @@ class MainActivity : FlutterActivity() {
             )
         } catch (error: Exception) {
             // 기기가 이 설정 화면을 갖고 있지 않다 — 앱 설정으로 떨어진다
+            DiagnosticLog.write(this, "permission", "full screen intent settings unavailable, fallback to app settings $error")
             try {
                 startActivity(
                     Intent(
@@ -221,6 +223,7 @@ class MainActivity : FlutterActivity() {
                 )
             } catch (fallbackError: Exception) {
                 // 설정을 못 열어도 온보딩은 계속된다
+                DiagnosticLog.write(this, "permission", "app settings open failed $fallbackError")
             }
         }
     }
@@ -258,6 +261,7 @@ class MainActivity : FlutterActivity() {
         } catch (error: Exception) {
             // 방해금지 등에서 SecurityException 이 올 수 있다 —
             // 볼륨을 못 올려도 재생과 진동은 계속된다
+            DiagnosticLog.write(this, "volume", "volume raise failed $error")
             volumeBeforeRaise = null
         }
     }
@@ -270,6 +274,7 @@ class MainActivity : FlutterActivity() {
             audio.setStreamVolume(AudioManager.STREAM_MUSIC, saved, 0)
         } catch (error: Exception) {
             // 원복 실패는 볼륨이 크게 남는 불편이지 고장이 아니다
+            DiagnosticLog.write(this, "volume", "volume restore failed $error")
         }
     }
 
@@ -284,6 +289,7 @@ class MainActivity : FlutterActivity() {
             }
         } catch (error: Exception) {
             // 서비스를 못 띄워도 앱은 동작한다 — 알림이 약해질 뿐이다
+            DiagnosticLog.write(this, "watch", "service signal failed action=$action $error")
         }
     }
 }

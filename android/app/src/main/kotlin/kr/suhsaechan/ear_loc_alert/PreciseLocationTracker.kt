@@ -60,6 +60,7 @@ class PreciseLocationTracker(private val context: Context) {
         } catch (error: SecurityException) {
             // 위치 권한이 없다 — 실제 반경 지오펜스 폴백으로 성립한다.
             // 알림이 수십 초 늦을 뿐 사라지지는 않는다.
+            DiagnosticLog.write(context, "precise", "location permission missing, tracking unavailable $error")
         }
     }
 

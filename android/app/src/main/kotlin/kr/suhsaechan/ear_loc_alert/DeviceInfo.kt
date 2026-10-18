@@ -30,6 +30,7 @@ object DeviceInfo {
         try {
             block().toString()
         } catch (error: Exception) {
+            // 항목 하나만 "?" 로 표시한다 — 요약 줄 전체가 기록이라 별도 로그는 중복이다
             "?"
         }
 

@@ -48,6 +48,7 @@ object WatchState {
                 json.keys().asSequence().associateWith { key -> json.get(key) }
             }
         } catch (error: Exception) {
+            DiagnosticLog.write(context, "state", "saved fences unreadable, treated as empty $error")
             emptyList()
         }
     }
