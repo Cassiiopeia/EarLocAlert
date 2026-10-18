@@ -128,7 +128,11 @@ class _NativeStripAdSlotState extends ConsumerState<NativeStripAdSlot> {
         child: SizedBox(
           width: double.infinity,
           height: NativeStripAdSlot.stripHeight,
-          child: ref.watch(nativeStripAdViewBuilderProvider)(loadedAd),
+          // 광고마다 키를 새로 준다 (AdWidget 이 같은 자리에서 광고만 바뀌면 옛 뷰가 남는다)
+          child: KeyedSubtree(
+            key: ObjectKey(loadedAd),
+            child: ref.watch(nativeStripAdViewBuilderProvider)(loadedAd),
+          ),
         ),
       ),
     );

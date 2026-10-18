@@ -51,8 +51,31 @@ class _FakeLoader implements NativeStripAdLoader {
   }
 }
 
+/// 광고 하나당 상태 하나 — 광고가 바뀌었는데 상태가 재사용되면 옛 플랫폼 뷰가 남는다
+class _ViewProbe extends StatefulWidget {
+  const _ViewProbe({required this.ad, required this.onStateCreated});
+
+  final LoadedNativeStripAd ad;
+  final void Function(LoadedNativeStripAd ad) onStateCreated;
+
+  @override
+  State<_ViewProbe> createState() => _ViewProbeState();
+}
+
+class _ViewProbeState extends State<_ViewProbe> {
+  @override
+  void initState() {
+    super.initState();
+    widget.onStateCreated(widget.ad);
+  }
+
+  @override
+  Widget build(BuildContext context) => const SizedBox.expand();
+}
+
 void main() {
   late _FakeConsent consent;
+  late List<LoadedNativeStripAd> viewStateAds;
   late _FakeLoader loader;
   late List<bool> loadedReports;
 
@@ -62,7 +85,10 @@ void main() {
         adConsentProvider.overrideWithValue(consent),
         nativeStripAdLoaderProvider.overrideWithValue(loader),
         nativeStripAdViewBuilderProvider.overrideWithValue(
-          (loadedAd) => const SizedBox.expand(key: Key('strip-view')),
+          (loadedAd) => SizedBox.expand(
+            key: const Key('strip-view'),
+            child: _ViewProbe(ad: loadedAd, onStateCreated: viewStateAds.add),
+          ),
         ),
       ],
       child: MaterialApp(
@@ -81,6 +107,7 @@ void main() {
     consent = _FakeConsent(true);
     loader = _FakeLoader();
     loadedReports = [];
+    viewStateAds = [];
   });
 
   testWidgets('로드되면 높이 44 의 띠를 그리고 부모에게 알린다', (tester) async {
@@ -142,6 +169,17 @@ void main() {
     expect(loader.loadedAds.first.isDisposed, isTrue);
     expect(loader.loadedAds.last.isDisposed, isFalse);
     expect(find.byKey(const Key('strip-view')), findsOneWidget);
+  });
+
+  testWidgets('광고가 바뀌면 그리는 뷰도 새로 만든다 (옛 플랫폼 뷰가 남지 않게)', (tester) async {
+    await tester.pumpWidget(app());
+    await tester.pump();
+    await tester.pumpWidget(app(theme: AppTheme.light()));
+    await tester.pumpAndSettle();
+
+    expect(viewStateAds, hasLength(2));
+    expect(viewStateAds.first, same(loader.loadedAds.first));
+    expect(viewStateAds.last, same(loader.loadedAds.last));
   });
 
   testWidgets('같은 테마로 다시 빌드해도 다시 요청하지 않는다', (tester) async {
