@@ -84,7 +84,7 @@ class _PlaceSheet extends ConsumerWidget {
         children: const [
           Padding(
             padding: EdgeInsets.all(AppSpacing.md),
-            child: Center(child: CircularProgressIndicator()),
+            child: CenteredLoadingIndicator(),
           ),
         ],
       );

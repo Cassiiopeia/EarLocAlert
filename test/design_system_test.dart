@@ -116,6 +116,48 @@ void main() {
     });
   });
 
+  group('확인 창·스낵바·로딩 표시는 core/ui 부품으로 띄운다 (#284)', () {
+    // 화면과 app 라우트 모두 대상 — 우회는 설정 라우트에서도 있었다
+    final screens = [
+      ...presentation,
+      ...Directory('lib/app')
+          .listSync(recursive: true)
+          .whereType<File>()
+          .where((f) => f.path.endsWith('.dart')),
+    ];
+
+    for (final (name, pattern, instead) in [
+      (
+        'showDialog / AlertDialog',
+        RegExp(r'\bshowDialog\b|\bAlertDialog\('),
+        'showConfirmDialog · showChoiceDialog',
+      ),
+      (
+        'SnackBar(',
+        RegExp(r'\bSnackBar\('),
+        'context.showToast · showToastOnMessenger · showSnackBarWithActionButton',
+      ),
+      (
+        'ProgressIndicator',
+        RegExp(r'\b(Circular|Linear)ProgressIndicator\('),
+        'CenteredLoadingIndicator · InlineLoadingIndicator',
+      ),
+    ]) {
+      test('$name 를 직접 쓰지 않는다', () {
+        final offenders = [
+          for (final file in screens)
+            if (pattern.hasMatch(file.readAsStringSync())) file.path,
+        ];
+        expect(
+          offenders,
+          isEmpty,
+          reason:
+              '문구·버튼 배치·로딩 모양이 화면마다 제각각이 된다 — $instead 를 쓴다.\n해당: $offenders',
+        );
+      });
+    }
+  });
+
   group('주 액션은 하단 한 자리뿐이다', () {
     test('한 화면에 FilledButton 이 둘 이상이면 위계가 갈린다', () {
       final offenders = <String>[];

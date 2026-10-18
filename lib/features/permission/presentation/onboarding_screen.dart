@@ -17,6 +17,7 @@ import '../domain/permission_snapshot.dart';
 import 'permission_controller.dart';
 import 'permission_copy.dart';
 import 'reliability_prompt_provider.dart';
+import '../../../core/ui/components/loading_indicator.dart';
 
 /// 권한 온보딩 화면 (docs/06-UX.md)
 ///
@@ -127,7 +128,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
       child: Scaffold(
         body: SafeArea(
           child: asyncSnapshot.when(
-            loading: () => const Center(child: CircularProgressIndicator()),
+            loading: () => const CenteredLoadingIndicator(),
             error: (error, _) => _ErrorView(
               onRetry: () =>
                   ref.read(permissionControllerProvider.notifier).refresh(),
@@ -140,7 +141,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
               // 허용된 사용자는 권한 조회가 먼저 끝나므로 안내 화면이
               // 통째로 사라졌다. 기록도 남지 않아 다음 실행에서도 반복됐다.
               if (!asyncPromptSeen.hasValue && asyncPromptSeen.isLoading) {
-                return const Center(child: CircularProgressIndicator());
+                return const CenteredLoadingIndicator();
               }
               // 읽기에 실패했으면 "아직 안 권했다"로 본다 — 저장소 구현과
               // 같은 기본값이다. 한 번 더 묻는 쪽이 영영 안 묻는 쪽보다 낫다.
@@ -159,7 +160,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
                 WidgetsBinding.instance.addPostFrameCallback((_) {
                   if (mounted) widget.onFinished?.call();
                 });
-                return const Center(child: CircularProgressIndicator());
+                return const CenteredLoadingIndicator();
               }
 
               return _StepView(

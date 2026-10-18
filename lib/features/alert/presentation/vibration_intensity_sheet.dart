@@ -8,6 +8,7 @@ import '../../../core/text/keep_all.dart';
 import '../domain/alert_effects.dart';
 import '../domain/vibration_intensity.dart';
 import '../data/alert_providers.dart';
+import '../../../core/ui/components/loading_indicator.dart';
 
 /// 진동 세기 설정 바텀시트 (이슈 #103)
 ///
@@ -98,7 +99,7 @@ class _VibrationIntensitySheetState
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (selected == null)
-            const Center(child: CircularProgressIndicator())
+            const CenteredLoadingIndicator()
           else
             RadioGroup<VibrationIntensity>(
               groupValue: selected,

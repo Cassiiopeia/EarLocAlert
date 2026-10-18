@@ -130,8 +130,11 @@ import '../domain/place_repository.dart';               // O
 | 색 · 글자 | `context.appColors` · `context.appTextStyles` |
 | 알림 방향 아이콘 · 색 | `AlertDirection.outlinedIcon` · `.colorFrom(semantic)` |
 | 되돌리기 스낵바 | `showSnackBarWithActionButton` |
+| 문구만 띄우는 토스트 | `context.showToast` · (비동기 뒤) `showToastOnMessenger` |
+| 확인 창 | `showConfirmDialog` (취소/확인) · `showChoiceDialog` (버튼 여럿, 닫음과 구분) |
+| 로딩 표시 | `CenteredLoadingIndicator` · `InlineLoadingIndicator` |
 
-`showModalBottomSheet` · `ListTile` · `AppColors.` · `AppTypography.` 를 화면에서 직접 쓰면 `design_system_test` 가 실패한다. 이름은 **길어도 이름만 보고 역할을 알 수 있게** 짓는다.
+`showModalBottomSheet` · `ListTile` · `showDialog` · `AlertDialog` · `SnackBar(` · `CircularProgressIndicator` · `AppColors.` · `AppTypography.` 를 화면에서 직접 쓰면 `design_system_test` 가 실패한다. 이름은 **길어도 이름만 보고 역할을 알 수 있게** 짓는다.
 
 ## 규칙 4 — `alert` 는 `ads` 를 기다리지 않는다
 

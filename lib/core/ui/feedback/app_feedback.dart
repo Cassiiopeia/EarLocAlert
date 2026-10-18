@@ -9,11 +9,17 @@ import '../../text/keep_all.dart';
 /// 화면에 나오지 않는다 — 방금 누른 것에 대한 답이 늦게 오면 반응이 없는
 /// 것으로 읽힌다. 지금 누른 동작의 결과가 지금 보여야 한다.
 extension AppToast on BuildContext {
-  void showToast(String message) {
-    ScaffoldMessenger.of(this)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text(keepAllText(message))));
-  }
+  void showToast(String message) =>
+      showToastOnMessenger(ScaffoldMessenger.of(this), message);
+}
+
+/// 비동기 뒤에 쓰는 토스트 — 미리 잡아 둔 [ScaffoldMessengerState] 로 띄운다
+void showToastOnMessenger(ScaffoldMessengerState messenger, String message) {
+  messenger
+    ..hideCurrentSnackBar()
+    ..showSnackBar(
+      SnackBar(content: Text(messenger.context.keepAllText(message))),
+    );
 }
 
 /// 취소/확인 두 개짜리 확인 창. **확인이면 `true`, 그 밖(취소·바깥 탭)은 `false`.**
@@ -44,6 +50,38 @@ Future<bool> showConfirmDialog(
   );
   return confirmed ?? false;
 }
+
+/// [showChoiceDialog] 의 버튼 하나 — [value] 가 null 이면 취소로 읽힌다
+class AppDialogChoice<T extends Object> {
+  const AppDialogChoice({required this.label, this.value});
+
+  final String label;
+  final T? value;
+}
+
+/// 버튼 둘 이상인 선택 창. **누른 버튼의 값, 바깥 탭이나 value 가 null 인 버튼이면 null.**
+///
+/// 취소와 "답하지 않고 닫음"을 구분해야 할 때 쓴다(진동 시험의 예·아니요).
+Future<T?> showChoiceDialog<T extends Object>(
+  BuildContext context, {
+  required String title,
+  required String body,
+  TextStyle? bodyStyle,
+  required List<AppDialogChoice<T>> choices,
+}) => showDialog<T>(
+  context: context,
+  builder: (dialogContext) => AlertDialog(
+    title: Text(title),
+    content: Text(dialogContext.keepAllText(body), style: bodyStyle),
+    actions: [
+      for (final choice in choices)
+        TextButton(
+          onPressed: () => Navigator.of(dialogContext).pop(choice.value),
+          child: Text(choice.label),
+        ),
+    ],
+  ),
+);
 
 /// 버튼이 하나 달린 스낵바 — 되돌리기·다시 시작처럼 바로 이어서 할 동작이 있을 때 (#276)
 ///

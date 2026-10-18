@@ -20,6 +20,7 @@ import 'sound_import_message.dart';
 import 'sound_providers.dart';
 import '../../../core/ui/feedback/app_feedback.dart';
 import '../data/sound_service_providers.dart';
+import '../../../core/ui/components/loading_indicator.dart';
 
 /// 알림음 선택 시트 (이슈 #121)
 ///
@@ -240,7 +241,7 @@ class _SoundPickerSheetState extends ConsumerState<_SoundPickerSheet>
                 if (customSounds == null)
                   const Padding(
                     padding: EdgeInsets.all(AppSpacing.md),
-                    child: Center(child: CircularProgressIndicator()),
+                    child: CenteredLoadingIndicator(),
                   )
                 else if (customSounds.isEmpty)
                   Padding(
@@ -271,11 +272,7 @@ class _SoundPickerSheetState extends ConsumerState<_SoundPickerSheet>
                   child: OutlinedButton.icon(
                     onPressed: _busy ? null : _addSound,
                     icon: _busy
-                        ? const SizedBox(
-                            width: 16,
-                            height: 16,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
+                        ? const InlineLoadingIndicator()
                         : const Icon(Icons.add_outlined),
                     label: Text(
                       _busy

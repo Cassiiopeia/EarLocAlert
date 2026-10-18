@@ -20,6 +20,7 @@ import '../domain/place_search.dart';
 import '../domain/place_validator.dart';
 import 'current_location_message.dart';
 import '../../../core/ui/components/section_title_with_trailing_value.dart';
+import '../../../core/ui/components/loading_indicator.dart';
 
 /// 지도에서 고른 결과 — 위치와 반경을 함께 돌려준다.
 ///
@@ -514,11 +515,7 @@ class _SearchOverlay extends StatelessWidget {
                     suffixIcon: searching
                         ? const Padding(
                             padding: EdgeInsets.all(AppSpacing.xs),
-                            child: SizedBox(
-                              width: AppIconSize.inline,
-                              height: AppIconSize.inline,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            ),
+                            child: InlineLoadingIndicator(),
                           )
                         : controller.text.isEmpty
                         ? null

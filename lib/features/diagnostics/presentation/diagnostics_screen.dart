@@ -12,6 +12,7 @@ import '../../../core/ui/foundation/app_spacing.dart';
 import '../../../core/text/keep_all.dart';
 import '../../../core/ui/feedback/app_feedback.dart';
 import '../../../core/text/two_digits.dart';
+import '../../../core/ui/components/loading_indicator.dart';
 
 /// 진단 로그 화면 (이슈 #95)
 ///
@@ -188,7 +189,7 @@ class _DiagnosticsScreenState extends ConsumerState<DiagnosticsScreen> {
         ],
       ),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const CenteredLoadingIndicator()
           : Column(
               children: [
                 _Header(lineCount: lines.length, sizeBytes: _sizeBytes),

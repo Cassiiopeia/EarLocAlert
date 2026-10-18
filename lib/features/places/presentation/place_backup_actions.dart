@@ -7,7 +7,6 @@ import 'package:share_plus/share_plus.dart';
 
 import '../../../core/diagnostics/diagnostics.dart';
 import '../../../core/l10n/l10n.dart';
-import '../../../core/text/keep_all.dart';
 import '../../../core/text/two_digits.dart';
 import '../../../core/ui/feedback/app_feedback.dart';
 import '../domain/place_backup.dart';
@@ -129,32 +128,19 @@ Future<void> importPlacesBackup(
 
   final existing = await repository.findAll();
   if (!context.mounted) return;
-  final choice = await showDialog<_ImportChoice>(
-    context: context,
-    builder: (dialogContext) => AlertDialog(
-      title: Text(l10n.backupImportTitle),
-      content: Text(
-        dialogContext.keepAllText(
-          l10n.backupImportBody(decoded.places.length, existing.length),
+  final choice = await showChoiceDialog<_ImportChoice>(
+    context,
+    title: l10n.backupImportTitle,
+    body: l10n.backupImportBody(decoded.places.length, existing.length),
+    choices: [
+      AppDialogChoice(label: l10n.backupCancel),
+      if (existing.isNotEmpty)
+        AppDialogChoice(
+          label: l10n.backupImportReplace,
+          value: _ImportChoice.replace,
         ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(dialogContext).pop(),
-          child: Text(l10n.backupCancel),
-        ),
-        if (existing.isNotEmpty)
-          TextButton(
-            onPressed: () =>
-                Navigator.of(dialogContext).pop(_ImportChoice.replace),
-            child: Text(l10n.backupImportReplace),
-          ),
-        TextButton(
-          onPressed: () => Navigator.of(dialogContext).pop(_ImportChoice.add),
-          child: Text(l10n.backupImportAdd),
-        ),
-      ],
-    ),
+      AppDialogChoice(label: l10n.backupImportAdd, value: _ImportChoice.add),
+    ],
   );
   if (choice == null || !context.mounted) {
     Diagnostics.log('backup', 'import cancelled at=choice');

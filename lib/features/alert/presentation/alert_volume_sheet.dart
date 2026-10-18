@@ -8,6 +8,7 @@ import '../../../core/ui/foundation/app_color_palette.dart';
 import '../../../core/text/keep_all.dart';
 import '../domain/alert_effects.dart';
 import '../data/alert_providers.dart';
+import '../../../core/ui/components/loading_indicator.dart';
 
 /// 알림음 크기 설정 바텀시트 (이슈 #86)
 ///
@@ -85,7 +86,7 @@ class _AlertVolumeSheetState extends ConsumerState<_AlertVolumeSheet> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (volume == null)
-            const Center(child: CircularProgressIndicator())
+            const CenteredLoadingIndicator()
           else
             Row(
               children: [

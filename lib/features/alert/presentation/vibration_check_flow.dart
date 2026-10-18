@@ -30,25 +30,15 @@ Future<void> runVibrationCheck(
   await check.fire(trigger: trigger);
   if (!context.mounted) return;
 
-  final felt = await showDialog<bool>(
-    context: context,
-    builder: (dialogContext) => AlertDialog(
-      title: Text(dialogContext.l10n.vibrationTestQuestion),
-      content: Text(
-        dialogContext.keepAllText(dialogContext.l10n.vibrationTestQuestionBody),
-        style: context.appTextStyles.body,
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(dialogContext).pop(false),
-          child: Text(dialogContext.l10n.vibrationTestNo),
-        ),
-        TextButton(
-          onPressed: () => Navigator.of(dialogContext).pop(true),
-          child: Text(dialogContext.l10n.vibrationTestYes),
-        ),
-      ],
-    ),
+  final felt = await showChoiceDialog<bool>(
+    context,
+    title: context.l10n.vibrationTestQuestion,
+    body: context.l10n.vibrationTestQuestionBody,
+    bodyStyle: context.appTextStyles.body,
+    choices: [
+      AppDialogChoice(label: context.l10n.vibrationTestNo, value: false),
+      AppDialogChoice(label: context.l10n.vibrationTestYes, value: true),
+    ],
   );
 
   if (felt == null) {

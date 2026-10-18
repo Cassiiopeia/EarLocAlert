@@ -128,9 +128,7 @@ class _SettingsRouteState extends ConsumerState<_SettingsRoute>
           duration: const Duration(seconds: 15),
         );
       case AppUpdateOutcome.none:
-        messenger
-          ..hideCurrentSnackBar()
-          ..showSnackBar(SnackBar(content: Text(l10n.appUpdateNone)));
+        showToastOnMessenger(messenger, l10n.appUpdateNone);
       case AppUpdateOutcome.skippedAlertActive:
       case AppUpdateOutcome.skippedRecent:
         break;

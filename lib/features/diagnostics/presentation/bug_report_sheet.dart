@@ -5,6 +5,7 @@ import '../../../core/diagnostics/diagnostic_log_reader.dart';
 import '../../../core/diagnostics/diagnostics.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/ui/components/bottom_sheet_with_header_layout.dart';
+import '../../../core/ui/feedback/app_feedback.dart';
 import '../../../core/text/keep_all.dart';
 import '../../../core/ui/foundation/app_color_palette.dart';
 import '../domain/bug_report_sending.dart';
@@ -119,7 +120,7 @@ class _BugReportSheetState extends State<_BugReportSheet> {
       case BugReportOutcome.shareSheet:
         navigator.pop();
       case BugReportOutcome.failed:
-        messenger.showSnackBar(SnackBar(content: Text(failedText)));
+        showToastOnMessenger(messenger, failedText);
     }
   }
 

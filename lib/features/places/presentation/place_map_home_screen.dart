@@ -27,6 +27,7 @@ import 'place_card.dart';
 import 'place_empty_state.dart';
 import 'place_list_controller.dart';
 import '../../../core/map/marker_hue.dart';
+import '../../../core/ui/components/loading_indicator.dart';
 
 // 화면 조각은 파일을 나눴다 (아키텍처 검수 #276 — 한 파일 1000줄 안팎)
 part 'home/home_status_bar.dart';
