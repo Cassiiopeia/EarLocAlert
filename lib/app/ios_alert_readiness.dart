@@ -7,7 +7,7 @@ import '../core/diagnostics/diagnostics.dart';
 import '../features/alert/domain/vibration_check.dart';
 import '../features/alert/presentation/vibration_check_provider.dart';
 import '../features/permission/domain/ios_notification_settings.dart';
-import '../features/permission/presentation/ios_notification_settings_provider.dart';
+import '../features/permission/data/ios_notification_settings_provider.dart';
 import 'arrival_alarm_providers.dart';
 import 'background/arrival_alarm_channel.dart';
 import 'reliability_gap.dart';

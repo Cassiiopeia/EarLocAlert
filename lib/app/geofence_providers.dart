@@ -10,7 +10,6 @@ import '../features/geofence/data/geofence_state_repository_provider.dart';
 import '../features/places/data/place_repository_provider.dart';
 import '../features/sounds/data/custom_sound_repository_provider.dart';
 import '../core/domain/id_generator.dart';
-import '../features/alert/presentation/alert_controller_provider.dart';
 import '../features/geofence/data/android_geofence_monitor.dart';
 import '../features/geofence/data/drift_geofence_event_repository.dart';
 import '../features/geofence/domain/geofence_evaluator.dart';
@@ -32,6 +31,7 @@ import 'background/region_event_relay.dart';
 import 'geofence_registration_sync.dart';
 import 'geofence_sync_signal.dart';
 import 'pending_alert_launcher.dart';
+import '../features/alert/data/alert_providers.dart';
 
 part 'geofence_providers.g.dart';
 

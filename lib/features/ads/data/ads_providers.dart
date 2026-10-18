@@ -2,9 +2,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../data/google_ad_consent.dart';
-import '../data/google_interstitial_ad_service.dart';
-import '../data/prefs_ad_frequency_store.dart';
+import './google_ad_consent.dart';
+import './google_interstitial_ad_service.dart';
+import './prefs_ad_frequency_store.dart';
 import '../domain/ad_consent.dart';
 import '../domain/ad_frequency_store.dart';
 import '../domain/interstitial_ad_service.dart';

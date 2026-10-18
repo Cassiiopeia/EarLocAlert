@@ -16,14 +16,14 @@ import '../core/l10n/locale_resolver.dart';
 import '../core/config/ad_unit_ids.dart';
 import '../core/ui/foundation/app_theme.dart';
 import '../features/ads/domain/ad_consent.dart';
-import '../features/ads/presentation/ads_providers.dart';
+import '../features/ads/data/ads_providers.dart';
 import '../features/alert/data/alert_notifier_impl.dart';
 import '../features/alert/domain/alert_controller.dart';
 import '../features/alert/presentation/alert_controller_provider.dart';
 import '../features/app_update/domain/app_updater.dart';
-import '../features/app_update/presentation/app_update_providers.dart';
+import '../features/app_update/data/app_update_providers.dart';
 import '../core/platform/notification_actions.dart';
-import '../features/permission/presentation/ios_notification_settings_provider.dart';
+import '../features/permission/data/ios_notification_settings_provider.dart';
 import 'arrival_alarm_providers.dart';
 import 'background/background_alert_notifier.dart';
 import 'background/notification_action_handler.dart';
@@ -40,6 +40,7 @@ import 'notification_dismiss_action.dart';
 import 'pending_alert_resumer.dart';
 import 'router.dart';
 import 'splash_overlay.dart';
+import '../features/alert/data/alert_providers.dart';
 
 /// 앱 루트 (docs/02-ARCHITECTURE.md)
 class EarLocAlertApp extends ConsumerStatefulWidget {

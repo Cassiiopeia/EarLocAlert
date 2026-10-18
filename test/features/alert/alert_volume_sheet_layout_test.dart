@@ -1,11 +1,11 @@
 import 'package:ear_loc_alert/core/ui/foundation/app_theme.dart';
 import 'package:ear_loc_alert/features/alert/domain/alert_effects.dart';
-import 'package:ear_loc_alert/features/alert/presentation/alert_controller_provider.dart';
 import 'package:ear_loc_alert/features/alert/presentation/alert_volume_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ear_loc_alert/core/l10n/l10n.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:ear_loc_alert/features/alert/data/alert_providers.dart';
 
 /// 알림음 크기 시트의 레이아웃 (이슈 #153)
 ///

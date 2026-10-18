@@ -6,6 +6,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../features/alert/presentation/alert_controller_provider.dart';
 import 'arrival_alarm_coordinator.dart';
 import 'background/arrival_alarm_channel.dart';
+import '../features/alert/data/alert_providers.dart';
 
 part 'arrival_alarm_providers.g.dart';
 

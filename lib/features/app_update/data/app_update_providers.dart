@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import '../data/play_app_updater.dart';
+import './play_app_updater.dart';
 import '../domain/app_updater.dart';
 
 part 'app_update_providers.g.dart';

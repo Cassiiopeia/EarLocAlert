@@ -115,7 +115,7 @@ import '../domain/place_repository.dart';               // O
 
 화면은 인터페이스만 본다. 구현 교체(Drift → 다른 저장소)가 화면 코드를 건드리지 않아야 하고, 테스트에서 가짜 리포지토리를 넣을 수 있어야 한다.
 
-**예외 — provider 조립 파일.** `*_provider.dart` · `*_providers.dart` 는 구현체를 인터페이스에 묶는 DI 코드라 `data` 를 import 한다. 화면 파일은 그 provider 를 통해 인터페이스만 받는다. 플랫폼 구현을 화면 생성자로 넘겨야 할 때(`CurrentLocationService`, `BugReportSending`)는 `app` 라우트가 구현체를 넣는다.
+**예외 — provider 조립 파일.** 구현체를 인터페이스에 묶는 DI 코드는 `data/*_provider(s).dart` 에 둔다. 화면은 그 파일만 import 할 수 있고, 그 provider 를 통해 인터페이스를 받는다 (결정 067). 화면 상태를 들고 있는 provider 는 presentation 에 두고 조립 파일을 import 한다. 플랫폼 구현을 화면 생성자로 넘겨야 할 때(`CurrentLocationService`, `BugReportSending`)는 `app` 라우트가 구현체를 넣는다.
 
 ### 규칙 3.5 — 화면은 디자인 시스템 부품을 조립한다 (#276)
 
@@ -172,7 +172,7 @@ await alertController.dismiss();          // 그 뒤에야 알림이 멈춘다
 | 수단 | 잡는 것 |
 |---|---|
 | `custom_lint` + `riverpod_lint` | Riverpod 오용, Provider 누락 |
-| `test/architecture_boundary_test.dart` (#276) | feature 간 직접 import, core → features·app 역참조, presentation → data(조립 파일 제외), domain → data·presentation·Flutter 화면 |
+| `test/architecture_boundary_test.dart` (#276) | feature 간 직접 import, core → features·app 역참조, presentation → data(`data/*_provider(s).dart` 만 허용), data → presentation, domain → data·presentation·Flutter 화면 |
 | `test/design_system_test.dart` | 화면의 원본 시트·ListTile·색·글자 상수 직접 사용, 주 버튼 두 개, 아이콘 규격 |
 
 예전 표에는 `analysis_options.yaml` 의 import 규칙이 적혀 있었지만 실제 규칙이 없어 위반이 쌓였다(아키텍처 검수 #276). 지금은 테스트가 import 줄을 읽어 막는다.

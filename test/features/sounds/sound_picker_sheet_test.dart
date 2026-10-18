@@ -8,11 +8,11 @@ import 'package:ear_loc_alert/features/sounds/domain/custom_sound.dart';
 import 'package:ear_loc_alert/features/sounds/domain/custom_sound_repository.dart';
 import 'package:ear_loc_alert/features/sounds/domain/sound_preview_player.dart';
 import 'package:ear_loc_alert/features/sounds/presentation/sound_picker_sheet.dart';
-import 'package:ear_loc_alert/features/sounds/presentation/sound_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ear_loc_alert/core/l10n/l10n.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:ear_loc_alert/features/sounds/data/sound_service_providers.dart';
 
 /// 알림음 선택 시트 (이슈 #121)
 ///

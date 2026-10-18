@@ -7,7 +7,7 @@ import '../../../core/ui/foundation/app_spacing.dart';
 import '../../../core/ui/foundation/app_color_palette.dart';
 import '../../../core/text/keep_all.dart';
 import '../domain/alert_effects.dart';
-import 'alert_controller_provider.dart';
+import '../data/alert_providers.dart';
 
 /// 알림음 크기 설정 바텀시트 (이슈 #86)
 ///

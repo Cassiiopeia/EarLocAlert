@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import '../features/ads/presentation/ads_providers.dart';
+import '../features/ads/data/ads_providers.dart';
 import 'alert_ad_coordinator.dart';
 
 part 'alert_ad_coordinator_provider.g.dart';

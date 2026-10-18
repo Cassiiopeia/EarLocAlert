@@ -3,7 +3,7 @@ import 'dart:io' show Platform;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import '../data/ios_notification_settings_channel.dart';
+import './ios_notification_settings_channel.dart';
 import '../domain/ios_notification_settings.dart';
 
 part 'ios_notification_settings_provider.g.dart';

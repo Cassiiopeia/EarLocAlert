@@ -1675,6 +1675,20 @@ Play 자동 업데이트(029)만으로는 사용자가 새 버전을 받는 시�
 
 **흔들리던 테스트의 원인 (#278)** — 홈 상단 알약의 로고 `Image.asset` 에 높이만 있어, 디코딩 전 폭 0 → 디코딩 후 16.7 로 바뀌며 알약이 늘어났다. 테스트 글꼴이 실제보다 넓어 그 순간 0.4px 넘쳤고, 디코딩이 끝나는 시점이 실행마다 달라 가끔만 실패했다. 로고 폭을 고정하고, 실제 글꼴(Pretendard)로 좁은 폰 폭을 재는 테스트를 더했다.
 
+## 067. provider 조립은 `data/*_provider(s).dart` 한 곳에 둔다 — 화면은 그 문으로만 data 를 본다
+
+**날짜** — 2026-10-18 · **이슈** — #284
+
+**배경** — 전체 점검에서 presentation 이 data 를 import 하는 곳이 23건 나왔다. 조립 파일이 `permission`·`places`·`sounds` 에서는 `data/` 에, `ads`·`alert`·`app_update` 에서는 `presentation/` 에 있어 관례가 둘이었고, 경계 테스트는 어느 쪽이든 `_provider(s).dart` 면 통과시켰다.
+
+**결정**
+
+1. 구현체를 인터페이스에 묶는 provider 는 `features/<name>/data/<이름>_provider(s).dart` 에 둔다. 화면 상태(`ActiveAlert`, `VibrationCheck`, `customSoundList` 등)를 들고 있는 provider 는 presentation 에 남기고 위 파일을 import 한다.
+2. `presentation → data` 는 **대상이 `data/*_provider(s).dart` 일 때만** 허용한다. `data → presentation` 은 금지한다. 둘 다 `architecture_boundary_test` 가 막는다.
+3. 옮긴 파일: `ads_providers` · `app_update_providers` · `place_search_provider` · `ios_notification_settings_provider` (통째로), `alert_providers` · `vibration_check_store_provider` · `sound_service_providers` (조립 부분만 분리).
+
+**하지 않은 것** — `application` 계층을 새로 두지 않았다. 조립 파일 몇 개 때문에 폴더 계층을 늘리면 오히려 읽기 어렵다.
+
 ## 미결 — 결정하지 않은 것들
 
 **결정하지 않았다는 사실을 기록한다.** 나중에 "왜 이건 안 정했지"를 헤매지 않기 위해서다.

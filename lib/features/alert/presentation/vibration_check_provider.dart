@@ -1,16 +1,12 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../core/diagnostics/diagnostics.dart';
-import '../data/prefs_vibration_check_store.dart';
+import '../data/vibration_check_store_provider.dart';
 import '../domain/vibration_check.dart';
 import '../domain/vibration_intensity.dart';
-import 'alert_controller_provider.dart';
+import '../data/alert_providers.dart';
 
 part 'vibration_check_provider.g.dart';
-
-@Riverpod(keepAlive: true)
-VibrationCheckStore vibrationCheckStore(Ref ref) => PrefsVibrationCheckStore();
 
 /// 진동 시험 (이슈 #237)
 ///

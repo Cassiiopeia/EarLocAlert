@@ -61,16 +61,24 @@ void main() {
     expect(offenders, isEmpty, reason: offenders.join('\n'));
   });
 
-  test('presentation 은 data 구현을 모른다 — provider 조립 파일만 예외 (규칙 3)', () {
-    // `*_provider(s).dart` 는 구현체를 인터페이스에 묶는 조립(DI) 코드다.
-    // 화면 파일은 그 provider 를 통해 인터페이스만 받는다
-    final assembly = RegExp(r'_providers?\.dart$');
+  test('presentation 은 data 구현을 모른다 — data 의 provider 조립 파일만 문이다 (규칙 3)', () {
+    // 구현체를 인터페이스에 묶는 조립(DI)은 `data/*_provider(s).dart` 한 곳에 둔다.
+    // 화면은 그 provider 를 통해 인터페이스만 받는다 (#284)
+    final assembly = RegExp(r'/data/[^/]*_providers?\.dart$');
     final offenders = [
       for (final (file, target) in _importsUnder('lib/features'))
         if (file.path.contains('/presentation/') &&
             target.contains('/data/') &&
-            !assembly.hasMatch(file.path) &&
             !assembly.hasMatch(target))
+          '${file.path} → $target',
+    ];
+    expect(offenders, isEmpty, reason: offenders.join('\n'));
+  });
+
+  test('data 는 presentation 을 모른다 (규칙 3)', () {
+    final offenders = [
+      for (final (file, target) in _importsUnder('lib/features'))
+        if (file.path.contains('/data/') && target.contains('/presentation/'))
           '${file.path} → $target',
     ];
     expect(offenders, isEmpty, reason: offenders.join('\n'));

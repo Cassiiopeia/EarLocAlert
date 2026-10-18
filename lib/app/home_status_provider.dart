@@ -2,11 +2,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../core/diagnostics/diagnostics.dart';
-import '../features/alert/presentation/alert_controller_provider.dart';
 import '../features/permission/presentation/permission_controller.dart';
 import 'geofence_providers.dart';
 import 'ios_alert_readiness.dart';
 import 'reliability_gap.dart';
+import '../features/alert/data/alert_providers.dart';
 
 export 'reliability_gap.dart';
 

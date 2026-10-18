@@ -7,7 +7,7 @@ import '../../../core/ui/foundation/app_color_palette.dart';
 import '../../../core/text/keep_all.dart';
 import '../domain/alert_effects.dart';
 import '../domain/vibration_intensity.dart';
-import 'alert_controller_provider.dart';
+import '../data/alert_providers.dart';
 
 /// 진동 세기 설정 바텀시트 (이슈 #103)
 ///

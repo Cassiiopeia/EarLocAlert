@@ -4,11 +4,11 @@ import 'package:ear_loc_alert/features/alert/data/prefs_vibration_check_store.da
 import 'package:ear_loc_alert/features/alert/domain/alert_effects.dart';
 import 'package:ear_loc_alert/features/alert/domain/vibration_check.dart';
 import 'package:ear_loc_alert/features/alert/domain/vibration_intensity.dart';
-import 'package:ear_loc_alert/features/alert/presentation/alert_controller_provider.dart';
 import 'package:ear_loc_alert/features/alert/presentation/vibration_check_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:ear_loc_alert/features/alert/data/alert_providers.dart';
 
 class _RecordingLogger implements DiagnosticLogger {
   final lines = <String>[];
