@@ -1185,14 +1185,8 @@ abstract class AppLocalizations {
   /// No description provided for @placeEmptyTitle.
   ///
   /// In ko, this message translates to:
-  /// **'첫 장소를 등록해보세요'**
+  /// **'첫 장소를 등록해주세요'**
   String get placeEmptyTitle;
-
-  /// No description provided for @placeEmptyBody.
-  ///
-  /// In ko, this message translates to:
-  /// **'내릴 정류장, 약속 장소, 집 —\n도착하거나 떠날 때 조용히 알려드립니다.'**
-  String get placeEmptyBody;
 
   /// No description provided for @placeEmptyAction.
   ///

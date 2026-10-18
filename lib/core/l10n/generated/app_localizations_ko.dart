@@ -601,10 +601,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get placeErrorNoDays => '시간대에 요일을 하나 이상 골라주세요';
 
   @override
-  String get placeEmptyTitle => '첫 장소를 등록해보세요';
-
-  @override
-  String get placeEmptyBody => '내릴 정류장, 약속 장소, 집 —\n도착하거나 떠날 때 조용히 알려드립니다.';
+  String get placeEmptyTitle => '첫 장소를 등록해주세요';
 
   @override
   String get placeEmptyAction => '장소 등록';

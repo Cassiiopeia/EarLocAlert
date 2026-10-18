@@ -627,10 +627,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get placeEmptyTitle => 'Add your first place';
 
   @override
-  String get placeEmptyBody =>
-      'Your stop, a meeting spot, home —\nwe\'ll quietly let you know when you arrive or leave.';
-
-  @override
   String get placeEmptyAction => 'Add place';
 
   @override

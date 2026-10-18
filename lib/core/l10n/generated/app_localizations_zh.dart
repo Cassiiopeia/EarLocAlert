@@ -598,9 +598,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get placeEmptyTitle => '添加你的第一个地点';
 
   @override
-  String get placeEmptyBody => '下车站、约定地点、家——\n到达或离开时会悄悄提醒你。';
-
-  @override
   String get placeEmptyAction => '添加地点';
 
   @override

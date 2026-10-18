@@ -603,9 +603,6 @@ class AppLocalizationsJa extends AppLocalizations {
   String get placeEmptyTitle => '最初の場所を登録しましょう';
 
   @override
-  String get placeEmptyBody => '降りるバス停、待ち合わせ場所、自宅 —\n到着・出発のときに静かにお知らせします。';
-
-  @override
   String get placeEmptyAction => '場所を登録';
 
   @override

@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/ui/foundation/app_color_palette.dart';
 import '../../../core/ui/foundation/app_spacing.dart';
-import '../../../core/text/keep_all.dart';
 import '../domain/place_validator.dart';
 
 /// 빈 상태 — 앱 첫인상을 결정한다.
@@ -49,19 +48,12 @@ class PlaceEmptyState extends StatelessWidget {
           ],
           Text(
             context.l10n.placeEmptyTitle,
-            // 시트 안에서는 다른 시트 제목과 같은 굵은 본문 — 아래 회색 설명과
-            // 크기가 비슷해 굵기로 위계를 세운다 (docs/06-UX.md 타이포)
+            // 시트 안에서는 다른 시트 제목과 같은 굵은 본문 (docs/06-UX.md 타이포)
             style: compact
                 ? context.appTextStyles.body.copyWith(
                     fontWeight: FontWeight.w600,
                   )
                 : context.appTextStyles.screenTitle,
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: AppSpacing.xs),
-          Text(
-            context.keepAllText(context.l10n.placeEmptyBody),
-            style: context.appTextStyles.caption,
             textAlign: TextAlign.center,
           ),
           SizedBox(height: compact ? AppSpacing.md : AppSpacing.lg),
