@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-import '../features/ads/presentation/ad_banner_slot.dart';
+import '../features/ads/presentation/native_strip_ad_slot.dart';
 
-/// 화면 아래에 배너를 붙이는 틀 (이슈 #186)
+/// 화면 아래에 한 줄 네이티브 광고 띠를 붙이는 틀 (이슈 #186, #283)
 ///
 /// **화면이 광고를 모른다** — `places`·`settings` 는 `ads` 를 import 하지
 /// 않고, 라우트를 만드는 `app` 이 이 틀로 감싼다 (docs/02-ARCHITECTURE.md 규칙 1).
 ///
-/// 배너는 화면 **밖의** 띠다. 시트·버튼·지도가 배너 위로 밀려 올라가므로
+/// 띠는 화면 **밖에** 놓인다. 시트·버튼·지도가 띠 위로 밀려 올라가므로
 /// 눌림 요소와 겹치지 않는다. 우발적 클릭은 계정 정지 사유다.
 /// 알림·해제 완료·위치 선택 지도·온보딩 라우트는 감싸지 않는다.
 class AdBannerFrame extends StatefulWidget {
@@ -66,7 +66,7 @@ class _AdBannerFrameState extends State<AdBannerFrame> {
           offstage: keyboardOpen,
           child:
               widget.slotBuilder?.call(_onLoadedChanged) ??
-              AdBannerSlot(onLoadedChanged: _onLoadedChanged),
+              NativeStripAdSlot(onLoadedChanged: _onLoadedChanged),
         ),
       ],
     );

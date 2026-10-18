@@ -4,6 +4,7 @@ import CoreLocation
 import GoogleMaps
 import UserNotifications
 import flutter_local_notifications
+import google_mobile_ads
 import native_geofence
 
 @main
@@ -47,6 +48,14 @@ import native_geofence
     UNUserNotificationCenter.current().delegate = self
 
     GeneratedPluginRegistrant.register(with: self)
+
+    // 하단 한 줄 광고 띠 팩토리 (이슈 #283). Dart NativeAd 의 factoryId 가 이 이름을 찾는다
+    // (GoogleNativeStripAdLoader.factoryId 와 같은 값)
+    FLTGoogleMobileAdsPlugin.registerNativeAdFactory(
+      self,
+      factoryId: StripNativeAdFactory.factoryId,
+      nativeAdFactory: StripNativeAdFactory()
+    )
 
     // Google Maps API 키를 Dart(장소 검색 REST)에 넘긴다.
     // 키의 단일 소스는 .env → Info.plist 주입이고, 여기서는 그 값을

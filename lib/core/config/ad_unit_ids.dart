@@ -19,9 +19,10 @@ abstract final class AdUnitIds {
       'ca-app-pub-3940256099942544/1033173712';
   static const _testInterstitialIos = 'ca-app-pub-3940256099942544/4411468910';
 
-  /// Google 이 공개한 테스트 배너 ID (적응형 배너도 같은 단위를 쓴다).
-  static const _testBannerAndroid = 'ca-app-pub-3940256099942544/9214589741';
-  static const _testBannerIos = 'ca-app-pub-3940256099942544/2435281174';
+  /// Google 이 공개한 테스트 네이티브 고급형 ID (하단 한 줄 띠가 쓴다).
+  static const _testNativeStripAndroid =
+      'ca-app-pub-3940256099942544/2247696110';
+  static const _testNativeStripIos = 'ca-app-pub-3940256099942544/3986624511';
 
   /// 프로덕션 광고 단위 ID.
   ///
@@ -38,13 +39,14 @@ abstract final class AdUnitIds {
   /// 비어 있으면 테스트 ID 로 떨어진다.
   static const _prodInterstitialIos = 'ca-app-pub-2025665624324395/4358097652';
 
-  /// 배너 광고 단위 `banner_bottom` (이슈 #186, #187 — 2026-10-02 콘솔에서 생성).
+  /// 네이티브 띠 광고 단위 (이슈 #283)
+  /// app_ads: native_strip_bottom (2026-10-18 콘솔 생성)
   ///
-  /// **비어 있으면 릴리스 빌드도 테스트 배너다.** 콘솔에 없는 단위로 실제
-  /// 요청을 보내면 노출 없이 요청만 쌓이고, 이름 없는 단위가 섞여 집계가
-  /// 어지러워진다. 광고가 안 나가는 쪽이 안전하다.
-  static const _prodBannerAndroid = 'ca-app-pub-2025665624324395/5000175615';
-  static const _prodBannerIos = 'ca-app-pub-2025665624324395/6065845275';
+  /// 비어 있으면 릴리스 빌드는 광고를 요청하지 않는다 — 릴리스에 테스트 ID 를
+  /// 쓰면 무효 트래픽이다 (CLAUDE.md 규칙 8).
+  static const _prodNativeStripAndroid =
+      'ca-app-pub-2025665624324395/7867775865';
+  static const _prodNativeStripIos = 'ca-app-pub-2025665624324395/5992421561';
 
   /// 지금 빌드에서 써야 할 전면광고 ID
   ///
@@ -61,12 +63,16 @@ abstract final class AdUnitIds {
     prodIos: _prodInterstitialIos,
   );
 
-  /// 지금 빌드에서 써야 할 배너 ID — 전면광고와 같은 규칙이다 (이슈 #186)
-  static String get banner => _pick(
-    test: _testBanner,
-    prodAndroid: _prodBannerAndroid,
-    prodIos: _prodBannerIos,
-  );
+  /// 지금 빌드에서 써야 할 네이티브 띠 ID — 빈 문자열이면 요청하지 않는다 (이슈 #283)
+  ///
+  /// 디버그·검증·판별 불가 빌드는 테스트 단위, 배포 빌드는 실제 단위다.
+  /// 배포 빌드인데 실제 단위가 비어 있으면 테스트 ID 로 떨어지지 않고 빈 값이다.
+  static String get nativeStrip {
+    if (kDebugMode || !DevFlag.isReleaseBuildConfirmed) {
+      return _testNativeStrip;
+    }
+    return Platform.isIOS ? _prodNativeStripIos : _prodNativeStripAndroid;
+  }
 
   /// 실제 단위는 배포 빌드가 확인됐고 값이 있을 때만 쓴다. 나머지는 전부 테스트다.
   static String _pick({
@@ -84,8 +90,8 @@ abstract final class AdUnitIds {
   static String get _testInterstitial =>
       Platform.isIOS ? _testInterstitialIos : _testInterstitialAndroid;
 
-  static String get _testBanner =>
-      Platform.isIOS ? _testBannerIos : _testBannerAndroid;
+  static String get _testNativeStrip =>
+      Platform.isIOS ? _testNativeStripIos : _testNativeStripAndroid;
 
   /// 지금 테스트 ID 를 쓰고 있는가 — 진단 표시용
   static bool get usingTestIds => interstitial == _testInterstitial;

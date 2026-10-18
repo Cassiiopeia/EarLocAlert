@@ -11,6 +11,7 @@ import android.provider.Settings
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
+import io.flutter.plugins.googlemobileads.GoogleMobileAdsPlugin
 
 class MainActivity : FlutterActivity() {
 
@@ -31,6 +32,14 @@ class MainActivity : FlutterActivity() {
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
+
+        // 하단 한 줄 광고 띠 팩토리 (이슈 #283). Dart NativeAd 의 factoryId 가 이 이름을 찾는다
+        // (GoogleNativeStripAdLoader.factoryId 와 같은 값). 엔진 수명과 함께 등록·해제
+        GoogleMobileAdsPlugin.registerNativeAdFactory(
+            flutterEngine,
+            StripNativeAdFactory.FACTORY_ID,
+            StripNativeAdFactory(this),
+        )
 
         // Google Maps API 키를 Dart(장소 검색 REST)에 넘긴다.
         // 키의 단일 소스는 .env → 매니페스트 주입이고, 여기서는 그 값을
@@ -276,6 +285,11 @@ class MainActivity : FlutterActivity() {
             // 원복 실패는 볼륨이 크게 남는 불편이지 고장이 아니다
             DiagnosticLog.write(this, "volume", "volume restore failed $error")
         }
+    }
+
+    override fun cleanUpFlutterEngine(flutterEngine: FlutterEngine) {
+        GoogleMobileAdsPlugin.unregisterNativeAdFactory(flutterEngine, StripNativeAdFactory.FACTORY_ID)
+        super.cleanUpFlutterEngine(flutterEngine)
     }
 
     private fun sendToWatchService(action: String) {
