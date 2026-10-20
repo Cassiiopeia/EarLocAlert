@@ -1,7 +1,8 @@
-/// 네이티브(Kotlin)와 맺은 MethodChannel 이름.
+/// 네이티브(Kotlin·Swift)와 맺은 MethodChannel 이름.
 ///
-/// **이 값은 Kotlin 쪽 문자열과 글자 그대로 같아야 한다.** 한쪽만 바꾸면 호출이
-/// 조용히 실패한다. 채널 이름을 새로 만들 때는 여기에 더한다.
+/// **이 값은 Kotlin·Swift 쪽 문자열과 글자 그대로 같아야 한다.** 한쪽만 바꾸면 호출이
+/// 조용히 실패한다. 채널 이름을 새로 만들 때는 여기에 더한다
+/// (`test/core/platform/channel_names_test.dart` 가 양쪽 소스를 대조).
 abstract final class ChannelNames {
   static const _prefix = 'kr.suhsaechan.ear_loc_alert';
 

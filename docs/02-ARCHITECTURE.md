@@ -10,7 +10,7 @@
 | 상태 관리 | **Riverpod (code generation)** | `provider` 패키지, `setState` 로 하는 화면 상태 관리, `ChangeNotifier` |
 | 의존성 주입 | **Riverpod 으로 통일** | `get_it`, `injectable` |
 | 라우팅 | **go_router** | `Navigator.push` 직접 호출 |
-| 모델 | **Freezed + json_serializable** | 손으로 쓴 `copyWith` · `==` · `fromJson` |
+| 모델 | **Freezed** (JSON 직렬화는 쓰는 곳에서 손으로 — 대상이 SharedPreferences·채널 맵뿐) | 손으로 쓴 `copyWith` · `==` |
 | 로컬 저장소 | **Drift** (SQLite) | Hive, Isar, 도메인 데이터를 SharedPreferences 에 넣는 것 |
 | 단순 설정값 | SharedPreferences | — |
 | 지도 | google_maps_flutter | — |
@@ -23,7 +23,7 @@
 | 디자인 | **Material 3 + 자체 토큰** (ThemeExtension) | 서드파티 UI 킷 |
 | 아이콘 | **Material `Icons.*_outlined`** | filled·rounded 혼용, 별도 아이콘 패키지 |
 | 폰트 | Pretendard | — |
-| 테스트 | flutter_test + mocktail | — |
+| 테스트 | flutter_test + 손으로 쓴 fake (모킹 패키지 없음) | — |
 
 선택 근거는 [10-DECISIONS](10-DECISIONS.md) 를 본다.
 
@@ -42,16 +42,21 @@ lib/
 │   │   ├── foundation/       색 팔레트(라이트·다크) · 글자 · 간격 · 테마 · 화면 모드 · 지도 스타일
 │   │   ├── components/       공통 부품 — 바텀시트 틀 · 묶음 목록 · 목록 한 줄 · 칸 제목 · 세그먼트 …
 │   │   └── feedback/         토스트 · 버튼 달린 스낵바 · 확인 창
-│   ├── result/               Result · Failure
-│   ├── logging/              로거
-│   ├── error/                예외 정의
-│   ├── extensions/
-│   └── constants/
+│   ├── diagnostics/          진단 기록 (`Diagnostics.log`, 쓰는 주체별 파일)
+│   ├── platform/             네이티브 채널 이름 (`ChannelNames`)
+│   ├── audio/                이어폰 판정
+│   ├── map/                  지도 공통
+│   ├── l10n/                 네 언어 문구 (generated/ 는 gen-l10n 생성물)
+│   ├── config/ · legal/ · text/
 └── features/
     ├── places/               위치 등록 · 목록 · 편집
     ├── geofence/             백그라운드 모니터링 · 진입/이탈 판정
     ├── alert/                알림 발화 — 진동 · 오디오 · 알림 화면
     ├── ads/                  AdMob 로딩 · 빈도 제어 · 동의
+    ├── permission/           권한 온보딩 · 상태 조회
+    ├── sounds/               알림음 프리셋 · 사용자 음원
+    ├── diagnostics/          진단 기록 화면 · 버그 신고
+    ├── app_update/           인앱 업데이트
     └── settings/             설정
 ```
 

@@ -42,7 +42,7 @@
 
 | 작업 | 막힌 이유 |
 |---|---|
-| **#235 iOS 백그라운드 진동 · 잠금 화면 무음 알람 실기기 검증** | 실기기 필요 — **AlarmKit 경로는 CI(Xcode 26.0)에서만 컴파일된다** (로컬 Xcode 16.2 에는 없어 `#if canImport(AlarmKit)` 로 막았다). 화면 꺼진 채 도착 시 앱을 열지 않아도 진동하는가(`[alert] vibration route=system`), iOS 26 에서 잠금 화면을 덮는 무음 알람(`[alarm] presented`), 알람의 끄기 버튼이 세션을 끄는가(`[alarm] stopped by user`), 앱을 열면 알람이 사라지는가. Swift 계층은 자동 테스트가 없다 |
+| **#235 iOS 백그라운드 진동 · 잠금 화면 알람(들리지 않는 알람음) 실기기 검증** | 실기기 필요 — **AlarmKit 경로는 CI(Xcode 26.0)에서만 컴파일된다** (로컬 Xcode 16.2 에는 없어 `#if canImport(AlarmKit)` 로 막았다). 화면 꺼진 채 도착 시 앱을 열지 않아도 진동하는가(`[alert] vibration route=system`), iOS 26 에서 잠금 화면을 덮는 무음 알람(`[alarm] presented`), 알람의 끄기 버튼이 세션을 끄는가(`[alarm] stopped by user`), 앱을 열면 알람이 사라지는가. Swift 계층은 자동 테스트가 없다 |
 | **#231 iOS 적응형 백그라운드 감시 실기기 검증** | 실기기 필요 — **시뮬레이터 검증만 됐다.** 앱을 내려도 상태 막대 위치 표시가 남는지, 밖에서 등록 후 걸어 들어가면 울리는지(`[sync] state seeded` → `[watch] tier changed tier=precise` → `[notify] background notification posted`), 배터리, 강제 종료 후 동작. Swift 계층은 자동 테스트가 없다 |
 | **#237 iOS 알림 점검 · 알림 끄기 버튼 실기기 검증** | 실기기 필요 — 잠금 화면에서 "알림 끄기"를 누르면 앱이 열리지 않고 진동이 멈추는가(`[notify] action tapped ... handled=app`), 앱이 죽은 뒤엔 `handled=background`. 잠금 화면 표시를 끄면 홈 경고, 진동을 끈 기기에서 진동 시험·안내 시트. **AppDelegate 가 알림 센터 delegate 가 됐다** — 알림 탭·전면 표시 부작용 확인 → `docs/10-DECISIONS.md` 058 |
 | **#227 iOS 현재 위치 실기기 검증** | 실기기 필요 — 시뮬레이터는 좌표를 즉시 줘서 원래 증상(10초 시간 초과)이 거의 안 난다. iPhone 에서 첫 실행·지도 선택이 내 위치에서 시작하는지, 실패하면 진단 기록 `reason=` 을 본다 |
@@ -60,15 +60,15 @@
 | 실기기 검증 (S-2~S-10) | 실기기 필요 — 백그라운드 감시·오디오 경로의 실동작 확인 |
 | Maps 키 앱 제한 | SHA-1 지문 필요 — 릴리스 키스토어로 빌드할 때 건다 |
 | iOS TestFlight 배포 | 서명 자산 만료 (#51, 사용자 작업) |
-| 실제 광고 송출 | AdMob 앱 미등록 (현재 테스트 ID 로 동작) |
+| iOS 실제 광고 송출 | 서명(#51)이 막혀 iOS 미배포 — AdMob 앱·광고 단위 ID 는 등록 완료 (`docs/07-MONETIZATION.md`) |
 
 **개발 환경 주의** — Windows PC 는 내부망이라 `flutter pub get` 불가, 검증을 CI 에 위임했다. **Mac(외부망)에서는 로컬 검증이 가능하므로 CI 를 기다릴 필요 없이 `flutter analyze && flutter test` 를 직접 돌린다.** Mac 의 시스템 Flutter(3.38+/Dart 3.10)로는 codegen 이 죽는다(analyzer 7 상한) — **CI 와 동일한 `~/development/flutter-3.35.5/bin/flutter` 를 쓴다** (`export PATH="$HOME/development/flutter-3.35.5/bin:$PATH"`).
 
 ---
 
-## 이 환경에서 할 수 없는 것
+## Windows 내부망 PC 에서 할 수 없는 것
 
-개발 PC 가 내부망이라 **pub.dev 에 접근할 수 없다. 미러도 없다.**
+Windows 개발 PC 는 내부망이라 **pub.dev 에 접근할 수 없다. 미러도 없다.** (Mac 은 해당 없음 — 위 "개발 환경 주의")
 
 | 명령 | 가능 |
 |---|---|
@@ -76,7 +76,7 @@
 | `flutter analyze` · `flutter test` · `flutter build` | **불가** |
 | `dart format` | 가능 |
 
-**코드 수정 후에는 `dart format` 만 실행한다.** 빌드·분석은 시도하지 말고 CI 에 맡긴다 → `docs/08-OPERATIONS.md`
+**Windows 에서는 코드 수정 후 `dart format` 만 실행한다.** 빌드·분석은 시도하지 말고 CI 에 맡긴다 → `docs/08-OPERATIONS.md`
 
 ---
 

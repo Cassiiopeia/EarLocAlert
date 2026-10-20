@@ -1450,7 +1450,8 @@ Play 자동 업데이트(029)만으로는 사용자가 새 버전을 받는 시�
 
 1. **백그라운드 진동은 시스템 진동(`kSystemSoundID_Vibrate`)으로 낸다.** `VibrationServiceImpl` 이 진동 한 번마다 경로를 고른다 — iOS 이고 앱이 전면이 아니면 시스템 진동(Swift `SystemVibration`, 채널 `system_vibration`), 아니면 세기가 반영되는 햅틱. 앱을 열면 다음 진동부터 햅틱으로 넘어간다. 로그 `[alert] vibration route=system|haptics from=…`(바뀔 때만), 실패는 `system vibration failed` 한 번만. `kSystemSoundID_Vibrate` 는 소리 없는 진동 전용이다.
 2. **iOS 26 이상이고 허용됐으면, 화면 없이 시작한 세션에 AlarmKit 알람을 붙인다** (Swift `ArrivalAlarm`, 채널 `arrival_alarm`, Dart `ArrivalAlarmCoordinator`). 시계 앱 알람처럼 잠금 화면 전체를 덮는다. 제목은 "장소 · 도착했습니다", 버튼은 "알림 끄기" 하나다. 카운트다운 표시가 없는 일회성 알람(1초 뒤)이라 위젯 확장이 필요 없다.
-3. **알람음은 무음 파일(`silent_haptic.caf`)이다.** AlarmKit 알람은 스피커로 울린다 — 소리를 넣는 순간 이어폰 허용 목록 판정(CLAUDE.md 규칙 2)을 우회한다. 알람은 **화면만** 덮고, 소리는 여전히 Dart `AlertController` 가 이어폰일 때만 낸다.
+3. **알람음은 들리지 않는 파일이다.** AlarmKit 알람은 스피커로 울린다 — 소리를 넣는 순간 이어폰 허용 목록 판정(CLAUDE.md 규칙 2)을 우회한다. 알람은 **화면만** 덮고, 소리는 여전히 Dart `AlertController` 가 이어폰일 때만 낸다.
+   - #252 에서 완전한 0(`silent_haptic.caf`)이면 알람 진동이 나지 않아 `alarm_haptic.caf`(40Hz, 진폭 3/32768 ≈ -80dBFS)로 바꿨다. 상한은 `alarm_haptic_sound_test.dart` 가 막는다 (진폭 8 ≈ -72dBFS 초과 금지, 0 금지). 알림 소리(`silent_haptic.caf`)는 그대로 완전 무음이다.
 4. **두 화면이 겹치지 않게 한다** — 세션이 끝나면(어디서 해제하든) 알람을 끈다. 앱이 전면으로 오면 알림 화면이 대신하므로 알람을 끈다. **사용자가 잠금 화면에서 알람을 끄면 세션도 끈다**(알림 화면의 해제와 같은 `ActiveAlert.dismiss`) — 화면 없는 해제라 광고는 붙이지 않는다(규칙 1·3). 우리가 먼저 끈 알람의 "꺼졌다" 신호로 세션을 두 번 끄지 않도록, 끄기 전에 "지금 알람" id 를 비운다.
 5. **권한** — 온보딩이 끝날 때(다시 온 사용자도 지난다) 아직 묻지 않았으면 한 번 묻는다. 설정 화면 "잠금화면 알람" 줄에서 허용을 묻거나(아직 안 물음), 설정 앱을 연다(거부됨). Info.plist `NSAlarmKitUsageDescription` 은 네 언어로 옮겼다.
 6. **iOS 26 미만** — 알림과 진동(1번)으로 알린다. 설정 줄은 숨기지 않고 "화면 전체를 덮는 알람은 iOS 26 이상에서 쓸 수 있어요" 를 보여준다 — "왜 내 아이폰은 화면을 덮지 않나"의 답이 거기 있어야 한다. Android 에는 이 줄이 없다(전체 화면 알림 권한이 같은 일을 한다).
