@@ -15,7 +15,7 @@ import SwiftUI
 /// 진동을 놓치고, 화면을 켜도 알림 화면이 아니라 잠금 화면이 보였다. iOS 26 의
 /// AlarmKit 은 시계 앱 알람처럼 잠금 화면 전체를 덮는다 — 그것을 빌린다.
 ///
-/// **알람음은 무음 파일(`silent_haptic.caf`)이다.** AlarmKit 알람은 스피커로
+/// **알람음은 들리지 않는 파일(`alarm_haptic.caf`, 약 -80dBFS)이다.** AlarmKit 알람은 스피커로
 /// 울리므로, 소리를 넣는 순간 이어폰 허용 목록 판정(CLAUDE.md 규칙 2)을 우회한다.
 /// 소리는 여전히 Dart `AlertController` 가 이어폰일 때만 낸다. 여기서는 화면만 덮는다.
 ///
@@ -289,8 +289,10 @@ final class ArrivalAlarmKitBridge {
   func stopAll(reason: String) {
     var ids = presented
     // 지난 실행이 남긴 알람도 끈다 — 집합은 프로세스와 함께 사라진다
-    if let all = try? manager.alarms {
-      ids.formUnion(all.map(\.id))
+    do {
+      ids.formUnion(try manager.alarms.map(\.id))
+    } catch {
+      NativeDiagnosticLog.write("alarm", "previous alarms read failed error=\(error)")
     }
     presented.removeAll()
     seen.removeAll()
@@ -298,8 +300,17 @@ final class ArrivalAlarmKitBridge {
     guard !ids.isEmpty else { return }
     for id in ids {
       // 울리는 중이면 stop, 아직 예약 상태면 cancel 이 맞다 — 어느 쪽인지 따지지 않고 둘 다 시도한다
-      try? manager.stop(id: id)
-      try? manager.cancel(id: id)
+      // 둘 중 하나만 성공하면 정상 — 둘 다 실패해야 알람이 남음
+      var stopError: Error?
+      var cancelError: Error?
+      do { try manager.stop(id: id) } catch { stopError = error }
+      do { try manager.cancel(id: id) } catch { cancelError = error }
+      if let stopError, let cancelError {
+        NativeDiagnosticLog.write(
+          "alarm",
+          "stop failed id=\(id) stop_error=\(stopError) cancel_error=\(cancelError)"
+        )
+      }
     }
     NativeDiagnosticLog.write("alarm", "stopped all count=\(ids.count) reason=\(reason)")
   }

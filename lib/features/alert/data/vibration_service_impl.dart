@@ -53,6 +53,9 @@ class VibrationServiceImpl implements VibrationService {
   /// 시스템 진동 실패를 한 번만 남긴다 — 주기마다 같은 오류가 쌓이지 않게
   bool _systemFailureLogged = false;
 
+  /// 플러그인 진동 실패도 세션당 한 번만 남긴다
+  bool _hasLoggedHapticsFailure = false;
+
   @override
   Future<void> startRepeating({
     required Duration interval,
@@ -61,6 +64,7 @@ class VibrationServiceImpl implements VibrationService {
     await stop();
     _route = null;
     _systemFailureLogged = false;
+    _hasLoggedHapticsFailure = false;
 
     // 시스템 진동이 있으면 플러그인 조회 결과와 무관하게 떤다 — 백그라운드에서
     // 플러그인이 "진동기 없음"을 돌려줘도 진동 자체를 포기하지 않는다
@@ -102,8 +106,12 @@ class VibrationServiceImpl implements VibrationService {
           intensity.pulseMs,
           canControlAmplitude ? intensity.amplitude : null,
         );
-      } on Object {
-        // 개별 진동 실패는 무시한다 — 다음 주기에 다시 시도된다
+      } on Object catch (error) {
+        // 개별 진동 실패는 무시한다 — 다음 주기에 다시 시도된다 (기록은 세션당 1회)
+        if (!_hasLoggedHapticsFailure) {
+          _hasLoggedHapticsFailure = true;
+          Diagnostics.log('alert', 'haptics vibration failed error=$error');
+        }
       }
     }
 
@@ -124,8 +132,9 @@ class VibrationServiceImpl implements VibrationService {
     _timer = null;
     try {
       await _cancel();
-    } on Object {
+    } on Object catch (error) {
       // 중단 실패를 삼킨다 — 해제는 무슨 일이 있어도 완료되어야 한다
+      Diagnostics.log('alert', 'vibration cancel failed error=$error');
     }
   }
 

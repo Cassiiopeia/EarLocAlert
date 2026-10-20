@@ -61,6 +61,7 @@ class CoarseLocationTracker(private val context: Context) {
             callback = cb
             true
         } catch (error: SecurityException) {
+            DiagnosticLog.write(context, "mid", "coarse updates request rejected error=$error")
             false
         }
     }

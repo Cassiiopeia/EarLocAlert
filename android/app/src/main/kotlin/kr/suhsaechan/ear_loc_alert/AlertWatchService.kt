@@ -350,7 +350,7 @@ class AlertWatchService : Service() {
             ACTION_DISMISS_ALERT -> {
                 DiagnosticLog.write(this, "alert", "alert dismissed by the user from the notification")
                 endAlert()
-                releaseArrivalNotification()
+                cancelArrivalNotification()
             }
         }
 
@@ -484,7 +484,11 @@ class AlertWatchService : Service() {
     private fun handleSyncGeofences(intent: Intent) {
         @Suppress("UNCHECKED_CAST", "DEPRECATION")
         val fences = intent.getSerializableExtra(EXTRA_GEOFENCES)
-            as? ArrayList<HashMap<String, Any?>> ?: return
+            as? ArrayList<HashMap<String, Any?>>
+        if (fences == null) {
+            DiagnosticLog.write(this, "sync", "geofence sync skipped reason=invalid_extra")
+            return
+        }
         applyGeofences(fences)
     }
 
@@ -898,7 +902,11 @@ class AlertWatchService : Service() {
     private fun showArrivalNotification(decision: AlertDecision) {
         try {
             createArrivalChannel()
-            val manager = getSystemService(NotificationManager::class.java) ?: return
+            val manager = getSystemService(NotificationManager::class.java)
+            if (manager == null) {
+                DiagnosticLog.write(this, "alert", "notification post skipped reason=no_manager")
+                return
+            }
             manager.notify(
                 ARRIVAL_NOTIFICATION_ID,
                 buildArrivalNotification(decision, ongoing = true),
@@ -907,6 +915,20 @@ class AlertWatchService : Service() {
             // 알림 권한이 없으면 여기서 막힌다 — 진동과 화면 승격은 계속된다.
             // 무엇이 막혔는지는 남긴다. 아무것도 안 뜨는 이유가 이것일 수 있다
             DiagnosticLog.write(this, "alert", "notification post failed $error")
+        }
+    }
+
+    /** 사용자가 알림의 "끄기"로 끝냄 > 알림 제거 */
+    private fun cancelArrivalNotification() {
+        try {
+            val manager = getSystemService(NotificationManager::class.java)
+            if (manager == null) {
+                DiagnosticLog.write(this, "alert", "notification cancel skipped reason=no_manager")
+                return
+            }
+            manager.cancel(ARRIVAL_NOTIFICATION_ID)
+        } catch (error: Exception) {
+            DiagnosticLog.write(this, "alert", "notification cancel failed error=$error")
         }
     }
 
@@ -1063,7 +1085,11 @@ class AlertWatchService : Service() {
             )
             return
         }
-        val intent = launchIntent() ?: return
+        val intent = launchIntent()
+        if (intent == null) {
+            DiagnosticLog.write(this, "alert", "screen promotion skipped reason=no_launch_intent")
+            return
+        }
         try {
             startActivity(intent)
             DiagnosticLog.write(this, "alert", "screen promotion requested")

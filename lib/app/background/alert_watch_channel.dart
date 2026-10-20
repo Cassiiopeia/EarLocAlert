@@ -1,6 +1,7 @@
 import 'package:flutter/services.dart';
 
 import 'alert_watch_service.dart';
+import '../../core/diagnostics/diagnostics.dart';
 import '../../core/platform/channel_names.dart';
 
 /// [AlertWatchService] 의 네이티브 구현 (이슈 #74)
@@ -33,7 +34,10 @@ class AlertWatchChannel implements AlertWatchService {
   Future<bool> isAlerting() async {
     try {
       return await _channel.invokeMethod<bool>('isAlerting') ?? false;
-    } on Object {
+    } on MissingPluginException {
+      return false;
+    } on Object catch (error) {
+      Diagnostics.log('watch', 'is alerting check failed error=$error');
       return false;
     }
   }
@@ -45,9 +49,14 @@ class AlertWatchChannel implements AlertWatchService {
   Future<void> _invoke(String method, [Object? arguments]) async {
     try {
       await _channel.invokeMethod<void>(method, arguments);
-    } on Object {
-      // iOS 에는 채널 자체가 없다(MissingPluginException). Android 에서도
-      // 서비스 승격 실패는 여기로 온다 — 둘 다 정상 경로다.
+    } on MissingPluginException {
+      // iOS 에는 채널 자체가 없다 — 정상 경로라 기록하지 않음
+    } on Object catch (error) {
+      // Android 서비스 승격 실패도 여기로 온다
+      Diagnostics.log(
+        'watch',
+        'channel call failed method=$method error=$error',
+      );
     }
   }
 }

@@ -4,6 +4,7 @@ import '../domain/geofence_monitor.dart';
 import '../domain/geofence_target.dart';
 import '../domain/proximity_radius.dart';
 import '../domain/schedule_windows_codec.dart';
+import '../../../core/diagnostics/diagnostics.dart';
 import '../../../core/platform/channel_names.dart';
 
 /// Android 지오펜스 등록 어댑터 (이슈 #93)
@@ -60,8 +61,9 @@ class AndroidGeofenceMonitor implements GeofenceMonitor {
     try {
       final ids = await _channel.invokeListMethod<String>('registeredPlaceIds');
       return ids ?? const [];
-    } on Object {
+    } on Object catch (error) {
       // 조회 실패는 "등록된 것이 없다"로 본다 — 다음 동기화가 다시 맞춘다
+      Diagnostics.log('geofence', 'registered ids query failed error=$error');
       return const [];
     }
   }
@@ -73,8 +75,11 @@ class AndroidGeofenceMonitor implements GeofenceMonitor {
   Future<void> _invoke(String method, [Object? arguments]) async {
     try {
       await _channel.invokeMethod<void>(method, arguments);
-    } on Object {
-      // 위 주석과 같은 이유
+    } on Object catch (error) {
+      Diagnostics.log(
+        'geofence',
+        'channel call failed method=$method error=$error',
+      );
     }
   }
 }

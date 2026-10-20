@@ -385,16 +385,17 @@ class AlertController {
   Future<void> _silence() async {
     // 시스템 볼륨 원복이 여기 있다 (이슈 #86) — 올린 채로 두면 사용자의
     // 기기 설정을 앱이 영구히 바꾼 것이 된다. 올린 적이 없으면 no-op 이다.
-    for (final stop in [
-      _vibration.stop,
-      _sound.stop,
-      _systemVolume.restore,
-      _notifier.dismiss,
+    for (final (step, stop) in [
+      ('vibration', _vibration.stop),
+      ('sound', _sound.stop),
+      ('volume_restore', _systemVolume.restore),
+      ('notification', _notifier.dismiss),
     ]) {
       try {
         await stop();
-      } on Object {
+      } on Object catch (error) {
         // 개별 실패를 삼킨다 — 해제는 무슨 일이 있어도 완료되어야 한다
+        Diagnostics.log('alert', 'silence step failed step=$step error=$error');
       }
     }
   }

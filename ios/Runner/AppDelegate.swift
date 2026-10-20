@@ -96,6 +96,9 @@ import native_geofence
 
       // 읽을 수 있는 알림 설정(잠금 화면 표시 등)을 홈 경고에 올린다 (이슈 #237)
       NotificationSettingsReader.register(messenger: controller.binaryMessenger)
+    } else {
+      // 채널 6개 전부 미등록 > Dart 쪽 호출이 모두 MissingPlugin 으로 떨어짐
+      NativeDiagnosticLog.write("app", "channels not registered reason=no_flutter_view_controller")
     }
 
     // 위치 사유로 다시 떴든(중요 위치 변화·영역 이벤트) 사용자가 열었든, 감시를 원하던

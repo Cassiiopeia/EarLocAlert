@@ -221,8 +221,9 @@ class AlertSoundServiceImpl implements AlertSoundService {
   Future<void> stop() async {
     try {
       await _player?.stop();
-    } on Object {
+    } on Object catch (error) {
       // 중단 실패를 삼킨다 — 해제는 항상 완료되어야 한다
+      Diagnostics.log('sound', 'player stop failed error=$error');
     }
 
     // **오디오 포커스를 반납한다** (이슈 #136).
@@ -237,8 +238,9 @@ class AlertSoundServiceImpl implements AlertSoundService {
     try {
       final session = await AudioSession.instance;
       await session.setActive(false);
-    } on Object {
+    } on Object catch (error) {
       // 반납 실패도 삼킨다 — 해제는 무슨 일이 있어도 완료되어야 한다
+      Diagnostics.log('sound', 'audio focus release failed error=$error');
     }
   }
 }

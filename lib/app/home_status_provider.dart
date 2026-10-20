@@ -92,7 +92,8 @@ Future<HomeStatus> homeStatus(Ref ref) async {
         .watch(geofenceMonitorProvider)
         .registeredPlaceIds();
     monitoring = registered.isNotEmpty;
-  } on Object {
+  } on Object catch (error) {
+    Diagnostics.log('app', 'home monitoring check failed error=$error');
     monitoring = false;
   }
 
@@ -101,7 +102,8 @@ Future<HomeStatus> homeStatus(Ref ref) async {
     headphones = await ref
         .watch(alertSoundServiceProvider)
         .isHeadphoneConnected();
-  } on Object {
+  } on Object catch (error) {
+    Diagnostics.log('app', 'home headphone check failed error=$error');
     headphones = false;
   }
 

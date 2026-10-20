@@ -139,13 +139,32 @@ class PendingAlertStore {
         directionName == null ||
         soundEnabled == null ||
         occurredAtRaw == null) {
+      Diagnostics.log('pending', 'discarded reason=missing_field');
       return (alert: null, hadStored: true);
     }
 
     final direction = AlertDirection.values.asNameMap()[directionName];
     final occurredAt = DateTime.tryParse(occurredAtRaw);
     if (direction == null || occurredAt == null) {
+      Diagnostics.log(
+        'pending',
+        'discarded reason=invalid_value place=${shortId(placeId)} '
+            'direction=$directionName occurredAt=$occurredAtRaw',
+      );
       return (alert: null, hadStored: true);
+    }
+
+    // 셋 중 하나라도 없으면 전부 버린다 — 반쪽짜리 좌표로는
+    // 지도를 그릴 수 없고, 억지로 그리면 엉뚱한 곳이 뜬다
+    final hasFullCoordinates =
+        latitude != null && longitude != null && radiusMeters != null;
+    final hasAnyCoordinate =
+        latitude != null || longitude != null || radiusMeters != null;
+    if (hasAnyCoordinate && !hasFullCoordinates) {
+      Diagnostics.log(
+        'pending',
+        'coordinates dropped reason=partial place=${shortId(placeId)}',
+      );
     }
 
     final restored = PendingAlert(
@@ -158,13 +177,9 @@ class PendingAlertStore {
       // 알림 전체를 버리지 않는다 (이슈 #121).
       // 이 필드가 없던 버전에서 저장된 값을 읽는 경우도 여기로 온다.
       sound: AlertSound.parse(soundRaw ?? ''),
-      // 셋 중 하나라도 없으면 전부 버린다 — 반쪽짜리 좌표로는
-      // 지도를 그릴 수 없고, 억지로 그리면 엉뚱한 곳이 뜬다
-      latitude: radiusMeters == null ? null : latitude,
-      longitude: radiusMeters == null ? null : longitude,
-      radiusMeters: (latitude == null || longitude == null)
-          ? null
-          : radiusMeters,
+      latitude: hasFullCoordinates ? latitude : null,
+      longitude: hasFullCoordinates ? longitude : null,
+      radiusMeters: hasFullCoordinates ? radiusMeters : null,
     );
     _logRestored(restored, DateTime.now().toUtc());
     return (alert: restored, hadStored: true);

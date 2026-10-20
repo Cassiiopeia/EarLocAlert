@@ -112,7 +112,11 @@ void watchEngineMain() {
 
   // 네이티브에 준비 완료를 알린다 — 이 신호 전에 온 요청은 서비스가 큐에
   // 담아두었다가 여기서 흘려보낸다. 버리면 그 도착이 유실된다.
-  channel.invokeMethod<void>('engineReady');
+  unawaited(
+    channel.invokeMethod<void>('engineReady').catchError((Object error) {
+      Diagnostics.log('watch', 'engine ready signal failed error=$error');
+    }),
+  );
 
   // **지오펜스를 스스로 복원한다** (이슈 #93).
   //

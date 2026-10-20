@@ -3,6 +3,7 @@ package kr.suhsaechan.ear_loc_alert
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
+import android.os.SystemClock
 import io.flutter.FlutterInjector
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.embedding.engine.dart.DartExecutor
@@ -41,6 +42,12 @@ class WatchEngine(private val context: Context) {
          */
         private const val ENTRYPOINT_LIBRARY = "package:ear_loc_alert/main.dart"
         private const val ENTRYPOINT = "watchEngineMain"
+
+        // 엔진 생성 실패 후 재시도 최소 간격 (1분) — 판정 요청마다 블로킹 초기화를 반복하지 않게
+        private const val RESTART_MIN_INTERVAL_MS = 60_000L
+
+        // 준비 신호 전 판정 대기 최대 건수 — 넘으면 오래된 것부터 버림
+        private const val PENDING_MAX_COUNT = 50
     }
 
     private val handler = Handler(Looper.getMainLooper())
@@ -48,6 +55,15 @@ class WatchEngine(private val context: Context) {
     private var engine: FlutterEngine? = null
     private var channel: MethodChannel? = null
     private var ready = false
+
+    /** 서비스가 [stop] 을 불렀다 — 이후 판정 요청으로 엔진을 다시 띄우지 않음 */
+    private var isStopped = false
+
+    /** 마지막 시작 시도 시각 (elapsedRealtime ms, 0 은 시도 없음) */
+    private var lastStartAttemptElapsedMs = 0L
+
+    /** 엔진 없음 로그를 실패 구간마다 1회만 남김 — 엔진이 뜨면 초기화 */
+    private var hasLoggedNoEngine = false
 
     /**
      * Dart 가 요청한 지오펜스 복원을 서비스로 넘긴다 (이슈 #93).
@@ -74,29 +90,59 @@ class WatchEngine(private val context: Context) {
      * 메인 루퍼를 요구한다.
      */
     fun start() {
+        isStopped = false
         if (engine != null) return
+        lastStartAttemptElapsedMs = SystemClock.elapsedRealtime()
 
+        // 로더 초기화·엔진 생성 실패 모두 서비스를 죽이지 않음 > 다음 판정 요청에서 재시도 ([invoke])
         val loader = FlutterInjector.instance().flutterLoader()
-        if (!loader.initialized()) {
-            loader.startInitialization(context)
+        try {
+            if (!loader.initialized()) {
+                loader.startInitialization(context)
+            }
+            loader.ensureInitializationComplete(context, null)
+        } catch (error: Exception) {
+            DiagnosticLog.write(context, "engine", "flutter loader init failed error=$error")
+            return
         }
-        loader.ensureInitializationComplete(context, null)
 
         val created = try {
             FlutterEngine(context)
         } catch (error: Exception) {
-            // 엔진을 못 띄워도 서비스는 살아있다. 폴백 경로(실제 반경
-            // 지오펜스)는 이 엔진 없이 판정할 수 없으므로 알림이 약해지지만,
-            // 다음 이벤트에서 재시도된다.
-            DiagnosticLog.write(context, "engine", "flutter engine create failed $error")
+            DiagnosticLog.write(context, "engine", "flutter engine create failed error=$error")
             return
         }
 
+        // 채널 등록·진입점 실행 실패 > 만든 엔진 정리 후 다음 재시도에 맡김
+        try {
+            channel = bindChannel(created)
+            created.dartExecutor.executeDartEntrypoint(
+                DartExecutor.DartEntrypoint(
+                    loader.findAppBundlePath(),
+                    ENTRYPOINT_LIBRARY,
+                    ENTRYPOINT,
+                ),
+            )
+        } catch (error: Exception) {
+            DiagnosticLog.write(context, "engine", "flutter entrypoint start failed error=$error")
+            channel = null
+            created.destroy()
+            return
+        }
+
+        engine = created
+        hasLoggedNoEngine = false
+    }
+
+    private fun bindChannel(created: FlutterEngine): MethodChannel {
         val ch = MethodChannel(created.dartExecutor.binaryMessenger, CHANNEL)
         ch.setMethodCallHandler { call, result ->
             when (call.method) {
                 "engineReady" -> {
                     ready = true
+                    if (pending.isNotEmpty()) {
+                        DiagnosticLog.write(context, "engine", "ready flushed pending=${pending.size}")
+                    }
                     pending.forEach { it() }
                     pending.clear()
                     result.success(null)
@@ -112,26 +158,25 @@ class WatchEngine(private val context: Context) {
                 else -> result.notImplemented()
             }
         }
-
-        created.dartExecutor.executeDartEntrypoint(
-            DartExecutor.DartEntrypoint(
-                loader.findAppBundlePath(),
-                ENTRYPOINT_LIBRARY,
-                ENTRYPOINT,
-            ),
-        )
-
-        engine = created
-        channel = ch
+        return ch
     }
 
     fun stop() {
+        isStopped = true
+        if (pending.isNotEmpty()) {
+            DiagnosticLog.write(context, "engine", "decision dropped reason=stopped count=${pending.size}")
+        }
         engine?.destroy()
         engine = null
         channel = null
         ready = false
         pending.clear()
     }
+
+    /** 엔진이 없고 정지 전이며 재시도 간격이 지났는가 */
+    private fun shouldRestart(): Boolean =
+        engine == null && !isStopped &&
+            SystemClock.elapsedRealtime() - lastStartAttemptElapsedMs >= RESTART_MIN_INTERVAL_MS
 
     /** 정밀 측정 판정을 요청한다. 결과는 [onDecision] 으로 온다 */
     fun evaluatePosition(
@@ -181,6 +226,10 @@ class WatchEngine(private val context: Context) {
         val task = {
             val target = channel
             if (target == null) {
+                if (!hasLoggedNoEngine) {
+                    hasLoggedNoEngine = true
+                    DiagnosticLog.write(context, "engine", "decision skipped method=$method reason=no_engine")
+                }
                 onDecision(AlertDecision.none())
             } else {
                 target.invokeMethod(method, args, object : MethodChannel.Result {
@@ -190,18 +239,51 @@ class WatchEngine(private val context: Context) {
 
                     override fun error(code: String, message: String?, details: Any?) {
                         // 판정 실패는 알림 없음으로 떨어진다
+                        DiagnosticLog.write(
+                            context,
+                            "engine",
+                            "decision failed method=$method reason=dart_error code=$code message=$message",
+                        )
                         onDecision(AlertDecision.none())
                     }
 
-                    override fun notImplemented() = onDecision(AlertDecision.none())
+                    override fun notImplemented() {
+                        DiagnosticLog.write(
+                            context,
+                            "engine",
+                            "decision failed method=$method reason=not_implemented",
+                        )
+                        onDecision(AlertDecision.none())
+                    }
                 })
             }
         }
 
         // 채널 호출은 메인 스레드에서만 안전하다
         handler.post {
-            if (ready) task() else pending += task
+            // 엔진 생성이 실패했던 경우 여기서 다시 띄움 (서비스 정지 후 제외, 1분 간격)
+            if (shouldRestart()) {
+                DiagnosticLog.write(context, "engine", "restart requested method=$method")
+                start()
+            }
+            when {
+                ready -> task()
+                engine == null -> task()
+                else -> enqueue(task, method)
+            }
         }
+    }
+
+    /** 준비 전 판정 보관 (최대 [PENDING_MAX_COUNT], 넘으면 가장 오래된 것 버림) */
+    private fun enqueue(task: () -> Unit, method: String) {
+        if (pending.isEmpty()) {
+            DiagnosticLog.write(context, "engine", "decision queued until ready method=$method")
+        }
+        if (pending.size >= PENDING_MAX_COUNT) {
+            pending.removeAt(0)
+            DiagnosticLog.write(context, "engine", "decision dropped reason=queue_full max=$PENDING_MAX_COUNT")
+        }
+        pending += task
     }
 }
 

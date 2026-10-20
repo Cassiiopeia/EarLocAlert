@@ -228,6 +228,25 @@ void main() {
       expect(alert!.latitude, isNull);
     });
 
+    test('경도만 빠지면 위도·반경도 버린다', () async {
+      SharedPreferences.setMockInitialValues({
+        'pending_alert.place_id': 'p1',
+        'pending_alert.place_name': '회사',
+        'pending_alert.direction': 'enter',
+        'pending_alert.sound_enabled': true,
+        'pending_alert.occurred_at': '2026-09-01T23:03:20.000Z',
+        'pending_alert.latitude': 37.5665,
+        'pending_alert.radius_meters': 200,
+      });
+
+      final (:alert, :hadStored) = await store.take();
+
+      expect(alert, isNotNull);
+      expect(alert!.latitude, isNull, reason: '반쪽 좌표로는 지도를 그리지 않는다');
+      expect(alert.longitude, isNull);
+      expect(alert.radiusMeters, isNull);
+    });
+
     test('반경만 있고 좌표가 없으면 셋 다 버린다', () async {
       SharedPreferences.setMockInitialValues({
         'pending_alert.place_id': 'p1',

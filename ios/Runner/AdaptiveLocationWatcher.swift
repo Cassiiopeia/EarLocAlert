@@ -78,11 +78,14 @@ final class AdaptiveLocationWatcher: NSObject, CLLocationManagerDelegate {
         payload["reason"] = reason
         result(payload)
       case "setTier":
-        if let requested = args?["tier"] as? String {
-          self.tier = requested
-          if self.running { self.apply(tier: requested) }
-          NativeDiagnosticLog.write("watch", "tier applied tier=\(requested) running=\(self.running)")
+        guard let requested = args?["tier"] as? String else {
+          NativeDiagnosticLog.write("watch", "tier apply skipped reason=missing_tier")
+          result(nil)
+          return
         }
+        self.tier = requested
+        if self.running { self.apply(tier: requested) }
+        NativeDiagnosticLog.write("watch", "tier applied tier=\(requested) running=\(self.running)")
         result(nil)
       case "requestFix":
         // 장소가 바뀐 순간의 지금 위치 (이슈 #233). 움직이지 않으면 distanceFilter 에

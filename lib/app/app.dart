@@ -137,8 +137,12 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
         await ref
             .read(notificationsPluginProvider)
             .cancel(AlertNotifierImpl.notificationId);
-      } on Object {
+      } on Object catch (error) {
         // 알림이 남는 것은 불편이지 고장이 아니다
+        Diagnostics.log(
+          'notify',
+          'session notification cancel failed error=$error',
+        );
       }
     },
   );
@@ -376,8 +380,12 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
     for (final id in BackgroundAlertNotifier.notificationIds) {
       try {
         await ref.read(notificationsPluginProvider).cancel(id);
-      } on Object {
+      } on Object catch (error) {
         // 알림이 남는 것은 불편이지 고장이 아니다
+        Diagnostics.log(
+          'notify',
+          'background notification cancel failed id=$id error=$error',
+        );
       }
     }
   }
@@ -462,8 +470,9 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
     try {
       final coordinator = await ref.read(alertAdCoordinatorProvider.future);
       await coordinator.onAlertFired();
-    } on Object {
+    } on Object catch (error) {
       // 광고는 부가 기능이다 (docs/02-ARCHITECTURE.md 규칙 4)
+      Diagnostics.log('ads', 'alert preload failed error=$error');
     }
   }
 
