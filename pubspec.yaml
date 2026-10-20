@@ -31,8 +31,6 @@ dependencies:
   go_router: ^14.6.2
   # 권한 — 플랫폼 차이는 data 계층에서 흡수한다 (docs/05-PLATFORM.md)
   permission_handler: ^11.3.1
-  # 반응형 치수 — 하드코딩된 px 금지 (docs/04-CONVENTIONS.md)
-  flutter_screenutil: ^5.9.3
   # 알림 발화 (docs/03-DOMAIN.md 규칙 5)
   flutter_local_notifications: ^19.5.0
   vibration: ^3.1.3

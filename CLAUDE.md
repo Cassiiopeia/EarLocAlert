@@ -133,7 +133,7 @@ play();
 
 ### 5. 상태 관리를 혼용하지 않는다
 
-`@riverpod` code generation 만 쓴다. `provider` 패키지·손으로 만든 Provider·화면 데이터의 `setState` 전부 금지다.
+`@riverpod` code generation 만 쓴다. `provider` 패키지·손으로 만든 Provider·저장·공유되는 데이터의 `setState` 전부 금지다. 저장 전 입력값·진행 중 플래그 같은 화면 로컬 상태는 `setState` 를 쓴다 (결정 069).
 → `docs/04-CONVENTIONS.md`
 
 ### 6. 백그라운드 진입점에서 `BuildContext` 를 만지지 않는다

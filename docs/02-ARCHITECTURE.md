@@ -7,7 +7,7 @@
 | 영역 | 결정 | 쓰지 않는 것 |
 |---|---|---|
 | 프레임워크 | Flutter 3.x / Dart 3.9+ | — |
-| 상태 관리 | **Riverpod (code generation)** | `provider` 패키지, `setState` 로 하는 화면 상태 관리, `ChangeNotifier` |
+| 상태 관리 | **Riverpod (code generation)** | `provider` 패키지, 저장·공유되는 데이터의 `setState` 관리, `ChangeNotifier` |
 | 의존성 주입 | **Riverpod 으로 통일** | `get_it`, `injectable` |
 | 라우팅 | **go_router** | `Navigator.push` 직접 호출 |
 | 모델 | **Freezed** (JSON 직렬화는 쓰는 곳에서 손으로 — 대상이 SharedPreferences·채널 맵뿐) | 손으로 쓴 `copyWith` · `==` |
@@ -19,7 +19,7 @@
 | 오디오 | audio_session + just_audio | — |
 | 광고 | google_mobile_ads + UMP | — |
 | 권한 | permission_handler | — |
-| 반응형 치수 | flutter_screenutil | 하드코딩된 px |
+| 치수 | `core/ui/foundation` 토큰 (`AppSpacing`·`AppIconSize`) | 하드코딩된 px, screenutil |
 | 디자인 | **Material 3 + 자체 토큰** (ThemeExtension) | 서드파티 UI 킷 |
 | 아이콘 | **Material `Icons.*_outlined`** | filled·rounded 혼용, 별도 아이콘 패키지 |
 | 폰트 | Pretendard | — |

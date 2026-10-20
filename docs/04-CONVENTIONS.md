@@ -20,17 +20,27 @@ class PlaceList extends _$PlaceList {
 
 이유는 취향이 아니다. 손으로 선언한 Provider 와 생성된 Provider 가 섞이면 **어느 쪽 규칙을 따르는지 파일마다 달라지고**, `riverpod_lint` 가 절반만 검사하게 된다.
 
-### 화면 상태에 `setState` 를 쓰지 않는다
+### 저장·공유되는 데이터에 `setState` 를 쓰지 않는다
 
 ```dart
-// X
-class _PlaceFormState extends State<PlaceForm> {
-  int _radius = 100;
-  void _onChanged(int v) => setState(() => _radius = v);
+// X — 저장된 장소 목록을 화면이 따로 들고 있다
+class _HomeState extends State<Home> {
+  List<AlertPlace> _places = [];
+  Future<void> _load() async {
+    final places = await repository.findAll();
+    setState(() => _places = places);
+  }
 }
 ```
 
-애니메이션 컨트롤러·텍스트 컨트롤러 같은 **위젯 생명주기에 묶인 자원**은 `StatefulWidget` 을 써도 된다. 하지만 화면이 표시하는 **데이터**는 Provider 에 둔다. 이 경계가 흐려지면 같은 값이 두 곳에 존재하게 된다.
+저장소에 있거나 여러 화면이 함께 보는 값(장소 목록, 설정, 권한 상태)은 Provider 에 둔다. 화면이 사본을 들면 같은 값이 두 곳에 존재하게 된다.
+
+**화면 로컬 상태는 `StatefulWidget` + `setState` 를 쓴다** (결정 069). 해당하는 것 3가지:
+- 저장 전 입력값 — 폼의 반경·방향·시간대처럼 저장 버튼을 누르기 전까지 그 화면에만 있는 값
+- 진행 중 플래그 — `_saving`·`_busy`·`_searching`
+- 위젯 생명주기에 묶인 자원 — 애니메이션·텍스트·지도 컨트롤러, 선택 강조
+
+저장하는 순간 값은 Provider·저장소로 넘어가고, 화면의 사본은 버린다.
 
 ### `ref.read` 는 콜백 안에서만
 
@@ -96,11 +106,12 @@ DB·모델·로그는 전부 UTC 다. 로컬 시각으로 바꾸는 것은 **화
 
 사용자가 해외로 이동하거나 기기 타임존이 바뀌면, 로컬 시각으로 저장된 이력은 순서가 뒤엉킨다. 위치 기반 앱은 사용자가 이동하는 것이 전제다.
 
-## 에러 — 도메인은 `Result`, 인프라는 예외
+## 에러 — 도메인은 실패를 값으로, 인프라는 예외
 
 ```dart
-// 도메인 — 실패가 정상 흐름의 일부
-Result<AlertPlace, PlaceFailure> validate(PlaceInput input);
+// 도메인 — 실패가 정상 흐름의 일부. 사유 enum 목록·sealed 결과로 돌려준다
+static List<PlaceValidationError> validate({required String name, ...});
+static PlaceBackupDecoded decode(String raw, {required DateTime now}); // .failure(PlaceBackupError.notJson)
 
 // 인프라 — 예외를 던지고 경계에서 잡는다
 Future<void> save(AlertPlace place);   // Drift 예외가 올라올 수 있다
@@ -113,13 +124,8 @@ Future<void> save(AlertPlace place);   // Drift 예외가 올라올 수 있다
 위치·알림 권한 거부는 예외적 상황이 아니라 **정상적으로 발생하는 상태**다. 예외로 던지지 말고 상태로 표현한다 (A-12).
 
 ```dart
-@freezed
-sealed class PermissionState with _$PermissionState {
-  const factory PermissionState.granted() = _Granted;
-  const factory PermissionState.denied() = _Denied;
-  const factory PermissionState.permanentlyDenied() = _PermanentlyDenied;
-  const factory PermissionState.restricted() = _Restricted;
-}
+// lib/features/permission/domain/permission_kind.dart
+enum PermissionStatus { notRequested, granted, denied, permanentlyDenied, restricted }
 ```
 
 `permanentlyDenied` 는 앱 설정 화면으로 보내야 하고, `denied` 는 다시 요청할 수 있다. 이 둘을 구분하지 않으면 사용자가 영원히 막힌다.
@@ -152,18 +158,18 @@ Text('장소 추가')
   6. `test/core/l10n/language_sync_test.dart` 의 `_places` 표에 그 언어의 행을 더한다
   7. Play Console 에서 스토어 언어를 추가한다(사용자 작업)
 
-## 치수 — screenutil
+## 치수 — 디자인 토큰
 
 ```dart
 // O
-SizedBox(height: 16.h)
-Text('...', style: TextStyle(fontSize: 14.sp))
+SizedBox(height: AppSpacing.sm)
+Icon(Icons.place, size: AppIconSize.standard)
 
 // X
-SizedBox(height: 16)
+SizedBox(height: 13)
 ```
 
-예외는 `BorderRadius` 와 아이콘 크기다. 화면 크기에 비례해 늘리면 오히려 어색해진다.
+간격·아이콘·글자 크기는 `lib/core/ui/foundation/` 의 토큰만 쓴다 (docs/06-UX.md, 결정 066). 화면 크기 비례 치수(screenutil)는 쓰지 않는다 — `ScreenUtilInit` 초기화가 없어 `.h`·`.sp` 는 런타임에 깨졌고, 사용처가 0건이라 의존성도 뺐다 (#284).
 
 ## 로깅
 
