@@ -7,6 +7,7 @@ import '../../features/geofence/domain/geofence_target.dart';
 import '../../features/geofence/domain/position_sample.dart';
 import '../../features/geofence/domain/watch_tier.dart';
 import '../../features/places/domain/place_repository.dart';
+import '../alert_place_geofence_target.dart';
 import 'alert_watch_service.dart';
 import 'background_alert_port.dart';
 import 'geofence_background_processor.dart';
@@ -169,14 +170,7 @@ class IosAdaptiveWatch implements AlertWatchService {
 
   Future<List<GeofenceTarget>> _targets() async => [
     for (final place in await _places.findAll())
-      if (place.enabled)
-        GeofenceTarget(
-          placeId: place.id,
-          latitude: place.latitude,
-          longitude: place.longitude,
-          radiusMeters: place.radiusMeters,
-          direction: place.direction,
-        ),
+      if (place.enabled) place.toGeofenceTarget(),
   ];
 
   /// 단계를 고르고 바뀌었으면 네이티브에 알린다 — 고른 단계를 돌려준다

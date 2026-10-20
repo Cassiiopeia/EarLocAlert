@@ -150,6 +150,18 @@ void main() {
       expect(events.recorded.single.notified, isFalse);
       expect(alertPort.notified, isEmpty);
     });
+
+    test('비활성 장소 — OS 이벤트가 와도 상태를 바꾸지 않는다', () async {
+      places.items['place-1'] = basePlace.copyWith(enabled: false);
+      states.states['place-1'] = GeofenceState.unknown;
+
+      await processor.handle(
+        placeId: 'place-1',
+        eventType: GeofenceEventType.entered,
+      );
+
+      expect(states.states['place-1'], GeofenceState.unknown);
+    });
   });
 
   group('알림 시간대 (이슈 #81)', () {

@@ -15,6 +15,7 @@ import '../../features/geofence/domain/position_plausibility.dart';
 import '../../features/geofence/domain/position_sample.dart';
 import '../../features/places/domain/alert_place.dart';
 import '../../features/places/domain/place_repository.dart';
+import '../alert_place_geofence_target.dart';
 import 'background_alert_port.dart';
 import 'pending_alert.dart';
 
@@ -177,18 +178,22 @@ class GeofenceBackgroundProcessor {
 
     // 상태 저장이 먼저다 — 이후 단계가 실패해도 다음 판정의 기준은 맞아야
     // 하고, 재부팅 후에도 살아 있어야 한다 (docs/03-DOMAIN.md)
-    await _states.updateState(placeId, evaluation.state);
-    _logTransitionIfChanged(
-      place: place,
-      from: current,
-      to: evaluation.state,
-      latitude: latitude,
-      longitude: longitude,
-    );
+    // 비활성 장소는 제외 (정밀 경로와 같은 규칙) — 끈 직후 늦게 온 이벤트로
+    // 상태가 잡히면 다시 켤 때 initialTrigger 와 만나 가짜 알림
+    if (place.enabled) {
+      await _states.updateState(placeId, evaluation.state);
+      _logTransitionIfChanged(
+        place: place,
+        from: current,
+        to: evaluation.state,
+        latitude: latitude,
+        longitude: longitude,
+      );
+    }
 
     return _recordAndDecide(
       place: place,
-      target: _targetOf(place),
+      target: place.toGeofenceTarget(),
       transition: evaluation.transition,
       latitude: latitude,
       longitude: longitude,
@@ -244,7 +249,7 @@ class GeofenceBackgroundProcessor {
       if (!place.enabled) continue;
       inspected++;
 
-      final target = _targetOf(place);
+      final target = place.toGeofenceTarget();
       final current = await _states.stateOf(place.id);
       final evaluation = _evaluator.evaluate(
         target: target,
@@ -426,19 +431,4 @@ class GeofenceBackgroundProcessor {
     });
     return completer.future;
   }
-
-  /// AlertPlace → GeofenceTarget 매핑 (docs/02-ARCHITECTURE.md 규칙 1)
-  ///
-  /// geofence 는 places 를 모른다. 판정에 필요한 값만 옮긴다.
-  GeofenceTarget _targetOf(AlertPlace place) => GeofenceTarget(
-    placeId: place.id,
-    latitude: place.latitude,
-    longitude: place.longitude,
-    radiusMeters: place.radiusMeters,
-    direction: place.direction,
-    enabled: place.enabled,
-    // OS 등록 여부는 스케줄과 무관하다 — 창 밖에도 등록을 유지해야
-    // 상태 추적이 끊기지 않는다 (이슈 #81). 값만 실어 보낸다.
-    schedules: place.schedules,
-  );
 }

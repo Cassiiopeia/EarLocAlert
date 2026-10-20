@@ -58,7 +58,8 @@ class GoogleInterstitialAdService implements InterstitialAdService {
           },
         ),
       );
-    } on Object {
+    } on Object catch (error) {
+      Diagnostics.log('ads', 'interstitial load request failed error=$error');
       _loading = false;
     }
   }
@@ -82,7 +83,8 @@ class GoogleInterstitialAdService implements InterstitialAdService {
       );
       await ad.show();
       return true;
-    } on Object {
+    } on Object catch (error) {
+      Diagnostics.log('ads', 'interstitial show failed error=$error');
       ad.dispose();
       return false;
     }

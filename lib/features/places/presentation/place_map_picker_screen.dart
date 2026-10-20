@@ -185,7 +185,8 @@ class _PlaceMapPickerScreenState extends State<PlaceMapPickerScreen> {
         _results = results;
         _searching = false;
       });
-    } on PlaceSearchUnavailable {
+    } on PlaceSearchUnavailable catch (error) {
+      Diagnostics.log('picker', 'search unavailable reason=${error.reason}');
       if (!mounted || _inFlightQuery != query) return;
       setState(() {
         _results = const [];

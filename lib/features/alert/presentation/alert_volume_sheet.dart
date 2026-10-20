@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/diagnostics/diagnostics.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/ui/components/bottom_sheet_with_header_layout.dart';
 import '../../../core/ui/foundation/app_spacing.dart';
@@ -149,7 +150,11 @@ class _AlertVolumeSheetState extends ConsumerState<_AlertVolumeSheet> {
     var connected = false;
     try {
       connected = await sound.isHeadphoneConnected();
-    } on Object {
+    } on Object catch (error) {
+      Diagnostics.log(
+        'audio',
+        'preview headphone check failed result=not_connected error=$error',
+      );
       connected = false;
     }
     if (!mounted) return;
@@ -165,7 +170,8 @@ class _AlertVolumeSheetState extends ConsumerState<_AlertVolumeSheet> {
         _previewing = true;
         _previewNotice = null;
       });
-    } on Object {
+    } on Object catch (error) {
+      Diagnostics.log('audio', 'preview play failed error=$error');
       setState(() => _previewNotice = l10n.volumePreviewFailed);
     }
   }

@@ -9,12 +9,13 @@ import '../../core/diagnostics/diagnostic_log_file.dart';
 import '../../core/diagnostics/diagnostics.dart';
 import '../../core/domain/id_generator.dart';
 import '../../features/alert/data/prefs_vibration_intensity_store.dart';
+import '../../features/geofence/data/android_geofence_monitor.dart';
 import '../../features/geofence/data/drift_geofence_event_repository.dart';
 import '../../features/geofence/data/drift_geofence_state_repository.dart';
 import '../../features/geofence/domain/geofence_evaluator.dart';
-import '../../features/geofence/domain/proximity_radius.dart';
-import '../../features/geofence/domain/schedule_windows_codec.dart';
 import '../../features/places/data/drift_place_repository.dart';
+import '../../features/places/domain/place_validator.dart';
+import '../alert_place_geofence_target.dart';
 import 'background_alert_notifier.dart';
 import 'geofence_background_processor.dart';
 import 'pending_alert_store.dart';
@@ -131,15 +132,17 @@ void watchEngineMain() {
 
 /// 저장된 장소로 지오펜스 등록을 복원한다 (이슈 #93).
 ///
-/// 페이로드 형태는 `AndroidGeofenceMonitor.sync` 와 같아야 한다 —
-/// Kotlin `GeofenceRegistrar.sync` 가 같은 키를 읽는다.
+/// 페이로드는 `AndroidGeofenceMonitor.registrationPayloadOf` 하나로 만든다.
 Future<void> _restoreGeofences(
   DriftPlaceRepository places,
   MethodChannel channel,
 ) async {
   try {
     final all = await places.findAll();
-    final enabled = all.where((p) => p.enabled).take(20).toList();
+    final enabled = all
+        .where((p) => p.enabled)
+        .take(PlaceValidator.maxPlaces)
+        .toList();
     if (enabled.isEmpty) {
       Diagnostics.log('engine', 'no geofences to restore');
       return;
@@ -148,17 +151,9 @@ Future<void> _restoreGeofences(
     await channel.invokeMethod<void>('syncGeofences', {
       'geofences': [
         for (final place in enabled)
-          {
-            'placeId': place.id,
-            'latitude': place.latitude,
-            'longitude': place.longitude,
-            'radiusMeters': place.radiusMeters.toDouble(),
-            'proximityRadiusMeters': androidProximityRadiusMeters(
-              place.radiusMeters,
-            ),
-            'outerRadiusMeters': androidOuterRadiusMeters(place.radiusMeters),
-            'scheduleWindows': encodeScheduleWindows(place.schedules),
-          },
+          AndroidGeofenceMonitor.registrationPayloadOf(
+            place.toGeofenceTarget(),
+          ),
       ],
     });
     Diagnostics.log(

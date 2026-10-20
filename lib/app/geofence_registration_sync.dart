@@ -10,6 +10,8 @@ import '../features/geofence/domain/position_sample.dart';
 import '../features/geofence/domain/state_seeding.dart';
 import '../features/places/domain/alert_place.dart';
 import '../features/places/domain/place_repository.dart';
+import '../features/places/domain/place_validator.dart';
+import 'alert_place_geofence_target.dart';
 import 'background/alert_watch_service.dart';
 
 /// 장소 목록 ↔ OS 지오펜스 등록 동기화 (이슈 #63)
@@ -23,7 +25,7 @@ class GeofenceRegistrationSync {
     required GeofenceMonitor monitor,
     required GeofenceStateRepository states,
     AlertWatchService watch = const NoopAlertWatchService(),
-    this.maxTargets = 20,
+    this.maxTargets = PlaceValidator.maxPlaces,
     this.onSynced,
     Future<PositionSample?> Function()? currentFix,
   }) : _places = places,
@@ -110,19 +112,7 @@ class GeofenceRegistrationSync {
     final targets = places
         .where((p) => p.enabled)
         .take(maxTargets)
-        .map(
-          (p) => GeofenceTarget(
-            placeId: p.id,
-            latitude: p.latitude,
-            longitude: p.longitude,
-            radiusMeters: p.radiusMeters,
-            direction: p.direction,
-            enabled: p.enabled,
-            // OS 등록 여부는 스케줄과 무관하다 — 창 밖에도 등록을 유지해야
-            // 상태 추적이 끊기지 않는다 (이슈 #81). 값만 실어 보낸다.
-            schedules: p.schedules,
-          ),
-        )
+        .map((p) => p.toGeofenceTarget())
         .toList();
 
     // 감시에서 빠지는 장소는 상태를 unknown 으로 되돌린다 — 남겨두면

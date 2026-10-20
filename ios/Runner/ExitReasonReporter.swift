@@ -12,12 +12,15 @@ import MetricKit
 /// - **종료 사유 집계**(`MXAppExitMetric`)는 하루 한 번 온다 — 메모리 초과·워치독·
 ///   백그라운드 작업 시간 초과처럼 크래시 보고가 없는 종료가 여기 잡힌다
 ///
-/// 같은 보고를 두 번 남기지 않도록 마지막으로 남긴 보고의 끝 시각을 기억한다.
+/// 같은 보고를 두 번 남기지 않도록 마지막으로 남긴 보고의 끝 시각을 종류별로 기억한다.
 /// **어떤 호출도 예외를 던지지 않는다** — 진단이 앱을 멈추면 안 된다.
 final class ExitReasonReporter: NSObject, MXMetricManagerSubscriber {
   static let shared = ExitReasonReporter()
 
-  private static let lastReportedKey = "exit_reason_last_reported_end"
+  // 마지막으로 남긴 보고의 끝 시각 (종류별 분리) — 하루치 집계의 늦은 끝 시각이
+  // 먼저 기록되면 그보다 이른 크래시 보고가 버려진다 (#284)
+  private static let lastMetricReportedKey = "exit_reason_last_reported_end"
+  private static let lastDiagnosticReportedKey = "exit_reason_last_diagnostic_end"
 
   /// 호출 스택 JSON 은 수십 KB 가 된다 — 진단 기록 한 줄에 담을 만큼만 남긴다
   private static let maxStackChars = 3000
@@ -37,11 +40,11 @@ final class ExitReasonReporter: NSObject, MXMetricManagerSubscriber {
 
   func didReceive(_ payloads: [MXMetricPayload]) {
     for payload in payloads {
-      guard isNew(payload.timeStampEnd) else { continue }
+      guard isNew(payload.timeStampEnd, key: Self.lastMetricReportedKey) else { continue }
       if #available(iOS 14.0, *), let exits = payload.applicationExitMetrics {
         logExits(exits, begin: payload.timeStampBegin, end: payload.timeStampEnd)
       }
-      remember(payload.timeStampEnd)
+      remember(payload.timeStampEnd, key: Self.lastMetricReportedKey)
     }
   }
 
@@ -55,7 +58,7 @@ final class ExitReasonReporter: NSObject, MXMetricManagerSubscriber {
   @available(iOS 14.0, *)
   private func handle(diagnostics payloads: [MXDiagnosticPayload], source: String) {
     for payload in payloads {
-      guard isNew(payload.timeStampEnd) else { continue }
+      guard isNew(payload.timeStampEnd, key: Self.lastDiagnosticReportedKey) else { continue }
       let window = "from=\(Self.stamp(payload.timeStampBegin)) to=\(Self.stamp(payload.timeStampEnd))"
       for crash in payload.crashDiagnostics ?? [] {
         logCrash(crash, window: window, source: source)
@@ -70,7 +73,7 @@ final class ExitReasonReporter: NSObject, MXMetricManagerSubscriber {
           "diagnostics received source=\(source) hangs=\(hangs) cpu=\(cpu) disk_write=\(disk) \(window)"
         )
       }
-      remember(payload.timeStampEnd)
+      remember(payload.timeStampEnd, key: Self.lastDiagnosticReportedKey)
     }
   }
 
@@ -128,16 +131,16 @@ final class ExitReasonReporter: NSObject, MXMetricManagerSubscriber {
 
   // MARK: - 중복 방지
 
-  private func isNew(_ end: Date) -> Bool {
-    let last = UserDefaults.standard.double(forKey: Self.lastReportedKey)
+  private func isNew(_ end: Date, key: String) -> Bool {
+    let last = UserDefaults.standard.double(forKey: key)
     return end.timeIntervalSince1970 > last
   }
 
   /// 보고가 늦게 섞여 와도 뒤로 가지 않게 큰 값만 남긴다
-  private func remember(_ end: Date) {
-    let last = UserDefaults.standard.double(forKey: Self.lastReportedKey)
+  private func remember(_ end: Date, key: String) {
+    let last = UserDefaults.standard.double(forKey: key)
     if end.timeIntervalSince1970 > last {
-      UserDefaults.standard.set(end.timeIntervalSince1970, forKey: Self.lastReportedKey)
+      UserDefaults.standard.set(end.timeIntervalSince1970, forKey: key)
     }
   }
 

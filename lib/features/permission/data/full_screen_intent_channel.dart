@@ -1,5 +1,6 @@
 import 'package:flutter/services.dart';
 
+import '../../../core/diagnostics/diagnostics.dart';
 import '../domain/full_screen_intent_gate.dart';
 import '../domain/permission_kind.dart';
 import '../../../core/platform/channel_names.dart';
@@ -27,7 +28,14 @@ class FullScreenIntentChannel implements FullScreenIntentGate {
       if (granted == null || granted) return PermissionStatus.granted;
       // 설정 화면에서만 켤 수 있다 — 앱 내 재요청이 통하지 않는다
       return PermissionStatus.permanentlyDenied;
-    } on Object {
+    } on MissingPluginException {
+      // iOS·구버전 Android 는 채널이 없다 — 정상 경로라 기록하지 않음
+      return PermissionStatus.granted;
+    } on Object catch (error) {
+      Diagnostics.log(
+        'permission',
+        'full screen intent query failed result=granted error=$error',
+      );
       return PermissionStatus.granted;
     }
   }
@@ -36,8 +44,12 @@ class FullScreenIntentChannel implements FullScreenIntentGate {
   Future<void> openSettings() async {
     try {
       await _channel.invokeMethod<void>('openFullScreenIntentSettings');
-    } on Object {
+    } on Object catch (error) {
       // 설정 화면을 못 열어도 온보딩은 계속된다
+      Diagnostics.log(
+        'permission',
+        'full screen intent settings open failed error=$error',
+      );
     }
   }
 }

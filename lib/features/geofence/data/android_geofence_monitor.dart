@@ -33,25 +33,26 @@ class AndroidGeofenceMonitor implements GeofenceMonitor {
   @override
   Future<void> sync(List<GeofenceTarget> targets) async {
     await _invoke('syncGeofences', {
-      'geofences': [
-        for (final t in targets)
-          {
-            'placeId': t.placeId,
-            'latitude': t.latitude,
-            'longitude': t.longitude,
-            'radiusMeters': t.radiusMeters.toDouble(),
-            // Android 는 OS 이벤트 지연에 여유를 두고, 바깥 원 안에서는
-            // 앱이 직접 위치를 본다 (이슈 #260). iOS 는 이 경로를 쓰지 않는다.
-            'proximityRadiusMeters': androidProximityRadiusMeters(
-              t.radiusMeters,
-            ),
-            'outerRadiusMeters': androidOuterRadiusMeters(t.radiusMeters),
-            // 알림 시간대 밖에서는 중간 단계 감시를 켜지 않아 배터리를 아낀다
-            'scheduleWindows': encodeScheduleWindows(t.schedules),
-          },
-      ],
+      'geofences': [for (final t in targets) registrationPayloadOf(t)],
     });
   }
+
+  /// 지오펜스 1건 > `syncGeofences` 등록 페이로드 (단일 원본)
+  ///
+  /// Kotlin `GeofenceRegistrar.sync`·`WatchPlace` 가 같은 키를 읽는다. 앱 경로와
+  /// 엔진 복원 경로(`watch_engine_entrypoint.dart`)가 함께 쓴다.
+  static Map<String, Object?> registrationPayloadOf(GeofenceTarget target) => {
+    'placeId': target.placeId,
+    'latitude': target.latitude,
+    'longitude': target.longitude,
+    'radiusMeters': target.radiusMeters.toDouble(),
+    // Android 는 OS 이벤트 지연에 여유를 두고, 바깥 원 안에서는
+    // 앱이 직접 위치를 본다 (이슈 #260). iOS 는 이 경로를 쓰지 않는다.
+    'proximityRadiusMeters': androidProximityRadiusMeters(target.radiusMeters),
+    'outerRadiusMeters': androidOuterRadiusMeters(target.radiusMeters),
+    // 알림 시간대 밖에서는 중간 단계 감시를 켜지 않아 배터리를 아낀다
+    'scheduleWindows': encodeScheduleWindows(target.schedules),
+  };
 
   @override
   Future<void> stopAll() => sync(const []);

@@ -71,8 +71,12 @@ class VibrationServiceImpl implements VibrationService {
     var hasVibrator = false;
     try {
       hasVibrator = await _hasVibrator();
-    } on Object {
+    } on Object catch (error) {
       // 조회 실패는 없음으로 본다
+      Diagnostics.log(
+        'alert',
+        'vibrator query failed result=none error=$error',
+      );
     }
     if (!hasVibrator && _system == null) return;
 
@@ -81,8 +85,12 @@ class VibrationServiceImpl implements VibrationService {
     var canControlAmplitude = false;
     try {
       canControlAmplitude = await _hasAmplitudeControl();
-    } on Object {
+    } on Object catch (error) {
       // 조회 실패는 미지원으로 본다 — 진동 자체는 계속된다
+      Diagnostics.log(
+        'alert',
+        'amplitude query failed result=unsupported error=$error',
+      );
     }
 
     Future<void> pulse() async {
