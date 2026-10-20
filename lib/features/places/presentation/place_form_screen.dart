@@ -21,6 +21,7 @@ import '../../../core/domain/sound_preset_label.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/text/keep_all.dart';
 import '../domain/alert_place.dart';
+import '../domain/place_draft.dart';
 import '../domain/place_validator.dart';
 import 'alert_schedule_editor.dart';
 import 'place_card.dart' show showPlaceDeletedSnack;
@@ -115,10 +116,13 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
   /// 이름 칸 아래에 붙는 오류. 토스트만으로는 어느 칸이 문제인지 몰랐다
   String? _nameError;
 
-  late double _radius = (widget.existing?.radiusMeters ?? 100).toDouble();
+  late double _radius =
+      (widget.existing?.radiusMeters ?? PlaceDraft.defaultRadiusMeters)
+          .toDouble();
   late AlertDirection _direction =
-      widget.existing?.direction ?? AlertDirection.enter;
-  late bool _soundEnabled = widget.existing?.soundEnabled ?? true;
+      widget.existing?.direction ?? PlaceDraft.defaultDirection;
+  late bool _soundEnabled =
+      widget.existing?.soundEnabled ?? PlaceDraft.defaultSoundEnabled;
   late AlertSound _sound = widget.existing?.sound ?? AlertSound.fallback;
 
   /// 조회로 얻은 알림음 이름. null 이면 잠정값을 쓴다.
@@ -203,49 +207,19 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
     super.dispose();
   }
 
-  /// 저장하지 않은 변경이 있는가 (이슈 #112).
-  ///
-  /// **편집과 신규 등록의 기준이 다르다.** 편집은 원본과 달라졌는지를 보고,
-  /// 신규는 무언가 입력했는지를 본다 — 빈 폼을 열었다 닫는 것은 버릴 것이
-  /// 없으므로 묻지 않는다.
-  bool get _hasUnsavedChanges {
-    final existing = widget.existing;
-    if (existing == null) {
-      return _name.text.trim().isNotEmpty ||
-          _latitude.text.trim().isNotEmpty ||
-          _longitude.text.trim().isNotEmpty ||
-          _schedules.isNotEmpty ||
-          // 신규 기본값과 달라졌으면 사용자가 건드린 것이다
-          _radius.round() != 100 ||
-          _direction != AlertDirection.enter ||
-          !_soundEnabled ||
-          _sound != AlertSound.fallback;
-    }
-
-    // 좌표는 문자열로 비교하면 `37.4` 와 `37.40` 이 다르게 잡힌다.
-    // 숫자로 바꿔서 본다
-    final latitude = _latitudeValue;
-    final longitude = _longitudeValue;
-
-    return _name.text.trim() != existing.name ||
-        latitude != existing.latitude ||
-        longitude != existing.longitude ||
-        _radius.round() != existing.radiusMeters ||
-        _direction != existing.direction ||
-        _soundEnabled != existing.soundEnabled ||
-        _sound != existing.sound ||
-        !_sameSchedules(_schedules, existing.schedules);
-  }
-
-  /// 시간대 목록이 같은가. 순서까지 같아야 같은 것으로 본다 —
-  /// 사용자가 순서를 바꿨다면 그것도 변경이다.
-  bool _sameSchedules(List<AlertSchedule> a, List<AlertSchedule> b) {
-    if (a.length != b.length) return false;
-    for (var i = 0; i < a.length; i++) {
-      if (a[i] != b[i]) return false;
-    }
-    return true;
-  }
+  /// 저장하지 않은 변경이 있는가 (이슈 #112) — 판정은 [PlaceDraft]
+  bool get _hasUnsavedChanges => PlaceDraft(
+    name: _name.text,
+    latitude: _latitudeValue,
+    longitude: _longitudeValue,
+    hasCoordinateInput:
+        _latitude.text.trim().isNotEmpty || _longitude.text.trim().isNotEmpty,
+    radiusMeters: _radius.round(),
+    direction: _direction,
+    soundEnabled: _soundEnabled,
+    sound: _sound,
+    schedules: _schedules,
+  ).hasUnsavedChangesFrom(widget.existing);
 
   /// 나가도 되는지 묻는다 (이슈 #112).
   ///

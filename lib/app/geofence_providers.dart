@@ -5,13 +5,12 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import '../core/database/app_database_provider.dart';
 import '../features/geofence/data/geofence_state_repository_provider.dart';
 import '../features/places/data/place_repository_provider.dart';
 import '../features/sounds/data/custom_sound_repository_provider.dart';
 import '../core/domain/id_generator.dart';
 import '../features/geofence/data/android_geofence_monitor.dart';
-import '../features/geofence/data/drift_geofence_event_repository.dart';
+import '../features/geofence/data/geofence_event_repository_provider.dart';
 import '../features/geofence/domain/geofence_evaluator.dart';
 import '../features/geofence/data/native_geofence_monitor.dart';
 import '../features/geofence/domain/geofence_monitor.dart';
@@ -76,9 +75,9 @@ IosAdaptiveWatch iosAdaptiveWatch(Ref ref) {
   final alertPort = AppIsolateAlertPort(
     background: BackgroundAlertNotifier(
       plugin: plugin,
-      store: PendingAlertStore(),
+      store: ref.watch(pendingAlertStoreProvider),
     ),
-    store: PendingAlertStore(),
+    store: ref.watch(pendingAlertStoreProvider),
     // 백그라운드 재실행에서는 부트스트랩이 돌지 않아 플러그인이 초기화되지
     // 않았을 수 있다 — 알림을 내기 직전에 확인한다
     ensureBackgroundReady: () => ensureNotificationsInitialized(plugin),
@@ -97,7 +96,7 @@ IosAdaptiveWatch iosAdaptiveWatch(Ref ref) {
     processor: GeofenceBackgroundProcessor(
       places: places,
       states: ref.watch(geofenceStateRepositoryProvider),
-      events: DriftGeofenceEventRepository(ref.watch(appDatabaseProvider)),
+      events: ref.watch(geofenceEventRepositoryProvider),
       evaluator: const GeofenceEvaluator(),
       alertPort: alertPort,
       idGenerator: IdGenerator.generate,
@@ -137,9 +136,13 @@ GeofenceSyncSignal geofenceSyncSignal(Ref ref) {
   return signal;
 }
 
+/// 앱 isolate 의 대기 알림 저장소 (백그라운드 진입점은 Riverpod 없이 직접 생성)
+@Riverpod(keepAlive: true)
+PendingAlertStore pendingAlertStore(Ref ref) => PendingAlertStore();
+
 @Riverpod(keepAlive: true)
 PendingAlertLauncher pendingAlertLauncher(Ref ref) => PendingAlertLauncher(
-  store: PendingAlertStore(),
+  store: ref.watch(pendingAlertStoreProvider),
   clock: () => DateTime.now().toUtc(),
   // 장소마다 다른 알림음을 재생 가능한 소스로 바꾼다 (이슈 #121)
   soundResolver: AlertSoundResolver(ref.watch(customSoundRepositoryProvider)),

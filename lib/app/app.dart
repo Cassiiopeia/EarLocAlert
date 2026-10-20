@@ -28,10 +28,8 @@ import 'arrival_alarm_providers.dart';
 import 'background/background_alert_notifier.dart';
 import 'background/notification_action_handler.dart';
 import 'background/pending_alert.dart';
-import 'background/pending_alert_store.dart';
 import 'background_alert_ringer.dart';
-import '../features/geofence/data/drift_geofence_event_repository.dart';
-import '../core/database/app_database_provider.dart';
+import '../features/geofence/data/geofence_event_repository_provider.dart';
 import '../core/ui/feedback/app_feedback.dart';
 import 'alert_ad_coordinator_provider.dart';
 import 'geofence_event_retention.dart';
@@ -114,7 +112,7 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
     audioDecision: () => ref.read(activeAlertProvider.notifier).audioDecision(),
     remind: (alert, sequence) => BackgroundAlertNotifier(
       plugin: ref.read(notificationsPluginProvider),
-      store: PendingAlertStore(),
+      store: ref.read(pendingAlertStoreProvider),
     ).remind(alert, sequence: sequence),
     clearNotifications: _cancelBackgroundNotification,
     isRinging: () => ref.read(alertControllerProvider).current != null,
@@ -176,13 +174,13 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
       _iosBackgroundAlerts = watch.backgroundAlerts.listen(
         (alert) => unawaited(_backgroundRinger.ring(alert)),
       );
+      // 알림 버튼 눌림을 받기 시작한다 (이슈 #237) — 화면 없이 울리는 동안 눌리므로
+      // 첫 프레임을 기다리지 않는다
+      _notificationActions.attach();
       // 잠금 화면 알람의 "사용자가 껐다" 신호를 받기 시작한다 (이슈 #235)
       final alarm = ref.read(arrivalAlarmCoordinatorProvider);
       // 어디서 해제하든 반복 알림과 잠금 화면 알람이 같이 멈춰야 한다 — 끈 뒤에
       // 떨거나 알람이 남으면 안 된다
-      // 알림 버튼 눌림을 받기 시작한다 (이슈 #237) — 화면 없이 울리는 동안 눌리므로
-      // 첫 프레임을 기다리지 않는다
-      _notificationActions.attach();
       _sessionEnds = ref.read(alertControllerProvider).sessionChanges.listen((
         session,
       ) {
@@ -253,7 +251,7 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
     // 90일 지난 진입 기록을 지운다 — 기다리지 않는다, 감시 시작이 먼저다
     unawaited(
       deleteGeofenceEventsPastRetention(
-        events: DriftGeofenceEventRepository(ref.read(appDatabaseProvider)),
+        events: ref.read(geofenceEventRepositoryProvider),
         now: DateTime.now().toUtc(),
       ),
     );
