@@ -24,13 +24,13 @@
 
 **Phase 1 의 코드 작업 9단계가 전부 구현됐다.** 남은 것은 실기기 검증과 사용자 작업(지도 API 키·iOS 서명·AdMob)이다. 진행 현황과 남은 작업은 `docs/11-ROADMAP.md` 의 현황 표가 단일 출처다 — **작업을 시작하기 전에 반드시 그 표를 먼저 읽는다.**
 
-구현된 것: 도메인 로직(지오펜스 판정·오디오 경로·광고 빈도) · Drift 저장소 · 권한 온보딩 · 알림 발화/해제 + 알림 화면 · 전면광고 통합 · 위치 목록/등록/편집 · 플랫폼 권한 선언 · **백그라운드 감시** · **지도 홈·위치 선택 화면** · **알림음** · **진동 세기 조절** · **장소별 알림음·사용자 음원 등록** · **알림 화면 지도 카드** · **Pretendard 폰트**. 테스트 560건.
+구현된 것: 도메인 로직(지오펜스 판정·오디오 경로·광고 빈도) · Drift 저장소 · 권한 온보딩 · 알림 발화/해제 + 알림 화면 · 전면광고 통합 · 위치 목록/등록/편집 · 플랫폼 권한 선언 · **백그라운드 감시** · **지도 홈·위치 선택 화면** · **알림음** · **진동 세기 조절** · **장소별 알림음·사용자 음원 등록** · **알림 화면 지도 카드** · **Pretendard 폰트**. 자동 테스트는 없다 (결정 070).
 
-**라이트·다크 두 벌이다 (#272, 결정 065).** 색은 `context.appColors`, 글자는 `context.appTextStyles` 로 읽는다 — 화면에서 `AppColors.`·`AppTypography.` 를 쓰면 라이트에서 다크 색이 박혀 `design_system_test` 가 막는다. 주색은 민트(`accent`), 금색은 출발·경고(`warning`). 화면 모드는 설정 > 일반에서 고른다(기본 기기 따르기). **알림 화면은 항상 다크다** (`lib/app/always_dark_alert_theme.dart`). 디자인 시스템은 `lib/core/ui/`(foundation · components · feedback) 한 계층이다 (#276).
+**라이트·다크 두 벌이다 (#272, 결정 065).** 색은 `context.appColors`, 글자는 `context.appTextStyles` 로 읽는다 — 화면에서 `AppColors.`·`AppTypography.` 를 쓰면 라이트에서 다크 색이 박힌다 — 쓰지 않는다. 주색은 민트(`accent`), 금색은 출발·경고(`warning`). 화면 모드는 설정 > 일반에서 고른다(기본 기기 따르기). **알림 화면은 항상 다크다** (`lib/app/always_dark_alert_theme.dart`). 디자인 시스템은 `lib/core/ui/`(foundation · components · feedback) 한 계층이다 (#276).
 
 **하단 광고는 44dp 한 줄 네이티브 띠다 (#283, 결정 068).** `AdBannerFrame` 이 화면 밖 띠로 붙이고, 앱 네이티브 팩토리 `earLocAlertStrip`(Kotlin·Swift)이 그린다. 운영 단위가 비면 릴리스는 요청하지 않는다. **네이티브 계층은 실기기 검증으로만 닫힌다.**
 
-**알림 화면 가운데에 장소 지도가 있다 (#142·#144, 결정 033).** 지도 카드 400px, 해제 버튼은 340px 에서 **84px 로 줄였다.** 그 버튼은 버스에서 화면을 보지 않고 엄지로 누르는 용도라, **보이는 크기와 눌리는 범위를 분리했다** — 주변 여백까지 탭을 받는다. 더 줄이자는 변경이 오면 `alert_screen_map_test.dart` 가 막는다. 지도는 조작을 받지 않고 lite mode 로 그린다 (전력). **좌표는 `PendingAlert` → SharedPreferences → `take()` 경계를 건너오며, 반드시 `_clear` 앞에서 읽는다** (#125 가 났던 자리).
+**알림 화면 가운데에 장소 지도가 있다 (#142·#144, 결정 033).** 지도 카드 400px, 해제 버튼은 340px 에서 **84px 로 줄였다.** 그 버튼은 버스에서 화면을 보지 않고 엄지로 누르는 용도라, **보이는 크기와 눌리는 범위를 분리했다** — 주변 여백까지 탭을 받는다. 더 줄이지 않는다. 지도는 조작을 받지 않고 lite mode 로 그린다 (전력). **좌표는 `PendingAlert` → SharedPreferences → `take()` 경계를 건너오며, 반드시 `_clear` 앞에서 읽는다** (#125 가 났던 자리).
 
 **백그라운드 알림은 네이티브가 만든다 (#102, 결정 025).** `AlertWatchService` 가 **알림 발행 → 진동 → 화면 승격** 순서로 발화한다. 뒤로 갈수록 실패 가능성이 높은 것을 뒤에 둔다. 한동안 첫 단계가 비어 있어서, 오버레이 권한이 없으면 진동 말고는 아무 흔적도 안 남았다 — #93 으로 경로를 바꾸며 Dart 쪽 알림 발행이 빠졌는데 네이티브가 그 자리를 채우지 않았다. **네이티브에서 알림을 만들되 소리는 여전히 내지 않는다** (채널을 무음으로).
 
@@ -62,7 +62,7 @@
 | iOS TestFlight 배포 | 서명 자산 만료 (#51, 사용자 작업) |
 | iOS 실제 광고 송출 | 서명(#51)이 막혀 iOS 미배포 — AdMob 앱·광고 단위 ID 는 등록 완료 (`docs/07-MONETIZATION.md`) |
 
-**개발 환경 주의** — Windows PC 는 내부망이라 `flutter pub get` 불가, 검증을 CI 에 위임했다. **Mac(외부망)에서는 로컬 검증이 가능하므로 CI 를 기다릴 필요 없이 `flutter analyze && flutter test` 를 직접 돌린다.** Mac 의 시스템 Flutter(3.38+/Dart 3.10)로는 codegen 이 죽는다(analyzer 7 상한) — **CI 와 동일한 `~/development/flutter-3.35.5/bin/flutter` 를 쓴다** (`export PATH="$HOME/development/flutter-3.35.5/bin:$PATH"`).
+**개발 환경 주의** — Windows PC 는 내부망이라 `flutter pub get` 불가, 검증을 CI 에 위임했다. **Mac(외부망)에서는 로컬 검증이 가능하므로 CI 를 기다릴 필요 없이 `flutter analyze` 와 빌드를 직접 돌린다 (자동 테스트 없음, 결정 070).** Mac 의 시스템 Flutter(3.38+/Dart 3.10)로는 codegen 이 죽는다(analyzer 7 상한) — **CI 와 동일한 `~/development/flutter-3.35.5/bin/flutter` 를 쓴다** (`export PATH="$HOME/development/flutter-3.35.5/bin:$PATH"`).
 
 ---
 
@@ -113,7 +113,7 @@ play();
 
 **"이어폰"은 블루투스만이 아니다.** 줄이어폰·USB-C 이어폰도 소리가 새지 않으므로 동일하게 취급한다. 판정은 `AudioDeviceType` **허용 목록**이고 차량 오디오·AirPlay·HDMI 는 제외다 — 모르는 장치는 자동으로 빠진다.
 
-**네이티브(Kotlin)에서는 어떤 경우에도 소리를 내지 않는다.** 허용 목록 판정은 Dart 에만 있고 테스트로 지켜진다. `AlertWatchService` 가 하는 것은 진동과 화면 띄우기뿐이고, 소리는 앱이 전면으로 올라온 뒤 `AlertController` 가 판정해서 낸다. 네이티브에 재생 코드를 넣는 순간 그 판정이 우회된다.
+**네이티브(Kotlin)에서는 어떤 경우에도 소리를 내지 않는다.** 허용 목록 판정은 Dart 에만 있다. `AlertWatchService` 가 하는 것은 진동과 화면 띄우기뿐이고, 소리는 앱이 전면으로 올라온 뒤 `AlertController` 가 판정해서 낸다. 네이티브에 재생 코드를 넣는 순간 그 판정이 우회된다.
 → `docs/03-DOMAIN.md` 규칙 5 · `docs/10-DECISIONS.md` 018 · 019
 
 ### 3. 알림 화면에 광고를 겹치지 않는다
@@ -184,7 +184,7 @@ play();
 |---|---|
 | `pubspec.yaml` 의 version 직접 수정 | `version.yml` 이 단일 출처. 워크플로우가 동기화한다 |
 | `DateTime.now()` 저장 | `DateTime.now().toUtc()` — 표시할 때만 로컬 변환 |
-| 화면 문자열 하드코딩 | 네 언어를 지원한다. `context.l10n.키`, 백그라운드는 `AppStrings`. `test/core/l10n/no_hardcoded_korean_test.dart` 가 막는다 |
+| 화면 문자열 하드코딩 | 네 언어를 지원한다. `context.l10n.키`, 백그라운드는 `AppStrings` |
 | `String.keepAll` 을 그대로 쓴다 | 한국어에서만. 중국어·일본어에 쓰면 줄이 안 바뀌어 넘친다 → `context.keepAllText(...)` |
 | 지오펜스 상태를 메모리에 보관 | 재부팅 후 살아 있어야 한다. Drift 에 저장 |
 | `unknown → inside` 에 알림 발생 | 밖에 있었던 적이 확인돼야 진입 알림이다 |

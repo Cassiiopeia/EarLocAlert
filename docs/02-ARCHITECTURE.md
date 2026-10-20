@@ -175,14 +175,11 @@ await alertController.dismiss();          // 그 뒤에야 알림이 멈춘다
 
 ## 경계를 어떻게 강제하나
 
-규칙을 문서에만 적어두면 지켜지지 않는다. 다음으로 기계가 잡게 한다.
+자동 테스트는 없다 (결정 070). lint 와 리뷰로 잡는다.
 
 | 수단 | 잡는 것 |
 |---|---|
 | `custom_lint` + `riverpod_lint` | Riverpod 오용, Provider 누락 |
-| `test/architecture_boundary_test.dart` (#276) | feature 간 직접 import, core → features·app 역참조, presentation → data(`data/*_provider(s).dart` 만 허용), data → presentation, domain → data·presentation·Flutter 화면 |
-| `test/design_system_test.dart` | 화면의 원본 시트·ListTile·색·글자 상수 직접 사용, 주 버튼 두 개, 아이콘 규격 |
+| 리뷰 | feature 간 직접 import, core → features·app 역참조, presentation → data(`data/*_provider(s).dart` 만 허용), data → presentation, domain → data·presentation·Flutter 화면, 화면의 원본 시트·ListTile·색·글자 상수 직접 사용 |
 
-예전 표에는 `analysis_options.yaml` 의 import 규칙이 적혀 있었지만 실제 규칙이 없어 위반이 쌓였다(아키텍처 검수 #276). 지금은 테스트가 import 줄을 읽어 막는다.
-
-lint 로 잡히지 않는 규칙 4(광고 대기)는 **테스트로 잡는다.** 광고 로딩을 무한 지연시키는 가짜 구현을 넣고도 해제가 즉시 완료되는지 검증한다 → [04-CONVENTIONS](04-CONVENTIONS.md)
+규칙 4(광고 대기)는 리뷰에서 본다 — 해제 `await` 가 광고 호출보다 앞서는지 (`alert_dismiss_flow.dart`).
