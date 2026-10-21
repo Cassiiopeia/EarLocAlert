@@ -1729,6 +1729,18 @@ Play 자동 업데이트(029)만으로는 사용자가 새 버전을 받는 시�
 
 ---
 
+## 071. iOS 만 main 배포에서 심사까지 자동 제출한다 — Android 는 수동 그대로
+
+**바뀐 것** — `.github/config/store-deploy.json` 에 `ios: deploy_mode=store_submit, auto_submit_on_push=true` 를 두었다 (이슈 #293). main 배포 한 번으로 TestFlight 업로드와 App Store 심사 제출이 함께 된다. 승인되면 자동 출시된다(`automatic_release: true`).
+
+**Android 를 빼는 이유** — 결정 048 개정(2026-10-09) 그대로다. Play 는 검토 중에 새 제출이 오면 진행 중이던 검토를 취소하고 다시 시작한다. 실제로 이틀 동안 10번 제출해 9번 취소됐고 앱이 공개되지 않았다. App Store 는 심사 중인 버전이 새 빌드 업로드로 취소되지 않아 같은 위험이 없다. Android 심사는 검토 중인 것이 없을 때 Actions 에서 `deploy_mode=store_submit` 으로 수동 실행한다.
+
+**함께 고친 것** — iOS 워크플로 env `DELIVER_LOCALES: "ko,en-US,ja,zh-Hans"` (#290). `store_locales` 를 끈 뒤(#281) '새로운 기능' 문구가 한국어에만 들어가 다른 언어가 비어 심사 제출이 거부됐다. App Store Connect 에 현지화를 더하면 이 목록에도 더한다.
+
+**되돌리기** — 설정 파일의 `ios` 항목을 지우면 push 는 다시 TestFlight 까지만 간다.
+
+---
+
 ## 미결 — 결정하지 않은 것들
 
 **결정하지 않았다는 사실을 기록한다.** 나중에 "왜 이건 안 정했지"를 헤매지 않기 위해서다.

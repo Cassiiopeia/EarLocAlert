@@ -43,7 +43,7 @@ develop 브랜치 (기본 작업 브랜치)
 | `PROJECT-FLUTTER-CI` | PR·develop push 빌드 검증 (analyze·test·Android 빌드) |
 | `PROJECT-FLUTTER-ANDROID-PLAYSTORE-CICD` | Play Store 배포 — `DEPLOY_MODE` 로 범위 결정 (기본 `store_only`, 결정 048 — 심사는 수동 실행에서만) |
 | `PROJECT-FLUTTER-ANDROID-SYNOLOGY-CICD` | APK 를 NAS 로 배포 + **GitHub Release 에 APK 첨부** |
-| `PROJECT-FLUTTER-IOS-TESTFLIGHT` | TestFlight 배포 |
+| `PROJECT-FLUTTER-IOS-TESTFLIGHT` | TestFlight 배포 + **App Store 심사 자동 제출** (`.github/config/store-deploy.json`, 결정 071) |
 | `PROJECT-FLUTTER-ANDROID-FIREBASE-CICD` | Firebase 배포 — **자동 트리거 없음** (시크릿 미등록) |
 | `PROJECT-FLUTTER-ANDROID-TEST-APK` · `PROJECT-FLUTTER-IOS-TEST-TESTFLIGHT` | 이슈 댓글로 요청하는 테스트 빌드 |
 

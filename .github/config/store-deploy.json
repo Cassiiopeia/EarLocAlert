@@ -1,0 +1,3 @@
+{
+  "ios": { "deploy_mode": "store_submit", "auto_submit_on_push": true }
+}
