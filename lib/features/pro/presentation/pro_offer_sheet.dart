@@ -186,9 +186,12 @@ class _BuyButton extends StatelessWidget {
           child: isBusy
               ? const InlineLoadingIndicator()
               : Text(
-                  loadedPrice == null
-                      ? l10n.proPriceLoading
-                      : l10n.proSheetBuy(loadedPrice),
+                  loadedPrice != null
+                      ? l10n.proSheetBuy(loadedPrice)
+                      // 상품을 못 읽음 > 가격 없이 이름만 (아래 사유 문구가 이유를 말함)
+                      : isPriceUnavailable
+                      ? l10n.proSheetTitle
+                      : l10n.proPriceLoading,
                 ),
         ),
         if (isPriceUnavailable)

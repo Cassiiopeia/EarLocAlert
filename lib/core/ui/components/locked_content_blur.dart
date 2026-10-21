@@ -90,6 +90,8 @@ class LockedContentBlur extends StatelessWidget {
                             backgroundColor: colors.accent,
                             foregroundColor: colors.onAccent,
                             shape: const StadiumBorder(),
+                            // 테마 기본값(가로 꽉 참) 대신 글자 폭만큼의 알약
+                            minimumSize: const Size(0, AppControlSize.floating),
                             padding: const EdgeInsets.symmetric(
                               horizontal: AppSpacing.md,
                             ),
