@@ -1,14 +1,40 @@
 {
   "metadata": {
-    "lastUpdated": "2026-10-20T14:46:48Z",
-    "currentVersion": "1.37.1",
+    "lastUpdated": "2026-10-21T04:20:33Z",
+    "currentVersion": "1.38.0",
     "projectType": "flutter",
-    "totalReleases": 110,
+    "totalReleases": 111,
     "projectTypes": [
       "flutter"
     ]
   },
   "releases": [
+    {
+      "version": "1.38.0",
+      "project_type": "flutter",
+      "project_types": [
+        "flutter"
+      ],
+      "date": "2026-10-21",
+      "pr_number": 291,
+      "raw_summary": "## Summary by CodeRabbit\n\n## 릴리스 노트\n\n* **새 기능**\n  * 동작 기록 화면에서 검색과 문제만 보기, 기록 종류별 필터를 지원\n  * 동작 기록에서 권한·장소·설정 등 지금 앱 상태를 한눈에 확인\n\n* **개선**\n  * 동작 기록을 내보내거나 문제를 신고할 때 앱 상태와 전체 기록을 함께 담아 원인을 더 빨리 찾을 수 있음",
+      "parsed_changes": {
+        "새_기능": {
+          "title": "새 기능",
+          "items": [
+            "동작 기록 화면에서 검색과 문제만 보기, 기록 종류별 필터를 지원",
+            "동작 기록에서 권한·장소·설정 등 지금 앱 상태를 한눈에 확인"
+          ]
+        },
+        "개선": {
+          "title": "개선",
+          "items": [
+            "동작 기록을 내보내거나 문제를 신고할 때 앱 상태와 전체 기록을 함께 담아 원인을 더 빨리 찾을 수 있음"
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "1.37.1",
       "project_type": "flutter",
