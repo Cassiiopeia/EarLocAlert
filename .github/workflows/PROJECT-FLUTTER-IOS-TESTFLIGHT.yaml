@@ -128,6 +128,11 @@ env:
   # 언어별로 나누지 않고 영어 한 문구를 모든 언어에 쓴다 (version.yml 의 store_locales 를 비워 두었다 — #281).
   STORE_WHATS_NEW_OVERRIDE: "We've improved how alerts work and fixed several bugs so the app runs more reliably."
 
+  # 'What's New' 를 올릴 App Store 언어 전부 (Fastfile 기본값은 ko 하나).
+  # store_locales 를 끈 뒤(#281) 한국어에만 문구가 들어가 나머지 언어가 비어 심사 제출이 거부됐다 (#290).
+  # App Store Connect 에 현지화를 더하면 여기에도 더한다.
+  DELIVER_LOCALES: "ko,en-US,ja,zh-Hans"
+
 jobs:
   prepare-build:
     name: 환경 설정 및 준비
