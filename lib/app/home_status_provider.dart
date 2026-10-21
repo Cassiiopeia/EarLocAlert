@@ -86,11 +86,16 @@ Future<HomeStatus> homeStatus(Ref ref) async {
       .listen((_) => ref.invalidateSelf());
   ref.onDispose(synced.cancel);
 
+  // 지켜볼 값은 첫 await 전에 모두 읽는다 (#292) — await 사이 의존값이 바뀌면
+  // 그 뒤 ref.watch 는 Riverpod 단언(_didChangeDependency)으로 실패
+  final geofenceMonitor = ref.watch(geofenceMonitorProvider);
+  final alertSoundService = ref.watch(alertSoundServiceProvider);
+  final permission = ref.watch(permissionControllerProvider);
+  final iosReadiness = ref.watch(iosAlertReadinessProvider);
+
   var monitoring = false;
   try {
-    final registered = await ref
-        .watch(geofenceMonitorProvider)
-        .registeredPlaceIds();
+    final registered = await geofenceMonitor.registeredPlaceIds();
     monitoring = registered.isNotEmpty;
   } on Object catch (error) {
     Diagnostics.log('app', 'home monitoring check failed error=$error');
@@ -99,9 +104,7 @@ Future<HomeStatus> homeStatus(Ref ref) async {
 
   var headphones = false;
   try {
-    headphones = await ref
-        .watch(alertSoundServiceProvider)
-        .isHeadphoneConnected();
+    headphones = await alertSoundService.isHeadphoneConnected();
   } on Object catch (error) {
     Diagnostics.log('app', 'home headphone check failed error=$error');
     headphones = false;
@@ -109,14 +112,12 @@ Future<HomeStatus> homeStatus(Ref ref) async {
 
   // 권한 조회가 아직 안 끝났으면 경고하지 않는다 — 모르는 상태에서
   // 경고를 띄우면 정상인 사용자에게 없는 문제를 보여준다 (이슈 #74)
-  final snapshot = ref.watch(permissionControllerProvider).valueOrNull;
+  final snapshot = permission.valueOrNull;
 
   // iOS 는 신뢰성 권한 대신 읽을 수 있는 알림 설정과 진동 시험 답을 본다 (이슈 #237).
   // 읽는 중이면 비어 있다 — 권한과 같은 이유로 모르는 상태에서 경고하지 않는다.
   // Android 에서는 늘 비어 있다
-  final iosGaps =
-      ref.watch(iosAlertReadinessProvider).valueOrNull ??
-      const <ReliabilityGap>[];
+  final iosGaps = iosReadiness.valueOrNull ?? const <ReliabilityGap>[];
   final reliable = (snapshot?.canAlertReliably ?? true) && iosGaps.isEmpty;
 
   // 켜지지 않은 것만 골라 종류로 담는다 — 이름은 화면이 설정 화면의
@@ -137,7 +138,6 @@ Future<HomeStatus> homeStatus(Ref ref) async {
   // 같아도 매번 기록했다. 하루에 6972줄이 쌓인 날이 있었고, 로그 파일은
   // 상한에서 오래된 것부터 지워지므로 **정작 필요한 판정 기록이 그만큼
   // 빨리 밀려났다.** 같은 값이 7000번 찍힌 것에는 정보가 없다.
-  final permission = ref.watch(permissionControllerProvider);
   final line =
       'home status monitoring=$monitoring headphones=$headphones reliable=$reliable '
       'missing=[${missing.map((gap) => gap.name).join(",")}] '
