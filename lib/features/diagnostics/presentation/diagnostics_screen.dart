@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../../../core/diagnostics/debug_report.dart';
+import '../../../core/diagnostics/diagnostic_line.dart';
+import '../../../core/diagnostics/diagnostic_log_file.dart';
 import '../../../core/diagnostics/diagnostic_log_reader.dart';
 import '../../../core/diagnostics/file_diagnostic_logger.dart';
 import '../../../core/diagnostics/diagnostics.dart';
@@ -13,6 +15,10 @@ import '../../../core/text/keep_all.dart';
 import '../../../core/ui/feedback/app_feedback.dart';
 import '../../../core/text/two_digits.dart';
 import '../../../core/ui/components/loading_indicator.dart';
+import '../domain/diagnostic_line_filter.dart';
+import 'diagnostic_app_state_card.dart';
+import 'diagnostic_filter_bar.dart';
+import 'diagnostic_log_line_tile.dart';
 
 /// 진단 로그 화면 (이슈 #95)
 ///
@@ -22,18 +28,33 @@ import '../../../core/ui/components/loading_indicator.dart';
 ///
 /// 최근 기록이 위로 오게 뒤집어 보여준다 — 방금 일어난 일을 찾으러
 /// 오는 화면이라 아래로 스크롤하게 만들면 안 된다.
-class DiagnosticsScreen extends ConsumerStatefulWidget {
-  const DiagnosticsScreen({super.key});
+///
+/// 구성 (이슈 #290): 앱 상태 카드 > 검색·출처·태그·문제만 필터 > 출처 표시 기록.
+/// 내보내기·복사는 필터와 무관하게 앱 상태 + 전체 기록 보고서.
+class DiagnosticsScreen extends StatefulWidget {
+  const DiagnosticsScreen({super.key, required this.collectAppState});
+
+  /// 권한·장소·설정·네이티브 상태 텍스트 (app 계층이 넣는다, 기능 간 import 금지)
+  final Future<String> Function() collectAppState;
 
   @override
-  ConsumerState<DiagnosticsScreen> createState() => _DiagnosticsScreenState();
+  State<DiagnosticsScreen> createState() => _DiagnosticsScreenState();
 }
 
-class _DiagnosticsScreenState extends ConsumerState<DiagnosticsScreen> {
-  String _content = '';
-
+class _DiagnosticsScreenState extends State<DiagnosticsScreen> {
   /// 공유 시트 기준 위치를 재려고 내보내기 버튼에 단다 (이슈 #241)
   final _exportKey = GlobalKey();
+  final _searchController = TextEditingController();
+
+  // 읽은 기록 (오래된 것 먼저)과 그로부터 계산한 필터 재료
+  List<DiagnosticLine> _lines = const [];
+  List<DiagnosticLine> _visibleLines = const [];
+  List<DiagnosticLogSource> _sourcesWithLines = const [];
+  List<MapEntry<String, int>> _tagCounts = const [];
+  int _problemCount = 0;
+  DiagnosticLineFilter _filter = const DiagnosticLineFilter();
+
+  String _appState = '';
 
   /// 기록 파일을 읽지 못한 사유. 비어 있으면 정상적으로 읽은 것이다
   String _readError = '';
@@ -46,6 +67,12 @@ class _DiagnosticsScreenState extends ConsumerState<DiagnosticsScreen> {
   void initState() {
     super.initState();
     _load();
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   /// 기록을 읽는다 (이슈 #106).
@@ -70,31 +97,48 @@ class _DiagnosticsScreenState extends ConsumerState<DiagnosticsScreen> {
     // 사용자가 스스로 가릴 수 있는 가장 단순한 신호다
     Diagnostics.log('diag', 'diagnostics screen opened');
 
-    final result = await DiagnosticLogReader.read();
+    final snapshot = await DiagnosticLogReader.readSnapshot();
     final size = await DiagnosticLogReader.sizeInBytes();
+    final appState = await _collectAppState();
 
     if (!mounted) return;
     setState(() {
-      _content = result.content;
-      _readError = result.error;
+      _lines = snapshot.lines;
+      _sourcesWithLines = [
+        for (final summary in snapshot.sources)
+          if (summary.lineCount > 0) summary.source,
+      ];
+      _tagCounts = countLinesByTag(snapshot.lines);
+      _problemCount = snapshot.lines.where((line) => line.isProblem).length;
+      _visibleLines = _filter.apply(_lines);
+      _appState = appState;
+      _readError = snapshot.error;
       _sizeBytes = size;
       _loading = false;
     });
   }
 
-  /// 최근 것이 위로 오게 뒤집는다
-  List<String> get _lines => DiagnosticLogReader.linesOf(_content);
-
-  /// 기록을 파일로 내보낸다 (이슈 #110).
-  ///
-  /// **원본이 아니라 스냅샷을 보낸다.** 원본은 `share_plus` 가 공유할 수
-  /// 있는 경로 밖에 있고, 공유하는 동안에도 계속 쌓여서 받는 앱이 나중에
-  /// 읽을 때 이미 달라져 있다 — 그래서 첨부는 되는데 다운로드가 실패했다.
-  Future<void> _export() async {
-    if (_content.isEmpty) {
-      _toast(context.l10n.diagnosticsExportEmpty);
-      return;
+  /// 앱 상태 수집. 실패해도 화면·내보내기는 계속 (사유를 상태 자리에 남김)
+  Future<String> _collectAppState() async {
+    try {
+      return await widget.collectAppState();
+    } on Object catch (error) {
+      Diagnostics.log('diag', 'app state collect failed error=$error');
+      return 'unavailable error=$error';
     }
+  }
+
+  void _onFilterChanged(DiagnosticLineFilter next) {
+    setState(() {
+      _filter = next;
+      _visibleLines = next.apply(_lines);
+    });
+  }
+
+  /// 보고서를 파일로 내보낸다 (이슈 #110, 앱 상태 포함 #290).
+  ///
+  /// 앱 상태는 내보내는 순간 다시 읽는다 — 화면을 연 뒤 바뀌었을 수 있다.
+  Future<void> _export() async {
     // await 뒤에는 context 를 쓰지 않도록 제목을 미리 구해둔다
     final subject = context.l10n.diagnosticsExportSubject;
     // **공유 시트의 기준 위치를 넘긴다** (이슈 #241). iOS 26 은 iPhone 에서도
@@ -102,18 +146,20 @@ class _DiagnosticsScreenState extends ConsumerState<DiagnosticsScreen> {
     // 그 예외를 기록 없이 복사로 삼켜서 "내보내기가 복사만 한다"가 됐다
     final origin = _exportOrigin();
     try {
-      final snapshot = await DiagnosticLogReader.createExportSnapshot();
+      final report = await DebugReport.writeFile(
+        appState: await _collectAppState(),
+      );
       final result = await Share.shareXFiles(
         // **MIME 을 명시한다.** 없으면 확장자로 추론되는데, 받는 앱이
         // 알 수 없는 형식으로 보고 열기를 거부할 수 있다
-        [XFile(snapshot.path, mimeType: 'text/plain')],
+        [XFile(report.path, mimeType: 'text/plain')],
         subject: subject,
         sharePositionOrigin: origin,
       );
       Diagnostics.log(
         'diag',
         'export shared status=${result.status.name} '
-            'bytes=${await snapshot.length()}',
+            'bytes=${await report.length()} lines=${_lines.length}',
       );
     } on Object catch (error) {
       // 공유 시트를 못 띄우면 복사로 물러난다 — 꺼낼 길이 하나는 남아야 한다.
@@ -141,8 +187,11 @@ class _DiagnosticsScreenState extends ConsumerState<DiagnosticsScreen> {
     );
   }
 
+  /// 보고서 전체(앱 상태 + 전체 기록)를 클립보드로
   Future<void> _copy() async {
-    await Clipboard.setData(ClipboardData(text: _content));
+    final report = await DebugReport.compose(appState: _appState);
+    await Clipboard.setData(ClipboardData(text: report));
+    Diagnostics.log('diag', 'report copied chars=${report.length}');
     if (!mounted) return;
     _toast(context.l10n.diagnosticsCopied);
   }
@@ -168,10 +217,16 @@ class _DiagnosticsScreenState extends ConsumerState<DiagnosticsScreen> {
     context.showToast(message);
   }
 
+  /// 출처 > 화면 표시 이름
+  String _sourceLabelOf(DiagnosticLogSource source) => switch (source) {
+    DiagnosticLogSource.app => context.l10n.diagnosticsSourceApp,
+    DiagnosticLogSource.background => context.l10n.diagnosticsSourceBackground,
+    DiagnosticLogSource.native => context.l10n.diagnosticsSourceNative,
+    DiagnosticLogSource.iosNative => context.l10n.diagnosticsSourceIos,
+  };
+
   @override
   Widget build(BuildContext context) {
-    final lines = _lines;
-
     return Scaffold(
       appBar: AppBar(
         title: Text(context.l10n.diagnosticsTitle),
@@ -180,6 +235,11 @@ class _DiagnosticsScreenState extends ConsumerState<DiagnosticsScreen> {
             onPressed: _load,
             icon: const Icon(Icons.refresh_outlined),
             tooltip: context.l10n.diagnosticsRefresh,
+          ),
+          IconButton(
+            onPressed: _loading ? null : _copy,
+            icon: const Icon(Icons.copy_all_outlined),
+            tooltip: context.l10n.diagnosticsCopyAll,
           ),
           IconButton(
             onPressed: _clear,
@@ -192,36 +252,79 @@ class _DiagnosticsScreenState extends ConsumerState<DiagnosticsScreen> {
           ? const CenteredLoadingIndicator()
           : Column(
               children: [
-                _Header(lineCount: lines.length, sizeBytes: _sizeBytes),
-                Expanded(
-                  child: lines.isEmpty
-                      ? _EmptyState(readError: _readError)
-                      : ListView.separated(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: AppSpacing.md,
-                          ),
-                          itemCount: lines.length,
-                          separatorBuilder: (_, _) => const Divider(height: 1),
-                          itemBuilder: (context, index) =>
-                              _LogLine(raw: lines[index]),
-                        ),
+                _Header(
+                  lineCount: _lines.length,
+                  shownCount: _filter.isActive ? _visibleLines.length : null,
+                  sizeBytes: _sizeBytes,
+                  firstAt: _lines.isEmpty ? null : _lines.first.at,
+                  lastAt: _lines.isEmpty ? null : _lines.last.at,
                 ),
+                DiagnosticFilterBar(
+                  filter: _filter,
+                  onFilterChanged: _onFilterChanged,
+                  searchController: _searchController,
+                  problemCount: _problemCount,
+                  sources: _sourcesWithLines,
+                  tagCounts: _tagCounts,
+                  sourceLabelOf: _sourceLabelOf,
+                ),
+                Expanded(child: _buildLineList()),
               ],
             ),
       floatingActionButton: FloatingActionButton.extended(
         key: _exportKey,
-        onPressed: _export,
+        onPressed: _loading ? null : _export,
         icon: const Icon(Icons.ios_share_outlined),
         label: Text(context.l10n.diagnosticsExport),
       ),
     );
   }
+
+  /// 앱 상태 카드(맨 위) + 필터 결과 줄. 줄이 없으면 사유 안내
+  Widget _buildLineList() {
+    return ListView.separated(
+      // 아래 여백: 마지막 줄이 내보내기 버튼에 가리지 않게
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.md,
+        AppSpacing.xs,
+        AppSpacing.md,
+        AppControlSize.primary + AppSpacing.md,
+      ),
+      itemCount: _visibleLines.length + 2,
+      separatorBuilder: (_, index) =>
+          index == 0 ? const SizedBox.shrink() : const Divider(height: 1),
+      itemBuilder: (context, index) {
+        if (index == 0) return DiagnosticAppStateCard(appState: _appState);
+        if (index == 1) {
+          if (_visibleLines.isNotEmpty) return const SizedBox.shrink();
+          return _EmptyState(
+            readError: _readError,
+            isFiltered: _lines.isNotEmpty,
+          );
+        }
+        final line = _visibleLines[index - 2];
+        return DiagnosticLogLineTile(
+          line: line,
+          sourceLabel: _sourceLabelOf(line.source),
+        );
+      },
+    );
+  }
 }
 
 class _Header extends StatelessWidget {
-  const _Header({required this.lineCount, this.sizeBytes = 0});
+  const _Header({
+    required this.lineCount,
+    required this.shownCount,
+    required this.sizeBytes,
+    required this.firstAt,
+    required this.lastAt,
+  });
 
   final int lineCount;
+
+  /// 필터 중일 때만 값이 있다
+  final int? shownCount;
 
   /// 기록이 차지하는 용량 (이슈 #110).
   ///
@@ -229,71 +332,113 @@ class _Header extends StatelessWidget {
   /// 함께 알린다 — 무한히 커진다고 오해하면 불안해서 계속 지우게 된다.
   final int sizeBytes;
 
+  /// 가장 오래된·최근 기록 시각 (얼마나 거슬러 볼 수 있는지)
+  final DateTime? firstAt;
+  final DateTime? lastAt;
+
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final firstAt = this.firstAt;
+    final lastAt = this.lastAt;
+    final shownCount = this.shownCount;
     return Padding(
-      padding: const EdgeInsets.all(AppSpacing.md),
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.md,
+        AppSpacing.sm,
+        AppSpacing.md,
+        AppSpacing.xs,
+      ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Icon(Icons.info_outlined, size: AppIconSize.inline),
           const SizedBox(width: AppSpacing.xs),
           Expanded(
-            child: Text(
-              context.keepAllText(
-                context.l10n.diagnosticsHeader(
-                  lineCount,
-                  _formatSize(sizeBytes),
-                  _formatSize(FileDiagnosticLogger.defaultMaxBytes),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  context.keepAllText(
+                    l10n.diagnosticsHeader(
+                      lineCount,
+                      _formatSize(sizeBytes),
+                      _formatSize(FileDiagnosticLogger.defaultMaxBytes),
+                    ),
+                  ),
+                  style: context.appTextStyles.caption,
                 ),
-              ),
-              style: context.appTextStyles.caption,
+                if (firstAt != null && lastAt != null)
+                  Text(
+                    l10n.diagnosticsPeriod(
+                      _shortDateTime(firstAt),
+                      _shortDateTime(lastAt),
+                    ),
+                    style: context.appTextStyles.caption,
+                  ),
+                if (shownCount != null)
+                  Text(
+                    l10n.diagnosticsShownCount(shownCount),
+                    style: context.appTextStyles.caption.copyWith(
+                      color: context.appColors.accent,
+                    ),
+                  ),
+              ],
             ),
           ),
         ],
       ),
     );
   }
+
+  /// `10/19 08:00` (지역 시각)
+  String _shortDateTime(DateTime at) {
+    final local = at.toLocal();
+    return '${twoDigits(local.month)}/${twoDigits(local.day)} '
+        '${twoDigits(local.hour)}:${twoDigits(local.minute)}';
+  }
 }
 
 /// 보여줄 줄이 없을 때 (이슈 #106)
 ///
-/// **"기록 없음"과 "읽지 못함"을 구분한다.** 둘은 완전히 다른 상황인데
-/// 예전에는 둘 다 "아직 기록이 없습니다"로 보였다. 파일을 못 읽는 중에
-/// 그 문구를 보면 사용자는 감시가 안 도는 줄 알고 없는 문제를 찾게 된다.
+/// **"기록 없음"·"읽지 못함"·"조건에 안 맞음"을 구분한다.** 파일을 못 읽는 중에
+/// "아직 기록이 없습니다"를 보면 사용자는 감시가 안 도는 줄 알고 없는 문제를 찾게 된다.
 class _EmptyState extends StatelessWidget {
-  const _EmptyState({this.readError = ''});
+  const _EmptyState({required this.readError, required this.isFiltered});
 
   final String readError;
+
+  /// 기록은 있는데 필터에 걸러진 경우
+  final bool isFiltered;
 
   @override
   Widget build(BuildContext context) {
     final failed = readError.isNotEmpty;
+    final message = isFiltered
+        ? context.l10n.diagnosticsNoMatch
+        : failed
+        ? context.l10n.diagnosticsReadFailed
+        : context.l10n.diagnosticsEmpty;
 
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.lg),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
+    return Padding(
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            context.keepAllText(message),
+            textAlign: TextAlign.center,
+            style: context.appTextStyles.body,
+          ),
+          if (failed) ...[
+            const SizedBox(height: AppSpacing.sm),
             Text(
-              context.keepAllText(
-                failed
-                    ? context.l10n.diagnosticsReadFailed
-                    : context.l10n.diagnosticsEmpty,
-              ),
+              context.keepAllText(readError),
               textAlign: TextAlign.center,
-              style: context.appTextStyles.body,
+              style: context.appTextStyles.caption,
             ),
-            if (failed) ...[
-              const SizedBox(height: AppSpacing.sm),
-              Text(
-                context.keepAllText(readError),
-                textAlign: TextAlign.center,
-                style: context.appTextStyles.caption,
-              ),
-            ],
           ],
-        ),
+        ],
       ),
     );
   }
@@ -304,59 +449,4 @@ String _formatSize(int bytes) {
   if (bytes < 1024) return '${bytes}B';
   if (bytes < 1024 * 1024) return '${(bytes / 1024).round()}KB';
   return '${(bytes / (1024 * 1024)).toStringAsFixed(1)}MB';
-}
-
-/// 로그 한 줄 — 시각·태그·내용을 갈라 보여준다
-class _LogLine extends StatelessWidget {
-  const _LogLine({required this.raw});
-
-  final String raw;
-
-  @override
-  Widget build(BuildContext context) {
-    // 형식: `2026-08-14T01:23:45.678Z [tag] 메시지`
-    final match = RegExp(r'^(\S+)\s+\[([^\]]+)\]\s+(.*)$').firstMatch(raw);
-    final time = match?.group(1) ?? '';
-    final tag = match?.group(2) ?? '';
-    final message = match?.group(3) ?? raw;
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              if (tag.isNotEmpty)
-                Container(
-                  // 다른 화면의 칩(소리 상태·반경)과 같은 알약 모양으로 맞춘다 (#229)
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.xs,
-                    vertical: 2,
-                  ),
-                  decoration: BoxDecoration(
-                    color: context.appColors.elevated,
-                    borderRadius: BorderRadius.circular(AppRadius.pill),
-                  ),
-                  child: Text(tag, style: context.appTextStyles.caption),
-                ),
-              const SizedBox(width: AppSpacing.xs),
-              Text(_shortTime(time), style: context.appTextStyles.caption),
-            ],
-          ),
-          const SizedBox(height: 2),
-          SelectableText(message, style: context.appTextStyles.body),
-        ],
-      ),
-    );
-  }
-
-  /// 날짜는 대부분 같으므로 시각만 보여준다 — 한 화면에 더 많이 들어간다
-  String _shortTime(String iso) {
-    final parsed = DateTime.tryParse(iso);
-    if (parsed == null) return iso;
-    final local = parsed.toLocal();
-    return '${twoDigits(local.month)}/${twoDigits(local.day)} '
-        '${twoDigits(local.hour)}:${twoDigits(local.minute)}:${twoDigits(local.second)}';
-  }
 }

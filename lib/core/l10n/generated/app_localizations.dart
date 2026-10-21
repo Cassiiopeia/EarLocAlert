@@ -474,12 +474,6 @@ abstract class AppLocalizations {
   /// **'내보내기'**
   String get diagnosticsExport;
 
-  /// No description provided for @diagnosticsExportEmpty.
-  ///
-  /// In ko, this message translates to:
-  /// **'내보낼 기록이 없습니다'**
-  String get diagnosticsExportEmpty;
-
   /// No description provided for @diagnosticsExportSubject.
   ///
   /// In ko, this message translates to:
@@ -521,6 +515,84 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'아직 기록이 없습니다.\n앱을 다시 켜거나 감시가 시작되면 쌓입니다.'**
   String get diagnosticsEmpty;
+
+  /// No description provided for @diagnosticsCopyAll.
+  ///
+  /// In ko, this message translates to:
+  /// **'전체 복사'**
+  String get diagnosticsCopyAll;
+
+  /// No description provided for @diagnosticsAppState.
+  ///
+  /// In ko, this message translates to:
+  /// **'앱 상태'**
+  String get diagnosticsAppState;
+
+  /// No description provided for @diagnosticsAppStateHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'권한·장소·설정·기기 상태입니다. 내보내기에 함께 담깁니다'**
+  String get diagnosticsAppStateHint;
+
+  /// No description provided for @diagnosticsSearchHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'태그·장소·내용 검색'**
+  String get diagnosticsSearchHint;
+
+  /// No description provided for @diagnosticsProblemsOnly.
+  ///
+  /// In ko, this message translates to:
+  /// **'문제만 {count}'**
+  String diagnosticsProblemsOnly(int count);
+
+  /// No description provided for @diagnosticsAllSources.
+  ///
+  /// In ko, this message translates to:
+  /// **'전체'**
+  String get diagnosticsAllSources;
+
+  /// No description provided for @diagnosticsSourceApp.
+  ///
+  /// In ko, this message translates to:
+  /// **'앱'**
+  String get diagnosticsSourceApp;
+
+  /// No description provided for @diagnosticsSourceBackground.
+  ///
+  /// In ko, this message translates to:
+  /// **'백그라운드'**
+  String get diagnosticsSourceBackground;
+
+  /// No description provided for @diagnosticsSourceNative.
+  ///
+  /// In ko, this message translates to:
+  /// **'네이티브'**
+  String get diagnosticsSourceNative;
+
+  /// No description provided for @diagnosticsSourceIos.
+  ///
+  /// In ko, this message translates to:
+  /// **'iOS'**
+  String get diagnosticsSourceIos;
+
+  /// No description provided for @diagnosticsShownCount.
+  ///
+  /// In ko, this message translates to:
+  /// **'{shown}건 표시 중'**
+  String diagnosticsShownCount(int shown);
+
+  /// No description provided for @diagnosticsPeriod.
+  ///
+  /// In ko, this message translates to:
+  /// **'기간 {from} ~ {to}'**
+  String diagnosticsPeriod(String from, String to);
+
+  /// No description provided for @diagnosticsNoMatch.
+  ///
+  /// In ko, this message translates to:
+  /// **'조건에 맞는 기록이 없습니다.'**
+  String get diagnosticsNoMatch;
 
   /// No description provided for @routeDeletedSound.
   ///
@@ -1851,14 +1923,8 @@ abstract class AppLocalizations {
   /// No description provided for @reportAttachLogNote.
   ///
   /// In ko, this message translates to:
-  /// **'위치 좌표가 담긴 기록이 첨부됩니다. 보내기 전에 메일에서 확인할 수 있고, 직접 보낼 때만 전송됩니다.'**
+  /// **'위치 좌표·등록 장소·설정이 담긴 기록이 첨부됩니다. 보내기 전에 메일에서 확인할 수 있고, 직접 보낼 때만 전송됩니다.'**
   String get reportAttachLogNote;
-
-  /// No description provided for @reportAttachLogEmpty.
-  ///
-  /// In ko, this message translates to:
-  /// **'첨부할 기록이 아직 없습니다.'**
-  String get reportAttachLogEmpty;
 
   /// No description provided for @reportOpenMail.
   ///

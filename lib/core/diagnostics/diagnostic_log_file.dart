@@ -16,25 +16,32 @@ import 'package:path_provider/path_provider.dart';
 /// 읽는 쪽([DiagnosticLogReader])이 시각순으로 합친다.
 enum DiagnosticLogSource {
   /// 앱 isolate (화면이 있는 엔진)
-  app('diagnostic.app.log', 'diagnostic.app.1.log.gz'),
+  app('diagnostic.app.log', 'diagnostic.app.1.log.gz', 'app'),
 
   /// 백그라운드 isolate — Android 감시 서비스 엔진, iOS 지오펜스 콜백 엔진.
   /// 한 플랫폼에서 동시에 둘이 뜨지 않으므로 하나를 같이 쓴다
-  background('diagnostic.bg.log', 'diagnostic.bg.1.log.gz'),
+  background('diagnostic.bg.log', 'diagnostic.bg.1.log.gz', 'bg'),
 
   /// Android Kotlin 계층(`DiagnosticLog.kt`)과 #231 이전 Dart 기록.
   ///
   /// **이름을 바꾸지 않는다** — Kotlin 이 이 이름으로 쓰고, 이미 설치된
   /// 기기의 예전 기록도 여기 남아 있다. Dart 는 이제 여기 쓰지 않는다.
-  native('diagnostic.log', 'diagnostic.1.log.gz'),
+  native('diagnostic.log', 'diagnostic.1.log.gz', 'native'),
 
   /// iOS Swift 계층(`NativeDiagnosticLog`). 회전 시 gzip 대신 앞부분을
   /// 잘라내므로 보관본이 없다
-  iosNative('diagnostic.ios.log', null);
+  iosNative('diagnostic.ios.log', null, 'ios');
 
-  const DiagnosticLogSource(this.fileName, this.archiveFileName);
+  const DiagnosticLogSource(
+    this.fileName,
+    this.archiveFileName,
+    this.reportLabel,
+  );
 
   final String fileName;
+
+  /// 내보내기·진단 화면에서 줄 앞에 붙이는 출처 이름 (이슈 #290)
+  final String reportLabel;
 
   /// 직전 세대의 압축 보관본 (이슈 #127). 없으면 null.
   final String? archiveFileName;

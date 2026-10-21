@@ -239,6 +239,19 @@ Diagnostics.log('geofence', 'OS 전이 수신 place=$placeId ENTER');
 
 Kotlin 계층도 같은 파일에 쓴다 (`DiagnosticLog.write`). 네이티브가 이벤트를 받았는데 Dart 판정이 안 돈 것인지, 아예 안 온 것인지를 가르는 것이 이 로그의 핵심 용도라 **양쪽이 한 파일에 시간순으로 섞여야 한다.**
 
+### 내보내기는 디버그 보고서다 (2026-10-21, 이슈 #290)
+
+진단 화면의 내보내기·전체 복사·문제 신고 첨부는 같은 파일 하나를 만든다 (`DebugReport`). 받는 사람이 앱 없이 이 파일만으로 추적할 수 있어야 한다.
+
+| 구역 | 내용 | 원본 |
+|---|---|---|
+| APP STATE | 앱·권한 6종·iOS 알림 설정·장소 전체와 판정 상태·최근 진입/이탈 100건·SharedPreferences 전체 | `lib/app/app_state_reporter.dart` |
+| APP STATE `[native]` | 기기·절전·위치 서비스·특수 권한·알림 채널·감시 서비스·종료 이력(Android) / 배터리·백그라운드 새로고침·등록 영역·알림 대기열(iOS) | `DebugSnapshot.kt` · `DebugSnapshot.swift` |
+| LOG FILES | 출처별 파일 크기·보관본 크기·줄 수·첫/마지막 시각 | `DiagnosticLogReader.readSnapshot` |
+| LOGS | 전체 로그, 오래된 것 먼저, 줄 앞에 출처(`app`·`bg`·`native`·`ios`) | 〃 |
+
+**판정에 영향을 주는 새 상태를 추가하면 이 보고서에도 넣는다.** 로그는 "무슨 일이 있었나", 보고서의 상태 구역은 "그때 어떤 설정이었나"를 답한다 — 둘 중 하나가 비면 추정해야 한다.
+
 ## 백그라운드 진입점 규약
 
 ### 진입점 함수는 도달 가능한 라이브러리에 둔다 (이슈 #93)

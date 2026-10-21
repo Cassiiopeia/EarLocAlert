@@ -43,13 +43,13 @@ object ExitReasonLogger {
     }
 
     /** 진단 기록은 UTC ISO 표기다. 에폭 값만 남기면 사람이 읽을 수 없다 */
-    private fun formatTime(millis: Long): String {
+    fun formatTime(millis: Long): String {
         val format = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US)
         format.timeZone = TimeZone.getTimeZone("UTC")
         return format.format(Date(millis))
     }
 
-    private fun reasonName(reason: Int): String = when (reason) {
+    fun reasonName(reason: Int): String = when (reason) {
         ApplicationExitInfo.REASON_EXIT_SELF -> "exit_self"
         ApplicationExitInfo.REASON_SIGNALED -> "signaled"
         ApplicationExitInfo.REASON_LOW_MEMORY -> "low_memory"

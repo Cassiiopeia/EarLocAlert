@@ -26,7 +26,7 @@ abstract final class BuildInfo {
     try {
       _label = await _channel.invokeMethod<String>('versionLabel') ?? unknown;
     } on Object {
-      // iOS 는 이 채널이 없다. 나중에 필요해지면 그때 붙인다
+      // 채널 미등록·응답 실패 > 물음표로 표기
       _label = unknown;
     }
     // 기기·앱 기본 정보 (이슈 #260) — 개인을 특정하는 값은 담지 않는다
@@ -44,4 +44,15 @@ abstract final class BuildInfo {
 
   /// `1.13.1(95)` 형태
   static String get label => _label;
+
+  /// 진단 보고서용 네이티브 상태 전체 (이슈 #290, Kotlin·Swift `DebugSnapshot`).
+  /// 실패해도 예외 없이 사유 한 줄
+  static Future<String> readNativeSnapshot() async {
+    try {
+      return await _channel.invokeMethod<String>('debugSnapshot') ??
+          'unavailable reason=empty_response';
+    } on Object catch (error) {
+      return 'unavailable error=$error';
+    }
+  }
 }

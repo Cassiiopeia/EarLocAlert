@@ -202,9 +202,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get diagnosticsExport => '导出';
 
   @override
-  String get diagnosticsExportEmpty => '没有可导出的记录';
-
-  @override
   String get diagnosticsExportSubject => '耳机位置提醒 运行日志';
 
   @override
@@ -226,6 +223,51 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get diagnosticsEmpty => '暂无记录。\n重新打开应用或开始监测后就会出现记录。';
+
+  @override
+  String get diagnosticsCopyAll => '全部复制';
+
+  @override
+  String get diagnosticsAppState => '应用状态';
+
+  @override
+  String get diagnosticsAppStateHint => '权限、地点、设置和设备状态。导出时会一并包含';
+
+  @override
+  String get diagnosticsSearchHint => '搜索标签、地点或内容';
+
+  @override
+  String diagnosticsProblemsOnly(int count) {
+    return '仅问题 $count';
+  }
+
+  @override
+  String get diagnosticsAllSources => '全部';
+
+  @override
+  String get diagnosticsSourceApp => '应用';
+
+  @override
+  String get diagnosticsSourceBackground => '后台';
+
+  @override
+  String get diagnosticsSourceNative => '原生';
+
+  @override
+  String get diagnosticsSourceIos => 'iOS';
+
+  @override
+  String diagnosticsShownCount(int shown) {
+    return '显示 $shown 条';
+  }
+
+  @override
+  String diagnosticsPeriod(String from, String to) {
+    return '时间 $from ~ $to';
+  }
+
+  @override
+  String get diagnosticsNoMatch => '没有符合条件的记录。';
 
   @override
   String get routeDeletedSound => '音源已删除（将使用默认提示音）';
@@ -948,10 +990,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get reportAttachLog => '同时发送运行记录';
 
   @override
-  String get reportAttachLogNote => '记录中包含位置坐标。发送前可在邮件中查看，只有您自己发送时才会传出。';
-
-  @override
-  String get reportAttachLogEmpty => '暂无可附加的记录。';
+  String get reportAttachLogNote =>
+      '记录中包含位置坐标、已保存的地点和设置。发送前可在邮件中查看，只有您自己发送时才会传出。';
 
   @override
   String get reportOpenMail => '打开邮件应用';

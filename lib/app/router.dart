@@ -50,6 +50,7 @@ import '../features/app_update/data/app_update_providers.dart';
 import 'alert_ad_coordinator_provider.dart';
 import 'alert_dismiss_flow.dart';
 import 'app_version_provider.dart';
+import 'app_state_reporter.dart';
 import 'arrival_alarm_providers.dart';
 import 'background/arrival_alarm_channel.dart';
 import 'ad_banner_frame.dart';
@@ -128,7 +129,7 @@ GoRouter createRouter() {
       ),
       GoRoute(
         path: AppRoutes.diagnostics,
-        builder: (context, state) => const DiagnosticsScreen(),
+        builder: (context, state) => const _DiagnosticsRoute(),
       ),
       GoRoute(
         path: AppRoutes.settings,

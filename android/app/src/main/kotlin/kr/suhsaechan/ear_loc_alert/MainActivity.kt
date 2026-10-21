@@ -146,6 +146,8 @@ class MainActivity : FlutterActivity() {
                 )
                 // 기기·앱 기본 정보 (이슈 #260) — 진단 기록과 문제 신고 메일에 쓴다
                 "deviceInfo" -> result.success(DeviceInfo.summary(this))
+                // 진단 보고서용 네이티브 상태 전체 (이슈 #290)
+                "debugSnapshot" -> result.success(DebugSnapshot.collect(this))
                 else -> result.notImplemented()
             }
         }

@@ -2,6 +2,16 @@ part of '../router.dart';
 
 // 설정 라우트와 권한 줄 조립, 진동 시험·신뢰도 재권유
 
+/// 진단 기록 라우트: 앱 상태 수집기를 화면에 값으로 넘김 (이슈 #290)
+class _DiagnosticsRoute extends ConsumerWidget {
+  const _DiagnosticsRoute();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) => DiagnosticsScreen(
+    collectAppState: ref.read(appStateReporterProvider).collect,
+  );
+}
+
 /// 설정 라우트 (이슈 #98, #102).
 ///
 /// 알림음 크기·진단 기록·알림 미리보기가 여기 모인다. 홈 상태 바에
@@ -161,6 +171,8 @@ class _SettingsRouteState extends ConsumerState<_SettingsRoute>
         // 메일·공유 플러그인 구현은 app 이 넣는다 (규칙 3)
         sender: BugReportSender(),
         appVersion: ref.read(appVersionProvider).valueOrNull ?? '-',
+        // 첨부 보고서의 앱 상태 (이슈 #290)
+        collectAppState: ref.read(appStateReporterProvider).collect,
       ),
       // 약관·방침 (이슈 #188) — 한국어는 한국어 문서, 나머지는 영어 문서
       onOpenTerms: () => _openLink(

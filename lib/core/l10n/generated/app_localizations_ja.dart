@@ -203,9 +203,6 @@ class AppLocalizationsJa extends AppLocalizations {
   String get diagnosticsExport => '書き出す';
 
   @override
-  String get diagnosticsExportEmpty => '書き出す記録がありません';
-
-  @override
   String get diagnosticsExportSubject => 'イヤホン位置通知 動作ログ';
 
   @override
@@ -227,6 +224,51 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get diagnosticsEmpty => 'まだ記録がありません。\nアプリを再起動するか監視が始まると記録されます。';
+
+  @override
+  String get diagnosticsCopyAll => 'すべてコピー';
+
+  @override
+  String get diagnosticsAppState => 'アプリの状態';
+
+  @override
+  String get diagnosticsAppStateHint => '権限・場所・設定・端末の状態です。書き出しに含まれます';
+
+  @override
+  String get diagnosticsSearchHint => 'タグ・場所・内容を検索';
+
+  @override
+  String diagnosticsProblemsOnly(int count) {
+    return '問題のみ $count';
+  }
+
+  @override
+  String get diagnosticsAllSources => 'すべて';
+
+  @override
+  String get diagnosticsSourceApp => 'アプリ';
+
+  @override
+  String get diagnosticsSourceBackground => 'バックグラウンド';
+
+  @override
+  String get diagnosticsSourceNative => 'ネイティブ';
+
+  @override
+  String get diagnosticsSourceIos => 'iOS';
+
+  @override
+  String diagnosticsShownCount(int shown) {
+    return '$shown件を表示中';
+  }
+
+  @override
+  String diagnosticsPeriod(String from, String to) {
+    return '期間 $from 〜 $to';
+  }
+
+  @override
+  String get diagnosticsNoMatch => '条件に合う記録がありません。';
 
   @override
   String get routeDeletedSound => '削除された音源（標準音で通知）';
@@ -960,10 +1002,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get reportAttachLogNote =>
-      '位置座標を含むログが添付されます。送信前にメールで確認でき、ご自身で送信したときだけ送られます。';
-
-  @override
-  String get reportAttachLogEmpty => '添付できるログがまだありません。';
+      '位置座標・登録した場所・設定を含むログが添付されます。送信前にメールで確認でき、ご自身で送信したときだけ送られます。';
 
   @override
   String get reportOpenMail => 'メールアプリを開く';

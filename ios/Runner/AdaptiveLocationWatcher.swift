@@ -167,7 +167,8 @@ final class AdaptiveLocationWatcher: NSObject, CLLocationManagerDelegate {
     }
   }
 
-  private func status() -> [String: Any] {
+  /// 감시 상태 (Dart 응답·진단 보고서 공통, 이슈 #290)
+  func status() -> [String: Any] {
     [
       "running": running,
       "wanted": wanted,

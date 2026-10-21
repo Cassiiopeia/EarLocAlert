@@ -57,4 +57,13 @@ abstract final class AppTypography {
     fontWeight: FontWeight.w400,
     height: 1.4,
   );
+
+  /// 고정폭 기록·상태 원문 (진단 화면, 이슈 #290). Android monospace, iOS Menlo
+  static const TextStyle code = TextStyle(
+    fontFamily: 'monospace',
+    fontFamilyFallback: ['Menlo', 'Courier'],
+    fontSize: 12,
+    fontWeight: FontWeight.w400,
+    height: 1.4,
+  );
 }

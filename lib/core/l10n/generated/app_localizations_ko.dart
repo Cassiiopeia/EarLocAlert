@@ -204,9 +204,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get diagnosticsExport => '내보내기';
 
   @override
-  String get diagnosticsExportEmpty => '내보낼 기록이 없습니다';
-
-  @override
   String get diagnosticsExportSubject => '이어폰위치알림 기록';
 
   @override
@@ -228,6 +225,51 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get diagnosticsEmpty => '아직 기록이 없습니다.\n앱을 다시 켜거나 감시가 시작되면 쌓입니다.';
+
+  @override
+  String get diagnosticsCopyAll => '전체 복사';
+
+  @override
+  String get diagnosticsAppState => '앱 상태';
+
+  @override
+  String get diagnosticsAppStateHint => '권한·장소·설정·기기 상태입니다. 내보내기에 함께 담깁니다';
+
+  @override
+  String get diagnosticsSearchHint => '태그·장소·내용 검색';
+
+  @override
+  String diagnosticsProblemsOnly(int count) {
+    return '문제만 $count';
+  }
+
+  @override
+  String get diagnosticsAllSources => '전체';
+
+  @override
+  String get diagnosticsSourceApp => '앱';
+
+  @override
+  String get diagnosticsSourceBackground => '백그라운드';
+
+  @override
+  String get diagnosticsSourceNative => '네이티브';
+
+  @override
+  String get diagnosticsSourceIos => 'iOS';
+
+  @override
+  String diagnosticsShownCount(int shown) {
+    return '$shown건 표시 중';
+  }
+
+  @override
+  String diagnosticsPeriod(String from, String to) {
+    return '기간 $from ~ $to';
+  }
+
+  @override
+  String get diagnosticsNoMatch => '조건에 맞는 기록이 없습니다.';
 
   @override
   String get routeDeletedSound => '삭제된 음원 (기본음으로 알림)';
@@ -963,10 +1005,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get reportAttachLogNote =>
-      '위치 좌표가 담긴 기록이 첨부됩니다. 보내기 전에 메일에서 확인할 수 있고, 직접 보낼 때만 전송됩니다.';
-
-  @override
-  String get reportAttachLogEmpty => '첨부할 기록이 아직 없습니다.';
+      '위치 좌표·등록 장소·설정이 담긴 기록이 첨부됩니다. 보내기 전에 메일에서 확인할 수 있고, 직접 보낼 때만 전송됩니다.';
 
   @override
   String get reportOpenMail => '메일 앱 열기';

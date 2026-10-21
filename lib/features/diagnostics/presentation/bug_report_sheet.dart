@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/config/build_info.dart';
-import '../../../core/diagnostics/diagnostic_log_reader.dart';
+import '../../../core/diagnostics/debug_report.dart';
 import '../../../core/diagnostics/diagnostics.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/ui/components/bottom_sheet_with_header_layout.dart';
@@ -18,18 +18,30 @@ Future<void> showBugReportSheet(
   BuildContext context, {
   required String appVersion,
   required BugReportSending sender,
+  required Future<String> Function() collectAppState,
 }) {
   return showAppBottomSheet<void>(
     context,
-    builder: (_) => _BugReportSheet(appVersion: appVersion, sender: sender),
+    builder: (_) => _BugReportSheet(
+      appVersion: appVersion,
+      sender: sender,
+      collectAppState: collectAppState,
+    ),
   );
 }
 
 class _BugReportSheet extends StatefulWidget {
-  const _BugReportSheet({required this.appVersion, required this.sender});
+  const _BugReportSheet({
+    required this.appVersion,
+    required this.sender,
+    required this.collectAppState,
+  });
 
   final String appVersion;
   final BugReportSending sender;
+
+  /// 첨부 보고서의 앱 상태 구역 (app 계층이 넣는다, 이슈 #290)
+  final Future<String> Function() collectAppState;
 
   @override
   State<_BugReportSheet> createState() => _BugReportSheetState();
@@ -38,25 +50,9 @@ class _BugReportSheet extends StatefulWidget {
 class _BugReportSheetState extends State<_BugReportSheet> {
   final _sendKey = GlobalKey();
 
-  /// 기록이 있을 때만 켜져 있다. 없으면 체크를 막고 이유를 보여준다
+  /// 기록이 비어도 앱 상태는 늘 담기므로 기본으로 켠다 (이슈 #290)
   bool _attachLog = true;
-  bool _hasLog = true;
   bool _busy = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _checkLog();
-  }
-
-  Future<void> _checkLog() async {
-    final size = await DiagnosticLogReader.sizeInBytes();
-    if (!mounted) return;
-    setState(() {
-      _hasLog = size > 0;
-      _attachLog = _hasLog;
-    });
-  }
 
   Rect _origin() {
     final box = _sendKey.currentContext?.findRenderObject();
@@ -83,13 +79,15 @@ class _BugReportSheetState extends State<_BugReportSheet> {
     setState(() => _busy = true);
 
     String? attachmentPath;
-    if (_attachLog && _hasLog) {
+    if (_attachLog) {
       try {
-        attachmentPath =
-            (await DiagnosticLogReader.createExportSnapshot()).path;
+        final report = await DebugReport.writeFile(
+          appState: await widget.collectAppState(),
+        );
+        attachmentPath = report.path;
       } on Object catch (error) {
-        // 기록을 못 만들어도 신고는 보낼 수 있어야 한다
-        Diagnostics.log('report', 'snapshot failed error=$error');
+        // 보고서를 못 만들어도 신고는 보낼 수 있어야 한다
+        Diagnostics.log('report', 'debug report failed error=$error');
       }
     }
 
@@ -138,18 +136,16 @@ class _BugReportSheetState extends State<_BugReportSheet> {
           CheckboxListTile(
             contentPadding: EdgeInsets.zero,
             controlAffinity: ListTileControlAffinity.leading,
-            value: _attachLog && _hasLog,
-            onChanged: _hasLog && !_busy
-                ? (value) => setState(() => _attachLog = value ?? false)
-                : null,
+            value: _attachLog,
+            onChanged: _busy
+                ? null
+                : (value) => setState(() => _attachLog = value ?? false),
             title: Text(
               l10n.reportAttachLog,
               style: context.appTextStyles.body,
             ),
             subtitle: Text(
-              context.keepAllText(
-                _hasLog ? l10n.reportAttachLogNote : l10n.reportAttachLogEmpty,
-              ),
+              context.keepAllText(l10n.reportAttachLogNote),
               style: context.appTextStyles.caption,
             ),
           ),

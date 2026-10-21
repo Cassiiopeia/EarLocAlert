@@ -1,18 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:path_provider/path_provider.dart';
-
+import 'diagnostic_line.dart';
 import 'diagnostic_log_file.dart';
 import 'log_archive.dart';
-import '../text/two_digits.dart';
-
-/// 진단 기록 읽기 결과 (이슈 #106)
-///
-/// **"기록 없음"과 "읽지 못함"을 구분한다.** 둘은 완전히 다른 상황인데
-/// 하나로 뭉뚱그리면, 파일을 못 읽는 중에 "아직 기록이 없습니다"를 본
-/// 사용자가 감시가 안 도는 줄 알고 없는 문제를 찾게 된다.
-typedef DiagnosticReadResult = ({String content, String error});
 
 /// 기록 파일을 직접 읽는다 (이슈 #106)
 ///
@@ -24,21 +15,66 @@ typedef DiagnosticReadResult = ({String content, String error});
 /// 진단 화면이 진단 대상의 초기화 성공에 의존하면 안 된다 — 정확히
 /// 그것이 실패했을 때 열리는 화면이다.
 abstract final class DiagnosticLogReader {
-  /// 모든 주체의 기록을 읽어 시각순으로 합친다 (이슈 #231).
+  /// 모든 주체의 기록 > 시각순 합본 + 출처별 요약 (이슈 #231, #290).
   ///
   /// 한 주체를 못 읽어도 나머지는 보여준다 — 오류는 하나라도 있으면
   /// 함께 돌려줘 "기록 없음"과 구분되게 한다.
-  static Future<DiagnosticReadResult> read() async {
-    final sources = <String>[];
-    final errors = <String>[];
+  static Future<DiagnosticLogSnapshot> readSnapshot() async {
+    final contents = <DiagnosticLogSource, String>{};
+    final errors = <DiagnosticLogSource, String>{};
     for (final source in DiagnosticLogSource.values) {
       try {
-        sources.add(await _readSource(source));
+        contents[source] = await _readSource(source);
       } on Object catch (failure) {
-        errors.add('${source.name}: $failure');
+        contents[source] = '';
+        errors[source] = '$failure';
       }
     }
-    return (content: mergeByTimestamp(sources), error: errors.join('; '));
+    final lines = mergeLines(contents);
+    final sources = [
+      for (final source in DiagnosticLogSource.values)
+        await _summarize(source, lines, errors[source] ?? ''),
+    ];
+    return DiagnosticLogSnapshot(
+      lines: lines,
+      sources: sources,
+      error: [
+        for (final entry in errors.entries) '${entry.key.name}: ${entry.value}',
+      ].join('; '),
+    );
+  }
+
+  /// 출처 1개 요약: 파일·보관본 크기 + 합본에서 센 줄 수·기간
+  static Future<DiagnosticSourceSummary> _summarize(
+    DiagnosticLogSource source,
+    List<DiagnosticLine> lines,
+    String error,
+  ) async {
+    final own = [
+      for (final line in lines)
+        if (line.source == source && line.hasTimestamp) line,
+    ];
+    return DiagnosticSourceSummary(
+      source: source,
+      fileBytes: await _lengthOrZero(await DiagnosticLogFile.resolve(source)),
+      archiveBytes: await _lengthOrZero(
+        await DiagnosticLogFile.resolveArchive(source),
+      ),
+      lineCount: lines.where((line) => line.source == source).length,
+      firstAt: own.isEmpty ? null : own.first.at,
+      lastAt: own.isEmpty ? null : own.last.at,
+      error: error,
+    );
+  }
+
+  static Future<int> _lengthOrZero(File? file) async {
+    try {
+      if (file == null || !await file.exists()) return 0;
+      return await file.length();
+    } on Object {
+      // 못 잰 파일은 0 (요약 줄의 error 로 이미 드러남)
+      return 0;
+    }
   }
 
   /// 한 주체의 보관본 + 현재 파일. **보관본이 먼저다** (이슈 #127) —
@@ -51,23 +87,25 @@ abstract final class DiagnosticLogReader {
     return '$older${decodeTolerant(await file.readAsBytes())}';
   }
 
-  /// 여러 파일의 기록을 시각순으로 합친다 (이슈 #231).
+  /// 여러 파일의 기록을 시각순으로 합친다 (이슈 #231, 출처 보존 #290).
   ///
   /// 각 파일은 이미 시간순이다 — 한 주체가 순서대로 쓰기 때문이다. 줄 앞의
   /// ISO-8601 시각으로 정렬하되, **시각을 읽을 수 없는 줄(예전에 깨진 줄)은
   /// 같은 파일의 바로 앞 줄 시각을 물려받는다.** 그래야 깨진 줄이 맨 앞이나
   /// 맨 뒤로 튀지 않고 원래 자리 근처에 남는다.
   ///
-  /// 시각이 같으면 파일 순서 → 줄 순서로 정한다 — 결과가 결정적이어야
+  /// 시각이 같으면 출처 순서 → 줄 순서로 정한다 — 결과가 결정적이어야
   /// 같은 기록을 두 번 열었을 때 순서가 바뀌지 않는다.
   ///
   /// 문자열 비교가 아니라 시각으로 파싱해 비교한다. Dart 는 마이크로초
   /// (`.123456Z`), Kotlin·Swift 는 밀리초(`.123Z`)로 써서 문자열로 비교하면
   /// 같은 밀리초 안에서 순서가 뒤집힌다.
-  static String mergeByTimestamp(List<String> contents) {
+  static List<DiagnosticLine> mergeLines(
+    Map<DiagnosticLogSource, String> contents,
+  ) {
     final entries = <_MergeEntry>[];
-    for (var source = 0; source < contents.length; source++) {
-      final lines = contents[source].split('\n');
+    for (final MapEntry(key: source, value: content) in contents.entries) {
+      final lines = content.split('\n');
       var carried = _epoch;
       for (var index = 0; index < lines.length; index++) {
         final line = lines[index];
@@ -80,12 +118,14 @@ abstract final class DiagnosticLogReader {
     entries.sort((a, b) {
       final byTime = a.at.compareTo(b.at);
       if (byTime != 0) return byTime;
-      final bySource = a.source.compareTo(b.source);
+      final bySource = a.source.index.compareTo(b.source.index);
       if (bySource != 0) return bySource;
       return a.index.compareTo(b.index);
     });
-    if (entries.isEmpty) return '';
-    return '${entries.map((e) => e.line).join('\n')}\n';
+    return [
+      for (final entry in entries)
+        DiagnosticLine(source: entry.source, at: entry.at, raw: entry.line),
+    ];
   }
 
   static final _epoch = DateTime.utc(1970);
@@ -173,53 +213,6 @@ abstract final class DiagnosticLogReader {
     }
     return total;
   }
-
-  /// 내보내기용 스냅샷을 캐시에 만든다 (이슈 #110).
-  ///
-  /// **원본을 그대로 공유할 수 없다.** 이유가 둘이다.
-  ///
-  /// 1. `share_plus` 의 FileProvider 는 `{캐시}/share_plus/` 하나만
-  ///    공유하도록 선언되어 있다. 기록 파일이 있는 `files/` 는 그 범위 밖이라
-  ///    받는 앱이 URI 를 열지 못한다 — 첨부는 되는데 다운로드가 실패했다
-  /// 2. **공유하는 동안에도 기록은 계속 쌓인다.** 메일 앱이 나중에 읽으려
-  ///    할 때 파일이 이미 달라져 있다
-  ///
-  /// 확장자를 `.txt` 로 두는 것도 의도적이다. `.log` 는 알려진 MIME 이 없어
-  /// 받는 앱이 열기를 꺼린다.
-  ///
-  /// 내용은 관대하게 디코딩한 뒤 다시 쓴다 — 깨진 바이트가 정리되어
-  /// 어디서나 열리는 파일이 된다.
-  static Future<File> createExportSnapshot({DateTime? now}) async {
-    final content = (await read()).content;
-    final stamp = _stamp(now ?? DateTime.now());
-
-    final dir = await getTemporaryDirectory();
-    final file = File('${dir.path}/earlocalert-log-$stamp.txt');
-    await file.writeAsString(content, flush: true);
-    return file;
-  }
-
-  /// `20260820-0955` — 파일명에 쓸 지역 시각.
-  ///
-  /// 여러 번 내보낸 파일이 섞이지 않게 한다. UTC 가 아닌 이유는 이 값이
-  /// 저장용이 아니라 **사람이 보고 고르는 이름**이기 때문이다.
-  static String _stamp(DateTime now) {
-    return '${now.year}${twoDigits(now.month)}${twoDigits(now.day)}'
-        '-${twoDigits(now.hour)}${twoDigits(now.minute)}';
-  }
-
-  /// 표시할 줄 목록. **최근 것이 위로 온다.**
-  ///
-  /// 빈 줄은 버린다 — 회전이나 외부 편집으로 섞여 들어올 수 있고,
-  /// 건수에 세면 실제보다 많아 보인다.
-  static List<String> linesOf(String content) {
-    return content
-        .split('\n')
-        .where((line) => line.trim().isNotEmpty)
-        .toList()
-        .reversed
-        .toList();
-  }
 }
 
 /// 합치기용 한 줄 — 정렬 키(시각·파일·줄 번호)와 원문
@@ -227,7 +220,7 @@ class _MergeEntry {
   _MergeEntry(this.at, this.source, this.index, this.line);
 
   final DateTime at;
-  final int source;
+  final DiagnosticLogSource source;
   final int index;
   final String line;
 }

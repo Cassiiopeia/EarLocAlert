@@ -69,7 +69,6 @@
   "diagnosticsClear": "지우기",
   "diagnosticsCancel": "취소",
   "diagnosticsExport": "내보내기",
-  "diagnosticsExportEmpty": "내보낼 기록이 없습니다",
   "diagnosticsExportSubject": "이어폰위치알림 기록",
   "diagnosticsCopied": "클립보드에 복사했습니다",
   "diagnosticsClearTitle": "기록을 지울까요?",
@@ -90,6 +89,43 @@
   },
   "diagnosticsReadFailed": "기록을 읽지 못했습니다.",
   "diagnosticsEmpty": "아직 기록이 없습니다.\n앱을 다시 켜거나 감시가 시작되면 쌓입니다.",
+  "diagnosticsCopyAll": "전체 복사",
+  "diagnosticsAppState": "앱 상태",
+  "diagnosticsAppStateHint": "권한·장소·설정·기기 상태입니다. 내보내기에 함께 담깁니다",
+  "diagnosticsSearchHint": "태그·장소·내용 검색",
+  "diagnosticsProblemsOnly": "문제만 {count}",
+  "@diagnosticsProblemsOnly": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "diagnosticsAllSources": "전체",
+  "diagnosticsSourceApp": "앱",
+  "diagnosticsSourceBackground": "백그라운드",
+  "diagnosticsSourceNative": "네이티브",
+  "diagnosticsSourceIos": "iOS",
+  "diagnosticsShownCount": "{shown}건 표시 중",
+  "@diagnosticsShownCount": {
+    "placeholders": {
+      "shown": {
+        "type": "int"
+      }
+    }
+  },
+  "diagnosticsPeriod": "기간 {from} ~ {to}",
+  "@diagnosticsPeriod": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "diagnosticsNoMatch": "조건에 맞는 기록이 없습니다.",
   "routeDeletedSound": "삭제된 음원 (기본음으로 알림)",
   "notificationChannelName": "도착·출발 알림",
   "notificationChannelDescription": "등록한 장소에 도착하거나 떠날 때 알립니다",
@@ -551,8 +587,7 @@
   "reportSheetTitle": "문제 신고",
   "reportSheetHint": "메일 앱이 열립니다. 내용을 적고 직접 보내 주세요.",
   "reportAttachLog": "동작 기록 함께 보내기",
-  "reportAttachLogNote": "위치 좌표가 담긴 기록이 첨부됩니다. 보내기 전에 메일에서 확인할 수 있고, 직접 보낼 때만 전송됩니다.",
-  "reportAttachLogEmpty": "첨부할 기록이 아직 없습니다.",
+  "reportAttachLogNote": "위치 좌표·등록 장소·설정이 담긴 기록이 첨부됩니다. 보내기 전에 메일에서 확인할 수 있고, 직접 보낼 때만 전송됩니다.",
   "reportOpenMail": "메일 앱 열기",
   "reportMailSubject": "[이어폰위치알림] 문제 신고",
   "reportMailPrompt": "어떤 문제가 있었는지 적어 주세요.",

@@ -148,6 +148,7 @@ class AppTextStyles {
   TextStyle get body => AppTypography.body;
   TextStyle get caption =>
       AppTypography.caption.copyWith(color: _palette.textSecondary);
+  TextStyle get code => AppTypography.code;
 }
 
 extension AppColorsContext on BuildContext {

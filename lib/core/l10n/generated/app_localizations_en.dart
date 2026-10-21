@@ -218,9 +218,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get diagnosticsExport => 'Export';
 
   @override
-  String get diagnosticsExportEmpty => 'No log to export';
-
-  @override
   String get diagnosticsExportSubject => 'EarLocAlert activity log';
 
   @override
@@ -243,6 +240,52 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get diagnosticsEmpty =>
       'No log entries yet.\nThey will appear when you reopen the app or monitoring starts.';
+
+  @override
+  String get diagnosticsCopyAll => 'Copy all';
+
+  @override
+  String get diagnosticsAppState => 'App state';
+
+  @override
+  String get diagnosticsAppStateHint =>
+      'Permissions, places, settings and device state. Included when you export.';
+
+  @override
+  String get diagnosticsSearchHint => 'Search tag, place or text';
+
+  @override
+  String diagnosticsProblemsOnly(int count) {
+    return 'Problems $count';
+  }
+
+  @override
+  String get diagnosticsAllSources => 'All';
+
+  @override
+  String get diagnosticsSourceApp => 'App';
+
+  @override
+  String get diagnosticsSourceBackground => 'Background';
+
+  @override
+  String get diagnosticsSourceNative => 'Native';
+
+  @override
+  String get diagnosticsSourceIos => 'iOS';
+
+  @override
+  String diagnosticsShownCount(int shown) {
+    return 'Showing $shown';
+  }
+
+  @override
+  String diagnosticsPeriod(String from, String to) {
+    return 'From $from to $to';
+  }
+
+  @override
+  String get diagnosticsNoMatch => 'No entries match.';
 
   @override
   String get routeDeletedSound => 'Deleted sound (plays the default)';
@@ -1005,10 +1048,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reportAttachLogNote =>
-      'The log includes location coordinates. You can review it in the email before sending, and nothing is sent unless you send it.';
-
-  @override
-  String get reportAttachLogEmpty => 'There is no log to attach yet.';
+      'The log includes location coordinates, your saved places and settings. You can review it in the email before sending, and nothing is sent unless you send it.';
 
   @override
   String get reportOpenMail => 'Open mail app';
