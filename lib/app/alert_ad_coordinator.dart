@@ -17,12 +17,19 @@ class AlertAdCoordinator {
     required AdFrequencyStore store,
     AdFrequencyPolicy policy = const AdFrequencyPolicy(),
     Duration showTimeout = const Duration(seconds: 3),
-  }) : _ads = ads,
+    bool Function()? shouldShowAds,
+  }) : _shouldShowAds = shouldShowAds ?? _alwaysShowAds,
+       _ads = ads,
        _store = store,
        _policy = policy,
        _showTimeout = showTimeout;
 
   final InterstitialAdService _ads;
+
+  /// 지금 광고를 내도 되는가 — 프로면 false (#294). 미리 로딩도 하지 않는다
+  final bool Function() _shouldShowAds;
+
+  static bool _alwaysShowAds() => true;
   final AdFrequencyStore _store;
   final AdFrequencyPolicy _policy;
 
@@ -37,6 +44,10 @@ class AlertAdCoordinator {
   /// 사용자가 해제할 때쯤 광고가 준비되어 있게 미리 불러둔다.
   /// **실패해도 아무 일도 일어나지 않는다.**
   Future<void> onAlertFired() async {
+    if (!_shouldShowAds()) {
+      Diagnostics.log('ads', 'preload skipped (reason=pro)');
+      return;
+    }
     try {
       await _ads.preload();
     } on Object catch (error) {
@@ -54,6 +65,10 @@ class AlertAdCoordinator {
   ///
   /// 광고를 실제로 보여줬으면 `true`.
   Future<bool> onAlertDismissed({required DateTime now}) async {
+    if (!_shouldShowAds()) {
+      Diagnostics.log('ads', 'interstitial skipped (reason=pro)');
+      return false;
+    }
     try {
       final state = await _store.read();
       if (state.isFirstLaunch) {

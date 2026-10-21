@@ -1083,4 +1083,131 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get backupImportReadFailed => '无法读取文件';
+
+  @override
+  String get proSheetTitle => '终身版';
+
+  @override
+  String get proSheetSubtitle => '非订阅 · 更换设备后同一账号仍可使用';
+
+  @override
+  String proSheetBuy(String price) {
+    return '终身版 $price';
+  }
+
+  @override
+  String get proSheetRestore => '已购买？恢复购买';
+
+  @override
+  String get proSheetColumnFree => '免费';
+
+  @override
+  String get proSheetColumnPro => '专业版';
+
+  @override
+  String get proRowPlaces => '地点';
+
+  @override
+  String get proRowDirections => '到达·离开提醒';
+
+  @override
+  String get proRowSchedules => '提醒时段';
+
+  @override
+  String get proRowVibration => '振动强度';
+
+  @override
+  String get proRowSound => '耳机提示音';
+
+  @override
+  String get proRowBackup => '地点备份';
+
+  @override
+  String get proRowAds => '广告';
+
+  @override
+  String get proValueOnePlace => '1个';
+
+  @override
+  String get proValueUnlimited => '不限';
+
+  @override
+  String get proValueDefaultSound => '仅默认';
+
+  @override
+  String get proValueAllSounds => '全部 + 自定义';
+
+  @override
+  String get proValueAdsOn => '有';
+
+  @override
+  String get proValueAdsOff => '无';
+
+  @override
+  String get proUnlockAction => '用终身版解锁';
+
+  @override
+  String get proLockedSounds => '全部提示音 · 自定义音频';
+
+  @override
+  String get proLockedPlaces => '添加更多地点';
+
+  @override
+  String get proLockedBackup => '备份 · 导入地点';
+
+  @override
+  String get proLockedExamplePlaceHome => '家';
+
+  @override
+  String get proLockedExamplePlaceStation => '车站';
+
+  @override
+  String get proCardTitle => '不限数量添加地点';
+
+  @override
+  String get proCardSubtitle => '全部提示音 · 地点备份 · 无广告';
+
+  @override
+  String proCardUsage(int count, int limit) {
+    return '已用 $count/$limit 个地点';
+  }
+
+  @override
+  String get proRowLifetime => '终身版';
+
+  @override
+  String get proLegacyBadge => '老用户福利';
+
+  @override
+  String get proOwnedSubtitle => '所有功能已解锁';
+
+  @override
+  String get proDeviceLimitReached => '已达到设备上限';
+
+  @override
+  String get proPriceLoading => '正在获取价格…';
+
+  @override
+  String get proProductUnavailable => '暂时无法购买，请稍后再试';
+
+  @override
+  String get proPurchasePending => '付款确认后即可解锁';
+
+  @override
+  String get proPurchaseDone => '终身版已解锁';
+
+  @override
+  String get proPurchaseFailed => '付款未完成';
+
+  @override
+  String get proRestoreNone => '没有可恢复的购买';
+
+  @override
+  String get proRestoreDone => '已恢复购买';
+
+  @override
+  String get proChipFree => 'FREE';
+
+  @override
+  String get proChipPro => 'PRO';
 }

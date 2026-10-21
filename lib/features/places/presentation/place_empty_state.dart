@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/ui/foundation/app_color_palette.dart';
 import '../../../core/ui/foundation/app_spacing.dart';
+import '../../../core/entitlement/place_limits.dart';
 import '../domain/place_validator.dart';
 
 /// 빈 상태 — 앱 첫인상을 결정한다.
@@ -76,8 +77,9 @@ String placeErrorMessage(AppLocalizations l10n, PlaceValidationError error) =>
         PlaceValidator.maxRadiusMeters,
       ),
       PlaceValidationError.invalidCoordinates => l10n.placeErrorCoordinates,
+      // 무료 상한은 결제 안내로 먼저 걸러진다 — 여기 오는 것은 OS 한도 (#294)
       PlaceValidationError.limitReached => l10n.placeErrorLimit(
-        PlaceValidator.maxPlaces,
+        PlaceLimits.platformMaximum(),
       ),
       PlaceValidationError.emptyScheduleWindow => l10n.placeErrorEmptyWindow,
       PlaceValidationError.scheduleWithoutDays => l10n.placeErrorNoDays,

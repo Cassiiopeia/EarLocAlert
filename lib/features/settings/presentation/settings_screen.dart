@@ -10,6 +10,7 @@ import 'theme_mode_sheet.dart';
 import '../../../core/ui/components/grouped_list_row.dart';
 import '../../../core/ui/feedback/app_feedback.dart';
 import '../../../core/ui/components/grouped_list_section.dart';
+import '../../../core/ui/components/locked_content_blur.dart';
 import '../../../core/ui/foundation/app_theme_preference.dart';
 
 import '../../../core/ui/foundation/app_color_palette.dart';
@@ -86,8 +87,20 @@ class SettingsScreen extends StatelessWidget {
     this.permissions = const [],
     this.lockScreenAlarm,
     this.onOpenWatchGuide,
+    this.planCard,
+    this.isPlaceBackupLocked = false,
+    this.onUnlockPro,
     super.key,
   });
+
+  /// 맨 위 무료/프로 영역 (#294) — pro feature 위젯을 app 이 넣는다. 없으면 숨김
+  final Widget? planCard;
+
+  /// 무료라 장소 백업이 잠겼는가 (#294) — 흐리게 + 열기 버튼
+  final bool isPlaceBackupLocked;
+
+  /// 잠긴 기능을 눌렀을 때 — 프로 안내
+  final VoidCallback? onUnlockPro;
 
   final VoidCallback onOpenVolumeSettings;
 
@@ -192,6 +205,34 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
+  /// 장소 백업 두 줄. 무료면 한 덩어리로 흐리게 잠금 (#294)
+  List<Widget> _backupRowsLockedIfFree(BuildContext context) {
+    final rows = [
+      GroupedListRow.navigation(
+        icon: Icons.upload_file_outlined,
+        title: context.l10n.settingsBackupExportTitle,
+        subtitle: context.l10n.settingsBackupExportSubtitle,
+        onTap: onExportPlaces,
+      ),
+      GroupedListRow.navigation(
+        icon: Icons.file_open_outlined,
+        title: context.l10n.settingsBackupImportTitle,
+        subtitle: context.l10n.settingsBackupImportSubtitle,
+        onTap: onImportPlaces,
+      ),
+    ];
+    final onUnlock = onUnlockPro;
+    if (!isPlaceBackupLocked || onUnlock == null) return rows;
+    return [
+      LockedContentBlur(
+        caption: context.l10n.proLockedBackup,
+        actionLabel: context.l10n.proUnlockAction,
+        onUnlock: onUnlock,
+        child: Column(children: rows),
+      ),
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -206,6 +247,7 @@ class SettingsScreen extends StatelessWidget {
             AppSpacing.lg,
           ),
           children: [
+            ?planCard,
             GroupedListSection(
               header: context.l10n.settingsSectionAlert,
               children: [
@@ -289,20 +331,7 @@ class SettingsScreen extends StatelessWidget {
             const SizedBox(height: AppSpacing.md),
             GroupedListSection(
               header: context.l10n.settingsSectionBackup,
-              children: [
-                GroupedListRow.navigation(
-                  icon: Icons.upload_file_outlined,
-                  title: context.l10n.settingsBackupExportTitle,
-                  subtitle: context.l10n.settingsBackupExportSubtitle,
-                  onTap: onExportPlaces,
-                ),
-                GroupedListRow.navigation(
-                  icon: Icons.file_open_outlined,
-                  title: context.l10n.settingsBackupImportTitle,
-                  subtitle: context.l10n.settingsBackupImportSubtitle,
-                  onTap: onImportPlaces,
-                ),
-              ],
+              children: _backupRowsLockedIfFree(context),
             ),
 
             // 약관과 방침은 스토어 심사 항목이고, 사용자가 찾는 자리다 (이슈 #188)

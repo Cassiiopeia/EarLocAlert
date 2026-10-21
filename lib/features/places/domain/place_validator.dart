@@ -13,7 +13,7 @@ enum PlaceValidationError {
   /// 좌표가 유효 범위를 벗어났다
   invalidCoordinates,
 
-  /// 등록 상한에 도달했다 — iOS OS 제한 20개 (docs/05-PLATFORM.md)
+  /// 등록 상한에 도달했다 — 상한은 호출부가 등급·플랫폼으로 정한다 (core/entitlement/place_limits.dart)
   limitReached,
 
   /// 시간 창의 시작과 종료가 같다 (이슈 #81).
@@ -31,16 +31,15 @@ abstract final class PlaceValidator {
   static const int minRadiusMeters = 50;
   static const int maxRadiusMeters = 2000;
 
-  /// iOS 지오펜스 상한. **OS 제한이며 우회 방법이 없다.**
-  /// 플랫폼 공통으로 같은 상한을 적용한다 — 기기를 바꿔도 동작이 같아야 한다.
-  static const int maxPlaces = 20;
-
   static List<PlaceValidationError> validate({
     required String name,
     required int radiusMeters,
     required double latitude,
     required double longitude,
     required int currentCount,
+
+    /// 등록 상한 — `FeatureAccess.placeLimit` (#294)
+    required int maxPlaces,
 
     /// 수정이면 상한 검사를 건너뛴다 — 이미 등록된 장소다
     required bool isNew,

@@ -14,7 +14,7 @@ import '../../features/geofence/data/drift_geofence_event_repository.dart';
 import '../../features/geofence/data/drift_geofence_state_repository.dart';
 import '../../features/geofence/domain/geofence_evaluator.dart';
 import '../../features/places/data/drift_place_repository.dart';
-import '../../features/places/domain/place_validator.dart';
+import '../../core/entitlement/place_limits.dart';
 import '../alert_place_geofence_target.dart';
 import 'background_alert_notifier.dart';
 import 'geofence_background_processor.dart';
@@ -141,7 +141,7 @@ Future<void> _restoreGeofences(
     final all = await places.findAll();
     final enabled = all
         .where((p) => p.enabled)
-        .take(PlaceValidator.maxPlaces)
+        .take(PlaceLimits.platformMaximum())
         .toList();
     if (enabled.isEmpty) {
       Diagnostics.log('engine', 'no geofences to restore');

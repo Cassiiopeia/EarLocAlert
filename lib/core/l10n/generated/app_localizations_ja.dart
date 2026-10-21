@@ -1095,4 +1095,131 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get backupImportReadFailed => 'ファイルを読み込めませんでした';
+
+  @override
+  String get proSheetTitle => '永久パス';
+
+  @override
+  String get proSheetSubtitle => 'サブスクではありません · 機種変更しても同じアカウントなら引き継ぎ';
+
+  @override
+  String proSheetBuy(String price) {
+    return '永久パス $price';
+  }
+
+  @override
+  String get proSheetRestore => '購入済みですか？復元する';
+
+  @override
+  String get proSheetColumnFree => '無料';
+
+  @override
+  String get proSheetColumnPro => 'プロ';
+
+  @override
+  String get proRowPlaces => '場所';
+
+  @override
+  String get proRowDirections => '到着・出発の通知';
+
+  @override
+  String get proRowSchedules => '通知の時間帯';
+
+  @override
+  String get proRowVibration => '振動の強さ';
+
+  @override
+  String get proRowSound => 'イヤホン通知音';
+
+  @override
+  String get proRowBackup => '場所のバックアップ';
+
+  @override
+  String get proRowAds => '広告';
+
+  @override
+  String get proValueOnePlace => '1件';
+
+  @override
+  String get proValueUnlimited => '無制限';
+
+  @override
+  String get proValueDefaultSound => '標準1つ';
+
+  @override
+  String get proValueAllSounds => 'すべて + マイ音源';
+
+  @override
+  String get proValueAdsOn => 'あり';
+
+  @override
+  String get proValueAdsOff => 'なし';
+
+  @override
+  String get proUnlockAction => '永久パスで解除';
+
+  @override
+  String get proLockedSounds => 'すべての通知音 · マイ音源';
+
+  @override
+  String get proLockedPlaces => '場所をもっと登録するには';
+
+  @override
+  String get proLockedBackup => '場所のバックアップ · 読み込み';
+
+  @override
+  String get proLockedExamplePlaceHome => '自宅';
+
+  @override
+  String get proLockedExamplePlaceStation => '駅';
+
+  @override
+  String get proCardTitle => '場所を無制限に登録しましょう';
+
+  @override
+  String get proCardSubtitle => 'すべての通知音 · バックアップ · 広告なし';
+
+  @override
+  String proCardUsage(int count, int limit) {
+    return '場所 $count/$limit 使用中';
+  }
+
+  @override
+  String get proRowLifetime => '永久パス';
+
+  @override
+  String get proLegacyBadge => '既存ユーザー特典';
+
+  @override
+  String get proOwnedSubtitle => 'すべての機能が使えます';
+
+  @override
+  String get proDeviceLimitReached => '端末の上限に達しました';
+
+  @override
+  String get proPriceLoading => '価格を確認中…';
+
+  @override
+  String get proProductUnavailable => '現在購入できません。しばらくしてからもう一度お試しください';
+
+  @override
+  String get proPurchasePending => '支払いが確認されると解除されます';
+
+  @override
+  String get proPurchaseDone => '永久パスが有効になりました';
+
+  @override
+  String get proPurchaseFailed => '支払いを完了できませんでした';
+
+  @override
+  String get proRestoreNone => '復元できる購入はありません';
+
+  @override
+  String get proRestoreDone => '購入を復元しました';
+
+  @override
+  String get proChipFree => 'FREE';
+
+  @override
+  String get proChipPro => 'PRO';
 }

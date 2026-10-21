@@ -12,6 +12,7 @@ class _PlaceSheet extends ConsumerWidget {
     required this.selectedPlaceId,
     required this.onAddPlace,
     this.onEditPlace,
+    this.onUnlockPro,
   });
 
   final ScrollController scrollController;
@@ -21,6 +22,9 @@ class _PlaceSheet extends ConsumerWidget {
   final String? selectedPlaceId;
   final VoidCallback onAddPlace;
   final void Function(AlertPlace place)? onEditPlace;
+
+  /// 무료 상한으로 추가가 잠겼을 때만 non-null (#294) — 목록 끝에 흐린 예시
+  final VoidCallback? onUnlockPro;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -107,9 +111,13 @@ class _PlaceSheet extends ConsumerWidget {
         AppSpacing.sm,
         AppSpacing.lg,
       ),
-      itemCount: places.length,
+      itemCount: places.length + (onUnlockPro == null ? 0 : 1),
       separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.xs),
       itemBuilder: (context, index) {
+        final unlock = onUnlockPro;
+        if (unlock != null && index == places.length) {
+          return _LockedPlacePreview(onUnlock: unlock);
+        }
         final place = places[index];
         return PlaceCard(
           // 지우거나 되돌릴 때 카드가 자리를 옮긴다 — 장소로 짝지어야 상태가
@@ -124,6 +132,64 @@ class _PlaceSheet extends ConsumerWidget {
           onDelete: () => deletePlaceWithUndo(context, ref, place),
         );
       },
+    );
+  }
+}
+
+/// 무료 상한 안내: 흐린 예시 장소 2개 + 가운데 열기 버튼 (#294). 예시는 실제 데이터 아님
+class _LockedPlacePreview extends StatelessWidget {
+  const _LockedPlacePreview({required this.onUnlock});
+
+  final VoidCallback onUnlock;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    return LockedContentBlur(
+      caption: l10n.proLockedPlaces,
+      actionLabel: l10n.proUnlockAction,
+      onUnlock: onUnlock,
+      child: Column(
+        children: [
+          _ExamplePlaceRow(
+            icon: Icons.home_outlined,
+            name: l10n.proLockedExamplePlaceHome,
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          _ExamplePlaceRow(
+            icon: Icons.train_outlined,
+            name: l10n.proLockedExamplePlaceStation,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// 흐린 예시 장소 한 줄 — 실제 장소 카드와 비슷한 높이·모양
+class _ExamplePlaceRow extends StatelessWidget {
+  const _ExamplePlaceRow({required this.icon, required this.name});
+
+  final IconData icon;
+  final String name;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.appColors;
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.sm),
+      decoration: BoxDecoration(
+        color: colors.surface,
+        borderRadius: BorderRadius.circular(AppRadius.small),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, color: colors.accent),
+          const SizedBox(width: AppSpacing.sm),
+          Expanded(child: Text(name, style: context.appTextStyles.headline)),
+          Switch(value: true, onChanged: (_) {}),
+        ],
+      ),
     );
   }
 }

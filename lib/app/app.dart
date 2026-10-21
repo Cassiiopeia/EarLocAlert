@@ -36,6 +36,8 @@ import 'geofence_event_retention.dart';
 import 'geofence_providers.dart';
 import 'notification_dismiss_action.dart';
 import 'pending_alert_resumer.dart';
+import 'pro_access_coordinator.dart';
+import '../core/entitlement/feature_access_controller.dart';
 import 'router.dart';
 import 'splash_overlay.dart';
 import '../features/alert/data/alert_providers.dart';
@@ -228,6 +230,8 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
     );
     // 기기·앱 기본 정보 — 같은 코드가 기기마다 다르게 동작하는 이유를 로그만으로 설명하려는 것이다 (이슈 #260)
     Diagnostics.log('device', BuildInfo.deviceLabel);
+    // 무료/프로 상태 맞추기 (#294) — 기다리지 않고 일찍 시작 (늦으면 기존 사용자가 잠깐 잠긴 화면을 봄)
+    unawaited(ref.read(proAccessCoordinatorProvider).start());
 
     try {
       // 알림 탭으로 앱이 열리는 경로에 필요하다. 권한 요청은 온보딩이
@@ -294,6 +298,8 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
     if (state == AppLifecycleState.resumed) {
       // 화면 없이 울리던 세션이면 알림 화면이 반복 알림을 대신한다 (이슈 #233)
       unawaited(_backgroundRinger.onForeground());
+      // 확인 못 한 구매 마저 확인·환불 반영 (#294) — 엔진이 며칠 살아 있어도 3일 자동 환불 전에 닿게
+      unawaited(ref.read(proAccessCoordinatorProvider).onResumed());
       // 앱 화면과 잠금 화면 알람이 함께 뜨지 않게 한다 (이슈 #235)
       if (Platform.isIOS) {
         unawaited(ref.read(arrivalAlarmCoordinatorProvider).onForeground());
@@ -393,6 +399,11 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
   /// **알림 화면 위에 동의 화면을 겹치지 않는다** — 울리는 중이면 건너뛰고 다음
   /// 실행 때 받는다. 실패해도 흐름을 막지 않는다 (docs/02-ARCHITECTURE.md 규칙 4).
   Future<void> _gatherAdConsent() async {
+    // 프로는 광고가 없어 동의를 묻지 않는다 (#294). 환불되면 다음 실행에서 묻는다
+    if (!ref.read(featureAccessControllerProvider).shouldShowAds) {
+      Diagnostics.log('ads', 'consent skipped (reason=pro)');
+      return;
+    }
     try {
       await AdConsentGate(ref.read(adConsentProvider)).gatherWhenIdle(
         alertActive: () => ref.read(activeAlertProvider) != null,

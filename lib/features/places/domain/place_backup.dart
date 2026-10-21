@@ -5,6 +5,7 @@ import '../../../core/domain/alert_direction.dart';
 import '../../../core/domain/alert_schedule.dart';
 import '../../../core/domain/alert_sound.dart';
 import '../../../core/domain/id_generator.dart';
+import '../../../core/entitlement/place_limits.dart';
 import 'alert_place.dart';
 import 'place_validator.dart';
 
@@ -148,6 +149,8 @@ abstract final class PlaceBackup {
       latitude: latitude.toDouble(),
       longitude: longitude.toDouble(),
       currentCount: 0,
+      // 수정 취급이라 상한 검사 안 함 — 상한은 plan() 이 본다
+      maxPlaces: PlaceLimits.platformMaximum(),
       isNew: false,
       schedules: schedules,
     );
@@ -204,6 +207,9 @@ abstract final class PlaceBackup {
     required List<AlertPlace> existing,
     required List<AlertPlace> incoming,
     required bool replace,
+
+    /// 등록 상한 — `FeatureAccess.placeLimit` (#294)
+    required int maxPlaces,
   }) {
     final base = replace ? const <AlertPlace>[] : existing;
     final seen = [...base];
@@ -215,7 +221,7 @@ abstract final class PlaceBackup {
         duplicates++;
         continue;
       }
-      if (seen.length >= PlaceValidator.maxPlaces) {
+      if (seen.length >= maxPlaces) {
         overLimit++;
         continue;
       }

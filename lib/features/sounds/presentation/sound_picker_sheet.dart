@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/diagnostics/diagnostics.dart';
+import '../../../core/entitlement/feature_access_controller.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/audio/alert_sound_source.dart';
@@ -21,6 +22,7 @@ import 'sound_providers.dart';
 import '../../../core/ui/feedback/app_feedback.dart';
 import '../data/sound_service_providers.dart';
 import '../../../core/ui/components/loading_indicator.dart';
+import '../../../core/ui/components/locked_content_blur.dart';
 
 /// 알림음 선택 시트 (이슈 #121)
 ///
@@ -31,18 +33,23 @@ import '../../../core/ui/components/loading_indicator.dart';
 Future<AlertSound?> showSoundPickerSheet(
   BuildContext context, {
   required AlertSound current,
+
+  /// 잠긴 묶음을 눌렀을 때 — 프로 안내 (#294). 잠김 여부는 시트가 등급을 직접 지켜봄
+  VoidCallback? onUnlockPro,
 }) {
   // 음원이 늘면 목록이 길어진다 — 공통 시트 틀이 스크롤을 맡는다
   return showAppBottomSheet<AlertSound>(
     context,
-    builder: (context) => _SoundPickerSheet(current: current),
+    builder: (context) =>
+        _SoundPickerSheet(current: current, onUnlockPro: onUnlockPro),
   );
 }
 
 class _SoundPickerSheet extends ConsumerStatefulWidget {
-  const _SoundPickerSheet({required this.current});
+  const _SoundPickerSheet({required this.current, required this.onUnlockPro});
 
   final AlertSound current;
+  final VoidCallback? onUnlockPro;
 
   @override
   ConsumerState<_SoundPickerSheet> createState() => _SoundPickerSheetState();
@@ -185,6 +192,32 @@ class _SoundPickerSheetState extends ConsumerState<_SoundPickerSheet>
 
   void _showMessage(String message) => context.showToast(message);
 
+  Widget _presetTile(SoundPreset preset, bool canPreview) => _SoundTile(
+    value: PresetSound(preset),
+    title: preset.localizedLabel(context.l10n),
+    canPreview: canPreview,
+    onPreview: () => _preview(PresetSound(preset)),
+  );
+
+  /// 무료면 흐리게 잠그고 프로 안내로 보낸다 (#294). 잠겨도 고른 값은 그대로 유지
+  Widget _lockedIfFree({required String caption, required Widget child}) {
+    final onUnlockPro = widget.onUnlockPro;
+    // 시트 안에서 결제해도 바로 풀리게 등급을 지켜본다
+    final isLocked = !ref
+        .watch(featureAccessControllerProvider)
+        .canUseAllSounds;
+    if (!isLocked || onUnlockPro == null) return child;
+    return Padding(
+      padding: const EdgeInsets.only(top: AppSpacing.xs),
+      child: LockedContentBlur(
+        caption: caption,
+        actionLabel: context.l10n.proUnlockAction,
+        onUnlock: onUnlockPro,
+        child: child,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final customSounds = ref.watch(customSoundListProvider).valueOrNull;
@@ -221,64 +254,73 @@ class _SoundPickerSheetState extends ConsumerState<_SoundPickerSheet>
                   context.l10n.soundPickerPresetHeader,
                   style: context.appTextStyles.caption,
                 ),
-                for (final preset in SoundPreset.values)
-                  _SoundTile(
-                    value: PresetSound(preset),
-                    title: preset.localizedLabel(context.l10n),
-                    canPreview: canPreview,
-                    onPreview: () => _preview(PresetSound(preset)),
-                  ),
+                // 무료여도 기본음은 그대로 고를 수 있다 (#294)
+                _presetTile(SoundPreset.defaultTone, canPreview),
+                _lockedIfFree(
+                  caption: context.l10n.proLockedSounds,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      for (final preset in SoundPreset.values)
+                        if (preset != SoundPreset.defaultTone)
+                          _presetTile(preset, canPreview),
 
-                const SizedBox(height: AppSpacing.md),
-                Text(
-                  context.l10n.soundPickerCustomHeader(
-                    customSounds?.length ?? 0,
-                    SoundLimits.maxCount,
-                  ),
-                  style: context.appTextStyles.caption,
-                ),
+                      const SizedBox(height: AppSpacing.md),
+                      Text(
+                        context.l10n.soundPickerCustomHeader(
+                          customSounds?.length ?? 0,
+                          SoundLimits.maxCount,
+                        ),
+                        style: context.appTextStyles.caption,
+                      ),
 
-                if (customSounds == null)
-                  const Padding(
-                    padding: EdgeInsets.all(AppSpacing.md),
-                    child: CenteredLoadingIndicator(),
-                  )
-                else if (customSounds.isEmpty)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: AppSpacing.xs,
-                    ),
-                    child: Text(
-                      context.keepAllText(context.l10n.soundPickerCustomEmpty),
-                      style: context.appTextStyles.caption,
-                    ),
-                  )
-                else
-                  for (final sound in customSounds)
-                    _SoundTile(
-                      value: CustomSoundRef(sound.id),
-                      title: sound.displayName,
-                      subtitle:
-                          '${formatDuration(context.l10n, sound.duration)} · '
-                          '${formatBytes(sound.sizeBytes)}',
-                      canPreview: canPreview,
-                      onPreview: () => _preview(CustomSoundRef(sound.id)),
-                      onDelete: () => _deleteSound(sound),
-                    ),
+                      if (customSounds == null)
+                        const Padding(
+                          padding: EdgeInsets.all(AppSpacing.md),
+                          child: CenteredLoadingIndicator(),
+                        )
+                      else if (customSounds.isEmpty)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: AppSpacing.xs,
+                          ),
+                          child: Text(
+                            context.keepAllText(
+                              context.l10n.soundPickerCustomEmpty,
+                            ),
+                            style: context.appTextStyles.caption,
+                          ),
+                        )
+                      else
+                        for (final sound in customSounds)
+                          _SoundTile(
+                            value: CustomSoundRef(sound.id),
+                            title: sound.displayName,
+                            subtitle:
+                                '${formatDuration(context.l10n, sound.duration)} · '
+                                '${formatBytes(sound.sizeBytes)}',
+                            canPreview: canPreview,
+                            onPreview: () => _preview(CustomSoundRef(sound.id)),
+                            onDelete: () => _deleteSound(sound),
+                          ),
 
-                const SizedBox(height: AppSpacing.md),
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton.icon(
-                    onPressed: _busy ? null : _addSound,
-                    icon: _busy
-                        ? const InlineLoadingIndicator()
-                        : const Icon(Icons.add_outlined),
-                    label: Text(
-                      _busy
-                          ? context.l10n.soundPickerChecking
-                          : context.l10n.soundPickerAdd,
-                    ),
+                      const SizedBox(height: AppSpacing.md),
+                      SizedBox(
+                        width: double.infinity,
+                        child: OutlinedButton.icon(
+                          onPressed: _busy ? null : _addSound,
+                          icon: _busy
+                              ? const InlineLoadingIndicator()
+                              : const Icon(Icons.add_outlined),
+                          label: Text(
+                            _busy
+                                ? context.l10n.soundPickerChecking
+                                : context.l10n.soundPickerAdd,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],

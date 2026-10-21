@@ -28,6 +28,8 @@
 
 **라이트·다크 두 벌이다 (#272, 결정 065).** 색은 `context.appColors`, 글자는 `context.appTextStyles` 로 읽는다 — 화면에서 `AppColors.`·`AppTypography.` 를 쓰면 라이트에서 다크 색이 박힌다 — 쓰지 않는다. 주색은 민트(`accent`), 금색은 출발·경고(`warning`). 화면 모드는 설정 > 일반에서 고른다(기본 기기 따르기). **알림 화면은 항상 다크다** (`lib/app/always_dark_alert_theme.dart`). 디자인 시스템은 `lib/core/ui/`(foundation · components · feedback) 한 계층이다 (#276).
 
+**무료/프로 평생 이용권이 있다 (#294, 결정 072) — Android 만.** 등급 판단은 `core/entitlement` 의 `FeatureAccess` 하나다. 장소 상한은 `PlaceLimits`(무료 1 / Android 프로 30 / iOS 20)에서만 읽고, 감시 동기화는 **등급이 아니라 플랫폼 한도**로 자른다(환불돼도 기존 장소는 계속 울려야 한다). 잠긴 기능은 `LockedContentBlur`(블러 + 열기 버튼, 자물쇠 없음)로 보인다. 알림 경로에는 결제 UI 를 두지 않는다.
+
 **하단 광고는 44dp 한 줄 네이티브 띠다 (#283, 결정 068).** `AdBannerFrame` 이 화면 밖 띠로 붙이고, 앱 네이티브 팩토리 `earLocAlertStrip`(Kotlin·Swift)이 그린다. 운영 단위가 비면 릴리스는 요청하지 않는다. **네이티브 계층은 실기기 검증으로만 닫힌다.**
 
 **알림 화면 가운데에 장소 지도가 있다 (#142·#144, 결정 033).** 지도 카드 400px, 해제 버튼은 340px 에서 **84px 로 줄였다.** 그 버튼은 버스에서 화면을 보지 않고 엄지로 누르는 용도라, **보이는 크기와 눌리는 범위를 분리했다** — 주변 여백까지 탭을 받는다. 더 줄이지 않는다. 지도는 조작을 받지 않고 lite mode 로 그린다 (전력). **좌표는 `PendingAlert` → SharedPreferences → `take()` 경계를 건너오며, 반드시 `_clear` 앞에서 읽는다** (#125 가 났던 자리).

@@ -46,6 +46,7 @@ class PlaceFormScreen extends ConsumerStatefulWidget {
   const PlaceFormScreen({
     this.existing,
     this.onSaved,
+    this.onPlaceLimitReached,
     this.onDeleted,
     this.onPickOnMap,
     this.onPickSound,
@@ -56,6 +57,9 @@ class PlaceFormScreen extends ConsumerStatefulWidget {
   /// null 이면 신규 등록
   final AlertPlace? existing;
   final VoidCallback? onSaved;
+
+  /// 등록 상한에 걸려 저장이 거절됐을 때 (#294). 무료면 결제 안내, 프로면 기기 한도 안내를 라우터가 정한다
+  final VoidCallback? onPlaceLimitReached;
 
   /// 삭제가 끝났을 때 (이슈 #205). 화면 전환은 라우터가 한다 — `onSaved` 와
   /// 같은 방식이다.
@@ -698,6 +702,13 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
       // 저장 직후의 이탈은 묻지 않는다 (이슈 #112)
       _leavingAfterSave = true;
       widget.onSaved?.call();
+      return;
+    }
+
+    final onPlaceLimitReached = widget.onPlaceLimitReached;
+    if (errors.contains(PlaceValidationError.limitReached) &&
+        onPlaceLimitReached != null) {
+      onPlaceLimitReached();
       return;
     }
 

@@ -7,6 +7,9 @@ import 'core/ui/foundation/app_theme_preference.dart';
 import 'core/l10n/app_language_controller.dart';
 import 'core/l10n/app_language_store.dart';
 import 'app/splash_overlay.dart';
+import 'core/diagnostics/diagnostics.dart';
+import 'core/entitlement/feature_access_controller.dart';
+import 'core/entitlement/pro_entitlement.dart';
 import 'app/background/watch_engine_entrypoint.dart' as watch_engine;
 
 Future<void> main() async {
@@ -24,16 +27,32 @@ Future<void> main() async {
   final language = await const AppLanguageStore().read();
   // 화면 모드도 같은 이유로 첫 프레임 전에 읽는다 (이슈 #272)
   final themePreference = await const AppThemeStore().read();
+  // 무료/프로도 첫 프레임 전에 읽는다 — 잠긴 화면이 열렸다 닫히는 깜빡임 방지 (#294)
+  final proSource = await _readInitialProSource();
 
   runApp(
     ProviderScope(
       overrides: [
         appLanguageInitialProvider.overrideWithValue(language),
         appThemeInitialProvider.overrideWithValue(themePreference),
+        proEntitlementInitialProvider.overrideWithValue(proSource),
       ],
       child: const EarLocAlertApp(),
     ),
   );
+}
+
+/// 저장된 프로 출처 (#294). 디버그 강제값이 있으면 그것
+Future<ProEntitlementSource> _readInitialProSource() async {
+  final debugSource = debugProSourceOverride();
+  if (debugSource != null) return debugSource;
+  try {
+    return await const ProEntitlementStore().read();
+  } on Object catch (error) {
+    // 읽기 실패 시 무료로 시작 — 시작 시 Play 조회가 다시 맞춘다
+    Diagnostics.log('pro', 'entitlement read failed error=$error');
+    return ProEntitlementSource.none;
+  }
 }
 
 /// 감시 서비스가 띄우는 엔진의 진입점 (이슈 #93)

@@ -1146,4 +1146,134 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get backupImportReadFailed => 'Could not read the file';
+
+  @override
+  String get proSheetTitle => 'Lifetime pass';
+
+  @override
+  String get proSheetSubtitle =>
+      'Not a subscription · Stays with your account on a new phone';
+
+  @override
+  String proSheetBuy(String price) {
+    return 'Lifetime pass $price';
+  }
+
+  @override
+  String get proSheetRestore => 'Already purchased? Restore';
+
+  @override
+  String get proSheetColumnFree => 'Free';
+
+  @override
+  String get proSheetColumnPro => 'Pro';
+
+  @override
+  String get proRowPlaces => 'Places';
+
+  @override
+  String get proRowDirections => 'Arrival & departure alerts';
+
+  @override
+  String get proRowSchedules => 'Alert hours';
+
+  @override
+  String get proRowVibration => 'Vibration strength';
+
+  @override
+  String get proRowSound => 'Earphone sounds';
+
+  @override
+  String get proRowBackup => 'Place backup';
+
+  @override
+  String get proRowAds => 'Ads';
+
+  @override
+  String get proValueOnePlace => '1';
+
+  @override
+  String get proValueUnlimited => 'Unlimited';
+
+  @override
+  String get proValueDefaultSound => 'Default only';
+
+  @override
+  String get proValueAllSounds => 'All + your own';
+
+  @override
+  String get proValueAdsOn => 'Yes';
+
+  @override
+  String get proValueAdsOff => 'None';
+
+  @override
+  String get proUnlockAction => 'Unlock with lifetime pass';
+
+  @override
+  String get proLockedSounds => 'All sounds · Your own sounds';
+
+  @override
+  String get proLockedPlaces => 'To add more places';
+
+  @override
+  String get proLockedBackup => 'Back up · Import places';
+
+  @override
+  String get proLockedExamplePlaceHome => 'Home';
+
+  @override
+  String get proLockedExamplePlaceStation => 'Station';
+
+  @override
+  String get proCardTitle => 'Add as many places as you need';
+
+  @override
+  String get proCardSubtitle => 'All sounds · Place backup · No ads';
+
+  @override
+  String proCardUsage(int count, int limit) {
+    return '$count/$limit places used';
+  }
+
+  @override
+  String get proRowLifetime => 'Lifetime pass';
+
+  @override
+  String get proLegacyBadge => 'Early user gift';
+
+  @override
+  String get proOwnedSubtitle => 'Every feature is unlocked';
+
+  @override
+  String get proDeviceLimitReached => 'You have reached the device limit';
+
+  @override
+  String get proPriceLoading => 'Checking price…';
+
+  @override
+  String get proProductUnavailable =>
+      'Purchase is unavailable right now. Please try again later';
+
+  @override
+  String get proPurchasePending =>
+      'It will unlock once the payment is confirmed';
+
+  @override
+  String get proPurchaseDone => 'Lifetime pass unlocked';
+
+  @override
+  String get proPurchaseFailed => 'The payment could not be completed';
+
+  @override
+  String get proRestoreNone => 'No purchase to restore';
+
+  @override
+  String get proRestoreDone => 'Purchase restored';
+
+  @override
+  String get proChipFree => 'FREE';
+
+  @override
+  String get proChipPro => 'PRO';
 }

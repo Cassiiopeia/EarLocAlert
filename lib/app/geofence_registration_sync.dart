@@ -10,7 +10,7 @@ import '../features/geofence/domain/position_sample.dart';
 import '../features/geofence/domain/state_seeding.dart';
 import '../features/places/domain/alert_place.dart';
 import '../features/places/domain/place_repository.dart';
-import '../features/places/domain/place_validator.dart';
+import '../core/entitlement/place_limits.dart';
 import 'alert_place_geofence_target.dart';
 import 'background/alert_watch_service.dart';
 
@@ -25,10 +25,11 @@ class GeofenceRegistrationSync {
     required GeofenceMonitor monitor,
     required GeofenceStateRepository states,
     AlertWatchService watch = const NoopAlertWatchService(),
-    this.maxTargets = PlaceValidator.maxPlaces,
+    int? maxTargets,
     this.onSynced,
     Future<PositionSample?> Function()? currentFix,
-  }) : _places = places,
+  }) : maxTargets = maxTargets ?? PlaceLimits.platformMaximum(),
+       _places = places,
        _monitor = monitor,
        _states = states,
        _watch = watch,
@@ -41,8 +42,9 @@ class GeofenceRegistrationSync {
   /// 상시 감시 서비스 (이슈 #74) — 감시 대상이 있을 때만 켠다
   final AlertWatchService _watch;
 
-  /// iOS 는 앱당 20개가 OS 제한이다 (docs/05-PLATFORM.md).
+  /// OS 한도(Android 30 · iOS 20, core/entitlement/place_limits.dart).
   /// 등록 화면이 상한을 막지만, 여기서도 자르는 것이 마지막 방어선이다.
+  /// 등급 상한이 아니다 — 환불로 무료가 된 사용자의 기존 장소도 계속 감시 (#294)
   final int maxTargets;
 
   /// 동기화가 끝날 때마다 부른다 — 등록 결과를 보여주는 쪽(홈 상태)이

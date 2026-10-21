@@ -61,6 +61,10 @@ dependencies:
   in_app_update: ^4.2.5
   package_info_plus: ^9.0.1
   flutter_email_sender: ^8.0.0
+  # 평생 이용권 일회성 결제 — Android 만 판매, iOS 는 아직 쓰지 않는다 (#294)
+  in_app_purchase: ^3.2.3
+  in_app_purchase_android: ^0.4.0
+  in_app_purchase_platform_interface: ^1.4.0
 # 전이 의존성 고정 (이슈 #76)
 #
 # device_info_plus 12.4.0 이 `NSProcessInfo.isiOSAppOnVision` 을 쓰기 시작했는데

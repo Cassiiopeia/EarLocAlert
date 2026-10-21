@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../core/entitlement/feature_access_controller.dart';
 
 import '../features/ads/presentation/native_strip_ad_slot.dart';
 
@@ -10,7 +13,9 @@ import '../features/ads/presentation/native_strip_ad_slot.dart';
 /// 띠는 화면 **밖에** 놓인다. 시트·버튼·지도가 띠 위로 밀려 올라가므로
 /// 눌림 요소와 겹치지 않는다. 우발적 클릭은 계정 정지 사유다.
 /// 알림·해제 완료·위치 선택 지도·온보딩 라우트는 감싸지 않는다.
-class AdBannerFrame extends StatefulWidget {
+///
+/// 프로면 띠를 만들지 않는다 — 광고 요청 자체가 없다 (#294)
+class AdBannerFrame extends ConsumerStatefulWidget {
   const AdBannerFrame({super.key, required this.child, this.slotBuilder});
 
   final Widget child;
@@ -19,10 +24,10 @@ class AdBannerFrame extends StatefulWidget {
   final Widget Function(ValueChanged<bool> onLoadedChanged)? slotBuilder;
 
   @override
-  State<AdBannerFrame> createState() => _AdBannerFrameState();
+  ConsumerState<AdBannerFrame> createState() => _AdBannerFrameState();
 }
 
-class _AdBannerFrameState extends State<AdBannerFrame> {
+class _AdBannerFrameState extends ConsumerState<AdBannerFrame> {
   bool _loaded = false;
 
   void _onLoadedChanged(bool loaded) {
@@ -31,9 +36,13 @@ class _AdBannerFrameState extends State<AdBannerFrame> {
 
   @override
   Widget build(BuildContext context) {
+    // 트리 모양은 등급과 무관하게 유지 — 바꾸면 구매 순간 감싼 화면이 처음부터 다시 만들어진다
+    final shouldShowAds = ref
+        .watch(featureAccessControllerProvider)
+        .shouldShowAds;
     // 키보드가 올라오면 숨긴다 — 입력 중에 광고가 화면을 먹으면 안 된다
     final keyboardOpen = MediaQuery.viewInsetsOf(context).bottom > 0;
-    final bannerShown = _loaded && !keyboardOpen;
+    final bannerShown = shouldShowAds && _loaded && !keyboardOpen;
 
     return Column(
       children: [
@@ -62,12 +71,14 @@ class _AdBannerFrameState extends State<AdBannerFrame> {
           ),
         ),
         // Offstage 로 두는 이유: 키보드가 닫혔을 때 광고를 다시 요청하지 않는다
-        Offstage(
-          offstage: keyboardOpen,
-          child:
-              widget.slotBuilder?.call(_onLoadedChanged) ??
-              NativeStripAdSlot(onLoadedChanged: _onLoadedChanged),
-        ),
+        // 프로면 띠 자체를 만들지 않는다 — 광고 요청 없음 (#294)
+        if (shouldShowAds)
+          Offstage(
+            offstage: keyboardOpen,
+            child:
+                widget.slotBuilder?.call(_onLoadedChanged) ??
+                NativeStripAdSlot(onLoadedChanged: _onLoadedChanged),
+          ),
       ],
     );
   }

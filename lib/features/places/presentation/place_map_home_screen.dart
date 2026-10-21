@@ -20,6 +20,7 @@ import '../../../core/ui/foundation/map_style.dart';
 import '../../../core/text/keep_all.dart';
 import '../../../core/ui/components/status_bar_icons_following_theme.dart';
 import '../../../core/ui/components/floating_circle_button.dart';
+import '../../../core/ui/components/locked_content_blur.dart';
 import '../domain/current_location_service.dart';
 import '../domain/alert_place.dart';
 import 'current_location_message.dart';
@@ -55,6 +56,9 @@ class PlaceMapHomeScreen extends ConsumerStatefulWidget {
     this.onFixReliability,
     this.onOpenSettings,
     this.onRefreshStatus,
+    this.planBadge,
+    this.isPlaceAddLocked = false,
+    this.onUnlockPro,
     required this.locationService,
     super.key,
   });
@@ -106,6 +110,15 @@ class PlaceMapHomeScreen extends ConsumerStatefulWidget {
   /// 사용자가 설정에서 권한을 켜거나 이어폰을 꽂고 돌아오는 흐름이
   /// 실제로 가장 흔하다. 그때 화면이 옛 상태를 들고 있으면 안 된다.
   final VoidCallback? onRefreshStatus;
+
+  /// 상단 오른쪽 등급 칩 (#294) — pro feature 위젯을 app 이 넣는다
+  final Widget? planBadge;
+
+  /// 무료 상한에 걸려 장소 추가가 잠겼는가 (#294) — 목록 끝에 흐린 예시 + 열기 버튼
+  final bool isPlaceAddLocked;
+
+  /// 잠긴 기능을 눌렀을 때 — 프로 안내
+  final VoidCallback? onUnlockPro;
 
   @override
   ConsumerState<PlaceMapHomeScreen> createState() => _PlaceMapHomeScreenState();
@@ -242,6 +255,7 @@ class _PlaceMapHomeScreenState extends ConsumerState<PlaceMapHomeScreen>
               onFixMonitoring: widget.onFixMonitoring,
               onFixReliability: widget.onFixReliability,
               onOpenSettings: widget.onOpenSettings,
+              planBadge: widget.planBadge,
             ),
 
             _MapControls(
@@ -273,6 +287,9 @@ class _PlaceMapHomeScreenState extends ConsumerState<PlaceMapHomeScreen>
                   selectedPlaceId: _selectedPlaceId,
                   onAddPlace: widget.onAddPlace,
                   onEditPlace: widget.onEditPlace,
+                  onUnlockPro: widget.isPlaceAddLocked
+                      ? widget.onUnlockPro
+                      : null,
                 ),
               ),
             ),

@@ -2087,6 +2087,252 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'파일을 읽지 못했습니다'**
   String get backupImportReadFailed;
+
+  /// No description provided for @proSheetTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'평생 이용권'**
+  String get proSheetTitle;
+
+  /// No description provided for @proSheetSubtitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'구독 아님 · 기기 바꿔도 같은 계정이면 유지'**
+  String get proSheetSubtitle;
+
+  /// No description provided for @proSheetBuy.
+  ///
+  /// In ko, this message translates to:
+  /// **'평생 이용권 {price}'**
+  String proSheetBuy(String price);
+
+  /// No description provided for @proSheetRestore.
+  ///
+  /// In ko, this message translates to:
+  /// **'이미 구매했나요? 복원하기'**
+  String get proSheetRestore;
+
+  /// No description provided for @proSheetColumnFree.
+  ///
+  /// In ko, this message translates to:
+  /// **'무료'**
+  String get proSheetColumnFree;
+
+  /// No description provided for @proSheetColumnPro.
+  ///
+  /// In ko, this message translates to:
+  /// **'프로'**
+  String get proSheetColumnPro;
+
+  /// No description provided for @proRowPlaces.
+  ///
+  /// In ko, this message translates to:
+  /// **'장소'**
+  String get proRowPlaces;
+
+  /// No description provided for @proRowDirections.
+  ///
+  /// In ko, this message translates to:
+  /// **'도착·출발 알림'**
+  String get proRowDirections;
+
+  /// No description provided for @proRowSchedules.
+  ///
+  /// In ko, this message translates to:
+  /// **'알림 시간대'**
+  String get proRowSchedules;
+
+  /// No description provided for @proRowVibration.
+  ///
+  /// In ko, this message translates to:
+  /// **'진동 세기'**
+  String get proRowVibration;
+
+  /// No description provided for @proRowSound.
+  ///
+  /// In ko, this message translates to:
+  /// **'이어폰 알림음'**
+  String get proRowSound;
+
+  /// No description provided for @proRowBackup.
+  ///
+  /// In ko, this message translates to:
+  /// **'장소 백업'**
+  String get proRowBackup;
+
+  /// No description provided for @proRowAds.
+  ///
+  /// In ko, this message translates to:
+  /// **'광고'**
+  String get proRowAds;
+
+  /// No description provided for @proValueOnePlace.
+  ///
+  /// In ko, this message translates to:
+  /// **'1개'**
+  String get proValueOnePlace;
+
+  /// No description provided for @proValueUnlimited.
+  ///
+  /// In ko, this message translates to:
+  /// **'제한 없음'**
+  String get proValueUnlimited;
+
+  /// No description provided for @proValueDefaultSound.
+  ///
+  /// In ko, this message translates to:
+  /// **'기본 1개'**
+  String get proValueDefaultSound;
+
+  /// No description provided for @proValueAllSounds.
+  ///
+  /// In ko, this message translates to:
+  /// **'전체 + 내 음원'**
+  String get proValueAllSounds;
+
+  /// No description provided for @proValueAdsOn.
+  ///
+  /// In ko, this message translates to:
+  /// **'있음'**
+  String get proValueAdsOn;
+
+  /// No description provided for @proValueAdsOff.
+  ///
+  /// In ko, this message translates to:
+  /// **'없음'**
+  String get proValueAdsOff;
+
+  /// No description provided for @proUnlockAction.
+  ///
+  /// In ko, this message translates to:
+  /// **'평생 이용권으로 열기'**
+  String get proUnlockAction;
+
+  /// No description provided for @proLockedSounds.
+  ///
+  /// In ko, this message translates to:
+  /// **'알림음 전체 · 내 음원'**
+  String get proLockedSounds;
+
+  /// No description provided for @proLockedPlaces.
+  ///
+  /// In ko, this message translates to:
+  /// **'장소를 더 등록하려면'**
+  String get proLockedPlaces;
+
+  /// No description provided for @proLockedBackup.
+  ///
+  /// In ko, this message translates to:
+  /// **'장소 백업 · 가져오기'**
+  String get proLockedBackup;
+
+  /// No description provided for @proLockedExamplePlaceHome.
+  ///
+  /// In ko, this message translates to:
+  /// **'집'**
+  String get proLockedExamplePlaceHome;
+
+  /// No description provided for @proLockedExamplePlaceStation.
+  ///
+  /// In ko, this message translates to:
+  /// **'역'**
+  String get proLockedExamplePlaceStation;
+
+  /// No description provided for @proCardTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'장소를 제한 없이 등록하세요'**
+  String get proCardTitle;
+
+  /// No description provided for @proCardSubtitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'알림음 전체 · 장소 백업 · 광고 없음'**
+  String get proCardSubtitle;
+
+  /// No description provided for @proCardUsage.
+  ///
+  /// In ko, this message translates to:
+  /// **'장소 {count}/{limit} 사용 중'**
+  String proCardUsage(int count, int limit);
+
+  /// No description provided for @proRowLifetime.
+  ///
+  /// In ko, this message translates to:
+  /// **'평생 이용권'**
+  String get proRowLifetime;
+
+  /// No description provided for @proLegacyBadge.
+  ///
+  /// In ko, this message translates to:
+  /// **'기존 사용자 혜택'**
+  String get proLegacyBadge;
+
+  /// No description provided for @proOwnedSubtitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'모든 기능이 열려 있어요'**
+  String get proOwnedSubtitle;
+
+  /// No description provided for @proDeviceLimitReached.
+  ///
+  /// In ko, this message translates to:
+  /// **'기기 한도에 도달했어요'**
+  String get proDeviceLimitReached;
+
+  /// No description provided for @proPriceLoading.
+  ///
+  /// In ko, this message translates to:
+  /// **'가격 확인 중…'**
+  String get proPriceLoading;
+
+  /// No description provided for @proProductUnavailable.
+  ///
+  /// In ko, this message translates to:
+  /// **'지금은 구매할 수 없어요. 잠시 뒤 다시 시도해 주세요'**
+  String get proProductUnavailable;
+
+  /// No description provided for @proPurchasePending.
+  ///
+  /// In ko, this message translates to:
+  /// **'결제가 확인되면 열려요'**
+  String get proPurchasePending;
+
+  /// No description provided for @proPurchaseDone.
+  ///
+  /// In ko, this message translates to:
+  /// **'평생 이용권이 열렸어요'**
+  String get proPurchaseDone;
+
+  /// No description provided for @proPurchaseFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'결제를 마치지 못했어요'**
+  String get proPurchaseFailed;
+
+  /// No description provided for @proRestoreNone.
+  ///
+  /// In ko, this message translates to:
+  /// **'복원할 구매가 없어요'**
+  String get proRestoreNone;
+
+  /// No description provided for @proRestoreDone.
+  ///
+  /// In ko, this message translates to:
+  /// **'구매를 복원했어요'**
+  String get proRestoreDone;
+
+  /// No description provided for @proChipFree.
+  ///
+  /// In ko, this message translates to:
+  /// **'FREE'**
+  String get proChipFree;
+
+  /// No description provided for @proChipPro.
+  ///
+  /// In ko, this message translates to:
+  /// **'PRO'**
+  String get proChipPro;
 }
 
 class _AppLocalizationsDelegate

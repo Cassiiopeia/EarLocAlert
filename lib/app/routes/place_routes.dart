@@ -40,9 +40,16 @@ class _PlaceFormRoute extends ConsumerWidget {
     return PlaceFormScreen(
       existing: existing,
       onSaved: () => _onPlaceSaved(context),
+      onPlaceLimitReached: () => _onPlaceLimitReached(context, ref),
       onDeleted: () => _leaveForm(context),
       onPickOnMap: (args) => _pickOnMap(context, args),
-      onPickSound: (current) => showSoundPickerSheet(context, current: current),
+      // 무료는 기본음 외 잠금 (#294) — 기존에 고른 음은 그대로 유지
+      onPickSound: (current) => showSoundPickerSheet(
+        context,
+        current: current,
+        onUnlockPro: () =>
+            unawaited(showProOfferSheet(context, entryPoint: 'sound_picker')),
+      ),
       onDescribeSound: (sound) => _describeSound(ref, sound, context.l10n),
     );
   }

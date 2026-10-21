@@ -55,11 +55,19 @@ import 'arrival_alarm_providers.dart';
 import 'background/arrival_alarm_channel.dart';
 import 'ad_banner_frame.dart';
 import 'home_status_provider.dart';
+import '../core/entitlement/feature_access.dart';
+import '../core/entitlement/feature_access_controller.dart';
+import '../core/entitlement/place_limits.dart';
+import '../features/places/presentation/place_list_controller.dart';
+import '../features/pro/presentation/plan_badge_chip.dart';
+import '../features/pro/presentation/pro_offer_sheet.dart';
+import '../features/pro/presentation/pro_settings_card.dart';
 
 // 라우트별 조립 코드는 파일을 나눴다 (아키텍처 검수 #276 — 한 파일 736줄)
 part 'routes/place_routes.dart';
 part 'routes/alert_route.dart';
 part 'routes/home_route.dart';
+part 'routes/pro_gate.dart';
 part 'routes/settings_route.dart';
 
 /// 앱 라우팅 (docs/02-ARCHITECTURE.md)

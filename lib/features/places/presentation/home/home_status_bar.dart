@@ -17,6 +17,7 @@ class _StatusBar extends StatelessWidget {
     this.onFixMonitoring,
     this.onFixReliability,
     this.onOpenSettings,
+    this.planBadge,
   });
 
   final bool isMonitoring;
@@ -44,6 +45,9 @@ class _StatusBar extends StatelessWidget {
 
   /// 설정 화면 (이슈 #98) — 알림음 크기·진단 기록이 여기 있다
   final VoidCallback? onOpenSettings;
+
+  /// 등급 칩 (#294) — 설정 버튼 왼쪽
+  final Widget? planBadge;
 
   /// 고장 상태 — 켜진 장소가 있는데 감시가 안 돈다. 해결 경로가 필요하다.
   ///
@@ -102,10 +106,20 @@ class _StatusBar extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Flexible(child: _statusPill(context, semantic, statusColor)),
-                if (onOpenSettings != null) ...[
-                  const SizedBox(width: AppSpacing.xs),
-                  _SettingsButton(onPressed: onOpenSettings!),
-                ],
+                // 등급 칩과 설정은 한 묶음 — 오른쪽 끝에 붙어 선다 (#294)
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (planBadge != null) ...[
+                      const SizedBox(width: AppSpacing.xs),
+                      planBadge!,
+                    ],
+                    if (onOpenSettings != null) ...[
+                      const SizedBox(width: AppSpacing.xs),
+                      _SettingsButton(onPressed: onOpenSettings!),
+                    ],
+                  ],
+                ),
               ],
             ),
             if (_isWeak) ...[

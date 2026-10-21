@@ -655,5 +655,63 @@
   "backupImportNone": "불러올 새 장소가 없습니다",
   "backupImportInvalid": "이 앱에서 내보낸 장소 파일이 아닙니다",
   "backupImportNewer": "더 새로운 버전의 앱에서 만든 파일입니다. 앱을 업데이트한 뒤 다시 불러오세요",
-  "backupImportReadFailed": "파일을 읽지 못했습니다"
+  "backupImportReadFailed": "파일을 읽지 못했습니다",
+  "proSheetTitle": "평생 이용권",
+  "proSheetSubtitle": "구독 아님 · 기기 바꿔도 같은 계정이면 유지",
+  "proSheetBuy": "평생 이용권 {price}",
+  "@proSheetBuy": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "proSheetRestore": "이미 구매했나요? 복원하기",
+  "proSheetColumnFree": "무료",
+  "proSheetColumnPro": "프로",
+  "proRowPlaces": "장소",
+  "proRowDirections": "도착·출발 알림",
+  "proRowSchedules": "알림 시간대",
+  "proRowVibration": "진동 세기",
+  "proRowSound": "이어폰 알림음",
+  "proRowBackup": "장소 백업",
+  "proRowAds": "광고",
+  "proValueOnePlace": "1개",
+  "proValueUnlimited": "제한 없음",
+  "proValueDefaultSound": "기본 1개",
+  "proValueAllSounds": "전체 + 내 음원",
+  "proValueAdsOn": "있음",
+  "proValueAdsOff": "없음",
+  "proUnlockAction": "평생 이용권으로 열기",
+  "proLockedSounds": "알림음 전체 · 내 음원",
+  "proLockedPlaces": "장소를 더 등록하려면",
+  "proLockedBackup": "장소 백업 · 가져오기",
+  "proLockedExamplePlaceHome": "집",
+  "proLockedExamplePlaceStation": "역",
+  "proCardTitle": "장소를 제한 없이 등록하세요",
+  "proCardSubtitle": "알림음 전체 · 장소 백업 · 광고 없음",
+  "proCardUsage": "장소 {count}/{limit} 사용 중",
+  "@proCardUsage": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "limit": {
+        "type": "int"
+      }
+    }
+  },
+  "proRowLifetime": "평생 이용권",
+  "proLegacyBadge": "기존 사용자 혜택",
+  "proOwnedSubtitle": "모든 기능이 열려 있어요",
+  "proDeviceLimitReached": "기기 한도에 도달했어요",
+  "proPriceLoading": "가격 확인 중…",
+  "proProductUnavailable": "지금은 구매할 수 없어요. 잠시 뒤 다시 시도해 주세요",
+  "proPurchasePending": "결제가 확인되면 열려요",
+  "proPurchaseDone": "평생 이용권이 열렸어요",
+  "proPurchaseFailed": "결제를 마치지 못했어요",
+  "proRestoreNone": "복원할 구매가 없어요",
+  "proRestoreDone": "구매를 복원했어요",
+  "proChipFree": "FREE",
+  "proChipPro": "PRO"
 }

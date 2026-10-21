@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../features/ads/data/ads_providers.dart';
+import '../core/entitlement/feature_access_controller.dart';
 import 'alert_ad_coordinator.dart';
 
 part 'alert_ad_coordinator_provider.g.dart';
@@ -15,5 +16,8 @@ Future<AlertAdCoordinator> alertAdCoordinator(Ref ref) async {
   return AlertAdCoordinator(
     ads: ref.watch(interstitialAdServiceProvider),
     store: await ref.watch(adFrequencyStoreProvider.future),
+    // 매번 지금 등급을 읽는다 — 구매 직후부터 바로 광고가 멈춘다 (#294)
+    shouldShowAds: () =>
+        ref.read(featureAccessControllerProvider).shouldShowAds,
   );
 }

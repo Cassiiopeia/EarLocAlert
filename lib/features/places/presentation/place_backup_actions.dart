@@ -84,6 +84,9 @@ Future<void> exportPlacesBackup(
 Future<void> importPlacesBackup(
   BuildContext context, {
   required PlaceRepository repository,
+
+  /// 등록 상한 — `FeatureAccess.placeLimit` (#294)
+  required int maxPlaces,
 }) async {
   final l10n = context.l10n;
 
@@ -167,6 +170,7 @@ Future<void> importPlacesBackup(
       existing: existing,
       incoming: decoded.places,
       replace: replace,
+      maxPlaces: maxPlaces,
     );
     if (replace) {
       for (final place in existing) {

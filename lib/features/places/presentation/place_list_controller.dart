@@ -8,6 +8,7 @@ import '../../../core/domain/alert_direction.dart';
 import '../../../core/domain/alert_schedule.dart';
 import '../../../core/domain/alert_sound.dart';
 import '../../../core/domain/id_generator.dart';
+import '../../../core/entitlement/feature_access_controller.dart';
 import '../domain/alert_place.dart';
 import '../domain/place_validator.dart';
 
@@ -50,6 +51,7 @@ class PlaceActions extends _$PlaceActions {
       latitude: latitude,
       longitude: longitude,
       currentCount: await repo.count(),
+      maxPlaces: ref.read(featureAccessControllerProvider).placeLimit,
       isNew: isNew,
       schedules: schedules,
     );
@@ -122,7 +124,19 @@ class PlaceActions extends _$PlaceActions {
 
   /// undo — 삭제했던 장소를 그대로 되살린다
   Future<void> restore(AlertPlace place) async {
-    await ref.read(placeRepositoryProvider).save(place);
+    final repo = ref.read(placeRepositoryProvider);
+    // 되돌리기도 상한을 지킨다 — 지운 사이 새로 추가했으면 무료 상한을 넘을 수 있다 (#294)
+    final placeLimit = ref.read(featureAccessControllerProvider).placeLimit;
+    final placeCount = await repo.count();
+    if (placeCount >= placeLimit) {
+      Diagnostics.log(
+        'place',
+        'place restore skipped id=${shortId(place.id)} '
+            'reason=limit_reached count=$placeCount limit=$placeLimit',
+      );
+      return;
+    }
+    await repo.save(place);
     // 되돌리기도 장소 추가다 — 판정 로그와 대조하려면 id·좌표가 있어야 한다 (#274)
     Diagnostics.log(
       'place',

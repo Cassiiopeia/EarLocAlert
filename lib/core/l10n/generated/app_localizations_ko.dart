@@ -1097,4 +1097,131 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get backupImportReadFailed => '파일을 읽지 못했습니다';
+
+  @override
+  String get proSheetTitle => '평생 이용권';
+
+  @override
+  String get proSheetSubtitle => '구독 아님 · 기기 바꿔도 같은 계정이면 유지';
+
+  @override
+  String proSheetBuy(String price) {
+    return '평생 이용권 $price';
+  }
+
+  @override
+  String get proSheetRestore => '이미 구매했나요? 복원하기';
+
+  @override
+  String get proSheetColumnFree => '무료';
+
+  @override
+  String get proSheetColumnPro => '프로';
+
+  @override
+  String get proRowPlaces => '장소';
+
+  @override
+  String get proRowDirections => '도착·출발 알림';
+
+  @override
+  String get proRowSchedules => '알림 시간대';
+
+  @override
+  String get proRowVibration => '진동 세기';
+
+  @override
+  String get proRowSound => '이어폰 알림음';
+
+  @override
+  String get proRowBackup => '장소 백업';
+
+  @override
+  String get proRowAds => '광고';
+
+  @override
+  String get proValueOnePlace => '1개';
+
+  @override
+  String get proValueUnlimited => '제한 없음';
+
+  @override
+  String get proValueDefaultSound => '기본 1개';
+
+  @override
+  String get proValueAllSounds => '전체 + 내 음원';
+
+  @override
+  String get proValueAdsOn => '있음';
+
+  @override
+  String get proValueAdsOff => '없음';
+
+  @override
+  String get proUnlockAction => '평생 이용권으로 열기';
+
+  @override
+  String get proLockedSounds => '알림음 전체 · 내 음원';
+
+  @override
+  String get proLockedPlaces => '장소를 더 등록하려면';
+
+  @override
+  String get proLockedBackup => '장소 백업 · 가져오기';
+
+  @override
+  String get proLockedExamplePlaceHome => '집';
+
+  @override
+  String get proLockedExamplePlaceStation => '역';
+
+  @override
+  String get proCardTitle => '장소를 제한 없이 등록하세요';
+
+  @override
+  String get proCardSubtitle => '알림음 전체 · 장소 백업 · 광고 없음';
+
+  @override
+  String proCardUsage(int count, int limit) {
+    return '장소 $count/$limit 사용 중';
+  }
+
+  @override
+  String get proRowLifetime => '평생 이용권';
+
+  @override
+  String get proLegacyBadge => '기존 사용자 혜택';
+
+  @override
+  String get proOwnedSubtitle => '모든 기능이 열려 있어요';
+
+  @override
+  String get proDeviceLimitReached => '기기 한도에 도달했어요';
+
+  @override
+  String get proPriceLoading => '가격 확인 중…';
+
+  @override
+  String get proProductUnavailable => '지금은 구매할 수 없어요. 잠시 뒤 다시 시도해 주세요';
+
+  @override
+  String get proPurchasePending => '결제가 확인되면 열려요';
+
+  @override
+  String get proPurchaseDone => '평생 이용권이 열렸어요';
+
+  @override
+  String get proPurchaseFailed => '결제를 마치지 못했어요';
+
+  @override
+  String get proRestoreNone => '복원할 구매가 없어요';
+
+  @override
+  String get proRestoreDone => '구매를 복원했어요';
+
+  @override
+  String get proChipFree => 'FREE';
+
+  @override
+  String get proChipPro => 'PRO';
 }

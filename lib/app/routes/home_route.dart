@@ -14,6 +14,8 @@ class _HomeRoute extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final status =
         ref.watch(homeStatusProvider).valueOrNull ?? HomeStatus.unknown;
+    final placeCount = ref.watch(placeListProvider).valueOrNull?.length ?? 0;
+    final access = ref.watch(featureAccessControllerProvider);
 
     return PlaceMapHomeScreen(
       locationService: const CurrentLocationChannel(),
@@ -37,10 +39,12 @@ class _HomeRoute extends ConsumerWidget {
             ReliabilityGap.vibration => context.l10n.homeGapVibration,
           },
       ],
-      // **push 다 — go 를 쓰면 스택이 교체되어 돌아갈 곳이 사라진다** (이슈 #97).
-      // 그러면 AppBar 가 뒤로가기 버튼을 만들지 않고 시스템 뒤로가기도
-      // 먹지 않아, 등록을 마치거나 앱을 강제 종료하는 것 외에 나올 길이 없다.
-      onAddPlace: () => context.push(AppRoutes.placeNew),
+      // 무료 상한·기기 한도를 먼저 본다 (#294). 등록 화면은 push (이슈 #97)
+      onAddPlace: () => unawaited(_addPlaceOrOfferPro(context, ref)),
+      planBadge: const PlanBadgeChip(),
+      isPlaceAddLocked: access.isPlaceAddLocked(placeCount),
+      onUnlockPro: () =>
+          unawaited(showProOfferSheet(context, entryPoint: 'place_list')),
       onEditPlace: (place) => context.push(AppRoutes.placeEdit, extra: place),
       // 감시가 꺼져 있으면 권한 화면이 유일한 해결 경로다
       onFixMonitoring: () => context.go(AppRoutes.onboarding),

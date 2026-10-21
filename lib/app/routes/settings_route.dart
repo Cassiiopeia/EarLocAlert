@@ -164,7 +164,17 @@ class _SettingsRouteState extends ConsumerState<_SettingsRoute>
       onImportPlaces: () => importPlacesBackup(
         context,
         repository: ref.read(placeRepositoryProvider),
+        maxPlaces: ref.read(featureAccessControllerProvider).placeLimit,
       ),
+      // 무료/프로 (#294) — 맨 위 카드와 백업 잠금
+      planCard: ProSettingsCard(
+        placeCount: ref.watch(placeListProvider).valueOrNull?.length ?? 0,
+      ),
+      isPlaceBackupLocked: !ref
+          .watch(featureAccessControllerProvider)
+          .canUsePlaceBackup,
+      onUnlockPro: () =>
+          unawaited(showProOfferSheet(context, entryPoint: 'backup')),
       // 문제 신고 (이슈 #255) — 메일 앱을 열고 기록을 첨부한다
       onReportProblem: () => showBugReportSheet(
         context,
