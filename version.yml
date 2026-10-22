@@ -43,7 +43,7 @@
 version: "1.38.0"
 # 90136 은 Play 에 이미 올라간 QA 번들의 코드다(#262). Play 는 코드를 지우거나 낮출 수 없어
 # 이보다 작은 코드는 모두 거부된다. 그래서 이 값은 90136 보다 커야 한다 — 낮추지 않는다.
-version_code: 90152 # app build number
+version_code: 90153 # app build number
 project_types: ["flutter"]   # 멀티타입 배열 — 첫 항목이 primary, 직접 편집 가능
 project_paths:                # 타입별 프로젝트 폴더 (레포 루트 기준 상대경로)
   flutter: "."   # pubspec.yaml
