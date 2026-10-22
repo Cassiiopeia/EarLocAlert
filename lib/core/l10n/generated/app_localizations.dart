@@ -2262,12 +2262,6 @@ abstract class AppLocalizations {
   /// **'평생 이용권'**
   String get proRowLifetime;
 
-  /// No description provided for @proLegacyBadge.
-  ///
-  /// In ko, this message translates to:
-  /// **'기존 사용자 혜택'**
-  String get proLegacyBadge;
-
   /// No description provided for @proOwnedSubtitle.
   ///
   /// In ko, this message translates to:
@@ -2364,12 +2358,6 @@ abstract class AppLocalizations {
   /// **'구매'**
   String get proSourcePurchase;
 
-  /// No description provided for @proSourceLegacy.
-  ///
-  /// In ko, this message translates to:
-  /// **'기존 사용자 혜택'**
-  String get proSourceLegacy;
-
   /// No description provided for @proInfoPurchasedAt.
   ///
   /// In ko, this message translates to:
@@ -2381,18 +2369,6 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'주문 번호'**
   String get proInfoOrderId;
-
-  /// No description provided for @proInfoScope.
-  ///
-  /// In ko, this message translates to:
-  /// **'적용 범위'**
-  String get proInfoScope;
-
-  /// No description provided for @proInfoScopeThisDevice.
-  ///
-  /// In ko, this message translates to:
-  /// **'이 기기만'**
-  String get proInfoScopeThisDevice;
 
   /// No description provided for @proInfoUnknown.
   ///
@@ -2406,17 +2382,17 @@ abstract class AppLocalizations {
   /// **'이 기기의 Google Play 계정으로 구매됐어요. 기기를 바꿔도 같은 계정이면 \"구매 복원\"으로 다시 열려요.'**
   String get proInfoNotePurchase;
 
-  /// No description provided for @proInfoNoteLegacy.
-  ///
-  /// In ko, this message translates to:
-  /// **'업데이트 전부터 쓰셔서 무료로 열렸어요. 앱을 지우고 다시 설치하면 사라질 수 있어요.'**
-  String get proInfoNoteLegacy;
-
   /// No description provided for @proInfoRestore.
   ///
   /// In ko, this message translates to:
   /// **'구매 복원'**
   String get proInfoRestore;
+
+  /// No description provided for @proSheetRedeem.
+  ///
+  /// In ko, this message translates to:
+  /// **'프로모션 코드 사용'**
+  String get proSheetRedeem;
 }
 
 class _AppLocalizationsDelegate

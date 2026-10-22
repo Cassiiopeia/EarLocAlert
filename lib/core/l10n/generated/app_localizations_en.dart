@@ -1240,9 +1240,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get proRowLifetime => 'Lifetime pass';
 
   @override
-  String get proLegacyBadge => 'Early user gift';
-
-  @override
   String get proOwnedSubtitle => 'Every feature is unlocked';
 
   @override
@@ -1293,19 +1290,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get proSourcePurchase => 'Purchase';
 
   @override
-  String get proSourceLegacy => 'Early user gift';
-
-  @override
   String get proInfoPurchasedAt => 'Purchased on';
 
   @override
   String get proInfoOrderId => 'Order number';
-
-  @override
-  String get proInfoScope => 'Applies to';
-
-  @override
-  String get proInfoScopeThisDevice => 'This device only';
 
   @override
   String get proInfoUnknown => 'Checking';
@@ -1315,9 +1303,8 @@ class AppLocalizationsEn extends AppLocalizations {
       'Purchased with this device\'s Google Play account. On a new phone, the same account can bring it back with \"Restore purchase\".';
 
   @override
-  String get proInfoNoteLegacy =>
-      'Unlocked for free because you used the app before this update. It may disappear if you reinstall the app.';
+  String get proInfoRestore => 'Restore purchase';
 
   @override
-  String get proInfoRestore => 'Restore purchase';
+  String get proSheetRedeem => 'Redeem promo code';
 }

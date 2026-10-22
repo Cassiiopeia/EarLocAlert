@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/diagnostics/diagnostics.dart';
-import '../../../core/entitlement/feature_access_controller.dart';
-import '../../../core/entitlement/pro_entitlement.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/text/keep_all.dart';
 import '../../../core/ui/components/bottom_sheet_with_header_layout.dart';
@@ -24,7 +22,7 @@ Future<void> showProInfoSheet(BuildContext context) {
   );
 }
 
-/// 이용권 정보: 상태 > 열린 방식 > 구매일·주문 번호(구매) 또는 적용 범위(기존 사용자) > 안내 > 복원
+/// 이용권 정보: 상태 > 열린 방식 > 구매일 > 주문 번호 > 안내 > 복원
 class _ProInfoSheet extends ConsumerStatefulWidget {
   const _ProInfoSheet();
 
@@ -46,36 +44,19 @@ class _ProInfoSheetState extends ConsumerState<_ProInfoSheet> {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final colors = context.appColors;
-    final isLegacyUser =
-        ref.watch(featureAccessControllerProvider).source ==
-        ProEntitlementSource.legacyUser;
     final record = ref.watch(proPurchaseRecordControllerProvider).valueOrNull;
 
     final rows = <(String, Widget)>[
       (l10n.proInfoStatus, _InfoTag(label: l10n.proInfoStatusActive)),
+      (l10n.proInfoSource, _InfoValue(l10n.proSourcePurchase)),
       (
-        l10n.proInfoSource,
-        _InfoValue(
-          isLegacyUser ? l10n.proSourceLegacy : l10n.proSourcePurchase,
-        ),
+        l10n.proInfoPurchasedAt,
+        _InfoValue(_formatPurchaseDate(context, record) ?? l10n.proInfoUnknown),
       ),
-      if (isLegacyUser)
-        (
-          l10n.proInfoScope,
-          _InfoTag(label: l10n.proInfoScopeThisDevice, isWarning: true),
-        )
-      else ...[
-        (
-          l10n.proInfoPurchasedAt,
-          _InfoValue(
-            _formatPurchaseDate(context, record) ?? l10n.proInfoUnknown,
-          ),
-        ),
-        (
-          l10n.proInfoOrderId,
-          _InfoValue(record?.orderId ?? l10n.proInfoUnknown, isMonospace: true),
-        ),
-      ],
+      (
+        l10n.proInfoOrderId,
+        _InfoValue(record?.orderId ?? l10n.proInfoUnknown, isMonospace: true),
+      ),
     ];
 
     return BottomSheetWithHeaderLayout(
@@ -102,9 +83,7 @@ class _ProInfoSheetState extends ConsumerState<_ProInfoSheet> {
           ),
           const SizedBox(height: AppSpacing.sm),
           Text(
-            context.keepAllText(
-              isLegacyUser ? l10n.proInfoNoteLegacy : l10n.proInfoNotePurchase,
-            ),
+            context.keepAllText(l10n.proInfoNotePurchase),
             style: context.appTextStyles.caption,
           ),
         ],
@@ -178,17 +157,16 @@ class _InfoValue extends StatelessWidget {
   }
 }
 
-/// 상태 알약 (사용 중: 민트, 이 기기만: 금색)
+/// 상태 알약 (사용 중: 민트)
 class _InfoTag extends StatelessWidget {
-  const _InfoTag({required this.label, this.isWarning = false});
+  const _InfoTag({required this.label});
 
   final String label;
-  final bool isWarning;
 
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
-    final color = isWarning ? colors.warning : colors.accent;
+    final color = colors.accent;
     return DecoratedBox(
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.15),

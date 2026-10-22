@@ -9,7 +9,8 @@ import '../../../core/ui/feedback/app_feedback.dart';
 import '../data/pro_purchase_providers.dart';
 import 'pro_purchase_record_controller.dart';
 
-/// 구매 복원: Play 보유 조회 > 기록 저장 > 프로 반영(기존 사용자 혜택은 유지) > 결과 안내 (#294)
+/// 구매 복원: Play 보유 조회 > 기록 저장 > 프로 반영 > 결과 안내 (#294)
+/// 프로모션 코드로 받은 이용권도 Play 에는 구매로 남아 같은 방법으로 복원
 /// 프로 안내 시트·이용권 정보 시트 공통
 Future<void> restoreProPurchase(BuildContext context, WidgetRef ref) async {
   final service = ref.read(proPurchaseServiceProvider);
@@ -19,12 +20,9 @@ Future<void> restoreProPurchase(BuildContext context, WidgetRef ref) async {
     await ref
         .read(proPurchaseRecordControllerProvider.notifier)
         .save(service.ownedRecord);
-    final access = ref.read(featureAccessControllerProvider);
-    if (access.source != ProEntitlementSource.legacyUser) {
-      await ref
-          .read(featureAccessControllerProvider.notifier)
-          .setSource(ProEntitlementSource.purchase, reason: 'restored');
-    }
+    await ref
+        .read(featureAccessControllerProvider.notifier)
+        .setSource(ProEntitlementSource.purchase, reason: 'restored');
   }
   if (!context.mounted) return;
   final l10n = context.l10n;

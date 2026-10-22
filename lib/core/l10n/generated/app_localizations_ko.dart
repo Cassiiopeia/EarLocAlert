@@ -1190,9 +1190,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get proRowLifetime => '평생 이용권';
 
   @override
-  String get proLegacyBadge => '기존 사용자 혜택';
-
-  @override
   String get proOwnedSubtitle => '모든 기능이 열려 있어요';
 
   @override
@@ -1241,19 +1238,10 @@ class AppLocalizationsKo extends AppLocalizations {
   String get proSourcePurchase => '구매';
 
   @override
-  String get proSourceLegacy => '기존 사용자 혜택';
-
-  @override
   String get proInfoPurchasedAt => '구매일';
 
   @override
   String get proInfoOrderId => '주문 번호';
-
-  @override
-  String get proInfoScope => '적용 범위';
-
-  @override
-  String get proInfoScopeThisDevice => '이 기기만';
 
   @override
   String get proInfoUnknown => '확인 중';
@@ -1263,9 +1251,8 @@ class AppLocalizationsKo extends AppLocalizations {
       '이 기기의 Google Play 계정으로 구매됐어요. 기기를 바꿔도 같은 계정이면 \"구매 복원\"으로 다시 열려요.';
 
   @override
-  String get proInfoNoteLegacy =>
-      '업데이트 전부터 쓰셔서 무료로 열렸어요. 앱을 지우고 다시 설치하면 사라질 수 있어요.';
+  String get proInfoRestore => '구매 복원';
 
   @override
-  String get proInfoRestore => '구매 복원';
+  String get proSheetRedeem => '프로모션 코드 사용';
 }

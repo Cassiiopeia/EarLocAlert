@@ -415,7 +415,6 @@
   "proCardSubtitle": "全部提示音 · 地点备份 · 无广告",
   "proCardUsage": "已用 {count}/{limit} 个地点",
   "proRowLifetime": "终身版",
-  "proLegacyBadge": "老用户福利",
   "proOwnedSubtitle": "所有功能已解锁",
   "proDeviceLimitReached": "已达到设备上限",
   "proPriceLoading": "正在获取价格…",
@@ -432,13 +431,10 @@
   "proInfoStatusActive": "使用中",
   "proInfoSource": "解锁方式",
   "proSourcePurchase": "购买",
-  "proSourceLegacy": "老用户福利",
   "proInfoPurchasedAt": "购买日期",
   "proInfoOrderId": "订单号",
-  "proInfoScope": "适用范围",
-  "proInfoScopeThisDevice": "仅此设备",
   "proInfoUnknown": "确认中",
   "proInfoNotePurchase": "已通过此设备的 Google Play 账号购买。更换设备后，使用同一账号可通过“恢复购买”重新解锁。",
-  "proInfoNoteLegacy": "因您在更新前已在使用，已免费解锁。重新安装应用后可能会失效。",
-  "proInfoRestore": "恢复购买"
+  "proInfoRestore": "恢复购买",
+  "proSheetRedeem": "使用兑换码"
 }

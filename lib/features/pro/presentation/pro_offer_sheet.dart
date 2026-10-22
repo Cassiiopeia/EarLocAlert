@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/diagnostics/diagnostics.dart';
 import '../../../core/entitlement/feature_access_controller.dart';
@@ -42,6 +43,9 @@ Future<void> showProOfferSheet(
 
 /// 프로 안내 시트가 떠 있는가 — 한 번에 한 장만
 bool _isOfferSheetOpen = false;
+
+// Play 스토어 코드 사용 화면 — 프로모션 코드를 넣으면 구매로 기록됨
+final Uri _playRedeemUri = Uri.parse('https://play.google.com/redeem');
 
 /// 평생 이용권 시트: 배지 > 제목 > 무료·프로 비교표 > 구매 버튼 > 복원
 class _ProOfferSheet extends ConsumerStatefulWidget {
@@ -100,6 +104,24 @@ class _ProOfferSheetState extends ConsumerState<_ProOfferSheet> {
   }
 
   /// 복원: Play 보유 조회 > 있으면 프로, 없으면 안내 (조회 실패도 안내)
+  /// Play 코드 사용 화면 열기. 앱으로 돌아오면 복귀 시 보유 조회가 프로로 반영 (#294)
+  Future<void> _openPromoCodeRedeem() async {
+    Diagnostics.log('pro', 'promo code redeem opened');
+    var opened = false;
+    try {
+      opened = await launchUrl(
+        _playRedeemUri,
+        mode: LaunchMode.externalApplication,
+      );
+    } on Object catch (error) {
+      Diagnostics.log('pro', 'promo code redeem open threw error=$error');
+    }
+    if (!opened) {
+      Diagnostics.log('pro', 'promo code redeem open failed');
+      if (mounted) context.showToast(context.l10n.settingsOpenLinkFailed);
+    }
+  }
+
   Future<void> _restore() async {
     setState(() => _isBusy = true);
     await restoreProPurchase(context, ref);
@@ -124,10 +146,21 @@ class _ProOfferSheetState extends ConsumerState<_ProOfferSheet> {
       description: l10n.proSheetSubtitle,
       body: const _PlanComparisonTable(),
       primaryAction: _BuyButton(price: price, isBusy: _isBusy, onPressed: _buy),
-      secondaryAction: TextButton(
-        onPressed: _isBusy ? null : _restore,
-        style: TextButton.styleFrom(foregroundColor: colors.textSecondary),
-        child: Text(l10n.proSheetRestore),
+      // 복원 · 프로모션 코드 — 보조 동작 둘을 한 줄에
+      secondaryAction: Wrap(
+        alignment: WrapAlignment.center,
+        children: [
+          TextButton(
+            onPressed: _isBusy ? null : _restore,
+            style: TextButton.styleFrom(foregroundColor: colors.textSecondary),
+            child: Text(l10n.proSheetRestore),
+          ),
+          TextButton(
+            onPressed: _isBusy ? null : _openPromoCodeRedeem,
+            style: TextButton.styleFrom(foregroundColor: colors.textSecondary),
+            child: Text(l10n.proSheetRedeem),
+          ),
+        ],
       ),
     );
   }

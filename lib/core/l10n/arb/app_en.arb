@@ -415,7 +415,6 @@
   "proCardSubtitle": "All sounds · Place backup · No ads",
   "proCardUsage": "{count}/{limit} places used",
   "proRowLifetime": "Lifetime pass",
-  "proLegacyBadge": "Early user gift",
   "proOwnedSubtitle": "Every feature is unlocked",
   "proDeviceLimitReached": "You have reached the device limit",
   "proPriceLoading": "Checking price…",
@@ -432,13 +431,10 @@
   "proInfoStatusActive": "Active",
   "proInfoSource": "Unlocked by",
   "proSourcePurchase": "Purchase",
-  "proSourceLegacy": "Early user gift",
   "proInfoPurchasedAt": "Purchased on",
   "proInfoOrderId": "Order number",
-  "proInfoScope": "Applies to",
-  "proInfoScopeThisDevice": "This device only",
   "proInfoUnknown": "Checking",
   "proInfoNotePurchase": "Purchased with this device's Google Play account. On a new phone, the same account can bring it back with \"Restore purchase\".",
-  "proInfoNoteLegacy": "Unlocked for free because you used the app before this update. It may disappear if you reinstall the app.",
-  "proInfoRestore": "Restore purchase"
+  "proInfoRestore": "Restore purchase",
+  "proSheetRedeem": "Redeem promo code"
 }
