@@ -37,6 +37,7 @@ import 'geofence_providers.dart';
 import 'notification_dismiss_action.dart';
 import 'pending_alert_resumer.dart';
 import 'pro_access_coordinator.dart';
+import 'review_prompt_coordinator.dart';
 import '../core/entitlement/feature_access_controller.dart';
 import 'router.dart';
 import 'splash_overlay.dart';
@@ -232,6 +233,13 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
     Diagnostics.log('device', BuildInfo.deviceLabel);
     // 무료/프로 상태 맞추기 (#294) — 기다리지 않고 일찍 시작 (늦으면 기존 사용자가 잠깐 잠긴 화면을 봄)
     unawaited(ref.read(proAccessCoordinatorProvider).start());
+    // 후기 창 판정 (#296) — 시작 직후 알림 승격·동의 창과 겹치지 않게 잠시 뒤
+    unawaited(
+      Future<void>.delayed(
+        const Duration(seconds: 5),
+        () => ref.read(reviewPromptCoordinatorProvider).onAppForeground(),
+      ),
+    );
 
     try {
       // 알림 탭으로 앱이 열리는 경로에 필요하다. 권한 요청은 온보딩이
@@ -300,6 +308,8 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
       unawaited(_backgroundRinger.onForeground());
       // 확인 못 한 구매 마저 확인·환불 반영 (#294) — 엔진이 며칠 살아 있어도 3일 자동 환불 전에 닿게
       unawaited(ref.read(proAccessCoordinatorProvider).onResumed());
+      // 잘 쓰는 사용자에게 스토어 후기 창 (#296) — 알림 중이면 건너뜀
+      unawaited(ref.read(reviewPromptCoordinatorProvider).onAppForeground());
       // 앱 화면과 잠금 화면 알람이 함께 뜨지 않게 한다 (이슈 #235)
       if (Platform.isIOS) {
         unawaited(ref.read(arrivalAlarmCoordinatorProvider).onForeground());

@@ -55,6 +55,7 @@ import 'arrival_alarm_providers.dart';
 import 'background/arrival_alarm_channel.dart';
 import 'ad_banner_frame.dart';
 import 'home_status_provider.dart';
+import 'review_prompt_coordinator.dart';
 import '../core/entitlement/feature_access.dart';
 import '../core/entitlement/feature_access_controller.dart';
 import '../core/entitlement/place_limits.dart';

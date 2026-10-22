@@ -24,8 +24,10 @@ class AlertDismissFlow {
     required void Function() goHome,
     required void Function() showDismissedToast,
     required Future<void> Function() tryShowAd,
+    void Function()? recordDismissed,
     this.adDelay = defaultAdDelay,
-  }) : _dismiss = dismiss,
+  }) : _recordDismissed = recordDismissed,
+       _dismiss = dismiss,
        _isRinging = isRinging,
        _goHome = goHome,
        _showDismissedToast = showDismissedToast,
@@ -39,6 +41,9 @@ class AlertDismissFlow {
   final void Function() _goHome;
   final void Function() _showDismissedToast;
   final Future<void> Function() _tryShowAd;
+
+  /// 정상 해제 기록 (후기 창 조건, #296) — 기다리지 않음
+  final void Function()? _recordDismissed;
   final Duration adDelay;
 
   /// 해제 버튼을 눌렀다.
@@ -61,6 +66,7 @@ class AlertDismissFlow {
           'ad_delay_ms=${adDelay.inMilliseconds}',
     );
     _showDismissedToast();
+    _recordDismissed?.call();
 
     // 2) 광고는 기다리지 않는다 (docs/02-ARCHITECTURE.md 규칙 4)
     unawaited(_showAdLater());

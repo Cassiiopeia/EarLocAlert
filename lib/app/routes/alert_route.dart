@@ -56,6 +56,12 @@ class _AlertRoute extends ConsumerWidget {
                     target.showToast(target.l10n.alertDismissedTitle);
                   }),
               tryShowAd: () => _tryShowAd(container),
+              // 후기 창 조건용 해제 횟수 (#296) — 요청은 다음에 앱을 열 때
+              recordDismissed: () => unawaited(
+                container
+                    .read(reviewPromptCoordinatorProvider)
+                    .recordAlertDismissed(),
+              ),
             ).run(),
           );
         },
