@@ -213,8 +213,11 @@ class _SettingsRouteState extends ConsumerState<_SettingsRoute>
               context.l10n,
             )
           : _permissionRows(ref, snapshot, context.l10n),
-      // 잠금 화면 알람 (이슈 #235) — iOS 에만 있다. Android 는 전체 화면 알림 권한이 같은 일을 한다
-      lockScreenAlarm: Platform.isIOS ? _lockScreenAlarm() : null,
+      // 잠금 화면 알람 (이슈 #235) — iOS 에만 있다. Android 는 전체 화면 알림 권한이 같은 일을 한다.
+      // 스위치가 꺼져 있으면 줄을 숨김 (#252)
+      lockScreenAlarm: Platform.isIOS && isLockScreenAlarmEnabled
+          ? _lockScreenAlarm()
+          : null,
       // 앱 버전과 업데이트 확인 (이슈 #179) — 읽기 실패는 `-` 로 보여준다
       appVersion: ref.watch(appVersionProvider).valueOrNull ?? '-',
       // 앱 내 업데이트가 없는 플랫폼(iOS)은 버튼을 숨긴다 (이슈 #229)

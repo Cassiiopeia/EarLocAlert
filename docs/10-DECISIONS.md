@@ -1785,6 +1785,27 @@ Play 자동 업데이트(029)만으로는 사용자가 새 버전을 받는 시�
 
 ---
 
+## 074. iOS 잠금 화면 알람(AlarmKit)을 끈다 — 알람이 이어폰 소리와 진동을 끊는다
+
+**날짜** — 2026-10-22 (이슈 #252). 057 2번·3번, 059 3번을 뒤집는다.
+
+**발견** — v1.38.0 iPhone 15(iOS 26.3.1) 실기기, 이어폰을 낀 채 화면이 꺼진 상태로 도착. 판정·알림·이어폰 소리·첫 진동까지 정상이었다(`audio decision headphones=true result=headphones`, `system vibration first pulse`). 알람이 `alerting` 이 되고 약 1초 뒤 `[alert] audio interruption begin type=unknown` — 그 뒤 3분 15초 동안 소리도 진동도 없었고, 사용자가 알람을 끈 순간 `audio interruption end` 가 왔다. 같은 순서가 10-10 에 두 번 더 있다.
+
+**원인** — AlarmKit 알람이 울리는 동안 시스템이 앱의 오디오 세션을 가져간다. 오디오가 끊긴 백그라운드 앱은 `kSystemSoundID_Vibrate` 진동도 무시된다(059 의 추정과 같은 현상). 알람 자체도 진동하지 않는다 — 거의 무음 알람음(`alarm_haptic.caf`)으로 시스템 진동을 끌어내려던 #252 실험도 효과가 없었다. 알람이 지킬 것(소리·진동)을 죽이고 진동 없는 화면만 남긴다.
+
+**정한 것**
+
+1. `isLockScreenAlarmEnabled = false` (`lib/app/arrival_alarm_providers.dart`) 한 곳에서 끈다. iOS 도 `UnsupportedArrivalAlarm` 을 쓰므로 알람을 띄우지 않고, 권한도 묻지 않고, 홈 경고에 `잠금화면 알람` 항목도 올리지 않는다. 로그 `[alarm] lock screen alarm disabled reason=switch_off` (그 뒤 `skipped reason=unsupported` 는 이 스위치 때문이다)
+2. 설정의 `잠금화면 알람` 줄을 숨긴다.
+3. Swift `ArrivalAlarm`·알람음 파일·`NSAlarmKitUsageDescription` 은 그대로 둔다 — 다시 켜는 것은 스위치 한 줄이다.
+4. 화면 없이 도착하면 057 이전처럼 **알림 배너 + 시스템 진동 + 이어폰 소리(또는 무음 유지 재생)** 로 알린다. 앱을 열면 알림 화면이다.
+
+**잃는 것** — 잠금 화면 전체를 덮는 알람 화면. 잠금 화면에는 알림 배너만 남는다.
+
+**다시 볼 조건** — AlarmKit 이 앱 오디오 세션을 끊지 않거나, 알람이 진동만 따로 켤 수 있게 되면.
+
+---
+
 ## 미결 — 결정하지 않은 것들
 
 **결정하지 않았다는 사실을 기록한다.** 나중에 "왜 이건 안 정했지"를 헤매지 않기 위해서다.

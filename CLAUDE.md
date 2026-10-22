@@ -44,7 +44,7 @@
 
 | 작업 | 막힌 이유 |
 |---|---|
-| **#235 iOS 백그라운드 진동 · 잠금 화면 알람(들리지 않는 알람음) 실기기 검증** | 실기기 필요 — **AlarmKit 경로는 CI(Xcode 26.0)에서만 컴파일된다** (로컬 Xcode 16.2 에는 없어 `#if canImport(AlarmKit)` 로 막았다). 화면 꺼진 채 도착 시 앱을 열지 않아도 진동하는가(`[alert] vibration route=system`), iOS 26 에서 잠금 화면을 덮는 무음 알람(`[alarm] presented`), 알람의 끄기 버튼이 세션을 끄는가(`[alarm] stopped by user`), 앱을 열면 알람이 사라지는가. Swift 계층은 자동 테스트가 없다 |
+| **#235 iOS 백그라운드 진동 실기기 검증** | **잠금 화면 알람(AlarmKit)은 껐다** (#252, 결정 074) — 울리면 앱 오디오 세션이 끊겨 이어폰 소리·진동이 멈췄다. 남은 확인: 화면 꺼진 채 도착 시 진동이 이어지는가. 아래는 옛 검증 항목 — **AlarmKit 경로는 CI(Xcode 26.0)에서만 컴파일된다** (로컬 Xcode 16.2 에는 없어 `#if canImport(AlarmKit)` 로 막았다). 화면 꺼진 채 도착 시 앱을 열지 않아도 진동하는가(`[alert] vibration route=system`), iOS 26 에서 잠금 화면을 덮는 무음 알람(`[alarm] presented`), 알람의 끄기 버튼이 세션을 끄는가(`[alarm] stopped by user`), 앱을 열면 알람이 사라지는가. Swift 계층은 자동 테스트가 없다 |
 | **#231 iOS 적응형 백그라운드 감시 실기기 검증** | 실기기 필요 — **시뮬레이터 검증만 됐다.** 앱을 내려도 상태 막대 위치 표시가 남는지, 밖에서 등록 후 걸어 들어가면 울리는지(`[sync] state seeded` → `[watch] tier changed tier=precise` → `[notify] background notification posted`), 배터리, 강제 종료 후 동작. Swift 계층은 자동 테스트가 없다 |
 | **#237 iOS 알림 점검 · 알림 끄기 버튼 실기기 검증** | 실기기 필요 — 잠금 화면에서 "알림 끄기"를 누르면 앱이 열리지 않고 진동이 멈추는가(`[notify] action tapped ... handled=app`), 앱이 죽은 뒤엔 `handled=background`. 잠금 화면 표시를 끄면 홈 경고, 진동을 끈 기기에서 진동 시험·안내 시트. **AppDelegate 가 알림 센터 delegate 가 됐다** — 알림 탭·전면 표시 부작용 확인 → `docs/10-DECISIONS.md` 058 |
 | **#227 iOS 현재 위치 실기기 검증** | 실기기 필요 — 시뮬레이터는 좌표를 즉시 줘서 원래 증상(10초 시간 초과)이 거의 안 난다. iPhone 에서 첫 실행·지도 선택이 내 위치에서 시작하는지, 실패하면 진단 기록 `reason=` 을 본다 |
