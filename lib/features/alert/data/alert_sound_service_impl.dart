@@ -109,8 +109,30 @@ class AlertSoundServiceImpl implements AlertSoundService {
   AudioPlayer? _player;
   StreamSubscription<AudioInterruptionEvent>? _interruptions;
 
+  /// 마지막으로 남긴 재생 상태 (`playing/ready` 형식) — 바뀔 때만 기록
+  String? _lastLoggedPlayerState;
+
   @override
   Future<bool> isHeadphoneConnected() => _detector.isConnected();
+
+  /// 플레이어 1개 생성 + 재생 상태 구독 1회 (#252)
+  ///
+  /// 백그라운드에서 재생이 멈추면 iOS 가 진동 요청도 버림 > 멈춘 시점이 진동 중단의 단서
+  AudioPlayer _obtainPlayer() {
+    final existing = _player;
+    if (existing != null) return existing;
+    final player = AudioPlayer();
+    _player = player;
+    // 플레이어와 수명이 같음 — 서비스가 앱 수명 동안 하나라 해제하지 않음
+    player.playerStateStream.listen((state) {
+      final described =
+          '${state.playing ? "playing" : "paused"}/${state.processingState.name}';
+      if (described == _lastLoggedPlayerState) return;
+      _lastLoggedPlayerState = described;
+      Diagnostics.log('sound', 'player state=$described');
+    });
+    return player;
+  }
 
   @override
   Future<void> play({required double volume, AlertSoundSource? source}) async {
@@ -141,7 +163,7 @@ class AlertSoundServiceImpl implements AlertSoundService {
       );
       _listenInterruptions(session);
 
-      final player = _player ??= AudioPlayer();
+      final player = _obtainPlayer();
       // 사용자가 설정한 알림음 크기 (이슈 #86). 재생 시작 전에 걸어야
       // 첫 소리부터 그 크기다 — 큰 소리가 한 번 나가고 줄어드는 것은 늦다.
       await player.setVolume(volume.clamp(0.0, 1.0));
@@ -185,7 +207,7 @@ class AlertSoundServiceImpl implements AlertSoundService {
       await session.configure(keepAliveSessionConfiguration);
       final granted = await session.setActive(true);
       _listenInterruptions(session);
-      final player = _player ??= AudioPlayer();
+      final player = _obtainPlayer();
       // 이중 안전장치 — 음원이 무음이고 볼륨도 0 이다
       await player.setVolume(0);
       await player.setAsset(silenceAssetPath);

@@ -56,6 +56,12 @@ class VibrationServiceImpl implements VibrationService {
   /// 플러그인 진동 실패도 세션당 한 번만 남긴다
   bool _hasLoggedHapticsFailure = false;
 
+  /// 이번 세션에서 요청한 진동 수 — 백그라운드에서 타이머가 멈췄는지 가림 (#252)
+  int _pulseCount = 0;
+
+  /// 진동 N번마다 한 줄 (3초 간격이면 약 30초)
+  static const _pulsesPerHeartbeatLog = 10;
+
   @override
   Future<void> startRepeating({
     required Duration interval,
@@ -65,6 +71,7 @@ class VibrationServiceImpl implements VibrationService {
     _route = null;
     _systemFailureLogged = false;
     _hasLoggedHapticsFailure = false;
+    _pulseCount = 0;
 
     // 시스템 진동이 있으면 플러그인 조회 결과와 무관하게 떤다 — 백그라운드에서
     // 플러그인이 "진동기 없음"을 돌려줘도 진동 자체를 포기하지 않는다
@@ -94,6 +101,7 @@ class VibrationServiceImpl implements VibrationService {
     }
 
     Future<void> pulse() async {
+      _notePulse();
       final system = _system;
       if (system != null && system.shouldUse()) {
         _noteRoute('system');
@@ -134,8 +142,25 @@ class VibrationServiceImpl implements VibrationService {
     Diagnostics.log('alert', 'vibration route=$route from=$from');
   }
 
+  /// 진동 요청 집계: N번마다 `heartbeat` 한 줄 (요청 기록일 뿐 체감 여부는 아님)
+  void _notePulse() {
+    _pulseCount++;
+    if (_pulseCount % _pulsesPerHeartbeatLog != 0) return;
+    Diagnostics.log(
+      'alert',
+      'vibration heartbeat pulses=$_pulseCount route=${_route ?? "none"}',
+    );
+  }
+
   @override
   Future<void> stop() async {
+    // 돌던 세션만 집계를 남김 (시작 전 정리 호출은 제외)
+    if (_timer != null) {
+      Diagnostics.log(
+        'alert',
+        'vibration stopped pulses=$_pulseCount route=${_route ?? "none"}',
+      );
+    }
     _timer?.cancel();
     _timer = null;
     try {
