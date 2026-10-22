@@ -146,9 +146,9 @@ class _ProOfferSheetState extends ConsumerState<_ProOfferSheet> {
       description: l10n.proSheetSubtitle,
       body: const _PlanComparisonTable(),
       primaryAction: _BuyButton(price: price, isBusy: _isBusy, onPressed: _buy),
-      // 복원 · 프로모션 코드 — 보조 동작 둘을 한 줄에
-      secondaryAction: Wrap(
-        alignment: WrapAlignment.center,
+      // 구매 버튼 아래: 복원 > 프로모션 코드 (프로면 시트 자체가 안 열려 둘 다 안 보임)
+      secondaryAction: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           TextButton(
             onPressed: _isBusy ? null : _restore,
