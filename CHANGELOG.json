@@ -1,14 +1,43 @@
 {
   "metadata": {
-    "lastUpdated": "2026-10-21T04:20:33Z",
-    "currentVersion": "1.38.0",
+    "lastUpdated": "2026-10-22T09:43:39Z",
+    "currentVersion": "1.40.0",
     "projectType": "flutter",
-    "totalReleases": 111,
+    "totalReleases": 112,
     "projectTypes": [
       "flutter"
     ]
   },
   "releases": [
+    {
+      "version": "1.40.0",
+      "project_type": "flutter",
+      "project_types": [
+        "flutter"
+      ],
+      "date": "2026-10-22",
+      "pr_number": 297,
+      "raw_summary": "## Summary by CodeRabbit\n\n## 릴리스 노트\n\n* **새 기능**\n  * 평생 이용권을 한 번 결제로 구매할 수 있습니다 (Android)\n  * 설정에서 이용권 정보 확인·구매 복원·프로모션 코드 사용\n  * 앱을 꾸준히 쓰시는 분께 스토어 후기 창을 띄웁니다\n\n* **버그 수정**\n  * iPhone 화면이 꺼진 채 도착하면 소리·진동이 끊기던 문제 수정\n  * 홈 화면 이어폰 확인이 가끔 실패하던 문제 수정\n  * 상품 정보를 못 읽으면 구매 버튼이 멈춰 있던 문제 수정",
+      "parsed_changes": {
+        "새_기능": {
+          "title": "새 기능",
+          "items": [
+            "평생 이용권을 한 번 결제로 구매할 수 있습니다 (Android)",
+            "설정에서 이용권 정보 확인·구매 복원·프로모션 코드 사용",
+            "앱을 꾸준히 쓰시는 분께 스토어 후기 창을 띄웁니다"
+          ]
+        },
+        "버그_수정": {
+          "title": "버그 수정",
+          "items": [
+            "iPhone 화면이 꺼진 채 도착하면 소리·진동이 끊기던 문제 수정",
+            "홈 화면 이어폰 확인이 가끔 실패하던 문제 수정",
+            "상품 정보를 못 읽으면 구매 버튼이 멈춰 있던 문제 수정"
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "1.38.0",
       "project_type": "flutter",
