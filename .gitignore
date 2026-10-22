@@ -98,3 +98,6 @@ playstore-secrets/
 *.bak
 *.template.yaml
 # ==== project-auto-wizard: end of auto-added entries ====
+
+# 외부 패키지 사본은 생성 파일(.g.dart)까지 원본 그대로 추적한다 (#294)
+!third_party/**/*.g.dart
