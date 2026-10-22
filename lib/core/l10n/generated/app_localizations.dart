@@ -2333,6 +2333,90 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'PRO'**
   String get proChipPro;
+
+  /// No description provided for @proInfoTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'이용권 정보'**
+  String get proInfoTitle;
+
+  /// No description provided for @proInfoStatus.
+  ///
+  /// In ko, this message translates to:
+  /// **'상태'**
+  String get proInfoStatus;
+
+  /// No description provided for @proInfoStatusActive.
+  ///
+  /// In ko, this message translates to:
+  /// **'사용 중'**
+  String get proInfoStatusActive;
+
+  /// No description provided for @proInfoSource.
+  ///
+  /// In ko, this message translates to:
+  /// **'열린 방식'**
+  String get proInfoSource;
+
+  /// No description provided for @proSourcePurchase.
+  ///
+  /// In ko, this message translates to:
+  /// **'구매'**
+  String get proSourcePurchase;
+
+  /// No description provided for @proSourceLegacy.
+  ///
+  /// In ko, this message translates to:
+  /// **'기존 사용자 혜택'**
+  String get proSourceLegacy;
+
+  /// No description provided for @proInfoPurchasedAt.
+  ///
+  /// In ko, this message translates to:
+  /// **'구매일'**
+  String get proInfoPurchasedAt;
+
+  /// No description provided for @proInfoOrderId.
+  ///
+  /// In ko, this message translates to:
+  /// **'주문 번호'**
+  String get proInfoOrderId;
+
+  /// No description provided for @proInfoScope.
+  ///
+  /// In ko, this message translates to:
+  /// **'적용 범위'**
+  String get proInfoScope;
+
+  /// No description provided for @proInfoScopeThisDevice.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 기기만'**
+  String get proInfoScopeThisDevice;
+
+  /// No description provided for @proInfoUnknown.
+  ///
+  /// In ko, this message translates to:
+  /// **'확인 중'**
+  String get proInfoUnknown;
+
+  /// No description provided for @proInfoNotePurchase.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 기기의 Google Play 계정으로 구매됐어요. 기기를 바꿔도 같은 계정이면 \"구매 복원\"으로 다시 열려요.'**
+  String get proInfoNotePurchase;
+
+  /// No description provided for @proInfoNoteLegacy.
+  ///
+  /// In ko, this message translates to:
+  /// **'업데이트 전부터 쓰셔서 무료로 열렸어요. 앱을 지우고 다시 설치하면 사라질 수 있어요.'**
+  String get proInfoNoteLegacy;
+
+  /// No description provided for @proInfoRestore.
+  ///
+  /// In ko, this message translates to:
+  /// **'구매 복원'**
+  String get proInfoRestore;
 }
 
 class _AppLocalizationsDelegate

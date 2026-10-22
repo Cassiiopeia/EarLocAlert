@@ -1222,4 +1222,48 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get proChipPro => 'PRO';
+
+  @override
+  String get proInfoTitle => 'パス情報';
+
+  @override
+  String get proInfoStatus => '状態';
+
+  @override
+  String get proInfoStatusActive => '利用中';
+
+  @override
+  String get proInfoSource => '解除方法';
+
+  @override
+  String get proSourcePurchase => '購入';
+
+  @override
+  String get proSourceLegacy => '既存ユーザー特典';
+
+  @override
+  String get proInfoPurchasedAt => '購入日';
+
+  @override
+  String get proInfoOrderId => '注文番号';
+
+  @override
+  String get proInfoScope => '適用範囲';
+
+  @override
+  String get proInfoScopeThisDevice => 'この端末のみ';
+
+  @override
+  String get proInfoUnknown => '確認中';
+
+  @override
+  String get proInfoNotePurchase =>
+      'この端末の Google Play アカウントで購入されました。機種変更しても同じアカウントなら「購入を復元」で再び使えます。';
+
+  @override
+  String get proInfoNoteLegacy =>
+      'アップデート前からご利用いただいていたため無料で解除されました。アプリを再インストールすると消える場合があります。';
+
+  @override
+  String get proInfoRestore => '購入を復元';
 }

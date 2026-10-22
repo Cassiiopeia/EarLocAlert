@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/entitlement/feature_access_controller.dart';
-import '../../../core/entitlement/pro_entitlement.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/text/keep_all.dart';
 import '../../../core/ui/components/grouped_list_row.dart';
@@ -10,6 +9,7 @@ import '../../../core/ui/components/grouped_list_section.dart';
 import '../../../core/ui/foundation/app_color_palette.dart';
 import '../../../core/ui/foundation/app_spacing.dart';
 import 'plan_badge_chip.dart';
+import 'pro_info_sheet.dart';
 import 'pro_offer_sheet.dart';
 import 'pro_price_provider.dart';
 
@@ -27,9 +27,7 @@ class ProSettingsCard extends ConsumerWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpacing.md),
       child: access.isPro
-          ? _ProOwnedRow(
-              isLegacyUser: access.source == ProEntitlementSource.legacyUser,
-            )
+          ? const _ProOwnedRow()
           : _FreeUpgradeCard(
               placeCount: placeCount,
               placeLimit: access.placeLimit,
@@ -118,23 +116,23 @@ class _FreeUpgradeCard extends ConsumerWidget {
   }
 }
 
-/// 프로 한 줄: PRO 평생 이용권 (기존 사용자면 오른쪽에 혜택 표시). 누르면 같은 시트(복원용)
+/// 프로 한 줄: 평생 이용권 · PRO (밖에는 이것만). 누르면 이용권 정보 시트
 class _ProOwnedRow extends StatelessWidget {
-  const _ProOwnedRow({required this.isLegacyUser});
-
-  final bool isLegacyUser;
+  const _ProOwnedRow();
 
   @override
   Widget build(BuildContext context) {
-    final l10n = context.l10n;
     return GroupedListSection(
       children: [
         GroupedListRow.withTrailing(
           icon: Icons.workspace_premium_outlined,
           iconColor: context.appColors.accent,
-          title: l10n.proRowLifetime,
-          subtitle: isLegacyUser ? l10n.proLegacyBadge : l10n.proOwnedSubtitle,
-          trailing: const PlanLabel(isPro: true),
+          title: context.l10n.proRowLifetime,
+          trailing: const Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [PlanLabel(isPro: true), Icon(Icons.chevron_right)],
+          ),
+          onTap: () => showProInfoSheet(context),
         ),
       ],
     );

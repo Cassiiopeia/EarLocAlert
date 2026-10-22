@@ -1,3 +1,5 @@
+import 'pro_purchase_record.dart';
+
 /// 평생 이용권 결제 결과 (#294)
 sealed class ProPurchaseEvent {
   const ProPurchaseEvent();
@@ -5,12 +7,16 @@ sealed class ProPurchaseEvent {
 
 /// 구매 완료 (구매 확인까지 끝남)
 final class ProPurchased extends ProPurchaseEvent {
-  const ProPurchased();
+  const ProPurchased(this.record);
+
+  final ProPurchaseRecord? record;
 }
 
 /// 복원으로 보유가 확인됨
 final class ProRestored extends ProPurchaseEvent {
-  const ProRestored();
+  const ProRestored(this.record);
+
+  final ProPurchaseRecord? record;
 }
 
 /// 결제 대기 (편의점 결제 등) — 프로로 열지 않음
@@ -44,4 +50,7 @@ abstract interface class ProPurchaseService {
   /// 계정이 상품을 보유하는가 (복원·시작 시 확인). 미확인 구매는 여기서 마저 확인
   /// null = 조회 실패(상태를 바꾸지 말라는 신호)
   Future<bool?> hasOwnedPurchase();
+
+  /// 마지막 보유 조회에서 찾은 구매 기록. 조회 전·미보유면 null
+  ProPurchaseRecord? get ownedRecord;
 }

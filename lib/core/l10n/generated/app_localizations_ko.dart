@@ -1224,4 +1224,48 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get proChipPro => 'PRO';
+
+  @override
+  String get proInfoTitle => '이용권 정보';
+
+  @override
+  String get proInfoStatus => '상태';
+
+  @override
+  String get proInfoStatusActive => '사용 중';
+
+  @override
+  String get proInfoSource => '열린 방식';
+
+  @override
+  String get proSourcePurchase => '구매';
+
+  @override
+  String get proSourceLegacy => '기존 사용자 혜택';
+
+  @override
+  String get proInfoPurchasedAt => '구매일';
+
+  @override
+  String get proInfoOrderId => '주문 번호';
+
+  @override
+  String get proInfoScope => '적용 범위';
+
+  @override
+  String get proInfoScopeThisDevice => '이 기기만';
+
+  @override
+  String get proInfoUnknown => '확인 중';
+
+  @override
+  String get proInfoNotePurchase =>
+      '이 기기의 Google Play 계정으로 구매됐어요. 기기를 바꿔도 같은 계정이면 \"구매 복원\"으로 다시 열려요.';
+
+  @override
+  String get proInfoNoteLegacy =>
+      '업데이트 전부터 쓰셔서 무료로 열렸어요. 앱을 지우고 다시 설치하면 사라질 수 있어요.';
+
+  @override
+  String get proInfoRestore => '구매 복원';
 }

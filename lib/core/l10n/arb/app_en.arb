@@ -426,5 +426,19 @@
   "proRestoreNone": "No purchase to restore",
   "proRestoreDone": "Purchase restored",
   "proChipFree": "FREE",
-  "proChipPro": "PRO"
+  "proChipPro": "PRO",
+  "proInfoTitle": "Pass details",
+  "proInfoStatus": "Status",
+  "proInfoStatusActive": "Active",
+  "proInfoSource": "Unlocked by",
+  "proSourcePurchase": "Purchase",
+  "proSourceLegacy": "Early user gift",
+  "proInfoPurchasedAt": "Purchased on",
+  "proInfoOrderId": "Order number",
+  "proInfoScope": "Applies to",
+  "proInfoScopeThisDevice": "This device only",
+  "proInfoUnknown": "Checking",
+  "proInfoNotePurchase": "Purchased with this device's Google Play account. On a new phone, the same account can bring it back with \"Restore purchase\".",
+  "proInfoNoteLegacy": "Unlocked for free because you used the app before this update. It may disappear if you reinstall the app.",
+  "proInfoRestore": "Restore purchase"
 }

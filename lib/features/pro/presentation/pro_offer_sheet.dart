@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/diagnostics/diagnostics.dart';
 import '../../../core/entitlement/feature_access_controller.dart';
-import '../../../core/entitlement/pro_entitlement.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/text/keep_all.dart';
 import '../../../core/ui/components/bottom_sheet_with_header_layout.dart';
@@ -17,6 +16,7 @@ import '../data/pro_purchase_providers.dart';
 import '../domain/pro_purchase_service.dart';
 import 'plan_badge_chip.dart';
 import 'pro_price_provider.dart';
+import 'pro_restore_action.dart';
 
 /// 프로 안내 시트 열기 (#294). 결제가 없는 플랫폼에서는 아무것도 하지 않음
 /// entryPoint: 로그용 진입점 (place_add · sound_picker · backup · settings_card · home_chip)
@@ -102,24 +102,8 @@ class _ProOfferSheetState extends ConsumerState<_ProOfferSheet> {
   /// 복원: Play 보유 조회 > 있으면 프로, 없으면 안내 (조회 실패도 안내)
   Future<void> _restore() async {
     setState(() => _isBusy = true);
-    final isOwned = await ref
-        .read(proPurchaseServiceProvider)
-        .hasOwnedPurchase();
-    Diagnostics.log('pro', 'restore result owned=$isOwned');
-    if (!mounted) return;
-    setState(() => _isBusy = false);
-    final l10n = context.l10n;
-    switch (isOwned) {
-      case true:
-        context.showToast(l10n.proRestoreDone);
-        await ref
-            .read(featureAccessControllerProvider.notifier)
-            .setSource(ProEntitlementSource.purchase, reason: 'restored');
-      case false:
-        context.showToast(l10n.proRestoreNone);
-      case null:
-        context.showToast(l10n.proProductUnavailable);
-    }
+    await restoreProPurchase(context, ref);
+    if (mounted) setState(() => _isBusy = false);
   }
 
   @override

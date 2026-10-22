@@ -1210,4 +1210,47 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get proChipPro => 'PRO';
+
+  @override
+  String get proInfoTitle => '终身版信息';
+
+  @override
+  String get proInfoStatus => '状态';
+
+  @override
+  String get proInfoStatusActive => '使用中';
+
+  @override
+  String get proInfoSource => '解锁方式';
+
+  @override
+  String get proSourcePurchase => '购买';
+
+  @override
+  String get proSourceLegacy => '老用户福利';
+
+  @override
+  String get proInfoPurchasedAt => '购买日期';
+
+  @override
+  String get proInfoOrderId => '订单号';
+
+  @override
+  String get proInfoScope => '适用范围';
+
+  @override
+  String get proInfoScopeThisDevice => '仅此设备';
+
+  @override
+  String get proInfoUnknown => '确认中';
+
+  @override
+  String get proInfoNotePurchase =>
+      '已通过此设备的 Google Play 账号购买。更换设备后，使用同一账号可通过“恢复购买”重新解锁。';
+
+  @override
+  String get proInfoNoteLegacy => '因您在更新前已在使用，已免费解锁。重新安装应用后可能会失效。';
+
+  @override
+  String get proInfoRestore => '恢复购买';
 }

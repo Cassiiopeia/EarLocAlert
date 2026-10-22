@@ -426,5 +426,19 @@
   "proRestoreNone": "復元できる購入はありません",
   "proRestoreDone": "購入を復元しました",
   "proChipFree": "FREE",
-  "proChipPro": "PRO"
+  "proChipPro": "PRO",
+  "proInfoTitle": "パス情報",
+  "proInfoStatus": "状態",
+  "proInfoStatusActive": "利用中",
+  "proInfoSource": "解除方法",
+  "proSourcePurchase": "購入",
+  "proSourceLegacy": "既存ユーザー特典",
+  "proInfoPurchasedAt": "購入日",
+  "proInfoOrderId": "注文番号",
+  "proInfoScope": "適用範囲",
+  "proInfoScopeThisDevice": "この端末のみ",
+  "proInfoUnknown": "確認中",
+  "proInfoNotePurchase": "この端末の Google Play アカウントで購入されました。機種変更しても同じアカウントなら「購入を復元」で再び使えます。",
+  "proInfoNoteLegacy": "アップデート前からご利用いただいていたため無料で解除されました。アプリを再インストールすると消える場合があります。",
+  "proInfoRestore": "購入を復元"
 }

@@ -6,6 +6,7 @@ import 'package:in_app_purchase_android/in_app_purchase_android.dart';
 import 'package:in_app_purchase_platform_interface/in_app_purchase_platform_interface.dart';
 
 import '../../../core/diagnostics/diagnostics.dart';
+import '../domain/pro_purchase_record.dart';
 import '../domain/pro_purchase_service.dart';
 
 /// Google Play 일회성 상품 `pro_unlock` 결제 (#294)
@@ -30,6 +31,10 @@ class PlayProPurchaseService implements ProPurchaseService {
 
   /// 보유 조회 진행 중이면 같은 결과를 공유 (시작·복귀·복원이 겹쳐도 1회)
   Future<bool?>? _ownedQuery;
+
+  @override
+  ProPurchaseRecord? get ownedRecord => _ownedRecord;
+  ProPurchaseRecord? _ownedRecord;
 
   @override
   Stream<ProPurchaseEvent> get events => _events.stream;
@@ -90,7 +95,7 @@ class PlayProPurchaseService implements ProPurchaseService {
     }
     // 이미 산 계정은 결제 창 대신 ITEM_ALREADY_OWNED 로 거절된다
     if (await hasOwnedPurchase() ?? false) {
-      _events.add(const ProRestored());
+      _events.add(ProRestored(_ownedRecord));
       return true;
     }
     return false;
@@ -122,6 +127,7 @@ class PlayProPurchaseService implements ProPurchaseService {
       for (final purchase in owned) {
         await _acknowledgeIfNeeded(purchase);
       }
+      if (owned.isNotEmpty) _ownedRecord = _recordOf(owned.first);
       final error = response.error;
       if (owned.isEmpty && error != null) {
         Diagnostics.log(
@@ -161,10 +167,11 @@ class PlayProPurchaseService implements ProPurchaseService {
             continue;
           }
           await _acknowledgeIfNeeded(purchase);
+          final record = _recordOf(purchase);
           _events.add(
             purchase.status == PurchaseStatus.purchased
-                ? const ProPurchased()
-                : const ProRestored(),
+                ? ProPurchased(record)
+                : ProRestored(record),
           );
         case PurchaseStatus.canceled:
           _events.add(const ProPurchaseCancelled());
@@ -188,8 +195,25 @@ class PlayProPurchaseService implements ProPurchaseService {
     final isOwned = await hasOwnedPurchase();
     _events.add(
       isOwned ?? false
-          ? const ProRestored()
+          ? ProRestored(_ownedRecord)
           : const ProPurchaseFailed('not_owned'),
+    );
+  }
+
+  /// 구매 정보 > 기록 (주문 번호, 구매 시각 epoch 밀리초 문자열)
+  static ProPurchaseRecord _recordOf(PurchaseDetails purchase) {
+    final purchasedAtMilliseconds = int.tryParse(
+      purchase.transactionDate ?? '',
+    );
+    final orderId = purchase.purchaseID;
+    return ProPurchaseRecord(
+      orderId: orderId == null || orderId.isEmpty ? null : orderId,
+      purchasedAt: purchasedAtMilliseconds == null
+          ? null
+          : DateTime.fromMillisecondsSinceEpoch(
+              purchasedAtMilliseconds,
+              isUtc: true,
+            ),
     );
   }
 
@@ -239,4 +263,7 @@ class NoopProPurchaseService implements ProPurchaseService {
 
   @override
   Future<bool?> hasOwnedPurchase() async => null;
+
+  @override
+  ProPurchaseRecord? get ownedRecord => null;
 }

@@ -9,7 +9,9 @@ import '../core/entitlement/pro_entitlement.dart';
 import '../features/places/data/place_repository_provider.dart';
 import '../features/places/domain/place_repository.dart';
 import '../features/pro/data/pro_purchase_providers.dart';
+import '../features/pro/domain/pro_purchase_record.dart';
 import '../features/pro/domain/pro_purchase_service.dart';
+import '../features/pro/presentation/pro_purchase_record_controller.dart';
 
 part 'pro_access_coordinator.g.dart';
 
@@ -27,7 +29,9 @@ class ProAccessCoordinator {
     })
     setSource,
     required bool isPaywallEnabled,
-  }) : _purchases = purchases,
+    required Future<void> Function(ProPurchaseRecord?) saveRecord,
+  }) : _saveRecord = saveRecord,
+       _purchases = purchases,
        _places = places,
        _store = store,
        _currentSource = currentSource,
@@ -41,6 +45,9 @@ class ProAccessCoordinator {
   final Future<void> Function(ProEntitlementSource, {required String reason})
   _setSource;
   final bool _isPaywallEnabled;
+
+  /// 구매 기록 저장 (이용권 정보 시트 표시용)
+  final Future<void> Function(ProPurchaseRecord?) _saveRecord;
 
   StreamSubscription<ProPurchaseEvent>? _events;
 
@@ -59,9 +66,11 @@ class ProAccessCoordinator {
   void _onPurchaseEvent(ProPurchaseEvent event) {
     if (event is ProPurchased || event is ProRestored) _purchaseGeneration++;
     switch (event) {
-      case ProPurchased():
+      case ProPurchased(:final record):
+        unawaited(_saveRecord(record));
         unawaited(_grantPurchase('purchased'));
-      case ProRestored():
+      case ProRestored(:final record):
+        unawaited(_saveRecord(record));
         unawaited(_grantPurchase('restored'));
       case ProPurchasePending() ||
           ProPurchaseCancelled() ||
@@ -129,6 +138,7 @@ class ProAccessCoordinator {
       return;
     }
     if (isOwned) {
+      await _saveRecord(_purchases.ownedRecord);
       // 기존 사용자 혜택은 덮어쓰지 않음 — 나중에 환불돼도 혜택이 남게
       if (current == ProEntitlementSource.none) {
         await _setSource(
@@ -157,6 +167,7 @@ ProAccessCoordinator proAccessCoordinator(Ref ref) {
     isPaywallEnabled: ref
         .read(featureAccessControllerProvider)
         .isPaywallEnabled,
+    saveRecord: ref.read(proPurchaseRecordControllerProvider.notifier).save,
   );
   ref.onDispose(coordinator.dispose);
   return coordinator;
