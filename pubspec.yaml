@@ -63,7 +63,7 @@ dependencies:
   flutter_email_sender: ^8.0.0
   # 평생 이용권 일회성 결제 — Android 만 판매, iOS 는 아직 쓰지 않는다 (#294)
   in_app_purchase: ^3.2.3
-  in_app_purchase_android: ^0.4.0
+  in_app_purchase_android: ^0.5.0
   in_app_purchase_platform_interface: ^1.4.0
 # 전이 의존성 고정 (이슈 #76)
 #
@@ -84,6 +84,11 @@ dependencies:
 # 13.x 로 올린다.
 dependency_overrides:
   device_info_plus: 12.3.0
+  # Play 결제 라이브러리 8 (#294) — Play 가 7.x 빌드의 출시를 막는다. 8 을 쓰는 첫 버전
+  # 0.5.0 은 Flutter 3.38 을 요구해, 원본을 third_party 에 두고 환경 조건만 3.35 로 낮췄다.
+  # **해제 조건** — Flutter 를 3.38 이상으로 올리면 이 덮어쓰기와 third_party 폴더를 지운다
+  in_app_purchase_android:
+    path: third_party/in_app_purchase_android
 
 dev_dependencies:
   flutter_test:

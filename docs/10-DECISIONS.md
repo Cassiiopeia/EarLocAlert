@@ -1765,6 +1765,10 @@ Play 자동 업데이트(029)만으로는 사용자가 새 버전을 받는 시�
 
 **알림 경로와 무관하다** — 알림 화면·해제 직후·온보딩에는 결제 UI 가 없고, 해제는 광고·결제를 기다리지 않는다(규칙 4 그대로). 프로면 띠와 전면광고 모두 요청하지 않는다.
 
+**Play 결제 라이브러리 8 (2026-10-22)** — Play 가 결제 라이브러리 7.x 빌드의 출시를 막는다("8.0.0 이상으로 업데이트"). 8 을 쓰는 첫 플러그인 `in_app_purchase_android` 0.5.0 은 Flutter 3.38 을 요구하는데 이 프로젝트는 codegen 때문에 3.35.5 에 묶여 있다. 그래서 0.5.0 원본을 `third_party/in_app_purchase_android` 에 두고 환경 조건만 3.35 로 낮춰 `dependency_overrides` 로 쓴다(분석 제외). **Flutter 를 3.38 이상으로 올리면 덮어쓰기와 폴더를 지운다.**
+
+**배포 경로 주의** — `PROJECT-FLUTTER-ANDROID-PLAYSTORE-CICD` 는 실행 브랜치와 무관하게 **main 을 체크아웃**한다. develop 에서 수동 실행해도 main 빌드가 올라간다. 첫 결제 빌드(90154)는 로컬에서 서명 AAB 를 만들어 Play Console 내부 테스트에 직접 올렸다.
+
 **확인 방법** — 디버그 빌드에 `--dart-define=PRO_DEBUG_SOURCE=purchase|legacy_user|none` 를 주면 그 등급으로 뜨고 Play 조회로 덮어쓰지 않는다. 실제 결제는 Play Console 라이선스 테스터 + 내부 테스트 트랙에서만 확인된다.
 
 ---

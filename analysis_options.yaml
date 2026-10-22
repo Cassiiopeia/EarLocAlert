@@ -8,6 +8,8 @@ analyzer:
   exclude:
     - "**/*.g.dart"
     - "**/*.freezed.dart"
+    # 외부 패키지 사본 (#294, pubspec dependency_overrides 참고) — 우리 규칙을 적용하지 않는다
+    - "third_party/**"
 
 linter:
   rules:
