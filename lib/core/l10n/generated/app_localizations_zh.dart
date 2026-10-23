@@ -911,44 +911,200 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsVibrationTestTitle => '振动测试';
 
   @override
-  String get vibrationTestQuestion => '感觉到振动了吗？';
+  String get vibrationCheckTitle => '确认屏幕关闭时\n也能收到振动';
 
   @override
-  String get vibrationTestQuestionBody => '刚刚以到达提醒相同的方式振动了一次。';
+  String get vibrationCheckDescription => '没有耳机时,振动是唯一的提醒。iPhone 的设置可能会阻止振动。';
 
   @override
-  String get vibrationTestYes => '是';
+  String get vibrationCheckItemNotifications => '允许通知';
 
   @override
-  String get vibrationTestNo => '否';
+  String get vibrationCheckItemLockScreen => '在锁定屏幕上显示';
 
   @override
-  String get vibrationTestFeltToast => '振动正常';
+  String get vibrationCheckItemSound => '通知声音';
 
   @override
-  String get vibrationGuideTitle => '振动可能已关闭';
+  String get vibrationCheckItemHaptics => '触感 · 振动';
 
   @override
-  String get vibrationGuideBody => '应用无法读取 iPhone 的振动设置。请确认以下各项已开启。';
+  String get vibrationCheckStatusOn => '开启';
 
   @override
-  String get vibrationGuideStepAccessibility => '设置 > 辅助功能 > 触控 > 打开振动';
+  String get vibrationCheckStatusOff => '关闭';
 
   @override
-  String get vibrationGuideStepHaptics =>
-      '设置 > 声音与触感 > 触感 > 选择“始终播放”（静音模式下也要振动）';
+  String get vibrationCheckStatusByTest => '通过测试确认';
 
   @override
-  String get vibrationGuideStepSystemHaptics => '设置 > 声音与触感 > 打开系统触感';
+  String get vibrationCheckBlockedHint =>
+      '请先打开已关闭的项目。通知声音关闭时振动也会一起关闭。提示音本身是无声的。';
 
   @override
-  String get vibrationGuideHint => '“打开设置”只能打开本应用的页面。请从设置首页找到以上各项，修改后再测试一次。';
+  String get vibrationCheckOpenNotificationSettings => '打开通知设置';
 
   @override
-  String get vibrationGuideOpenSettings => '打开设置';
+  String get vibrationCheckSendTest => '发送测试通知';
 
   @override
-  String get vibrationGuideClose => '关闭';
+  String get vibrationCheckLater => '稍后';
+
+  @override
+  String get vibrationCheckScheduleFailed => '无法发送测试通知。请再点一次。';
+
+  @override
+  String get vibrationCheckNotificationTitle => '振动检查';
+
+  @override
+  String get vibrationCheckNotificationBody => '振动了吗?请回到应用告诉我们';
+
+  @override
+  String get vibrationCheckWaitingTitle => '请立即锁定屏幕';
+
+  @override
+  String vibrationCheckWaitingBody(int seconds) {
+    return '$seconds 秒后会收到与到达提醒相同的通知。请感受是否振动。';
+  }
+
+  @override
+  String get vibrationCheckCancel => '取消';
+
+  @override
+  String get vibrationCheckNotLockedTitle => '屏幕没有锁定';
+
+  @override
+  String get vibrationCheckNotLockedBody => '应用开着时与实际到达不同,测试无效。请在点按按钮后立即锁定屏幕。';
+
+  @override
+  String get vibrationCheckTryAgain => '再次测试';
+
+  @override
+  String get vibrationCheckAskTitle => '通知到来时\n你感觉到振动了吗?';
+
+  @override
+  String get vibrationCheckAskBody => '没有声音是正常的。只需确认是否振动。';
+
+  @override
+  String get vibrationCheckAnswerFelt => '感觉到了';
+
+  @override
+  String get vibrationCheckAnswerNotFelt => '没感觉到';
+
+  @override
+  String get vibrationCheckAnswerNoNotification => '没有收到通知';
+
+  @override
+  String get vibrationCheckGuideHapticsEyebrow => '最常见的原因';
+
+  @override
+  String get vibrationCheckGuideHapticsTitle => '将触感设为“始终播放”';
+
+  @override
+  String get vibrationCheckGuideAccessibilityEyebrow => '全机振动开关';
+
+  @override
+  String get vibrationCheckGuideAccessibilityTitle => '打开振动';
+
+  @override
+  String get vibrationCheckGuideAccessibilityHint => '此开关关闭时,来电和通知振动都会被阻止。';
+
+  @override
+  String get vibrationCheckGuideFocusEyebrow => '最后确认';
+
+  @override
+  String get vibrationCheckGuideFocusTitle => '在专注模式中允许此应用';
+
+  @override
+  String get vibrationCheckGuideFocusHint => '如果不使用专注模式,可以跳过。';
+
+  @override
+  String get vibrationCheckGuideOpenSettingsHint =>
+      '“打开设置”会打开此应用的设置页面。请用左上角的返回按钮回到设置首页。';
+
+  @override
+  String get vibrationCheckOpenSettings => '打开设置';
+
+  @override
+  String get vibrationCheckGuideChanged => '已更改';
+
+  @override
+  String get vibrationCheckGuideStillNot => '仍然不行';
+
+  @override
+  String get vibrationCheckSuccessTitle => '准备就绪';
+
+  @override
+  String get vibrationCheckSuccessBody => '即使没有耳机,到达时\n屏幕关闭也会振动。';
+
+  @override
+  String get vibrationCheckDone => '确定';
+
+  @override
+  String get vibrationCheckStillTitle => '其他应用的通知会振动吗?';
+
+  @override
+  String get vibrationCheckStillBody => '如果信息也不振动,那是设备设置的问题。请确认电话铃声的触感模式不是“无”。';
+
+  @override
+  String get vibrationCheckClose => '关闭';
+
+  @override
+  String get iosSettingsRoot => '设置';
+
+  @override
+  String get iosSettingsSoundsAndHaptics => '声音与触感';
+
+  @override
+  String get iosSettingsHaptics => '触感';
+
+  @override
+  String get iosSettingsHapticsAlways => '始终播放';
+
+  @override
+  String get iosSettingsHapticsSilentOnly => '静音模式下播放';
+
+  @override
+  String get iosSettingsHapticsNotInSilent => '静音模式下不播放';
+
+  @override
+  String get iosSettingsHapticsNever => '永不播放';
+
+  @override
+  String get iosSettingsAccessibility => '辅助功能';
+
+  @override
+  String get iosSettingsTouch => '触控';
+
+  @override
+  String get iosSettingsTapToWake => '轻点唤醒';
+
+  @override
+  String get iosSettingsShakeToUndo => '摇动以撤销';
+
+  @override
+  String get iosSettingsVibration => '振动';
+
+  @override
+  String get iosSettingsFocus => '专注模式';
+
+  @override
+  String get iosSettingsFocusMode => '正在使用的模式';
+
+  @override
+  String get iosSettingsFocusAllowApp => '允许的通知 › 添加应用';
+
+  @override
+  String get iosSettingsRingtone => '电话铃声';
+
+  @override
+  String get iosSettingsRingtoneHapticsNotNone => '触感 ≠ 无';
+
+  @override
+  String get settingsVibrationCheckTitle => '提醒不振动时';
+
+  @override
+  String get settingsVibrationCheckSubtitle => '振动检查与 iPhone 设置指南';
 
   @override
   String get onboardingVibrationCardTitle => '确认一下能否感觉到振动';

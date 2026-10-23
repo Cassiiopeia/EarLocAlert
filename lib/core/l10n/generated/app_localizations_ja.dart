@@ -919,47 +919,204 @@ class AppLocalizationsJa extends AppLocalizations {
   String get settingsVibrationTestTitle => 'バイブレーションのテスト';
 
   @override
-  String get vibrationTestQuestion => '振動を感じましたか？';
+  String get vibrationCheckTitle => '画面が消えていても\n振動するか確認します';
 
   @override
-  String get vibrationTestQuestionBody => '到着アラートと同じ振動を今1回鳴らしました。';
+  String get vibrationCheckDescription =>
+      'イヤホンがないときは振動が唯一の通知です。iPhone の設定で振動が止まっていることがあります。';
 
   @override
-  String get vibrationTestYes => 'はい';
+  String get vibrationCheckItemNotifications => '通知を許可';
 
   @override
-  String get vibrationTestNo => 'いいえ';
+  String get vibrationCheckItemLockScreen => 'ロック画面に表示';
 
   @override
-  String get vibrationTestFeltToast => '振動は正常です';
+  String get vibrationCheckItemSound => '通知のサウンド';
 
   @override
-  String get vibrationGuideTitle => '振動がオフになっている可能性があります';
+  String get vibrationCheckItemHaptics => '触覚・バイブレーション';
 
   @override
-  String get vibrationGuideBody =>
-      'iPhoneの振動設定はアプリから読み取れません。以下の項目がオンになっているか確認してください。';
+  String get vibrationCheckStatusOn => 'オン';
 
   @override
-  String get vibrationGuideStepAccessibility =>
-      '設定 > アクセシビリティ > タッチ > バイブレーションをオン';
+  String get vibrationCheckStatusOff => 'オフ';
 
   @override
-  String get vibrationGuideStepHaptics =>
-      '設定 > サウンドと触覚 > 触覚 > 「常に再生」を選択（消音モードでも振動させるため）';
+  String get vibrationCheckStatusByTest => 'テストで確認';
 
   @override
-  String get vibrationGuideStepSystemHaptics => '設定 > サウンドと触覚 > システムの触覚をオン';
+  String get vibrationCheckBlockedHint =>
+      'オフの項目を先にオンにしてください。通知のサウンドがオフだと振動も止まります。音は鳴らない通知音です。';
 
   @override
-  String get vibrationGuideHint =>
-      '「設定を開く」で開けるのはこのアプリのページまでです。上の項目は設定のトップ画面から探してください。変更したらもう一度テストしてください。';
+  String get vibrationCheckOpenNotificationSettings => '通知設定を開く';
 
   @override
-  String get vibrationGuideOpenSettings => '設定を開く';
+  String get vibrationCheckSendTest => 'テスト通知を送る';
 
   @override
-  String get vibrationGuideClose => '閉じる';
+  String get vibrationCheckLater => 'あとで';
+
+  @override
+  String get vibrationCheckScheduleFailed => 'テスト通知を送れませんでした。もう一度押してください。';
+
+  @override
+  String get vibrationCheckNotificationTitle => '振動チェック';
+
+  @override
+  String get vibrationCheckNotificationBody => '振動しましたか?アプリに戻って教えてください';
+
+  @override
+  String get vibrationCheckWaitingTitle => '今すぐ画面をロックしてください';
+
+  @override
+  String vibrationCheckWaitingBody(int seconds) {
+    return '$seconds秒後に到着通知と同じ通知が届きます。振動するか確かめてください。';
+  }
+
+  @override
+  String get vibrationCheckCancel => 'キャンセル';
+
+  @override
+  String get vibrationCheckNotLockedTitle => '画面がロックされていません';
+
+  @override
+  String get vibrationCheckNotLockedBody =>
+      'アプリが開いたままだと実際の到着と違うためテストになりません。ボタンを押したらすぐ画面をロックしてください。';
+
+  @override
+  String get vibrationCheckTryAgain => 'もう一度テスト';
+
+  @override
+  String get vibrationCheckAskTitle => '通知が届いたとき\n振動を感じましたか?';
+
+  @override
+  String get vibrationCheckAskBody => '音が鳴らないのは正常です。振動だけ確認してください。';
+
+  @override
+  String get vibrationCheckAnswerFelt => '感じた';
+
+  @override
+  String get vibrationCheckAnswerNotFelt => '感じなかった';
+
+  @override
+  String get vibrationCheckAnswerNoNotification => '通知が来なかった';
+
+  @override
+  String get vibrationCheckGuideHapticsEyebrow => 'いちばん多い原因';
+
+  @override
+  String get vibrationCheckGuideHapticsTitle => '触覚を「常に再生」に';
+
+  @override
+  String get vibrationCheckGuideAccessibilityEyebrow => '端末全体の振動スイッチ';
+
+  @override
+  String get vibrationCheckGuideAccessibilityTitle => 'バイブレーションをオン';
+
+  @override
+  String get vibrationCheckGuideAccessibilityHint =>
+      'このスイッチがオフだと電話と通知の振動がすべて止まります。';
+
+  @override
+  String get vibrationCheckGuideFocusEyebrow => '最後の確認';
+
+  @override
+  String get vibrationCheckGuideFocusTitle => '集中モードでこのアプリを許可';
+
+  @override
+  String get vibrationCheckGuideFocusHint => '集中モードを使っていなければ飛ばして大丈夫です。';
+
+  @override
+  String get vibrationCheckGuideOpenSettingsHint =>
+      '「設定を開く」はこのアプリの設定ページを開きます。左上の戻るボタンで設定の最初の画面へ移動してください。';
+
+  @override
+  String get vibrationCheckOpenSettings => '設定を開く';
+
+  @override
+  String get vibrationCheckGuideChanged => '変更した';
+
+  @override
+  String get vibrationCheckGuideStillNot => 'それでもだめなら';
+
+  @override
+  String get vibrationCheckSuccessTitle => '準備できました';
+
+  @override
+  String get vibrationCheckSuccessBody => 'イヤホンがなくても到着すると\n画面が消えたまま振動します。';
+
+  @override
+  String get vibrationCheckDone => 'OK';
+
+  @override
+  String get vibrationCheckStillTitle => 'ほかのアプリの通知は振動しますか?';
+
+  @override
+  String get vibrationCheckStillBody =>
+      'メッセージでも振動しないなら端末の設定です。着信音の触覚パターンが「なし」になっていないか確認してください。';
+
+  @override
+  String get vibrationCheckClose => '閉じる';
+
+  @override
+  String get iosSettingsRoot => '設定';
+
+  @override
+  String get iosSettingsSoundsAndHaptics => 'サウンドと触覚';
+
+  @override
+  String get iosSettingsHaptics => '触覚';
+
+  @override
+  String get iosSettingsHapticsAlways => '常に再生';
+
+  @override
+  String get iosSettingsHapticsSilentOnly => '消音モードで再生';
+
+  @override
+  String get iosSettingsHapticsNotInSilent => '消音モードで再生しない';
+
+  @override
+  String get iosSettingsHapticsNever => '再生しない';
+
+  @override
+  String get iosSettingsAccessibility => 'アクセシビリティ';
+
+  @override
+  String get iosSettingsTouch => 'タッチ';
+
+  @override
+  String get iosSettingsTapToWake => 'タップしてスリープ解除';
+
+  @override
+  String get iosSettingsShakeToUndo => 'シェイクで取り消し';
+
+  @override
+  String get iosSettingsVibration => 'バイブレーション';
+
+  @override
+  String get iosSettingsFocus => '集中モード';
+
+  @override
+  String get iosSettingsFocusMode => '使用中のモード';
+
+  @override
+  String get iosSettingsFocusAllowApp => '許可された通知 › アプリを追加';
+
+  @override
+  String get iosSettingsRingtone => '着信音';
+
+  @override
+  String get iosSettingsRingtoneHapticsNotNone => '触覚 ≠ なし';
+
+  @override
+  String get settingsVibrationCheckTitle => '通知が振動しないとき';
+
+  @override
+  String get settingsVibrationCheckSubtitle => '振動チェックと iPhone 設定ガイド';
 
   @override
   String get onboardingVibrationCardTitle => '振動を感じられるか確認しましょう';

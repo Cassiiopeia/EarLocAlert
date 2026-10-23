@@ -958,49 +958,215 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsVibrationTestTitle => 'Vibration test';
 
   @override
-  String get vibrationTestQuestion => 'Did you feel a vibration?';
+  String get vibrationCheckTitle =>
+      'Let\'s check you feel\nalerts with the screen off';
 
   @override
-  String get vibrationTestQuestionBody =>
-      'We just vibrated once, the same way an arrival alert does.';
+  String get vibrationCheckDescription =>
+      'Without earphones, vibration is your only alert. Your iPhone settings may be blocking it.';
 
   @override
-  String get vibrationTestYes => 'Yes';
+  String get vibrationCheckItemNotifications => 'Allow Notifications';
 
   @override
-  String get vibrationTestNo => 'No';
+  String get vibrationCheckItemLockScreen => 'Show on Lock Screen';
 
   @override
-  String get vibrationTestFeltToast => 'Vibration works';
+  String get vibrationCheckItemSound => 'Notification Sounds';
 
   @override
-  String get vibrationGuideTitle => 'Vibration may be turned off';
+  String get vibrationCheckItemHaptics => 'Haptics · Vibration';
 
   @override
-  String get vibrationGuideBody =>
-      'Apps can\'t read the iPhone\'s vibration settings. Please check that the items below are on.';
+  String get vibrationCheckStatusOn => 'On';
 
   @override
-  String get vibrationGuideStepAccessibility =>
-      'Settings > Accessibility > Touch > turn on Vibration';
+  String get vibrationCheckStatusOff => 'Off';
 
   @override
-  String get vibrationGuideStepHaptics =>
-      'Settings > Sounds & Haptics > Haptics > choose Always Play (so it vibrates in Silent Mode too)';
+  String get vibrationCheckStatusByTest => 'Checked by test';
 
   @override
-  String get vibrationGuideStepSystemHaptics =>
-      'Settings > Sounds & Haptics > turn on System Haptics';
+  String get vibrationCheckBlockedHint =>
+      'Turn on the items that are off first. If notification sounds are off, vibration goes too. The sound itself is silent.';
 
   @override
-  String get vibrationGuideHint =>
-      'Open Settings can only reach this app\'s page. Find the items above from the main Settings screen, then run the vibration test again.';
+  String get vibrationCheckOpenNotificationSettings =>
+      'Open notification settings';
 
   @override
-  String get vibrationGuideOpenSettings => 'Open Settings';
+  String get vibrationCheckSendTest => 'Send test alert';
 
   @override
-  String get vibrationGuideClose => 'Close';
+  String get vibrationCheckLater => 'Later';
+
+  @override
+  String get vibrationCheckScheduleFailed =>
+      'Couldn\'t send the test alert. Please tap again.';
+
+  @override
+  String get vibrationCheckNotificationTitle => 'Vibration check';
+
+  @override
+  String get vibrationCheckNotificationBody =>
+      'Did it vibrate? Come back to the app and tell us';
+
+  @override
+  String get vibrationCheckWaitingTitle => 'Lock your screen now';
+
+  @override
+  String vibrationCheckWaitingBody(int seconds) {
+    return 'In $seconds seconds, an alert just like an arrival alert will come. Feel for the vibration.';
+  }
+
+  @override
+  String get vibrationCheckCancel => 'Cancel';
+
+  @override
+  String get vibrationCheckNotLockedTitle => 'The screen wasn\'t locked';
+
+  @override
+  String get vibrationCheckNotLockedBody =>
+      'With the app open, the test doesn\'t match a real arrival. Lock the screen right after tapping the button.';
+
+  @override
+  String get vibrationCheckTryAgain => 'Test again';
+
+  @override
+  String get vibrationCheckAskTitle =>
+      'Did you feel a vibration\nwhen the alert came?';
+
+  @override
+  String get vibrationCheckAskBody =>
+      'No sound is expected. Just check for the buzz.';
+
+  @override
+  String get vibrationCheckAnswerFelt => 'I felt it';
+
+  @override
+  String get vibrationCheckAnswerNotFelt => 'I didn\'t';
+
+  @override
+  String get vibrationCheckAnswerNoNotification => 'No alert came';
+
+  @override
+  String get vibrationCheckGuideHapticsEyebrow => 'Most common cause';
+
+  @override
+  String get vibrationCheckGuideHapticsTitle =>
+      'Set Haptics to \'Always Play\'';
+
+  @override
+  String get vibrationCheckGuideAccessibilityEyebrow =>
+      'Device-wide vibration switch';
+
+  @override
+  String get vibrationCheckGuideAccessibilityTitle => 'Turn on Vibration';
+
+  @override
+  String get vibrationCheckGuideAccessibilityHint =>
+      'If this switch is off, all call and notification vibrations are blocked.';
+
+  @override
+  String get vibrationCheckGuideFocusEyebrow => 'Last check';
+
+  @override
+  String get vibrationCheckGuideFocusTitle => 'Allow this app in Focus';
+
+  @override
+  String get vibrationCheckGuideFocusHint =>
+      'Skip this if you don\'t use Focus.';
+
+  @override
+  String get vibrationCheckGuideOpenSettingsHint =>
+      '\'Open Settings\' opens this app\'s page. Use the back button at the top left to reach the main Settings screen.';
+
+  @override
+  String get vibrationCheckOpenSettings => 'Open Settings';
+
+  @override
+  String get vibrationCheckGuideChanged => 'Done';
+
+  @override
+  String get vibrationCheckGuideStillNot => 'Still not working';
+
+  @override
+  String get vibrationCheckSuccessTitle => 'All set';
+
+  @override
+  String get vibrationCheckSuccessBody =>
+      'Even without earphones, you\'ll feel\na vibration when you arrive, screen off.';
+
+  @override
+  String get vibrationCheckDone => 'OK';
+
+  @override
+  String get vibrationCheckStillTitle => 'Do other apps\' alerts vibrate?';
+
+  @override
+  String get vibrationCheckStillBody =>
+      'If messages don\'t vibrate either, it\'s a device setting. Check that the ringtone\'s haptic pattern isn\'t set to \'None\'.';
+
+  @override
+  String get vibrationCheckClose => 'Close';
+
+  @override
+  String get iosSettingsRoot => 'Settings';
+
+  @override
+  String get iosSettingsSoundsAndHaptics => 'Sounds & Haptics';
+
+  @override
+  String get iosSettingsHaptics => 'Haptics';
+
+  @override
+  String get iosSettingsHapticsAlways => 'Always Play';
+
+  @override
+  String get iosSettingsHapticsSilentOnly => 'Play in Silent Mode';
+
+  @override
+  String get iosSettingsHapticsNotInSilent => 'Don\'t Play in Silent Mode';
+
+  @override
+  String get iosSettingsHapticsNever => 'Never Play';
+
+  @override
+  String get iosSettingsAccessibility => 'Accessibility';
+
+  @override
+  String get iosSettingsTouch => 'Touch';
+
+  @override
+  String get iosSettingsTapToWake => 'Tap to Wake';
+
+  @override
+  String get iosSettingsShakeToUndo => 'Shake to Undo';
+
+  @override
+  String get iosSettingsVibration => 'Vibration';
+
+  @override
+  String get iosSettingsFocus => 'Focus';
+
+  @override
+  String get iosSettingsFocusMode => 'Your Focus';
+
+  @override
+  String get iosSettingsFocusAllowApp => 'Allowed Notifications › Add App';
+
+  @override
+  String get iosSettingsRingtone => 'Ringtone';
+
+  @override
+  String get iosSettingsRingtoneHapticsNotNone => 'Haptics ≠ None';
+
+  @override
+  String get settingsVibrationCheckTitle => 'If alerts don\'t buzz';
+
+  @override
+  String get settingsVibrationCheckSubtitle =>
+      'Vibration check and iPhone settings guide';
 
   @override
   String get onboardingVibrationCardTitle =>

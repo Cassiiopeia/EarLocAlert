@@ -27,4 +27,8 @@ abstract final class ChannelNames {
 
   /// iOS 알림 설정 읽기 (이슈 #237) — Swift `NotificationSettingsReader`
   static const notificationSettings = '$_prefix/notification_settings';
+
+  /// iOS 진동 점검 시험 알림 · 이 앱 알림 설정 열기 (이슈 #301) — Swift `VibrationTestNotification`
+  static const vibrationTestNotification =
+      '$_prefix/vibration_test_notification';
 }

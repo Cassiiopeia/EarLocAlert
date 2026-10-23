@@ -1764,83 +1764,389 @@ abstract class AppLocalizations {
   /// **'진동 시험'**
   String get settingsVibrationTestTitle;
 
-  /// No description provided for @vibrationTestQuestion.
+  /// No description provided for @vibrationCheckTitle.
   ///
   /// In ko, this message translates to:
-  /// **'진동이 느껴졌나요?'**
-  String get vibrationTestQuestion;
+  /// **'화면이 꺼져 있어도\n진동이 오는지 확인할게요'**
+  String get vibrationCheckTitle;
 
-  /// No description provided for @vibrationTestQuestionBody.
+  /// No description provided for @vibrationCheckDescription.
   ///
   /// In ko, this message translates to:
-  /// **'도착 알림과 같은 진동을 방금 한 번 울렸어요.'**
-  String get vibrationTestQuestionBody;
+  /// **'이어폰이 없을 땐 진동이 유일한 알림이에요. 아이폰 설정에 따라 진동이 막혀 있을 수 있어요.'**
+  String get vibrationCheckDescription;
 
-  /// No description provided for @vibrationTestYes.
+  /// No description provided for @vibrationCheckItemNotifications.
   ///
   /// In ko, this message translates to:
-  /// **'예'**
-  String get vibrationTestYes;
+  /// **'알림 허용'**
+  String get vibrationCheckItemNotifications;
 
-  /// No description provided for @vibrationTestNo.
+  /// No description provided for @vibrationCheckItemLockScreen.
   ///
   /// In ko, this message translates to:
-  /// **'아니요'**
-  String get vibrationTestNo;
+  /// **'잠금 화면에 표시'**
+  String get vibrationCheckItemLockScreen;
 
-  /// No description provided for @vibrationTestFeltToast.
+  /// No description provided for @vibrationCheckItemSound.
   ///
   /// In ko, this message translates to:
-  /// **'진동이 잘 울려요'**
-  String get vibrationTestFeltToast;
+  /// **'알림 사운드'**
+  String get vibrationCheckItemSound;
 
-  /// No description provided for @vibrationGuideTitle.
+  /// No description provided for @vibrationCheckItemHaptics.
   ///
   /// In ko, this message translates to:
-  /// **'진동이 꺼져 있을 수 있어요'**
-  String get vibrationGuideTitle;
+  /// **'햅틱 · 진동'**
+  String get vibrationCheckItemHaptics;
 
-  /// No description provided for @vibrationGuideBody.
+  /// No description provided for @vibrationCheckStatusOn.
   ///
   /// In ko, this message translates to:
-  /// **'iPhone 의 진동 설정은 앱이 읽을 수 없어요. 아래 항목이 켜져 있는지 확인해 주세요.'**
-  String get vibrationGuideBody;
+  /// **'켜짐'**
+  String get vibrationCheckStatusOn;
 
-  /// No description provided for @vibrationGuideStepAccessibility.
+  /// No description provided for @vibrationCheckStatusOff.
   ///
   /// In ko, this message translates to:
-  /// **'설정 > 손쉬운 사용 > 터치 > 진동 켜기'**
-  String get vibrationGuideStepAccessibility;
+  /// **'꺼짐'**
+  String get vibrationCheckStatusOff;
 
-  /// No description provided for @vibrationGuideStepHaptics.
+  /// No description provided for @vibrationCheckStatusByTest.
   ///
   /// In ko, this message translates to:
-  /// **'설정 > 사운드 및 햅틱 > 햅틱 > \'항상 재생\' 선택 (무음 모드에서도 떨려야 해요)'**
-  String get vibrationGuideStepHaptics;
+  /// **'시험으로 확인'**
+  String get vibrationCheckStatusByTest;
 
-  /// No description provided for @vibrationGuideStepSystemHaptics.
+  /// No description provided for @vibrationCheckBlockedHint.
   ///
   /// In ko, this message translates to:
-  /// **'설정 > 사운드 및 햅틱 > 시스템 햅틱 켜기'**
-  String get vibrationGuideStepSystemHaptics;
+  /// **'꺼진 항목을 먼저 켜 주세요. 알림 사운드가 꺼지면 진동도 함께 빠져요. 소리는 나지 않는 알림음이에요.'**
+  String get vibrationCheckBlockedHint;
 
-  /// No description provided for @vibrationGuideHint.
+  /// No description provided for @vibrationCheckOpenNotificationSettings.
   ///
   /// In ko, this message translates to:
-  /// **'설정 열기는 이 앱의 페이지까지만 열 수 있어요. 위 항목은 설정 첫 화면에서 찾아 주세요. 바꾼 뒤 진동 시험을 다시 해 보세요.'**
-  String get vibrationGuideHint;
+  /// **'알림 설정 열기'**
+  String get vibrationCheckOpenNotificationSettings;
 
-  /// No description provided for @vibrationGuideOpenSettings.
+  /// No description provided for @vibrationCheckSendTest.
+  ///
+  /// In ko, this message translates to:
+  /// **'시험 알림 보내기'**
+  String get vibrationCheckSendTest;
+
+  /// No description provided for @vibrationCheckLater.
+  ///
+  /// In ko, this message translates to:
+  /// **'나중에'**
+  String get vibrationCheckLater;
+
+  /// No description provided for @vibrationCheckScheduleFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'시험 알림을 보내지 못했어요. 다시 눌러 주세요.'**
+  String get vibrationCheckScheduleFailed;
+
+  /// No description provided for @vibrationCheckNotificationTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'진동 점검'**
+  String get vibrationCheckNotificationTitle;
+
+  /// No description provided for @vibrationCheckNotificationBody.
+  ///
+  /// In ko, this message translates to:
+  /// **'진동이 왔나요? 앱으로 돌아와 알려 주세요'**
+  String get vibrationCheckNotificationBody;
+
+  /// No description provided for @vibrationCheckWaitingTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'지금 화면을 잠가 주세요'**
+  String get vibrationCheckWaitingTitle;
+
+  /// No description provided for @vibrationCheckWaitingBody.
+  ///
+  /// In ko, this message translates to:
+  /// **'{seconds}초 뒤 도착 알림과 똑같은 알림이 와요. 진동이 오는지 느껴 보세요.'**
+  String vibrationCheckWaitingBody(int seconds);
+
+  /// No description provided for @vibrationCheckCancel.
+  ///
+  /// In ko, this message translates to:
+  /// **'취소'**
+  String get vibrationCheckCancel;
+
+  /// No description provided for @vibrationCheckNotLockedTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'화면을 잠그지 않았어요'**
+  String get vibrationCheckNotLockedTitle;
+
+  /// No description provided for @vibrationCheckNotLockedBody.
+  ///
+  /// In ko, this message translates to:
+  /// **'앱이 켜져 있으면 실제 도착과 달라 시험이 안 돼요. 버튼을 누른 뒤 바로 화면을 잠가 주세요.'**
+  String get vibrationCheckNotLockedBody;
+
+  /// No description provided for @vibrationCheckTryAgain.
+  ///
+  /// In ko, this message translates to:
+  /// **'다시 시험하기'**
+  String get vibrationCheckTryAgain;
+
+  /// No description provided for @vibrationCheckAskTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'방금 알림이 올 때\n진동을 느꼈나요?'**
+  String get vibrationCheckAskTitle;
+
+  /// No description provided for @vibrationCheckAskBody.
+  ///
+  /// In ko, this message translates to:
+  /// **'소리는 나지 않는 게 맞아요. 떨림만 확인해 주세요.'**
+  String get vibrationCheckAskBody;
+
+  /// No description provided for @vibrationCheckAnswerFelt.
+  ///
+  /// In ko, this message translates to:
+  /// **'느꼈어요'**
+  String get vibrationCheckAnswerFelt;
+
+  /// No description provided for @vibrationCheckAnswerNotFelt.
+  ///
+  /// In ko, this message translates to:
+  /// **'못 느꼈어요'**
+  String get vibrationCheckAnswerNotFelt;
+
+  /// No description provided for @vibrationCheckAnswerNoNotification.
+  ///
+  /// In ko, this message translates to:
+  /// **'알림이 안 왔어요'**
+  String get vibrationCheckAnswerNoNotification;
+
+  /// No description provided for @vibrationCheckGuideHapticsEyebrow.
+  ///
+  /// In ko, this message translates to:
+  /// **'가장 흔한 원인'**
+  String get vibrationCheckGuideHapticsEyebrow;
+
+  /// No description provided for @vibrationCheckGuideHapticsTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'햅틱을 \'항상 재생\'으로'**
+  String get vibrationCheckGuideHapticsTitle;
+
+  /// No description provided for @vibrationCheckGuideAccessibilityEyebrow.
+  ///
+  /// In ko, this message translates to:
+  /// **'기기 전체 진동 스위치'**
+  String get vibrationCheckGuideAccessibilityEyebrow;
+
+  /// No description provided for @vibrationCheckGuideAccessibilityTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'진동 켜기'**
+  String get vibrationCheckGuideAccessibilityTitle;
+
+  /// No description provided for @vibrationCheckGuideAccessibilityHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 스위치가 꺼져 있으면 전화와 알림 진동이 전부 막혀요.'**
+  String get vibrationCheckGuideAccessibilityHint;
+
+  /// No description provided for @vibrationCheckGuideFocusEyebrow.
+  ///
+  /// In ko, this message translates to:
+  /// **'마지막 확인'**
+  String get vibrationCheckGuideFocusEyebrow;
+
+  /// No description provided for @vibrationCheckGuideFocusTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'집중 모드에서 이 앱 허용'**
+  String get vibrationCheckGuideFocusTitle;
+
+  /// No description provided for @vibrationCheckGuideFocusHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'집중 모드를 쓰지 않는다면 넘어가도 돼요.'**
+  String get vibrationCheckGuideFocusHint;
+
+  /// No description provided for @vibrationCheckGuideOpenSettingsHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'\'설정 열기\'는 이 앱 설정 페이지를 열어요. 왼쪽 위 뒤로 버튼으로 설정 첫 화면에 가 주세요.'**
+  String get vibrationCheckGuideOpenSettingsHint;
+
+  /// No description provided for @vibrationCheckOpenSettings.
   ///
   /// In ko, this message translates to:
   /// **'설정 열기'**
-  String get vibrationGuideOpenSettings;
+  String get vibrationCheckOpenSettings;
 
-  /// No description provided for @vibrationGuideClose.
+  /// No description provided for @vibrationCheckGuideChanged.
+  ///
+  /// In ko, this message translates to:
+  /// **'바꿨어요'**
+  String get vibrationCheckGuideChanged;
+
+  /// No description provided for @vibrationCheckGuideStillNot.
+  ///
+  /// In ko, this message translates to:
+  /// **'그래도 안 되면'**
+  String get vibrationCheckGuideStillNot;
+
+  /// No description provided for @vibrationCheckSuccessTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'준비됐어요'**
+  String get vibrationCheckSuccessTitle;
+
+  /// No description provided for @vibrationCheckSuccessBody.
+  ///
+  /// In ko, this message translates to:
+  /// **'이어폰이 없어도 도착하면\n화면이 꺼진 채로 진동이 와요.'**
+  String get vibrationCheckSuccessBody;
+
+  /// No description provided for @vibrationCheckDone.
+  ///
+  /// In ko, this message translates to:
+  /// **'확인'**
+  String get vibrationCheckDone;
+
+  /// No description provided for @vibrationCheckStillTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'다른 앱 알림은 떨리나요?'**
+  String get vibrationCheckStillTitle;
+
+  /// No description provided for @vibrationCheckStillBody.
+  ///
+  /// In ko, this message translates to:
+  /// **'메시지가 올 때도 안 떨리면 기기 쪽 설정이에요. 벨소리의 햅틱 패턴이 \'없음\'으로 되어 있지 않은지 확인해 보세요.'**
+  String get vibrationCheckStillBody;
+
+  /// No description provided for @vibrationCheckClose.
   ///
   /// In ko, this message translates to:
   /// **'닫기'**
-  String get vibrationGuideClose;
+  String get vibrationCheckClose;
+
+  /// No description provided for @iosSettingsRoot.
+  ///
+  /// In ko, this message translates to:
+  /// **'설정'**
+  String get iosSettingsRoot;
+
+  /// No description provided for @iosSettingsSoundsAndHaptics.
+  ///
+  /// In ko, this message translates to:
+  /// **'사운드 및 햅틱'**
+  String get iosSettingsSoundsAndHaptics;
+
+  /// No description provided for @iosSettingsHaptics.
+  ///
+  /// In ko, this message translates to:
+  /// **'햅틱'**
+  String get iosSettingsHaptics;
+
+  /// No description provided for @iosSettingsHapticsAlways.
+  ///
+  /// In ko, this message translates to:
+  /// **'항상 재생'**
+  String get iosSettingsHapticsAlways;
+
+  /// No description provided for @iosSettingsHapticsSilentOnly.
+  ///
+  /// In ko, this message translates to:
+  /// **'무음 모드에서 재생'**
+  String get iosSettingsHapticsSilentOnly;
+
+  /// No description provided for @iosSettingsHapticsNotInSilent.
+  ///
+  /// In ko, this message translates to:
+  /// **'무음 모드에서 재생 안 함'**
+  String get iosSettingsHapticsNotInSilent;
+
+  /// No description provided for @iosSettingsHapticsNever.
+  ///
+  /// In ko, this message translates to:
+  /// **'재생 안 함'**
+  String get iosSettingsHapticsNever;
+
+  /// No description provided for @iosSettingsAccessibility.
+  ///
+  /// In ko, this message translates to:
+  /// **'손쉬운 사용'**
+  String get iosSettingsAccessibility;
+
+  /// No description provided for @iosSettingsTouch.
+  ///
+  /// In ko, this message translates to:
+  /// **'터치'**
+  String get iosSettingsTouch;
+
+  /// No description provided for @iosSettingsTapToWake.
+  ///
+  /// In ko, this message translates to:
+  /// **'탭하여 깨우기'**
+  String get iosSettingsTapToWake;
+
+  /// No description provided for @iosSettingsShakeToUndo.
+  ///
+  /// In ko, this message translates to:
+  /// **'흔들어서 실행 취소'**
+  String get iosSettingsShakeToUndo;
+
+  /// No description provided for @iosSettingsVibration.
+  ///
+  /// In ko, this message translates to:
+  /// **'진동'**
+  String get iosSettingsVibration;
+
+  /// No description provided for @iosSettingsFocus.
+  ///
+  /// In ko, this message translates to:
+  /// **'집중 모드'**
+  String get iosSettingsFocus;
+
+  /// No description provided for @iosSettingsFocusMode.
+  ///
+  /// In ko, this message translates to:
+  /// **'사용 중인 모드'**
+  String get iosSettingsFocusMode;
+
+  /// No description provided for @iosSettingsFocusAllowApp.
+  ///
+  /// In ko, this message translates to:
+  /// **'허용된 알림 › 앱 추가'**
+  String get iosSettingsFocusAllowApp;
+
+  /// No description provided for @iosSettingsRingtone.
+  ///
+  /// In ko, this message translates to:
+  /// **'벨소리'**
+  String get iosSettingsRingtone;
+
+  /// No description provided for @iosSettingsRingtoneHapticsNotNone.
+  ///
+  /// In ko, this message translates to:
+  /// **'햅틱 ≠ 없음'**
+  String get iosSettingsRingtoneHapticsNotNone;
+
+  /// No description provided for @settingsVibrationCheckTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'알림이 안 울린다면'**
+  String get settingsVibrationCheckTitle;
+
+  /// No description provided for @settingsVibrationCheckSubtitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'진동 점검과 아이폰 설정 안내'**
+  String get settingsVibrationCheckSubtitle;
 
   /// No description provided for @onboardingVibrationCardTitle.
   ///

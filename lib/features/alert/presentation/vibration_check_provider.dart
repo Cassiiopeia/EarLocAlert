@@ -3,8 +3,6 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../../core/diagnostics/diagnostics.dart';
 import '../data/vibration_check_store_provider.dart';
 import '../domain/vibration_check.dart';
-import '../domain/vibration_intensity.dart';
-import '../data/alert_providers.dart';
 
 part 'vibration_check_provider.g.dart';
 
@@ -22,39 +20,6 @@ class VibrationCheck extends _$VibrationCheck {
       // 못 읽으면 "시험 안 함"으로 본다 — 모르는 상태로 경고를 띄우지 않는다
       Diagnostics.log('vibration', 'test answer read failed error=$error');
       return null;
-    }
-  }
-
-  /// 도착 알림과 같은 진동을 한 번 울린다.
-  ///
-  /// 알림 세션이 쓰는 [vibrationServiceProvider] 를 그대로 쓴다 — 다른 경로로 떨면
-  /// "시험은 됐는데 알림은 안 떤다"가 생긴다. 세기도 저장된 값을 따른다.
-  Future<void> fire({required String trigger}) async {
-    final vibration = ref.read(vibrationServiceProvider);
-    var intensity = VibrationIntensity.normal;
-    try {
-      intensity = await ref.read(vibrationIntensityStoreProvider).intensity();
-    } on Object catch (error) {
-      // 세기를 못 읽으면 기본 세기로 떤다 — 시험 자체를 포기하지 않는다
-      Diagnostics.log('vibration', 'intensity read failed error=$error');
-    }
-    Diagnostics.log(
-      'vibration',
-      'test fired trigger=$trigger intensity=${intensity.name}',
-    );
-    try {
-      // 한 번만 느끼면 된다 — 반복 주기를 길게 주고 곧바로 멈춘다 (세기 시트와 같은 방식)
-      await vibration.startRepeating(
-        interval: const Duration(days: 1),
-        intensity: intensity,
-      );
-      await Future<void>.delayed(
-        Duration(milliseconds: intensity.pulseMs + 120),
-      );
-      await vibration.stop();
-    } on Object catch (error) {
-      // 못 떨었다는 사실 자체가 단서다 — 답은 그대로 받는다
-      Diagnostics.log('vibration', 'test fire failed error=$error');
     }
   }
 

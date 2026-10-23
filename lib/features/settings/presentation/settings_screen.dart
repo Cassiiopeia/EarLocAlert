@@ -86,6 +86,7 @@ class SettingsScreen extends StatelessWidget {
     this.onOpenAdPrivacy,
     this.permissions = const [],
     this.lockScreenAlarm,
+    this.onOpenVibrationCheck,
     this.onOpenWatchGuide,
     this.planCard,
     this.isPlaceBackupLocked = false,
@@ -143,6 +144,9 @@ class SettingsScreen extends StatelessWidget {
 
   /// 잠금 화면 알람 (이슈 #235). **null 이면 줄을 숨긴다** — Android 에는 없다
   final SettingsLockScreenAlarm? lockScreenAlarm;
+
+  /// 알림이 안 울릴 때 진동 점검 시트 (이슈 #301) — iPhone 만, Android 는 null
+  final VoidCallback? onOpenVibrationCheck;
 
   /// 워치로 알림 받는 방법 안내 (이슈 #270). 시트는 app 계층이 플랫폼에 맞춰 연다.
   /// **null 이면 줄을 숨긴다**
@@ -266,6 +270,14 @@ class SettingsScreen extends StatelessWidget {
                 // 화면이 꺼진 채 도착했을 때 무엇이 보이는지를 정하는 항목이라 알림 묶음에 둔다
                 if (lockScreenAlarm != null)
                   _LockScreenAlarmTile(alarm: lockScreenAlarm!),
+                // 화면이 꺼진 채 진동이 오는지는 시험해야만 안다 — 막혔을 때 찾아올 자리
+                if (onOpenVibrationCheck != null)
+                  GroupedListRow.navigation(
+                    icon: Icons.vibration_outlined,
+                    title: context.l10n.settingsVibrationCheckTitle,
+                    subtitle: context.l10n.settingsVibrationCheckSubtitle,
+                    onTap: onOpenVibrationCheck!,
+                  ),
                 // 폰 알림이 워치로 가려면 워치 쪽 토글을 켜야 한다 — 사용자가 알 길이 없어 안내한다
                 if (onOpenWatchGuide != null)
                   GroupedListRow.navigation(

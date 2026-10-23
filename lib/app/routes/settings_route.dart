@@ -225,6 +225,10 @@ class _SettingsRouteState extends ConsumerState<_SettingsRoute>
           ? () => _checkUpdateNow(context)
           : null,
       // 워치로 알림 받는 방법 (이슈 #270) — 플랫폼마다 켜는 곳이 달라 문구가 갈린다
+      // 알림이 안 울릴 때 진동 점검 (이슈 #301) — iPhone 만. Android 는 지금 경로로 잘 운다
+      onOpenVibrationCheck: Platform.isIOS
+          ? () => _runVibrationCheck(context, trigger: 'settings')
+          : null,
       onOpenWatchGuide: () => showWatchGuideSheet(
         context,
         platform: Platform.isIOS
@@ -323,44 +327,40 @@ List<SettingsPermissionRow> _iosNotificationRows(
   ];
 }
 
-/// 진동 시험을 돌린다 (이슈 #237). 안내 시트의 "설정 열기" 는 이 앱의 설정 페이지다 —
-/// 손쉬운 사용으로 바로 가는 공개 경로가 없다
+/// 진동 점검 시트를 연다 (이슈 #237, #301) — 시험 알림으로 화면이 꺼진 실제 경로를 시험
 void _runVibrationCheck(BuildContext context, {required String trigger}) {
-  final container = ProviderScope.containerOf(context, listen: false);
-  unawaited(
-    runVibrationCheck(
-      context,
-      trigger: trigger,
-      onOpenSettings: () =>
-          container.read(permissionControllerProvider.notifier).openSettings(),
-    ),
-  );
+  unawaited(showIosVibrationCheckSheet(context, trigger: trigger));
 }
 
-/// iOS 홈 경고를 눌렀을 때 (이슈 #237).
+/// iOS 홈 경고를 눌렀을 때 (이슈 #237, #301).
 ///
-/// 설정 앱에서 고치는 항목(알림·잠금 화면·알람)이 하나라도 있으면 이 앱의 설정
-/// 페이지를 연다 — 셋 다 거기 있다. 진동만 남았으면 설정 앱의 이 앱 페이지에는
-/// 고칠 것이 없으므로 안내 시트를 연다.
+/// 알림 허용·잠금 화면·진동 중 하나라도 있으면 진동 점검 시트 — 앞의 둘은 시트가 읽고
+/// 이 앱 알림 설정으로 바로 보낸다. 잠금 화면 알람만 남았으면 이 앱 설정 페이지.
 void _fixIosReliability(
   BuildContext context,
   WidgetRef ref,
   List<ReliabilityGap> gaps,
 ) {
-  final container = ProviderScope.containerOf(context, listen: false);
-  Future<void> openSettings() =>
-      container.read(permissionControllerProvider.notifier).openSettings();
-
-  final needsSystemSettings = gaps.any((gap) => gap.fixedInSystemSettings);
+  final needsVibrationCheck = gaps.any(
+    (gap) =>
+        gap == ReliabilityGap.vibration ||
+        gap == ReliabilityGap.notifications ||
+        gap == ReliabilityGap.lockScreen,
+  );
   Diagnostics.log(
     'home',
     'ios weak banner tapped gaps=[${gaps.map((gap) => gap.name).join(",")}] '
-        'target=${needsSystemSettings ? "system_settings" : "vibration_guide"}',
+        'target=${needsVibrationCheck ? "vibration_check" : "system_settings"}',
   );
-  if (needsSystemSettings) {
-    unawaited(openSettings());
-  } else if (gaps.contains(ReliabilityGap.vibration)) {
-    unawaited(showVibrationGuideSheet(context, onOpenSettings: openSettings));
+  if (needsVibrationCheck) {
+    _runVibrationCheck(context, trigger: 'home_banner');
+  } else if (gaps.any((gap) => gap.fixedInSystemSettings)) {
+    unawaited(
+      ProviderScope.containerOf(
+        context,
+        listen: false,
+      ).read(permissionControllerProvider.notifier).openSettings(),
+    );
   }
 }
 

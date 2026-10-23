@@ -921,46 +921,204 @@ class AppLocalizationsKo extends AppLocalizations {
   String get settingsVibrationTestTitle => '진동 시험';
 
   @override
-  String get vibrationTestQuestion => '진동이 느껴졌나요?';
+  String get vibrationCheckTitle => '화면이 꺼져 있어도\n진동이 오는지 확인할게요';
 
   @override
-  String get vibrationTestQuestionBody => '도착 알림과 같은 진동을 방금 한 번 울렸어요.';
+  String get vibrationCheckDescription =>
+      '이어폰이 없을 땐 진동이 유일한 알림이에요. 아이폰 설정에 따라 진동이 막혀 있을 수 있어요.';
 
   @override
-  String get vibrationTestYes => '예';
+  String get vibrationCheckItemNotifications => '알림 허용';
 
   @override
-  String get vibrationTestNo => '아니요';
+  String get vibrationCheckItemLockScreen => '잠금 화면에 표시';
 
   @override
-  String get vibrationTestFeltToast => '진동이 잘 울려요';
+  String get vibrationCheckItemSound => '알림 사운드';
 
   @override
-  String get vibrationGuideTitle => '진동이 꺼져 있을 수 있어요';
+  String get vibrationCheckItemHaptics => '햅틱 · 진동';
 
   @override
-  String get vibrationGuideBody =>
-      'iPhone 의 진동 설정은 앱이 읽을 수 없어요. 아래 항목이 켜져 있는지 확인해 주세요.';
+  String get vibrationCheckStatusOn => '켜짐';
 
   @override
-  String get vibrationGuideStepAccessibility => '설정 > 손쉬운 사용 > 터치 > 진동 켜기';
+  String get vibrationCheckStatusOff => '꺼짐';
 
   @override
-  String get vibrationGuideStepHaptics =>
-      '설정 > 사운드 및 햅틱 > 햅틱 > \'항상 재생\' 선택 (무음 모드에서도 떨려야 해요)';
+  String get vibrationCheckStatusByTest => '시험으로 확인';
 
   @override
-  String get vibrationGuideStepSystemHaptics => '설정 > 사운드 및 햅틱 > 시스템 햅틱 켜기';
+  String get vibrationCheckBlockedHint =>
+      '꺼진 항목을 먼저 켜 주세요. 알림 사운드가 꺼지면 진동도 함께 빠져요. 소리는 나지 않는 알림음이에요.';
 
   @override
-  String get vibrationGuideHint =>
-      '설정 열기는 이 앱의 페이지까지만 열 수 있어요. 위 항목은 설정 첫 화면에서 찾아 주세요. 바꾼 뒤 진동 시험을 다시 해 보세요.';
+  String get vibrationCheckOpenNotificationSettings => '알림 설정 열기';
 
   @override
-  String get vibrationGuideOpenSettings => '설정 열기';
+  String get vibrationCheckSendTest => '시험 알림 보내기';
 
   @override
-  String get vibrationGuideClose => '닫기';
+  String get vibrationCheckLater => '나중에';
+
+  @override
+  String get vibrationCheckScheduleFailed => '시험 알림을 보내지 못했어요. 다시 눌러 주세요.';
+
+  @override
+  String get vibrationCheckNotificationTitle => '진동 점검';
+
+  @override
+  String get vibrationCheckNotificationBody => '진동이 왔나요? 앱으로 돌아와 알려 주세요';
+
+  @override
+  String get vibrationCheckWaitingTitle => '지금 화면을 잠가 주세요';
+
+  @override
+  String vibrationCheckWaitingBody(int seconds) {
+    return '$seconds초 뒤 도착 알림과 똑같은 알림이 와요. 진동이 오는지 느껴 보세요.';
+  }
+
+  @override
+  String get vibrationCheckCancel => '취소';
+
+  @override
+  String get vibrationCheckNotLockedTitle => '화면을 잠그지 않았어요';
+
+  @override
+  String get vibrationCheckNotLockedBody =>
+      '앱이 켜져 있으면 실제 도착과 달라 시험이 안 돼요. 버튼을 누른 뒤 바로 화면을 잠가 주세요.';
+
+  @override
+  String get vibrationCheckTryAgain => '다시 시험하기';
+
+  @override
+  String get vibrationCheckAskTitle => '방금 알림이 올 때\n진동을 느꼈나요?';
+
+  @override
+  String get vibrationCheckAskBody => '소리는 나지 않는 게 맞아요. 떨림만 확인해 주세요.';
+
+  @override
+  String get vibrationCheckAnswerFelt => '느꼈어요';
+
+  @override
+  String get vibrationCheckAnswerNotFelt => '못 느꼈어요';
+
+  @override
+  String get vibrationCheckAnswerNoNotification => '알림이 안 왔어요';
+
+  @override
+  String get vibrationCheckGuideHapticsEyebrow => '가장 흔한 원인';
+
+  @override
+  String get vibrationCheckGuideHapticsTitle => '햅틱을 \'항상 재생\'으로';
+
+  @override
+  String get vibrationCheckGuideAccessibilityEyebrow => '기기 전체 진동 스위치';
+
+  @override
+  String get vibrationCheckGuideAccessibilityTitle => '진동 켜기';
+
+  @override
+  String get vibrationCheckGuideAccessibilityHint =>
+      '이 스위치가 꺼져 있으면 전화와 알림 진동이 전부 막혀요.';
+
+  @override
+  String get vibrationCheckGuideFocusEyebrow => '마지막 확인';
+
+  @override
+  String get vibrationCheckGuideFocusTitle => '집중 모드에서 이 앱 허용';
+
+  @override
+  String get vibrationCheckGuideFocusHint => '집중 모드를 쓰지 않는다면 넘어가도 돼요.';
+
+  @override
+  String get vibrationCheckGuideOpenSettingsHint =>
+      '\'설정 열기\'는 이 앱 설정 페이지를 열어요. 왼쪽 위 뒤로 버튼으로 설정 첫 화면에 가 주세요.';
+
+  @override
+  String get vibrationCheckOpenSettings => '설정 열기';
+
+  @override
+  String get vibrationCheckGuideChanged => '바꿨어요';
+
+  @override
+  String get vibrationCheckGuideStillNot => '그래도 안 되면';
+
+  @override
+  String get vibrationCheckSuccessTitle => '준비됐어요';
+
+  @override
+  String get vibrationCheckSuccessBody => '이어폰이 없어도 도착하면\n화면이 꺼진 채로 진동이 와요.';
+
+  @override
+  String get vibrationCheckDone => '확인';
+
+  @override
+  String get vibrationCheckStillTitle => '다른 앱 알림은 떨리나요?';
+
+  @override
+  String get vibrationCheckStillBody =>
+      '메시지가 올 때도 안 떨리면 기기 쪽 설정이에요. 벨소리의 햅틱 패턴이 \'없음\'으로 되어 있지 않은지 확인해 보세요.';
+
+  @override
+  String get vibrationCheckClose => '닫기';
+
+  @override
+  String get iosSettingsRoot => '설정';
+
+  @override
+  String get iosSettingsSoundsAndHaptics => '사운드 및 햅틱';
+
+  @override
+  String get iosSettingsHaptics => '햅틱';
+
+  @override
+  String get iosSettingsHapticsAlways => '항상 재생';
+
+  @override
+  String get iosSettingsHapticsSilentOnly => '무음 모드에서 재생';
+
+  @override
+  String get iosSettingsHapticsNotInSilent => '무음 모드에서 재생 안 함';
+
+  @override
+  String get iosSettingsHapticsNever => '재생 안 함';
+
+  @override
+  String get iosSettingsAccessibility => '손쉬운 사용';
+
+  @override
+  String get iosSettingsTouch => '터치';
+
+  @override
+  String get iosSettingsTapToWake => '탭하여 깨우기';
+
+  @override
+  String get iosSettingsShakeToUndo => '흔들어서 실행 취소';
+
+  @override
+  String get iosSettingsVibration => '진동';
+
+  @override
+  String get iosSettingsFocus => '집중 모드';
+
+  @override
+  String get iosSettingsFocusMode => '사용 중인 모드';
+
+  @override
+  String get iosSettingsFocusAllowApp => '허용된 알림 › 앱 추가';
+
+  @override
+  String get iosSettingsRingtone => '벨소리';
+
+  @override
+  String get iosSettingsRingtoneHapticsNotNone => '햅틱 ≠ 없음';
+
+  @override
+  String get settingsVibrationCheckTitle => '알림이 안 울린다면';
+
+  @override
+  String get settingsVibrationCheckSubtitle => '진동 점검과 아이폰 설정 안내';
 
   @override
   String get onboardingVibrationCardTitle => '진동이 느껴지는지 확인해 보세요';
