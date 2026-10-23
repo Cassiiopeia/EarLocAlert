@@ -40,7 +40,6 @@ import '../features/places/presentation/place_backup_actions.dart';
 import '../features/places/data/place_search_provider.dart';
 import 'always_dark_alert_theme.dart';
 import '../core/ui/foundation/app_theme_controller.dart';
-import '../features/settings/data/prefs_watch_guide_store.dart';
 import '../features/settings/presentation/settings_screen.dart';
 import '../features/settings/presentation/watch_guide_sheet.dart';
 import '../features/sounds/presentation/sound_picker_sheet.dart';
