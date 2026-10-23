@@ -192,16 +192,16 @@ iOS 25 이하에는 전체화면 알림 개념이 없다. 잠금화면·배너 �
 |---|---|---|
 | 알림 허용 (`authorizationStatus`) | 읽는다 | 미허용이면 홈 경고 |
 | 잠금 화면 표시 (`lockScreenSetting`) | 읽는다 | 꺼지면 홈 경고 |
-| 소리 (`soundSetting`) | 읽는다 | 꺼지면 진동 점검이 먼저 켜게 한다 — 무음 알림음에 딸린 진동도 빠진다 (결정 075) |
+| 소리 (`soundSetting`) | 읽는다 | 꺼지면 진동 점검이 먼저 켜게 한다 — 무음 알림음에 딸린 진동도 빠진다 (결정 076) |
 | 배너·알림 센터 (`alertSetting` 등) | 읽는다 | 기록만 |
 | 시간 민감 알림 (`timeSensitiveSetting`, iOS 15+) | 읽는다 | 기록만 — entitlement 가 없어 켤 수 없다 |
 | 잠금 화면 알람 (AlarmKit, iOS 26+) | 읽는다 | 거부면 홈 경고 — 스위치가 꺼진 지금은 읽지 않는다 (결정 074) |
-| 손쉬운 사용 > 터치 > 진동 | **못 읽는다** | 시험 알림으로 시험 + 단계 안내 (결정 075) |
+| 손쉬운 사용 > 터치 > 진동 | **못 읽는다** | 시험 알림으로 시험 + 단계 안내 (결정 076) |
 | 사운드 및 햅틱 > 햅틱(항상 재생·무음 모드에서 재생 등) | **못 읽는다** | 시험 알림으로 시험 + 단계 안내 — 실기기에서 실제로 막혔던 항목 |
 | 사운드 및 햅틱 > 시스템 햅틱 | **못 읽는다** | 알림 진동과 무관 — 안내하지 않는다 |
 | 집중 모드 | 못 읽는다 | 단계 안내 3/3 |
 
-읽는 쪽은 Swift `NotificationSettingsReader`(채널 `notification_settings`)다 — `flutter_local_notifications` 의 `checkPermissions` 는 잠금 화면·시간 민감 값을 주지 않는다. 설정 앱은 **이 앱의 페이지**와 **설정 > 알림 > 이 앱**(`openNotificationSettingsURLString`, iOS 16+)까지만 열 수 있다. 손쉬운 사용·사운드 및 햅틱·집중 모드로 바로 가는 공개 경로가 없어 설정 화면 모형과 경로로 안내한다 (결정 075).
+읽는 쪽은 Swift `NotificationSettingsReader`(채널 `notification_settings`)다 — `flutter_local_notifications` 의 `checkPermissions` 는 잠금 화면·시간 민감 값을 주지 않는다. 설정 앱은 **이 앱의 페이지**와 **설정 > 알림 > 이 앱**(`openNotificationSettingsURLString`, iOS 16+)까지만 열 수 있다. 손쉬운 사용·사운드 및 햅틱·집중 모드로 바로 가는 공개 경로가 없어 설정 화면 모형과 경로로 안내한다 (결정 076).
 
 ### 알림의 "알림 끄기" 버튼 (#237, 결정 058)
 
