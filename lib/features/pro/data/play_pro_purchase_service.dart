@@ -4,6 +4,7 @@ import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:in_app_purchase_android/billing_client_wrappers.dart';
 import 'package:in_app_purchase_android/in_app_purchase_android.dart';
 import 'package:in_app_purchase_platform_interface/in_app_purchase_platform_interface.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/diagnostics/diagnostics.dart';
 import '../domain/pro_purchase_record.dart';
@@ -34,6 +35,20 @@ class PlayProPurchaseService implements ProPurchaseService {
 
   @override
   ProPurchaseStore get store => ProPurchaseStore.googlePlay;
+
+  // Play 스토어 코드 사용 화면 — 프로모션 코드를 넣으면 구매로 기록됨
+  static final Uri _redeemUri = Uri.parse('https://play.google.com/redeem');
+
+  /// Play 코드 사용 화면 열기. 앱으로 돌아오면 복귀 시 보유 조회가 프로로 반영 (#294)
+  @override
+  Future<bool> openPromoCodeRedemption() async {
+    try {
+      return await launchUrl(_redeemUri, mode: LaunchMode.externalApplication);
+    } on Object catch (error) {
+      Diagnostics.log('pro', 'promo code redeem open threw error=$error');
+      return false;
+    }
+  }
 
   @override
   ProPurchaseRecord? get ownedRecord => _ownedRecord;
@@ -272,4 +287,7 @@ class NoopProPurchaseService implements ProPurchaseService {
 
   @override
   ProPurchaseRecord? get ownedRecord => null;
+
+  @override
+  Future<bool> openPromoCodeRedemption() async => false;
 }

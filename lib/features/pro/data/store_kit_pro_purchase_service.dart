@@ -1,8 +1,10 @@
 import 'dart:async';
 
+import 'package:flutter/services.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 
 import '../../../core/diagnostics/diagnostics.dart';
+import '../../../core/platform/channel_names.dart';
 import '../domain/pro_purchase_record.dart';
 import '../domain/pro_purchase_service.dart';
 
@@ -38,6 +40,19 @@ class StoreKitProPurchaseService implements ProPurchaseService {
 
   @override
   ProPurchaseStore get store => ProPurchaseStore.appStore;
+
+  static const _offerCodeChannel = MethodChannel(ChannelNames.offerCode);
+
+  /// App Store 오퍼 코드 시트 (Swift `OfferCodeRedeemSheet`). 시트가 닫히면 돌아온다 (#305)
+  @override
+  Future<bool> openPromoCodeRedemption() async {
+    try {
+      return await _offerCodeChannel.invokeMethod<bool>('present') ?? false;
+    } on Object catch (error) {
+      Diagnostics.log('pro', 'offer code sheet threw error=$error');
+      return false;
+    }
+  }
 
   @override
   ProPurchaseRecord? get ownedRecord => _ownedRecord;

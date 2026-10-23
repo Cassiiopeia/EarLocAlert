@@ -59,4 +59,8 @@ abstract interface class ProPurchaseService {
 
   /// 마지막 보유 조회에서 찾은 구매 기록. 조회 전·미보유면 null
   ProPurchaseRecord? get ownedRecord;
+
+  /// 스토어의 프로모션 코드 입력 화면을 띄웠으면 true (#305)
+  /// Play: 코드 사용 웹 화면(앱 밖) · App Store: 앱 위 오퍼 코드 시트(닫힐 때 돌아옴)
+  Future<bool> openPromoCodeRedemption();
 }

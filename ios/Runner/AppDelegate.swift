@@ -97,10 +97,13 @@ import native_geofence
       // 읽을 수 있는 알림 설정(잠금 화면 표시 등)을 홈 경고에 올린다 (이슈 #237)
       NotificationSettingsReader.register(messenger: controller.binaryMessenger)
 
+      // 프로모션(오퍼) 코드 입력 시트 (이슈 #305)
+      OfferCodeRedeemSheet.register(messenger: controller.binaryMessenger)
+
       // 버전·기기 정보·진단 보고서용 네이티브 상태 (이슈 #290)
       DebugSnapshot.register(messenger: controller.binaryMessenger)
     } else {
-      // 채널 7개 전부 미등록 > Dart 쪽 호출이 모두 MissingPlugin 으로 떨어짐
+      // 채널 8개 전부 미등록 > Dart 쪽 호출이 모두 MissingPlugin 으로 떨어짐
       NativeDiagnosticLog.write("app", "channels not registered reason=no_flutter_view_controller")
     }
 

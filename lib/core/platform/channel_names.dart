@@ -27,4 +27,7 @@ abstract final class ChannelNames {
 
   /// iOS 알림 설정 읽기 (이슈 #237) — Swift `NotificationSettingsReader`
   static const notificationSettings = '$_prefix/notification_settings';
+
+  /// App Store 오퍼 코드 입력 시트 (이슈 #305) — Swift `OfferCodeRedeemSheet`
+  static const offerCode = '$_prefix/offer_code';
 }

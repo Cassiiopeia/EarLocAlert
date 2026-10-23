@@ -1821,7 +1821,23 @@ Play 자동 업데이트(029)만으로는 사용자가 새 버전을 받는 시�
 
 **출시 전 필수 (코드 밖)** — App Store Connect 법인 정보 업데이트 > **유료 앱 계약 서명**(2026-10-23 확인 시 "신규" 미서명) > 상품 `pro_unlock` 생성·가격 지정 > **새 앱 버전과 함께 심사 제출**(첫 인앱 상품은 버전과 함께 심사) > 샌드박스 테스터로 실기기 구매·복원 확인. **이것이 끝나기 전에 이 코드를 App Store 에 내보내면 iOS 사용자가 무료로 묶이고 결제할 수 없다** — main 배포가 iOS 심사 자동 제출(071)이라 develop→main 배포 시점을 맞춘다.
 
-**하지 않은 것** — iOS 프로모션 코드(오퍼 코드)의 비소모성 상품 지원 여부를 확인하지 못해 코드 사용 버튼은 Play 에만 둔다. 서버 영수증 검증은 072 와 같이 하지 않는다.
+**하지 않은 것** — ~~iOS 프로모션 코드(오퍼 코드)의 비소모성 상품 지원 여부를 확인하지 못해 코드 사용 버튼은 Play 에만 둔다.~~ → 077 에서 iOS 에도 넣었다. 서버 영수증 검증은 072 와 같이 하지 않는다.
+
+---
+
+## 077. 프로모션 코드 입력을 iOS 에도 둔다 — 무료일 때만
+
+**날짜** — 2026-10-24 (이슈 #305). 075 의 "코드 사용 버튼은 Play 만"을 뒤집는다.
+
+**확인한 것** — App Store 오퍼 코드는 비소모성 상품을 포함한 모든 인앱 구매 유형에 쓸 수 있다 (WWDC25). 앱에서는 StoreKit 2 `AppStore.presentOfferCodeRedeemSheet(in:)`(iOS 16+)로 받는다. 플러그인(`in_app_purchase_storekit` 0.4.8)의 `presentCodeRedemptionSheet` 는 StoreKit 1 시트라 쓰지 않는다.
+
+**정한 것**
+
+1. 코드 입력은 결제 창구 `ProPurchaseService.openPromoCodeRedemption()` 한 곳에서 스토어별로 연다. Play: 코드 사용 웹 화면(앱 밖, 돌아오면 복귀 시 보유 조회). App Store: Swift `OfferCodeRedeemSheet`(채널 `offer_code`) 시트, 닫히면 곧바로 보유 조회(`syncProAfterPromoCode`) — 코드를 안 쓰고 닫았을 수 있어 "구매 없음"은 안내하지 않는다.
+2. 버튼은 **무료일 때만** 보인다 (Play·App Store 둘 다).
+3. iOS 16 미만은 StoreKit 1 시트로 떨어진다 — 비소모성 코드는 못 받지만 버튼이 죽지 않는다.
+
+**코드 밖** — 코드는 App Store Connect > 앱 > 인앱 구매 > `pro_unlock` > 오퍼 코드에서 만든다. 상품이 심사를 통과한 뒤에 쓸 수 있다.
 
 ---
 
