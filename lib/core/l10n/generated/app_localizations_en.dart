@@ -1303,6 +1303,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Purchased with this device\'s Google Play account. On a new phone, the same account can bring it back with \"Restore purchase\".';
 
   @override
+  String get proInfoNotePurchaseAppStore =>
+      'Purchased with this device\'s Apple Account. On a new phone, the same Apple Account can bring it back with \"Restore purchase\".';
+
+  @override
   String get proInfoRestore => 'Restore purchase';
 
   @override

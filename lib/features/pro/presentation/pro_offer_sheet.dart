@@ -137,6 +137,10 @@ class _ProOfferSheetState extends ConsumerState<_ProOfferSheet> {
       }
     });
     final price = ref.watch(proPriceProvider);
+    // 코드 사용 화면은 Play 에만 있음 (App Store 비소모성 상품은 지원 확인 전, #298)
+    final canRedeemPromoCode =
+        ref.watch(proPurchaseServiceProvider).store ==
+        ProPurchaseStore.googlePlay;
     final l10n = context.l10n;
     final colors = context.appColors;
 
@@ -155,11 +159,14 @@ class _ProOfferSheetState extends ConsumerState<_ProOfferSheet> {
             style: TextButton.styleFrom(foregroundColor: colors.textSecondary),
             child: Text(l10n.proSheetRestore),
           ),
-          TextButton(
-            onPressed: _isBusy ? null : _openPromoCodeRedeem,
-            style: TextButton.styleFrom(foregroundColor: colors.textSecondary),
-            child: Text(l10n.proSheetRedeem),
-          ),
+          if (canRedeemPromoCode)
+            TextButton(
+              onPressed: _isBusy ? null : _openPromoCodeRedeem,
+              style: TextButton.styleFrom(
+                foregroundColor: colors.textSecondary,
+              ),
+              child: Text(l10n.proSheetRedeem),
+            ),
         ],
       ),
     );

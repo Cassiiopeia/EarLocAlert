@@ -33,6 +33,9 @@ class PlayProPurchaseService implements ProPurchaseService {
   Future<bool?>? _ownedQuery;
 
   @override
+  ProPurchaseStore get store => ProPurchaseStore.googlePlay;
+
+  @override
   ProPurchaseRecord? get ownedRecord => _ownedRecord;
   ProPurchaseRecord? _ownedRecord;
 
@@ -248,9 +251,12 @@ class PlayProPurchaseService implements ProPurchaseService {
   }
 }
 
-/// 결제를 쓰지 않는 플랫폼(iOS)용 — 아무것도 하지 않음
+/// 결제를 쓰지 않는 플랫폼(Android·iOS 외)용 — 아무것도 하지 않음
 class NoopProPurchaseService implements ProPurchaseService {
   const NoopProPurchaseService();
+
+  @override
+  ProPurchaseStore get store => ProPurchaseStore.none;
 
   @override
   Stream<ProPurchaseEvent> get events => const Stream.empty();

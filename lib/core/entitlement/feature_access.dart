@@ -2,11 +2,11 @@ import 'place_limits.dart';
 import 'pro_entitlement.dart';
 
 /// 지금 쓸 수 있는 기능: 장소 상한, 알림음 전체, 장소 백업, 광고 (#294)
-/// 결제 화면이 꺼진 플랫폼(iOS)은 등급 없이 전부 열고 광고만 유지
+/// 결제 화면이 꺼진 플랫폼(Android·iOS 외)은 등급 없이 전부 열고 광고만 유지
 class FeatureAccess {
   const FeatureAccess({required this.isPaywallEnabled, required this.source});
 
-  /// 무료/프로 구분과 결제 UI 를 쓰는 플랫폼인가 (Android 만)
+  /// 무료/프로 구분과 결제 UI 를 쓰는 플랫폼인가 (Android #294 · iOS #298)
   final bool isPaywallEnabled;
   final ProEntitlementSource source;
 
