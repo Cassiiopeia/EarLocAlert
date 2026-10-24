@@ -19,8 +19,12 @@ import '../domain/audio_route.dart';
 import '../../../core/text/two_digits.dart';
 import '../../../core/map/marker_hue.dart';
 
-/// 지도 카드 높이 (이슈 #142)
-const double _mapCardHeight = 400;
+/// 지도 카드 높이 = 화면 높이(안전 영역 안) x 비율, 위아래 한도 안 (이슈 #142, #303)
+///
+/// 고정 400 이면 남은 높이에 장소 정보가 밀려 들어가 통째로 축소됐다 — 소리 상태 칩까지 작아졌다
+const double _mapCardHeightRatio = 0.33;
+const double _mapCardMinHeight = 200;
+const double _mapCardMaxHeight = 400;
 
 /// 지도가 있을 때의 해제 버튼 높이.
 ///
@@ -70,34 +74,40 @@ class AlertScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: context.appColors.background,
       body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: _AlertInfo(
-                session: session,
-                accent: accent,
-                isExit: _isExit,
-                soundFailed: soundFailed,
+        child: LayoutBuilder(
+          builder: (context, constraints) => Column(
+            children: [
+              Expanded(
+                child: _AlertInfo(
+                  session: session,
+                  accent: accent,
+                  isExit: _isExit,
+                  soundFailed: soundFailed,
+                ),
               ),
-            ),
-            if (session.hasMapLocation)
-              _PlaceMapCard(
-                session: session,
-                accent: accent,
-                // 기본 마커는 빨간색이라 이 화면의 색과 부딪힌다.
-                // 진입·이탈 색과 결이 맞는 것으로 고른다
-                markerHue: markerHueFor(session.direction),
+              if (session.hasMapLocation)
+                _PlaceMapCard(
+                  session: session,
+                  accent: accent,
+                  // 기본 마커는 빨간색이라 이 화면의 색과 부딪힌다.
+                  // 진입·이탈 색과 결이 맞는 것으로 고른다
+                  markerHue: markerHueFor(session.direction),
+                  height: (constraints.maxHeight * _mapCardHeightRatio).clamp(
+                    _mapCardMinHeight,
+                    _mapCardMaxHeight,
+                  ),
+                ),
+              // **지도가 없으면 버튼이 원래 크기로 돌아간다.** 카드가 빠진
+              // 자리에 회색 사각형이나 오류 문구를 두지 않는다 — 알림
+              // 화면에서 사용자가 읽어야 할 것은 장소와 끄는 방법뿐이다.
+              _DismissButton(
+                onPressed: onDismiss,
+                height: session.hasMapLocation
+                    ? _dismissHeightWithMap
+                    : _dismissHeightAlone,
               ),
-            // **지도가 없으면 버튼이 원래 크기로 돌아간다.** 카드가 빠진
-            // 자리에 회색 사각형이나 오류 문구를 두지 않는다 — 알림
-            // 화면에서 사용자가 읽어야 할 것은 장소와 끄는 방법뿐이다.
-            _DismissButton(
-              onPressed: onDismiss,
-              height: session.hasMapLocation
-                  ? _dismissHeightWithMap
-                  : _dismissHeightAlone,
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -175,7 +185,7 @@ class _AlertInfo extends StatelessWidget {
             style: context.appTextStyles.alertTime,
           ),
 
-          const SizedBox(height: AppSpacing.lg),
+          const SizedBox(height: AppSpacing.md),
           _AudioRouteBadge(route: session.audioRoute, soundFailed: soundFailed),
         ],
       ),
@@ -203,6 +213,9 @@ class _AlertInfo extends StatelessWidget {
 class _AudioRouteBadge extends StatelessWidget {
   const _AudioRouteBadge({required this.route, required this.soundFailed});
 
+  /// 칩 위아래 여백 — 간격 토큰 xs(8)와 sm(16) 사이, 손가락 한 마디 높이(약 48)
+  static const double _badgeVerticalPadding = 12;
+
   final AudioRoute route;
   final bool soundFailed;
 
@@ -218,9 +231,10 @@ class _AudioRouteBadge extends StatelessWidget {
     };
 
     return Container(
+      // 이 앱의 핵심 표시라 본문 크기로 둔다 — caption 이면 축소가 겹칠 때 읽히지 않았다 (#303)
       padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.sm,
-        vertical: AppSpacing.xs,
+        horizontal: AppSpacing.md,
+        vertical: _badgeVerticalPadding,
       ),
       decoration: BoxDecoration(
         color: context.appColors.surface,
@@ -231,7 +245,7 @@ class _AudioRouteBadge extends StatelessWidget {
         children: [
           Icon(
             isHeadphones ? Icons.headphones_outlined : Icons.vibration_outlined,
-            size: AppIconSize.inline,
+            size: AppIconSize.standard,
             color: isHeadphones
                 ? semantic.audioBluetooth
                 : context.appColors.textSecondary,
@@ -240,7 +254,9 @@ class _AudioRouteBadge extends StatelessWidget {
           Flexible(
             child: Text(
               context.keepAllText(label),
-              style: context.appTextStyles.caption,
+              style: context.appTextStyles.body.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
         ],
@@ -308,11 +324,15 @@ class _PlaceMapCard extends StatelessWidget {
     required this.session,
     required this.accent,
     required this.markerHue,
+    required this.height,
   });
 
   final AlertSession session;
   final Color accent;
   final double markerHue;
+
+  /// 화면 높이 비례로 정해진 카드 높이
+  final double height;
 
   @override
   Widget build(BuildContext context) {
@@ -328,7 +348,7 @@ class _PlaceMapCard extends StatelessWidget {
         0,
       ),
       child: SizedBox(
-        height: _mapCardHeight,
+        height: height,
         child: Stack(
           children: [
             Positioned.fill(

@@ -139,6 +139,32 @@ class _StatusBar extends StatelessWidget {
     );
   }
 
+  /// 지금 상태 시트: 감시 상태 + 이어폰 상태 + (고장이면) 해결 버튼
+  void _showStatusSheet(BuildContext context) {
+    Diagnostics.log(
+      'home',
+      'status sheet opened monitoring=$isMonitoring broken=$_isBroken '
+          'headphones=$isHeadphoneConnected',
+    );
+    unawaited(
+      showAppBottomSheet<void>(
+        context,
+        builder: (sheetContext) => _StatusSheet(
+          isMonitoring: isMonitoring,
+          isBroken: _isBroken,
+          isChecking: _isChecking,
+          isHeadphoneConnected: isHeadphoneConnected,
+          onFixMonitoring: onFixMonitoring == null
+              ? null
+              : () {
+                  Navigator.of(sheetContext).pop();
+                  onFixMonitoring!();
+                },
+        ),
+      ),
+    );
+  }
+
   Widget _statusPill(
     BuildContext context,
     AppSemanticColors semantic,
@@ -148,9 +174,9 @@ class _StatusBar extends StatelessWidget {
       color: context.appColors.surface,
       borderRadius: BorderRadius.circular(AppRadius.pill),
       child: InkWell(
-        // 고장일 때만 해결 경로(권한 화면)로 보낸다.
-        // 장소가 없어서 대기 중인 사용자를 온보딩에 다시 보내면 안 된다
-        onTap: _isBroken ? onFixMonitoring : null,
+        // 누르면 지금 상태를 글로 보여준다 (이슈 #306). 고장일 때는 시트 안 버튼이
+        // 해결 경로(권한 화면)다 — 장소가 없어 대기 중인 사용자를 온보딩에 보내면 안 된다
+        onTap: () => _showStatusSheet(context),
         borderRadius: BorderRadius.circular(AppRadius.pill),
         // 높이는 설정 버튼·내 위치 버튼과 같은 40 — 지도 위에 떠 있는
         // 조작 요소는 한 높이로 선다 (docs/06-UX.md)
@@ -200,53 +226,10 @@ class _StatusBar extends StatelessWidget {
                   size: AppIconSize.control,
                   color: statusColor,
                 ),
-                const SizedBox(width: AppSpacing.xs),
-                // **라벨만 쓴다.** 예전에는 '감시 대기 · 장소를 켜면 시작됩니다'
-                // 같은 문장이라 40px ~ 192px 로 4.8배까지 벌어졌고, 알약 안에서
-                // 잘려 "장소를 켜면…" 이 되어 아무것도 알려주지 못했다.
-                //
-                // 설명이 필요한 말은 **빈 화면이 이미 하고 있다**
-                // ("첫 장소를 등록해주세요"). 같은 말을 두 곳에서 하지 않는다.
-                //
-                // **감시 상태는 줄이지 않는다** (이슈 #224). 영어에서
-                // "Monitoring" 이 "Monit…" 로 잘려 감시 중인지 읽히지 않았다.
-                // 공간이 모자라면 오른쪽 오디오 문구가 대신 줄어든다 — 그쪽은
-                // 아이콘만으로도 뜻이 통한다.
-                Text(
-                  isMonitoring
-                      ? context.l10n.placeHomeStatusWatching
-                      : _isBroken
-                      ? context.l10n.placeHomeStatusOff
-                      : _isChecking
-                      ? context.l10n.placeHomeStatusChecking
-                      : context.l10n.placeHomeStatusIdle,
-                  style: context.appTextStyles.body.copyWith(
-                    color: statusColor,
-                  ),
-                  maxLines: 1,
-                  softWrap: false,
-                ),
-                // 누를 수 있다는 것은 글자보다 모양이 빠르다 — '눌러서 확인'
-                // 대신 꺾쇠를 둔다
-                if (_isBroken)
-                  Icon(
-                    Icons.chevron_right_outlined,
-                    size: AppIconSize.control,
-                    color: statusColor,
-                  ),
-
-                // 구분선 둘을 가운뎃점 하나로 — 요소가 일곱에서 여섯으로 준다
-                const SizedBox(width: AppSpacing.xs),
-                Text(
-                  '·',
-                  style: context.appTextStyles.body.copyWith(
-                    color: context.appColors.textSecondary.withValues(
-                      alpha: 0.5,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: AppSpacing.xs),
-
+                // **글자를 빼고 아이콘만 둔다** (이슈 #306). 폭이 좁은 폰에서 오른쪽의
+                // FREE·설정이 삐져나왔고, 영어·일본어·중국어는 글자가 더 길어 #224 처럼
+                // 잘렸다. 상태는 아이콘 모양과 색으로 가르고, 눌러서 글로 확인한다
+                const SizedBox(width: AppSpacing.sm),
                 Icon(
                   isHeadphoneConnected
                       ? Icons.headphones_outlined
@@ -255,17 +238,6 @@ class _StatusBar extends StatelessWidget {
                   color: isHeadphoneConnected
                       ? semantic.audioBluetooth
                       : context.appColors.textSecondary,
-                ),
-                const SizedBox(width: AppSpacing.xs),
-                Flexible(
-                  child: Text(
-                    isHeadphoneConnected
-                        ? context.l10n.placeHomeAudioHeadphones
-                        : context.l10n.placeHomeAudioVibrationOnly,
-                    style: context.appTextStyles.body,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
                 ),
               ],
             ),

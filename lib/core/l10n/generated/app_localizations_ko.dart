@@ -1413,4 +1413,29 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get proSheetRedeem => '프로모션 코드 사용';
+
+  @override
+  String get homeStatusSheetTitle => '지금 상태';
+
+  @override
+  String get homeStatusWatchingDescription => '켜 둔 장소에 도착하거나 출발하면 알려요';
+
+  @override
+  String get homeStatusOffDescription =>
+      '켜진 장소가 있는데 감시가 멈춰 있어요. 위치 권한을 확인해 주세요';
+
+  @override
+  String get homeStatusCheckingDescription => '감시 상태를 확인하고 있어요';
+
+  @override
+  String get homeStatusIdleDescription => '켜진 장소가 없어요. 장소를 켜면 감시가 시작돼요';
+
+  @override
+  String get homeAudioHeadphonesDescription => '이어폰으로 소리와 진동이 와요';
+
+  @override
+  String get homeAudioVibrationOnlyDescription => '이어폰이 없어서 진동으로만 알려요';
+
+  @override
+  String get homeStatusFixButton => '권한 확인하러 가기';
 }

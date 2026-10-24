@@ -1473,4 +1473,33 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get proSheetRedeem => 'Redeem promo code';
+
+  @override
+  String get homeStatusSheetTitle => 'Current status';
+
+  @override
+  String get homeStatusWatchingDescription =>
+      'You\'ll be alerted when you arrive at or leave a place that\'s turned on';
+
+  @override
+  String get homeStatusOffDescription =>
+      'Places are on but monitoring has stopped. Check location permission';
+
+  @override
+  String get homeStatusCheckingDescription => 'Checking monitoring status';
+
+  @override
+  String get homeStatusIdleDescription =>
+      'No places are on. Turn one on to start monitoring';
+
+  @override
+  String get homeAudioHeadphonesDescription =>
+      'Sound and vibration come through your earphones';
+
+  @override
+  String get homeAudioVibrationOnlyDescription =>
+      'No earphones connected, so alerts are vibration only';
+
+  @override
+  String get homeStatusFixButton => 'Check permissions';
 }

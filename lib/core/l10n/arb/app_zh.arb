@@ -487,5 +487,13 @@
   "proInfoUnknown": "确认中",
   "proInfoNotePurchase": "已通过此设备的 Google Play 账号购买。更换设备后，使用同一账号可通过“恢复购买”重新解锁。",
   "proInfoRestore": "恢复购买",
-  "proSheetRedeem": "使用兑换码"
+  "proSheetRedeem": "使用兑换码",
+  "homeStatusSheetTitle": "当前状态",
+  "homeStatusWatchingDescription": "到达或离开已开启的地点时会提醒你",
+  "homeStatusOffDescription": "已有开启的地点但监控已停止。请检查位置权限",
+  "homeStatusCheckingDescription": "正在确认监控状态",
+  "homeStatusIdleDescription": "没有开启的地点。开启地点后监控会开始",
+  "homeAudioHeadphonesDescription": "声音和振动会通过耳机传来",
+  "homeAudioVibrationOnlyDescription": "未连接耳机,仅通过振动提醒",
+  "homeStatusFixButton": "去检查权限"
 }

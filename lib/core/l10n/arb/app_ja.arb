@@ -487,5 +487,13 @@
   "proInfoUnknown": "確認中",
   "proInfoNotePurchase": "この端末の Google Play アカウントで購入されました。機種変更しても同じアカウントなら「購入を復元」で再び使えます。",
   "proInfoRestore": "購入を復元",
-  "proSheetRedeem": "プロモーションコードを使う"
+  "proSheetRedeem": "プロモーションコードを使う",
+  "homeStatusSheetTitle": "現在の状態",
+  "homeStatusWatchingDescription": "オンにした場所に到着または出発すると知らせます",
+  "homeStatusOffDescription": "オンの場所があるのに監視が止まっています。位置情報の権限を確認してください",
+  "homeStatusCheckingDescription": "監視の状態を確認しています",
+  "homeStatusIdleDescription": "オンの場所がありません。場所をオンにすると監視が始まります",
+  "homeAudioHeadphonesDescription": "イヤホンで音と振動が届きます",
+  "homeAudioVibrationOnlyDescription": "イヤホンがないため振動のみでお知らせします",
+  "homeStatusFixButton": "権限を確認する"
 }

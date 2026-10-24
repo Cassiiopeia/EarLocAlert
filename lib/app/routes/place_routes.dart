@@ -39,7 +39,8 @@ class _PlaceFormRoute extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return PlaceFormScreen(
       existing: existing,
-      onSaved: () => _onPlaceSaved(context),
+      // 저장 뒤 바로 나간다 — 워치 안내는 설정에서만 연다 (이슈 #304)
+      onSaved: () => _leaveForm(context),
       onPlaceLimitReached: () => _onPlaceLimitReached(context, ref),
       onDeleted: () => _leaveForm(context),
       onPickOnMap: (args) => _pickOnMap(context, args),
@@ -77,29 +78,6 @@ Future<String> _describeSound(
 
 Future<MapPickResult?> _pickOnMap(BuildContext context, MapPickArgs args) {
   return context.push<MapPickResult>(AppRoutes.placeMap, extra: args);
-}
-
-/// 장소 폼에서 빠져나온다 (이슈 #97).
-///
-/// 장소를 저장한 뒤 — 첫 등록이면 워치 안내를 한 번 보여주고 폼을 나간다 (이슈 #270)
-///
-/// 안내를 **폼을 떠나기 전에** 띄운다. 떠난 뒤에는 이 context 가 사라져 시트를 열 수
-/// 없고, 홈에서 따로 띄우면 화면 전환과 겹친다. 시트는 폼 위에 뜨고, 닫히면 나간다.
-Future<void> _onPlaceSaved(BuildContext context) async {
-  const store = PrefsWatchGuideStore();
-  // 수정이 아니라 **첫** 등록에만 — 이미 본 사람은 다시 띄우지 않는다
-  if (!await store.wasSeen() && context.mounted) {
-    await store.markSeen();
-    if (context.mounted) {
-      await showWatchGuideSheet(
-        context,
-        platform: Platform.isIOS
-            ? WatchGuidePlatform.ios
-            : WatchGuidePlatform.android,
-      );
-    }
-  }
-  if (context.mounted) _leaveForm(context);
 }
 
 /// 홈에서 `push` 로 들어왔으면 `pop` 이 자연스럽다 — 스택이 유지되어
