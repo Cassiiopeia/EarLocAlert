@@ -1410,4 +1410,29 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get proSheetRedeem => 'プロモーションコードを使う';
+
+  @override
+  String get homeStatusSheetTitle => '現在の状態';
+
+  @override
+  String get homeStatusWatchingDescription => 'オンにした場所に到着または出発すると知らせます';
+
+  @override
+  String get homeStatusOffDescription =>
+      'オンの場所があるのに監視が止まっています。位置情報の権限を確認してください';
+
+  @override
+  String get homeStatusCheckingDescription => '監視の状態を確認しています';
+
+  @override
+  String get homeStatusIdleDescription => 'オンの場所がありません。場所をオンにすると監視が始まります';
+
+  @override
+  String get homeAudioHeadphonesDescription => 'イヤホンで音と振動が届きます';
+
+  @override
+  String get homeAudioVibrationOnlyDescription => 'イヤホンがないため振動のみでお知らせします';
+
+  @override
+  String get homeStatusFixButton => '権限を確認する';
 }

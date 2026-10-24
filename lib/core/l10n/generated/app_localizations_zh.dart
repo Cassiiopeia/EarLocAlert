@@ -1397,4 +1397,28 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get proSheetRedeem => '使用兑换码';
+
+  @override
+  String get homeStatusSheetTitle => '当前状态';
+
+  @override
+  String get homeStatusWatchingDescription => '到达或离开已开启的地点时会提醒你';
+
+  @override
+  String get homeStatusOffDescription => '已有开启的地点但监控已停止。请检查位置权限';
+
+  @override
+  String get homeStatusCheckingDescription => '正在确认监控状态';
+
+  @override
+  String get homeStatusIdleDescription => '没有开启的地点。开启地点后监控会开始';
+
+  @override
+  String get homeAudioHeadphonesDescription => '声音和振动会通过耳机传来';
+
+  @override
+  String get homeAudioVibrationOnlyDescription => '未连接耳机,仅通过振动提醒';
+
+  @override
+  String get homeStatusFixButton => '去检查权限';
 }

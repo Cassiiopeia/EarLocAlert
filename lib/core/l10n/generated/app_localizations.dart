@@ -2699,6 +2699,54 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'프로모션 코드 사용'**
   String get proSheetRedeem;
+
+  /// No description provided for @homeStatusSheetTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'지금 상태'**
+  String get homeStatusSheetTitle;
+
+  /// No description provided for @homeStatusWatchingDescription.
+  ///
+  /// In ko, this message translates to:
+  /// **'켜 둔 장소에 도착하거나 출발하면 알려요'**
+  String get homeStatusWatchingDescription;
+
+  /// No description provided for @homeStatusOffDescription.
+  ///
+  /// In ko, this message translates to:
+  /// **'켜진 장소가 있는데 감시가 멈춰 있어요. 위치 권한을 확인해 주세요'**
+  String get homeStatusOffDescription;
+
+  /// No description provided for @homeStatusCheckingDescription.
+  ///
+  /// In ko, this message translates to:
+  /// **'감시 상태를 확인하고 있어요'**
+  String get homeStatusCheckingDescription;
+
+  /// No description provided for @homeStatusIdleDescription.
+  ///
+  /// In ko, this message translates to:
+  /// **'켜진 장소가 없어요. 장소를 켜면 감시가 시작돼요'**
+  String get homeStatusIdleDescription;
+
+  /// No description provided for @homeAudioHeadphonesDescription.
+  ///
+  /// In ko, this message translates to:
+  /// **'이어폰으로 소리와 진동이 와요'**
+  String get homeAudioHeadphonesDescription;
+
+  /// No description provided for @homeAudioVibrationOnlyDescription.
+  ///
+  /// In ko, this message translates to:
+  /// **'이어폰이 없어서 진동으로만 알려요'**
+  String get homeAudioVibrationOnlyDescription;
+
+  /// No description provided for @homeStatusFixButton.
+  ///
+  /// In ko, this message translates to:
+  /// **'권한 확인하러 가기'**
+  String get homeStatusFixButton;
 }
 
 class _AppLocalizationsDelegate

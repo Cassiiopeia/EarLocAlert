@@ -487,5 +487,13 @@
   "proInfoUnknown": "Checking",
   "proInfoNotePurchase": "Purchased with this device's Google Play account. On a new phone, the same account can bring it back with \"Restore purchase\".",
   "proInfoRestore": "Restore purchase",
-  "proSheetRedeem": "Redeem promo code"
+  "proSheetRedeem": "Redeem promo code",
+  "homeStatusSheetTitle": "Current status",
+  "homeStatusWatchingDescription": "You'll be alerted when you arrive at or leave a place that's turned on",
+  "homeStatusOffDescription": "Places are on but monitoring has stopped. Check location permission",
+  "homeStatusCheckingDescription": "Checking monitoring status",
+  "homeStatusIdleDescription": "No places are on. Turn one on to start monitoring",
+  "homeAudioHeadphonesDescription": "Sound and vibration come through your earphones",
+  "homeAudioVibrationOnlyDescription": "No earphones connected, so alerts are vibration only",
+  "homeStatusFixButton": "Check permissions"
 }
