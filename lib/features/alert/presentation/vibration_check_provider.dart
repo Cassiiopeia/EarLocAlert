@@ -25,6 +25,12 @@ class VibrationCheck extends _$VibrationCheck {
 
   /// 사용자의 답을 저장한다. 저장이 실패해도 화면 상태는 바뀐 답을 따른다
   Future<void> answer({required bool felt}) async {
+    // 첫 읽기가 끝나기 전에 답을 넣으면 뒤늦게 끝난 읽기(null)가 답을 덮을 수 있다 (온보딩 직후 홈 경고)
+    try {
+      await future;
+    } on Object {
+      // 읽기 실패는 build 가 이미 기록 — 답 저장은 계속
+    }
     final result = VibrationCheckResult(
       felt: felt,
       answeredAt: DateTime.now().toUtc(),

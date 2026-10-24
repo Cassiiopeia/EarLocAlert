@@ -125,8 +125,8 @@ class IosVibrationCheckSheet extends StatelessWidget {
             : actions.onNextGuideStep,
         onGiveUp: actions.onGiveUp,
       ),
+      // 가운데 배지가 성공 표시라 제목 옆 아이콘은 두지 않음 (체크 중복)
       IosVibrationCheckStep.succeeded => BottomSheetWithHeaderLayout(
-        headerIcon: Icons.check_circle_outline,
         title: l10n.vibrationCheckSuccessTitle,
         description: l10n.vibrationCheckSuccessBody,
         body: const Center(child: _SuccessBadge()),
