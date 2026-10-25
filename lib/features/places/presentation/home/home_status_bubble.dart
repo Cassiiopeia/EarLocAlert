@@ -36,6 +36,10 @@ class _StatusBubbleState extends State<_StatusBubble>
     with SingleTickerProviderStateMixin {
   static const _hiddenScale = 0.25;
 
+  // 유리 질감: 뒤 지도를 흐리게 비추는 정도와 카드 불투명도
+  static const _glassBlurSigma = 24.0;
+  static const _glassOpacity = 0.94;
+
   // 알약 높이 + 위 여백 + 알약과 물방울 사이 틈
   static const _pillGap = AppSpacing.xs;
 
@@ -137,76 +141,87 @@ class _StatusBubbleState extends State<_StatusBubble>
     // 카드 안을 누를 때는 닫지 않는다 — 바깥 탭만 닫는다
     return GestureDetector(
       onTap: () {},
-      child: Container(
-        padding: const EdgeInsets.all(AppSpacing.sm),
-        decoration: BoxDecoration(
-          color: colors.surface,
-          borderRadius: BorderRadius.circular(AppRadius.card),
-          border: Border.all(color: colors.separator),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              l10n.homeStatusSheetTitle,
-              style: context.appTextStyles.caption,
-            ),
-            const SizedBox(height: AppSpacing.xs),
-            _StatusBubbleRow(
-              icon: widget.isMonitoring
-                  ? Icons.radar_outlined
-                  : widget.isBroken
-                  ? Icons.warning_amber_outlined
-                  : widget.isChecking
-                  ? Icons.hourglass_empty_outlined
-                  : Icons.pause_circle_outlined,
-              color: monitoringColor,
-              title: widget.isMonitoring
-                  ? l10n.placeHomeStatusWatching
-                  : widget.isBroken
-                  ? l10n.placeHomeStatusOff
-                  : widget.isChecking
-                  ? l10n.placeHomeStatusChecking
-                  : l10n.placeHomeStatusIdle,
-              description: widget.isMonitoring
-                  ? l10n.homeStatusWatchingDescription
-                  : widget.isBroken
-                  ? l10n.homeStatusOffDescription
-                  : widget.isChecking
-                  ? l10n.homeStatusCheckingDescription
-                  : l10n.homeStatusIdleDescription,
-            ),
-            const SizedBox(height: AppSpacing.sm),
-            _StatusBubbleRow(
-              icon: widget.isHeadphoneConnected
-                  ? Icons.headphones_outlined
-                  : Icons.vibration_outlined,
-              color: widget.isHeadphoneConnected
-                  ? semantic.audioBluetooth
-                  : colors.textSecondary,
-              title: widget.isHeadphoneConnected
-                  ? l10n.placeHomeAudioHeadphones
-                  : l10n.placeHomeAudioVibrationOnly,
-              description: widget.isHeadphoneConnected
-                  ? l10n.homeAudioHeadphonesDescription
-                  : l10n.homeAudioVibrationOnlyDescription,
-            ),
-            if (widget.isBroken && widget.onFixMonitoring != null) ...[
-              const SizedBox(height: AppSpacing.sm),
-              FilledButton(
-                onPressed: widget.onFixMonitoring,
-                child: Text(l10n.homeStatusFixButton),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(AppRadius.card),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(
+            sigmaX: _glassBlurSigma,
+            sigmaY: _glassBlurSigma,
+          ),
+          child: Container(
+            padding: const EdgeInsets.all(AppSpacing.sm),
+            decoration: BoxDecoration(
+              color: colors.surface.withValues(alpha: _glassOpacity),
+              borderRadius: BorderRadius.circular(AppRadius.card),
+              border: Border.all(
+                color: colors.separator.withValues(alpha: 0.5),
               ),
-            ],
-          ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  l10n.homeStatusSheetTitle,
+                  style: context.appTextStyles.caption,
+                ),
+                const SizedBox(height: AppSpacing.sm),
+                _StatusBubbleRow(
+                  icon: widget.isMonitoring
+                      ? Icons.radar_outlined
+                      : widget.isBroken
+                      ? Icons.warning_amber_outlined
+                      : widget.isChecking
+                      ? Icons.hourglass_empty_outlined
+                      : Icons.pause_circle_outlined,
+                  color: monitoringColor,
+                  title: widget.isMonitoring
+                      ? l10n.placeHomeStatusWatching
+                      : widget.isBroken
+                      ? l10n.placeHomeStatusOff
+                      : widget.isChecking
+                      ? l10n.placeHomeStatusChecking
+                      : l10n.placeHomeStatusIdle,
+                  description: widget.isMonitoring
+                      ? l10n.homeStatusWatchingDescription
+                      : widget.isBroken
+                      ? l10n.homeStatusOffDescription
+                      : widget.isChecking
+                      ? l10n.homeStatusCheckingDescription
+                      : l10n.homeStatusIdleDescription,
+                ),
+                const SizedBox(height: AppSpacing.sm),
+                _StatusBubbleRow(
+                  icon: widget.isHeadphoneConnected
+                      ? Icons.headphones_outlined
+                      : Icons.vibration_outlined,
+                  color: widget.isHeadphoneConnected
+                      ? semantic.audioBluetooth
+                      : colors.textSecondary,
+                  title: widget.isHeadphoneConnected
+                      ? l10n.placeHomeAudioHeadphones
+                      : l10n.placeHomeAudioVibrationOnly,
+                  description: widget.isHeadphoneConnected
+                      ? l10n.homeAudioHeadphonesDescription
+                      : l10n.homeAudioVibrationOnlyDescription,
+                ),
+                if (widget.isBroken && widget.onFixMonitoring != null) ...[
+                  const SizedBox(height: AppSpacing.sm),
+                  FilledButton(
+                    onPressed: widget.onFixMonitoring,
+                    child: Text(l10n.homeStatusFixButton),
+                  ),
+                ],
+              ],
+            ),
+          ),
         ),
       ),
     );
   }
 }
 
-/// 아이콘 + 제목 + 한 줄 설명
+/// 아이콘 배지 + 제목 + 한 줄 설명
 class _StatusBubbleRow extends StatelessWidget {
   const _StatusBubbleRow({
     required this.icon,
@@ -220,12 +235,23 @@ class _StatusBubbleRow extends StatelessWidget {
   final String title;
   final String description;
 
+  static const double _badgeDiameter = 40;
+
   @override
   Widget build(BuildContext context) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, size: AppIconSize.standard, color: color),
+        // 상태 색을 옅게 깐 원 안에 아이콘 — 색만이 아니라 모양으로도 구분
+        Container(
+          width: _badgeDiameter,
+          height: _badgeDiameter,
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.14),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(icon, size: AppIconSize.control, color: color),
+        ),
         const SizedBox(width: AppSpacing.sm),
         Expanded(
           child: Column(
