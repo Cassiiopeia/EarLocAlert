@@ -488,6 +488,7 @@
   "proInfoOrderId": "订单号",
   "proInfoUnknown": "确认中",
   "proInfoNotePurchase": "已通过此设备的 Google Play 账号购买。更换设备后，使用同一账号可通过“恢复购买”重新解锁。",
+  "proInfoNotePurchaseAppStore": "已通过此设备的 Apple 账户购买。更换设备后，使用同一 Apple 账户可通过“恢复购买”重新解锁。",
   "proInfoRestore": "恢复购买",
   "proSheetRedeem": "使用兑换码",
   "homeStatusSheetTitle": "当前状态",

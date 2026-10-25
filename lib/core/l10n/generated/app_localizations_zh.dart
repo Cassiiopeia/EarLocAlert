@@ -1399,6 +1399,10 @@ class AppLocalizationsZh extends AppLocalizations {
       '已通过此设备的 Google Play 账号购买。更换设备后，使用同一账号可通过“恢复购买”重新解锁。';
 
   @override
+  String get proInfoNotePurchaseAppStore =>
+      '已通过此设备的 Apple 账户购买。更换设备后，使用同一 Apple 账户可通过“恢复购买”重新解锁。';
+
+  @override
   String get proInfoRestore => '恢复购买';
 
   @override

@@ -22,7 +22,8 @@ ProEntitlementStore proEntitlementStore(Ref ref) => const ProEntitlementStore();
 class FeatureAccessController extends _$FeatureAccessController {
   @override
   FeatureAccess build() => FeatureAccess(
-    isPaywallEnabled: Platform.isAndroid,
+    // 결제가 있는 플랫폼만 무료 제한을 건다: Android Play (#294), iOS App Store (#298)
+    isPaywallEnabled: Platform.isAndroid || Platform.isIOS,
     source: ref.watch(proEntitlementInitialProvider),
   );
 

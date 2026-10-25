@@ -36,8 +36,14 @@ final class ProPurchaseFailed extends ProPurchaseEvent {
   final String reason;
 }
 
+/// 결제를 맡는 스토어 (#298). 스토어마다 다른 화면 요소(코드 사용·구매 계정 안내)를 가림
+enum ProPurchaseStore { googlePlay, appStore, none }
+
 /// 평생 이용권 결제 창구: 가격 조회, 구매, 복원, 보유 확인
 abstract interface class ProPurchaseService {
+  /// 결제를 맡는 스토어
+  ProPurchaseStore get store;
+
   /// 구매·복원 결과. 앱 시작 직후부터 구독해야 지난 실행의 결제도 받음
   Stream<ProPurchaseEvent> get events;
 

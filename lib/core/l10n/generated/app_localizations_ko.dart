@@ -1415,6 +1415,10 @@ class AppLocalizationsKo extends AppLocalizations {
       '이 기기의 Google Play 계정으로 구매됐어요. 기기를 바꿔도 같은 계정이면 \"구매 복원\"으로 다시 열려요.';
 
   @override
+  String get proInfoNotePurchaseAppStore =>
+      '이 기기의 Apple 계정으로 구매됐어요. 기기를 바꿔도 같은 Apple 계정이면 \"구매 복원\"으로 다시 열려요.';
+
+  @override
   String get proInfoRestore => '구매 복원';
 
   @override

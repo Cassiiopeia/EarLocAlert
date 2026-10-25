@@ -8,7 +8,9 @@ import '../../../core/ui/components/bottom_sheet_with_header_layout.dart';
 import '../../../core/ui/components/loading_indicator.dart';
 import '../../../core/ui/foundation/app_color_palette.dart';
 import '../../../core/ui/foundation/app_spacing.dart';
+import '../data/pro_purchase_providers.dart';
 import '../domain/pro_purchase_record.dart';
+import '../domain/pro_purchase_service.dart';
 import 'plan_badge_chip.dart';
 import 'pro_purchase_record_controller.dart';
 import 'pro_restore_action.dart';
@@ -83,7 +85,13 @@ class _ProInfoSheetState extends ConsumerState<_ProInfoSheet> {
           ),
           const SizedBox(height: AppSpacing.sm),
           Text(
-            context.keepAllText(l10n.proInfoNotePurchase),
+            context.keepAllText(
+              // 구매 계정 안내: App Store > Apple 계정, 그 외 > Google Play 계정
+              ref.watch(proPurchaseServiceProvider).store ==
+                      ProPurchaseStore.appStore
+                  ? l10n.proInfoNotePurchaseAppStore
+                  : l10n.proInfoNotePurchase,
+            ),
             style: context.appTextStyles.caption,
           ),
         ],

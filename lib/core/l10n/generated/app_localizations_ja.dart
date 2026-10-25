@@ -1412,6 +1412,10 @@ class AppLocalizationsJa extends AppLocalizations {
       'この端末の Google Play アカウントで購入されました。機種変更しても同じアカウントなら「購入を復元」で再び使えます。';
 
   @override
+  String get proInfoNotePurchaseAppStore =>
+      'この端末の Apple アカウントで購入されました。機種変更しても同じ Apple アカウントなら「購入を復元」で再び使えます。';
+
+  @override
   String get proInfoRestore => '購入を復元';
 
   @override
