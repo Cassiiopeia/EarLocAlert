@@ -13,43 +13,59 @@ class _WeakAlertCapsule extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final accent = context.appColors.warning;
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.xs,
-        vertical: AppSpacing.xs / 2,
-      ),
-      decoration: BoxDecoration(
-        color: accent.withValues(alpha: 0.16),
-        borderRadius: BorderRadius.circular(AppRadius.pill),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            Icons.notifications_off_outlined,
-            size: AppIconSize.control,
-            color: accent,
+    final label = context.l10n.placeHomeWeakChip;
+    final labelStyle = context.appTextStyles.caption.copyWith(
+      color: accent,
+      fontWeight: FontWeight.w700,
+    );
+    const horizontalPadding = AppSpacing.xs;
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // 글자가 다 들어갈 때만 보인다 — 잘려 "알..." 이 되느니 아이콘만 둔다.
+        // FREE 칩이 붙는 폰이나 긴 번역에서 폭이 모자란다
+        final labelPainter = TextPainter(
+          text: TextSpan(text: label, style: labelStyle),
+          maxLines: 1,
+          textDirection: Directionality.of(context),
+          textScaler: MediaQuery.textScalerOf(context),
+        )..layout();
+        const fixedWidth =
+            horizontalPadding * 2 + AppIconSize.control * 2 + AppSpacing.xs / 2;
+        final isLabelVisible =
+            fixedWidth + labelPainter.width <= constraints.maxWidth;
+        labelPainter.dispose();
+
+        return Container(
+          padding: const EdgeInsets.symmetric(
+            horizontal: horizontalPadding,
+            vertical: AppSpacing.xs / 2,
           ),
-          const SizedBox(width: AppSpacing.xs / 2),
-          // 좁은 폰·긴 번역에서 알약이 밀리지 않게 글자가 줄어든다
-          Flexible(
-            child: Text(
-              context.l10n.placeHomeWeakChip,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: context.appTextStyles.caption.copyWith(
+          decoration: BoxDecoration(
+            color: accent.withValues(alpha: 0.16),
+            borderRadius: BorderRadius.circular(AppRadius.pill),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.notifications_off_outlined,
+                size: AppIconSize.control,
                 color: accent,
-                fontWeight: FontWeight.w700,
               ),
-            ),
+              if (isLabelVisible) ...[
+                const SizedBox(width: AppSpacing.xs / 2),
+                Text(label, maxLines: 1, style: labelStyle),
+              ],
+              Icon(
+                Icons.chevron_right_outlined,
+                size: AppIconSize.control,
+                color: accent,
+              ),
+            ],
           ),
-          Icon(
-            Icons.chevron_right_outlined,
-            size: AppIconSize.control,
-            color: accent,
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
