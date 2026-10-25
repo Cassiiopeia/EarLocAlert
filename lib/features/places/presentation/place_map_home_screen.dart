@@ -292,7 +292,8 @@ class _PlaceMapHomeScreenState extends ConsumerState<PlaceMapHomeScreen>
               child: DraggableScrollableSheet(
                 controller: _sheet,
                 initialChildSize: _sheetInitial,
-                minChildSize: _sheetMin,
+                // 장소가 없으면 접지 않는다 — 접으면 "장소 등록" 버튼이 반쯤 잘려 보인다
+                minChildSize: places.isEmpty ? _sheetInitial : _sheetMin,
                 maxChildSize: 0.85,
                 snap: true,
                 snapSizes: const [_sheetInitial],
