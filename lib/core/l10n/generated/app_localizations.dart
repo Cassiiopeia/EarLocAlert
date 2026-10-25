@@ -1317,7 +1317,7 @@ abstract class AppLocalizations {
   /// No description provided for @placeHomeWeakTitle.
   ///
   /// In ko, this message translates to:
-  /// **'알림을 놓칠 수 있습니다'**
+  /// **'알림이 안 울릴 수 있어요'**
   String get placeHomeWeakTitle;
 
   /// No description provided for @placeHomeWeakPowerSaving.

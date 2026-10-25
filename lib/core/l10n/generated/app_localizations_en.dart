@@ -699,7 +699,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get placeHomeAudioVibrationOnly => 'Vibration only';
 
   @override
-  String get placeHomeWeakTitle => 'You may miss alerts';
+  String get placeHomeWeakTitle => 'Alerts may not ring';
 
   @override
   String get placeHomeWeakPowerSaving =>

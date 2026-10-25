@@ -667,7 +667,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get placeHomeAudioVibrationOnly => '仅振动';
 
   @override
-  String get placeHomeWeakTitle => '可能会错过提醒';
+  String get placeHomeWeakTitle => '提醒可能不会响';
 
   @override
   String get placeHomeWeakPowerSaving => '省电模式或使用其他应用时，提醒会变弱';

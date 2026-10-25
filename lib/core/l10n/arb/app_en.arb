@@ -202,7 +202,7 @@
   "placeHomeStatusIdle": "Standby",
   "placeHomeAudioHeadphones": "Earphones",
   "placeHomeAudioVibrationOnly": "Vibration only",
-  "placeHomeWeakTitle": "You may miss alerts",
+  "placeHomeWeakTitle": "Alerts may not ring",
   "placeHomeWeakPowerSaving": "Alerts get weaker in power saving or while using other apps",
   "placeHomeWeakMissing": "Turned off: {items} — tap to turn on",
   "placeHomeAddPlace": "Add place",

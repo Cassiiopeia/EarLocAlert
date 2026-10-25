@@ -202,7 +202,7 @@
   "placeHomeStatusIdle": "待機中",
   "placeHomeAudioHeadphones": "イヤホン",
   "placeHomeAudioVibrationOnly": "振動のみ",
-  "placeHomeWeakTitle": "アラートを見逃すかもしれません",
+  "placeHomeWeakTitle": "アラートが鳴らないかも",
   "placeHomeWeakPowerSaving": "省電力中や他のアプリの使用中はアラートが弱まります",
   "placeHomeWeakMissing": "{items}がオフです — タップしてオンにする",
   "placeHomeAddPlace": "場所を追加",

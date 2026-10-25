@@ -673,7 +673,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get placeHomeAudioVibrationOnly => '진동만';
 
   @override
-  String get placeHomeWeakTitle => '알림을 놓칠 수 있습니다';
+  String get placeHomeWeakTitle => '알림이 안 울릴 수 있어요';
 
   @override
   String get placeHomeWeakPowerSaving => '절전 중이거나 다른 앱을 쓰는 동안 알림이 약해집니다';

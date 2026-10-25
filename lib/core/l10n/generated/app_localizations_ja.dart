@@ -672,7 +672,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get placeHomeAudioVibrationOnly => '振動のみ';
 
   @override
-  String get placeHomeWeakTitle => 'アラートを見逃すかもしれません';
+  String get placeHomeWeakTitle => 'アラートが鳴らないかも';
 
   @override
   String get placeHomeWeakPowerSaving => '省電力中や他のアプリの使用中はアラートが弱まります';

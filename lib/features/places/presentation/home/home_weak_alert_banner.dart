@@ -15,6 +15,8 @@ class _WeakAlertBanner extends StatelessWidget {
 
   final VoidCallback onTap;
 
+  static const double _badgeDiameter = 36;
+
   /// 아직 켜지지 않은 항목 이름. 비어 있으면 일반 문구로 떨어진다.
   ///
   /// **무엇이 빠졌는지 말해주는 것이 핵심이다** — "알림이 약합니다"만으로는
@@ -26,11 +28,11 @@ class _WeakAlertBanner extends StatelessWidget {
     final accent = context.appColors.warning;
 
     // **불투명해야 한다.** 지도 위에 뜨는 배너라 반투명이면 도로와 지명이
-    // 글자 뒤로 비쳐 읽히지 않는다. 표면색에 강조색을 섞어 경고 기운은
+    // 글자 뒤로 비쳐 읽히지 않는다. 표면색에 강조색을 옅게 섞어 경고 기운은
     // 남기되 바탕은 가린다
     return Material(
       color: Color.alphaBlend(
-        accent.withValues(alpha: 0.22),
+        accent.withValues(alpha: 0.12),
         context.appColors.surface,
       ),
       borderRadius: BorderRadius.circular(AppRadius.card),
@@ -40,15 +42,28 @@ class _WeakAlertBanner extends StatelessWidget {
         child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(AppRadius.card),
-            border: Border.all(color: accent.withValues(alpha: 0.55)),
+            border: Border.all(color: accent.withValues(alpha: 0.28)),
           ),
           padding: const EdgeInsets.symmetric(
             horizontal: AppSpacing.sm,
-            vertical: AppSpacing.sm,
+            vertical: AppSpacing.xs,
           ),
           child: Row(
             children: [
-              Icon(Icons.warning_amber_outlined, color: accent),
+              // 경고색을 옅게 깐 원 안에 아이콘 — 상태 카드의 배지와 같은 모양
+              Container(
+                width: _badgeDiameter,
+                height: _badgeDiameter,
+                decoration: BoxDecoration(
+                  color: accent.withValues(alpha: 0.18),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.notifications_off_outlined,
+                  size: AppIconSize.control,
+                  color: accent,
+                ),
+              ),
               const SizedBox(width: AppSpacing.sm),
               Expanded(
                 child: Column(
@@ -57,12 +72,9 @@ class _WeakAlertBanner extends StatelessWidget {
                   children: [
                     Text(
                       context.l10n.placeHomeWeakTitle,
-                      style: context.appTextStyles.body.copyWith(
-                        fontWeight: FontWeight.w700,
-                        color: accent,
-                      ),
+                      style: context.appTextStyles.headline,
                     ),
-                    const SizedBox(height: 2),
+                    const SizedBox(height: AppSpacing.xs / 4),
                     Text(
                       // 조사를 붙이지 않는다 — 항목 이름이 바뀔 때마다
                       // 은/는·이/가가 어긋난다
@@ -83,7 +95,10 @@ class _WeakAlertBanner extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: AppSpacing.xs),
-              Icon(Icons.chevron_right_outlined, color: accent),
+              Icon(
+                Icons.chevron_right_outlined,
+                color: context.appColors.textSecondary,
+              ),
             ],
           ),
         ),
