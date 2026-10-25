@@ -27,6 +27,9 @@ bool isAlertWeakOf({
 /// 감시가 꺼져 있으면 **눈에 띄어야 하고 해결 경로가 있어야 한다.**
 /// "안 울린다"는 문제의 대부분이 여기서 미리 잡힌다.
 class _StatusBar extends StatelessWidget {
+  // 로고 원판 지름 — 알약 높이(48) 안에서 위아래 여백 8
+  static const double _logoPlateDiameter = AppSpacing.sm * 2;
+
   const _StatusBar({
     required this.isMonitoring,
     required this.isStatusKnown,
@@ -202,11 +205,23 @@ class _StatusBar extends StatelessWidget {
                 // **폭도 정해 둔다** (#278). 높이만 주면 이미지를 디코딩하기 전
                 // 폭이 0 이라, 디코딩이 끝나는 순간 알약이 로고 폭만큼 늘어났다
                 // (원본 100×144 → 높이 24 에서 폭 약 16.7)
-                Image.asset(
-                  'assets/icon/app_logo_mark.png',
-                  height: AppIconSize.standard,
-                  width: AppIconSize.standard * 100 / 144,
-                  filterQuality: FilterQuality.medium,
+                //
+                // **어두운 원판 위에 얹는다** (이슈 #310). 로고 안의 이어폰이 흰색이라
+                // 라이트 모드의 흰 알약에서는 사라진다 — 어느 모드에서나 같은 판을 깐다
+                Container(
+                  width: _logoPlateDiameter,
+                  height: _logoPlateDiameter,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: AppColorPalette.dark.surface,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Image.asset(
+                    'assets/icon/app_logo_mark.png',
+                    height: AppIconSize.control,
+                    width: AppIconSize.control * 100 / 144,
+                    filterQuality: FilterQuality.medium,
+                  ),
                 ),
                 // 로고와 상태를 한 칸 떼어 놓는다 — 붙어 있으면 청록 아이콘 둘이
                 // 한 덩어리로 보여 무엇이 로고인지 흐려진다 (디자인 리뷰)
