@@ -1,14 +1,39 @@
 {
   "metadata": {
-    "lastUpdated": "2026-10-24T10:11:28Z",
-    "currentVersion": "1.42.1",
+    "lastUpdated": "2026-10-25T02:48:39Z",
+    "currentVersion": "1.43.0",
     "projectType": "flutter",
-    "totalReleases": 115,
+    "totalReleases": 116,
     "projectTypes": [
       "flutter"
     ]
   },
   "releases": [
+    {
+      "version": "1.43.0",
+      "project_type": "flutter",
+      "project_types": [
+        "flutter"
+      ],
+      "date": "2026-10-25",
+      "pr_number": 309,
+      "raw_summary": "## Summary by CodeRabbit\n\n* **새 기능**\n  * 홈 상단 상태 알약을 누르면 알약 아래로 펼쳐지는 유리 질감 상태 카드가 나타나고, 감시 고장일 때는 카드 안 버튼으로 바로 해결할 수 있습니다.\n\n* **개선**\n  * 감시 상태와 이어폰 상태를 색 원형 아이콘 배지로 보여주고, 바깥을 누르면 부드럽게 접힙니다.",
+      "parsed_changes": {
+        "새_기능": {
+          "title": "새 기능",
+          "items": [
+            "홈 상단 상태 알약을 누르면 알약 아래로 펼쳐지는 유리 질감 상태 카드가 나타나고, 감시 고장일 때는 카드 안 버튼으로 바로 해결할 수 있습니다."
+          ]
+        },
+        "개선": {
+          "title": "개선",
+          "items": [
+            "감시 상태와 이어폰 상태를 색 원형 아이콘 배지로 보여주고, 바깥을 누르면 부드럽게 접힙니다."
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "1.42.1",
       "project_type": "flutter",
