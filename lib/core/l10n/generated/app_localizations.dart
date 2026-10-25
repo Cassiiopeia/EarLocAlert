@@ -1320,6 +1320,18 @@ abstract class AppLocalizations {
   /// **'알림이 안 울릴 수 있어요'**
   String get placeHomeWeakTitle;
 
+  /// No description provided for @placeHomeWeakChip.
+  ///
+  /// In ko, this message translates to:
+  /// **'알림 약함'**
+  String get placeHomeWeakChip;
+
+  /// No description provided for @placeHomeWeakFixButton.
+  ///
+  /// In ko, this message translates to:
+  /// **'켜기'**
+  String get placeHomeWeakFixButton;
+
   /// No description provided for @placeHomeWeakPowerSaving.
   ///
   /// In ko, this message translates to:

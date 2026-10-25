@@ -675,6 +675,12 @@ class AppLocalizationsJa extends AppLocalizations {
   String get placeHomeWeakTitle => 'アラートが鳴らないかも';
 
   @override
+  String get placeHomeWeakChip => '通知が弱い';
+
+  @override
+  String get placeHomeWeakFixButton => 'オンにする';
+
+  @override
   String get placeHomeWeakPowerSaving => '省電力中や他のアプリの使用中はアラートが弱まります';
 
   @override

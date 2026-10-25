@@ -13,8 +13,11 @@ class _StatusBubble extends StatefulWidget {
     required this.isBroken,
     required this.isChecking,
     required this.isHeadphoneConnected,
+    required this.isWeak,
     required this.onDismiss,
+    this.missingReliability = const [],
     this.onFixMonitoring,
+    this.onFixReliability,
   });
 
   final bool isOpen;
@@ -23,10 +26,19 @@ class _StatusBubble extends StatefulWidget {
   final bool isBroken;
   final bool isChecking;
   final bool isHeadphoneConnected;
+
+  /// 알림이 약한가 — 켜지면 항목과 켜기 버튼이 붙는다 (이슈 #310)
+  final bool isWeak;
   final VoidCallback onDismiss;
+
+  /// 아직 켜지지 않은 신뢰성 권한 이름 (이슈 #115)
+  final List<String> missingReliability;
 
   /// 고장일 때만 쓴다 — 권한 화면으로 보내는 해결 경로
   final VoidCallback? onFixMonitoring;
+
+  /// 약한 알림일 때만 쓴다 — 빠진 권한을 켜러 가는 경로
+  final VoidCallback? onFixReliability;
 
   @override
   State<_StatusBubble> createState() => _StatusBubbleState();
@@ -205,6 +217,26 @@ class _StatusBubbleState extends State<_StatusBubble>
                       ? l10n.homeAudioHeadphonesDescription
                       : l10n.homeAudioVibrationOnlyDescription,
                 ),
+                if (widget.isWeak) ...[
+                  const SizedBox(height: AppSpacing.sm),
+                  _StatusBubbleRow(
+                    icon: Icons.notifications_off_outlined,
+                    color: colors.warning,
+                    title: l10n.placeHomeWeakTitle,
+                    description: widget.missingReliability.isEmpty
+                        ? l10n.placeHomeWeakPowerSaving
+                        : l10n.placeHomeWeakMissing(
+                            widget.missingReliability.join(' · '),
+                          ),
+                  ),
+                  if (widget.onFixReliability != null) ...[
+                    const SizedBox(height: AppSpacing.sm),
+                    FilledButton(
+                      onPressed: widget.onFixReliability,
+                      child: Text(l10n.placeHomeWeakFixButton),
+                    ),
+                  ],
+                ],
                 if (widget.isBroken && widget.onFixMonitoring != null) ...[
                   const SizedBox(height: AppSpacing.sm),
                   FilledButton(

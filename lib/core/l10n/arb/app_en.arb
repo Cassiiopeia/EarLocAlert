@@ -203,6 +203,8 @@
   "placeHomeAudioHeadphones": "Earphones",
   "placeHomeAudioVibrationOnly": "Vibration only",
   "placeHomeWeakTitle": "Alerts may not ring",
+  "placeHomeWeakChip": "Weak alerts",
+  "placeHomeWeakFixButton": "Turn on",
   "placeHomeWeakPowerSaving": "Alerts get weaker in power saving or while using other apps",
   "placeHomeWeakMissing": "Turned off: {items} · tap to turn on",
   "placeHomeAddPlace": "Add place",

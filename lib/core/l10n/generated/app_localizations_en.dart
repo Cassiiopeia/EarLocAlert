@@ -702,6 +702,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get placeHomeWeakTitle => 'Alerts may not ring';
 
   @override
+  String get placeHomeWeakChip => 'Weak alerts';
+
+  @override
+  String get placeHomeWeakFixButton => 'Turn on';
+
+  @override
   String get placeHomeWeakPowerSaving =>
       'Alerts get weaker in power saving or while using other apps';
 

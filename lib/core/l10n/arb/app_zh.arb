@@ -203,6 +203,8 @@
   "placeHomeAudioHeadphones": "耳机",
   "placeHomeAudioVibrationOnly": "仅振动",
   "placeHomeWeakTitle": "提醒可能不会响",
+  "placeHomeWeakChip": "提醒较弱",
+  "placeHomeWeakFixButton": "开启",
   "placeHomeWeakPowerSaving": "省电模式或使用其他应用时，提醒会变弱",
   "placeHomeWeakMissing": "{items} 已关闭 · 点按开启",
   "placeHomeAddPlace": "添加地点",

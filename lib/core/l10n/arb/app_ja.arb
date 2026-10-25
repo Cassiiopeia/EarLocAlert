@@ -203,6 +203,8 @@
   "placeHomeAudioHeadphones": "イヤホン",
   "placeHomeAudioVibrationOnly": "振動のみ",
   "placeHomeWeakTitle": "アラートが鳴らないかも",
+  "placeHomeWeakChip": "通知が弱い",
+  "placeHomeWeakFixButton": "オンにする",
   "placeHomeWeakPowerSaving": "省電力中や他のアプリの使用中はアラートが弱まります",
   "placeHomeWeakMissing": "{items}がオフです · タップしてオンにする",
   "placeHomeAddPlace": "場所を追加",

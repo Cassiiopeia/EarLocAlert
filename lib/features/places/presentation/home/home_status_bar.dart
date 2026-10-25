@@ -15,6 +15,13 @@ bool isStatusCheckingOf({
   required bool hasEnabledPlaces,
 }) => !isStatusKnown && hasEnabledPlaces;
 
+/// 약한 알림: 감시는 도는데 알림이 약하다. 고장이 먼저라 고장이면 띄우지 않는다
+bool isAlertWeakOf({
+  required bool isBroken,
+  required bool canAlertReliably,
+  required bool hasFixAction,
+}) => !isBroken && !canAlertReliably && hasFixAction;
+
 /// 상단 상태 바 — 이 화면의 존재 이유 (F4.5)
 ///
 /// 감시가 꺼져 있으면 **눈에 띄어야 하고 해결 경로가 있어야 한다.**
@@ -86,8 +93,11 @@ class _StatusBar extends StatelessWidget {
   ///
   /// **고장과 구분한다.** 알림은 오고 있으므로 경고색을 쓰지 않고,
   /// 감시가 아예 안 도는 상황에서는 그쪽이 먼저라 띄우지 않는다.
-  bool get _isWeak =>
-      !_isBroken && !canAlertReliably && onFixReliability != null;
+  bool get _isWeak => isAlertWeakOf(
+    isBroken: _isBroken,
+    canAlertReliably: canAlertReliably,
+    hasFixAction: onFixReliability != null,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -146,17 +156,6 @@ class _StatusBar extends StatelessWidget {
                 ),
               ],
             ),
-            if (_isWeak) ...[
-              const SizedBox(height: AppSpacing.xs - overhang),
-              Padding(
-                // 위에서 뺀 오른쪽 여백을 배너에는 돌려준다
-                padding: const EdgeInsets.only(right: overhang),
-                child: _WeakAlertBanner(
-                  onTap: onFixReliability!,
-                  missing: missingReliability,
-                ),
-              ),
-            ],
           ],
         ),
       ),
@@ -237,6 +236,11 @@ class _StatusBar extends StatelessWidget {
                       ? semantic.audioBluetooth
                       : context.appColors.textSecondary,
                 ),
+                // 알림이 약할 때만 알약 안에 경고 캡슐이 붙는다 (이슈 #310)
+                if (_isWeak) ...[
+                  const SizedBox(width: AppSpacing.xs),
+                  const Flexible(child: _WeakAlertCapsule()),
+                ],
               ],
             ),
           ),

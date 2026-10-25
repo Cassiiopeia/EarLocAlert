@@ -670,6 +670,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get placeHomeWeakTitle => '提醒可能不会响';
 
   @override
+  String get placeHomeWeakChip => '提醒较弱';
+
+  @override
+  String get placeHomeWeakFixButton => '开启';
+
+  @override
   String get placeHomeWeakPowerSaving => '省电模式或使用其他应用时，提醒会变弱';
 
   @override

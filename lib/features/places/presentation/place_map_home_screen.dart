@@ -34,7 +34,7 @@ import '../../../core/ui/components/loading_indicator.dart';
 // 화면 조각은 파일을 나눴다 (아키텍처 검수 #276 — 한 파일 1000줄 안팎)
 part 'home/home_status_bar.dart';
 part 'home/home_status_bubble.dart';
-part 'home/home_weak_alert_banner.dart';
+part 'home/home_weak_alert_capsule.dart';
 part 'home/home_map_controls.dart';
 part 'home/home_place_sheet.dart';
 
@@ -318,6 +318,18 @@ class _PlaceMapHomeScreenState extends ConsumerState<PlaceMapHomeScreen>
               isBroken: isStatusBroken,
               isChecking: isStatusChecking,
               isHeadphoneConnected: widget.isHeadphoneConnected,
+              isWeak: isAlertWeakOf(
+                isBroken: isStatusBroken,
+                canAlertReliably: widget.canAlertReliably,
+                hasFixAction: widget.onFixReliability != null,
+              ),
+              missingReliability: widget.missingReliability,
+              onFixReliability: widget.onFixReliability == null
+                  ? null
+                  : () {
+                      _closeStatusBubble();
+                      widget.onFixReliability!();
+                    },
               onDismiss: _closeStatusBubble,
               onFixMonitoring: widget.onFixMonitoring == null
                   ? null

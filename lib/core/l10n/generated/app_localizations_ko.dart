@@ -676,6 +676,12 @@ class AppLocalizationsKo extends AppLocalizations {
   String get placeHomeWeakTitle => '알림이 안 울릴 수 있어요';
 
   @override
+  String get placeHomeWeakChip => '알림 약함';
+
+  @override
+  String get placeHomeWeakFixButton => '켜기';
+
+  @override
   String get placeHomeWeakPowerSaving => '절전 중이거나 다른 앱을 쓰는 동안 알림이 약해집니다';
 
   @override

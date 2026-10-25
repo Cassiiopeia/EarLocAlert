@@ -403,6 +403,8 @@
   "placeHomeAudioHeadphones": "이어폰",
   "placeHomeAudioVibrationOnly": "진동만",
   "placeHomeWeakTitle": "알림이 안 울릴 수 있어요",
+  "placeHomeWeakChip": "알림 약함",
+  "placeHomeWeakFixButton": "켜기",
   "placeHomeWeakPowerSaving": "절전 중이거나 다른 앱을 쓰는 동안 알림이 약해집니다",
   "placeHomeWeakMissing": "{items} 꺼짐 · 눌러서 켜기",
   "@placeHomeWeakMissing": {
