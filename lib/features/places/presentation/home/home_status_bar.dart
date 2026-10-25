@@ -2,6 +2,19 @@ part of '../place_map_home_screen.dart';
 
 // 상단 감시 상태 알약
 
+/// 고장: 켜진 장소가 있는데 감시가 안 돈다 (확인 전에는 고장이 아님)
+bool isStatusBrokenOf({
+  required bool isStatusKnown,
+  required bool hasEnabledPlaces,
+  required bool isMonitoring,
+}) => isStatusKnown && hasEnabledPlaces && !isMonitoring;
+
+/// 확인 중: 켜진 장소는 있는데 감시 상태를 아직 읽는 중
+bool isStatusCheckingOf({
+  required bool isStatusKnown,
+  required bool hasEnabledPlaces,
+}) => !isStatusKnown && hasEnabledPlaces;
+
 /// 상단 상태 바 — 이 화면의 존재 이유 (F4.5)
 ///
 /// 감시가 꺼져 있으면 **눈에 띄어야 하고 해결 경로가 있어야 한다.**
@@ -17,6 +30,7 @@ class _StatusBar extends StatelessWidget {
     this.onFixMonitoring,
     this.onFixReliability,
     this.onOpenSettings,
+    required this.onStatusTap,
     this.planBadge,
   });
 
@@ -46,6 +60,9 @@ class _StatusBar extends StatelessWidget {
   /// 설정 화면 (이슈 #98) — 알림음 크기·진단 기록이 여기 있다
   final VoidCallback? onOpenSettings;
 
+  /// 알약을 눌렀을 때 — 상태 물방울을 토글한다 (#306)
+  final VoidCallback onStatusTap;
+
   /// 등급 칩 (#294) — 설정 버튼 왼쪽
   final Widget? planBadge;
 
@@ -53,10 +70,17 @@ class _StatusBar extends StatelessWidget {
   ///
   /// **확인하기 전에는 고장이 아니다** (이슈 #142 QA) — 모르는 것을
   /// 고장으로 그리면 알림을 끄고 돌아올 때마다 오경보가 뜬다
-  bool get _isBroken => isStatusKnown && hasEnabledPlaces && !isMonitoring;
+  bool get _isBroken => isStatusBrokenOf(
+    isStatusKnown: isStatusKnown,
+    hasEnabledPlaces: hasEnabledPlaces,
+    isMonitoring: isMonitoring,
+  );
 
   /// 켜진 장소는 있는데 감시 상태를 아직 읽는 중이다
-  bool get _isChecking => !isStatusKnown && hasEnabledPlaces;
+  bool get _isChecking => isStatusCheckingOf(
+    isStatusKnown: isStatusKnown,
+    hasEnabledPlaces: hasEnabledPlaces,
+  );
 
   /// 감시는 도는데 알림이 약하다 (이슈 #74).
   ///
@@ -139,32 +163,6 @@ class _StatusBar extends StatelessWidget {
     );
   }
 
-  /// 지금 상태 시트: 감시 상태 + 이어폰 상태 + (고장이면) 해결 버튼
-  void _showStatusSheet(BuildContext context) {
-    Diagnostics.log(
-      'home',
-      'status sheet opened monitoring=$isMonitoring broken=$_isBroken '
-          'headphones=$isHeadphoneConnected',
-    );
-    unawaited(
-      showAppBottomSheet<void>(
-        context,
-        builder: (sheetContext) => _StatusSheet(
-          isMonitoring: isMonitoring,
-          isBroken: _isBroken,
-          isChecking: _isChecking,
-          isHeadphoneConnected: isHeadphoneConnected,
-          onFixMonitoring: onFixMonitoring == null
-              ? null
-              : () {
-                  Navigator.of(sheetContext).pop();
-                  onFixMonitoring!();
-                },
-        ),
-      ),
-    );
-  }
-
   Widget _statusPill(
     BuildContext context,
     AppSemanticColors semantic,
@@ -174,9 +172,9 @@ class _StatusBar extends StatelessWidget {
       color: context.appColors.surface,
       borderRadius: BorderRadius.circular(AppRadius.pill),
       child: InkWell(
-        // 누르면 지금 상태를 글로 보여준다 (이슈 #306). 고장일 때는 시트 안 버튼이
+        // 누르면 지금 상태를 물방울로 보여준다 (이슈 #306). 고장일 때는 물방울 안 버튼이
         // 해결 경로(권한 화면)다 — 장소가 없어 대기 중인 사용자를 온보딩에 보내면 안 된다
-        onTap: () => _showStatusSheet(context),
+        onTap: onStatusTap,
         borderRadius: BorderRadius.circular(AppRadius.pill),
         // 높이는 설정 버튼·내 위치 버튼과 같은 40 — 지도 위에 떠 있는
         // 조작 요소는 한 높이로 선다 (docs/06-UX.md)

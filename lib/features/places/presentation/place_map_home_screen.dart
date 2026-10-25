@@ -29,11 +29,10 @@ import 'place_empty_state.dart';
 import 'place_list_controller.dart';
 import '../../../core/map/marker_hue.dart';
 import '../../../core/ui/components/loading_indicator.dart';
-import '../../../core/ui/components/bottom_sheet_with_header_layout.dart';
 
 // 화면 조각은 파일을 나눴다 (아키텍처 검수 #276 — 한 파일 1000줄 안팎)
 part 'home/home_status_bar.dart';
-part 'home/home_status_sheet.dart';
+part 'home/home_status_bubble.dart';
 part 'home/home_weak_alert_banner.dart';
 part 'home/home_map_controls.dart';
 part 'home/home_place_sheet.dart';
@@ -146,6 +145,9 @@ class _PlaceMapHomeScreenState extends ConsumerState<PlaceMapHomeScreen>
   /// 시트가 차지한 화면 비율. FAB 이 시트에 가리지 않게 따라 올라간다
   double _sheetExtent = _sheetInitial;
 
+  /// 상태 물방울이 떠 있는가 — 상단 알약을 누르면 토글 (#306)
+  bool _isStatusBubbleOpen = false;
+
   /// 지도에서 지목된 장소. 시트에서 테두리로 강조된다
   String? _selectedPlaceId;
 
@@ -179,6 +181,17 @@ class _PlaceMapHomeScreenState extends ConsumerState<PlaceMapHomeScreen>
     final semantic = Theme.of(context).extension<AppSemanticColors>()!;
     final placesAsync = ref.watch(placeListProvider);
     final places = placesAsync.valueOrNull ?? const <AlertPlace>[];
+
+    final hasEnabledPlaces = places.any((place) => place.enabled);
+    final isStatusBroken = isStatusBrokenOf(
+      isStatusKnown: widget.isStatusKnown,
+      hasEnabledPlaces: hasEnabledPlaces,
+      isMonitoring: widget.isMonitoring,
+    );
+    final isStatusChecking = isStatusCheckingOf(
+      isStatusKnown: widget.isStatusKnown,
+      hasEnabledPlaces: hasEnabledPlaces,
+    );
 
     if (places.isNotEmpty && !_didFitCamera) {
       WidgetsBinding.instance.addPostFrameCallback((_) => _fitCamera(places));
@@ -250,7 +263,7 @@ class _PlaceMapHomeScreenState extends ConsumerState<PlaceMapHomeScreen>
               isStatusKnown: widget.isStatusKnown,
               // 켜진 장소가 없어서 감시가 안 도는 것은 고장이 아니다 —
               // 경고 대신 안내로 보여야 한다
-              hasEnabledPlaces: places.any((place) => place.enabled),
+              hasEnabledPlaces: hasEnabledPlaces,
               isHeadphoneConnected: widget.isHeadphoneConnected,
               canAlertReliably: widget.canAlertReliably,
               missingReliability: widget.missingReliability,
@@ -258,6 +271,7 @@ class _PlaceMapHomeScreenState extends ConsumerState<PlaceMapHomeScreen>
               onFixReliability: widget.onFixReliability,
               onOpenSettings: widget.onOpenSettings,
               planBadge: widget.planBadge,
+              onStatusTap: _toggleStatusBubble,
             ),
 
             _MapControls(
@@ -295,10 +309,40 @@ class _PlaceMapHomeScreenState extends ConsumerState<PlaceMapHomeScreen>
                 ),
               ),
             ),
+
+            _StatusBubble(
+              isOpen: _isStatusBubbleOpen,
+              sheetFraction: _sheetExtent,
+              isMonitoring: widget.isMonitoring,
+              isBroken: isStatusBroken,
+              isChecking: isStatusChecking,
+              isHeadphoneConnected: widget.isHeadphoneConnected,
+              onDismiss: _closeStatusBubble,
+              onFixMonitoring: widget.onFixMonitoring == null
+                  ? null
+                  : () {
+                      _closeStatusBubble();
+                      widget.onFixMonitoring!();
+                    },
+            ),
           ],
         ),
       ),
     );
+  }
+
+  void _toggleStatusBubble() {
+    setState(() => _isStatusBubbleOpen = !_isStatusBubbleOpen);
+    Diagnostics.log(
+      'home',
+      'status bubble ${_isStatusBubbleOpen ? 'opened' : 'closed'} '
+          'monitoring=${widget.isMonitoring} '
+          'headphones=${widget.isHeadphoneConnected}',
+    );
+  }
+
+  void _closeStatusBubble() {
+    if (_isStatusBubbleOpen) setState(() => _isStatusBubbleOpen = false);
   }
 
   /// 장소가 없을 때 지도를 내 위치에서 시작한다 (이슈 #218).
