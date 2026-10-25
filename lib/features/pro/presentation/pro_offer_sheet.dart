@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/diagnostics/diagnostics.dart';
 import '../../../core/entitlement/feature_access_controller.dart';
@@ -43,9 +42,6 @@ Future<void> showProOfferSheet(
 
 /// 프로 안내 시트가 떠 있는가 — 한 번에 한 장만
 bool _isOfferSheetOpen = false;
-
-// Play 스토어 코드 사용 화면 — 프로모션 코드를 넣으면 구매로 기록됨
-final Uri _playRedeemUri = Uri.parse('https://play.google.com/redeem');
 
 /// 평생 이용권 시트: 배지 > 제목 > 무료·프로 비교표 > 구매 버튼 > 복원
 class _ProOfferSheet extends ConsumerStatefulWidget {
@@ -103,25 +99,29 @@ class _ProOfferSheetState extends ConsumerState<_ProOfferSheet> {
     }
   }
 
-  /// 복원: Play 보유 조회 > 있으면 프로, 없으면 안내 (조회 실패도 안내)
-  /// Play 코드 사용 화면 열기. 앱으로 돌아오면 복귀 시 보유 조회가 프로로 반영 (#294)
+  /// 스토어 프로모션 코드 입력 화면 (#294, #305)
+  /// Play: 앱 밖 화면 > 돌아오면 복귀 시 보유 조회 · App Store: 앱 위 시트 > 닫히면 바로 보유 조회
   Future<void> _openPromoCodeRedeem() async {
-    Diagnostics.log('pro', 'promo code redeem opened');
-    var opened = false;
-    try {
-      opened = await launchUrl(
-        _playRedeemUri,
-        mode: LaunchMode.externalApplication,
-      );
-    } on Object catch (error) {
-      Diagnostics.log('pro', 'promo code redeem open threw error=$error');
-    }
+    final service = ref.read(proPurchaseServiceProvider);
+    Diagnostics.log(
+      'pro',
+      'promo code redeem opened store=${service.store.name}',
+    );
+    final opened = await service.openPromoCodeRedemption();
+    if (!mounted) return;
     if (!opened) {
       Diagnostics.log('pro', 'promo code redeem open failed');
-      if (mounted) context.showToast(context.l10n.settingsOpenLinkFailed);
+      context.showToast(context.l10n.settingsOpenLinkFailed);
+      return;
+    }
+    if (service.store == ProPurchaseStore.appStore) {
+      setState(() => _isBusy = true);
+      await syncProAfterPromoCode(context, ref);
+      if (mounted) setState(() => _isBusy = false);
     }
   }
 
+  /// 복원: 보유 조회 > 있으면 프로, 없으면 안내 (조회 실패도 안내)
   Future<void> _restore() async {
     setState(() => _isBusy = true);
     await restoreProPurchase(context, ref);
@@ -137,10 +137,10 @@ class _ProOfferSheetState extends ConsumerState<_ProOfferSheet> {
       }
     });
     final price = ref.watch(proPriceProvider);
-    // 코드 사용 화면은 Play 에만 있음 (App Store 비소모성 상품은 지원 확인 전, #298)
+    // 코드 입력은 무료일 때만 (#305) — Play·App Store 둘 다. 결제 없는 플랫폼은 숨김
     final canRedeemPromoCode =
-        ref.watch(proPurchaseServiceProvider).store ==
-        ProPurchaseStore.googlePlay;
+        ref.watch(proPurchaseServiceProvider).store != ProPurchaseStore.none &&
+        !ref.watch(featureAccessControllerProvider).isPro;
     final l10n = context.l10n;
     final colors = context.appColors;
 

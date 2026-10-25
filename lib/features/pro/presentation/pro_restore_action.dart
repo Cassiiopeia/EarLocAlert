@@ -32,3 +32,19 @@ Future<void> restoreProPurchase(BuildContext context, WidgetRef ref) async {
     null => l10n.proProductUnavailable,
   });
 }
+
+/// 오퍼 코드 시트가 닫힌 뒤 조용히 보유 조회 > 있으면 프로 반영 + 완료 안내 (#305)
+/// 코드를 안 쓰고 닫았을 수 있어 "구매 없음"은 안내하지 않음
+Future<void> syncProAfterPromoCode(BuildContext context, WidgetRef ref) async {
+  final service = ref.read(proPurchaseServiceProvider);
+  final isOwned = await service.hasOwnedPurchase();
+  Diagnostics.log('pro', 'promo code sync owned=$isOwned');
+  if (!(isOwned ?? false)) return;
+  await ref
+      .read(proPurchaseRecordControllerProvider.notifier)
+      .save(service.ownedRecord);
+  await ref
+      .read(featureAccessControllerProvider.notifier)
+      .setSource(ProEntitlementSource.purchase, reason: 'promo_code');
+  if (context.mounted) context.showToast(context.l10n.proPurchaseDone);
+}

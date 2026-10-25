@@ -31,4 +31,7 @@ abstract final class ChannelNames {
   /// iOS 진동 점검 시험 알림 · 이 앱 알림 설정 열기 (이슈 #301) — Swift `VibrationTestNotification`
   static const vibrationTestNotification =
       '$_prefix/vibration_test_notification';
+
+  /// App Store 오퍼 코드 입력 시트 (이슈 #305) — Swift `OfferCodeRedeemSheet`
+  static const offerCode = '$_prefix/offer_code';
 }

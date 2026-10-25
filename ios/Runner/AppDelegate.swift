@@ -99,11 +99,13 @@ import native_geofence
 
       // 진동 점검 시험 알림 · 이 앱 알림 설정 열기 (이슈 #301)
       VibrationTestNotification.register(messenger: controller.binaryMessenger)
+      // 프로모션(오퍼) 코드 입력 시트 (이슈 #305)
+      OfferCodeRedeemSheet.register(messenger: controller.binaryMessenger)
 
       // 버전·기기 정보·진단 보고서용 네이티브 상태 (이슈 #290)
       DebugSnapshot.register(messenger: controller.binaryMessenger)
     } else {
-      // 채널 8개 전부 미등록 > Dart 쪽 호출이 모두 MissingPlugin 으로 떨어짐
+      // 채널 전부 미등록 > Dart 쪽 호출이 모두 MissingPlugin 으로 떨어짐
       NativeDiagnosticLog.write("app", "channels not registered reason=no_flutter_view_controller")
     }
 
