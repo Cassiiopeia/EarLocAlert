@@ -72,7 +72,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get permissionReliabilityBody =>
-      'When your phone is in power saving or you are using another app, arrival alerts can come late or show up only as a small notification.\n\nTurn on all three and the full-screen alert stays on until you dismiss it.\n\n• Unrestricted battery use — alerts on time even in power saving\n• Display over other apps — the alert screen appears even while you watch a video\n• Full-screen notifications — wakes the screen when it is off';
+      'When your phone is in power saving or you are using another app, arrival alerts can come late or show up only as a small notification.\n\nTurn on all three and the full-screen alert stays on until you dismiss it.\n\n• Unrestricted battery use: alerts on time even in power saving\n• Display over other apps: the alert screen appears even while you watch a video\n• Full-screen notifications: wakes the screen when it is off';
 
   @override
   String get permissionReliabilityAction => 'Turn on all three';
@@ -324,7 +324,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get alertScreenRouteSoundFailed =>
-      'Couldn\'t play sound — alerting by vibration';
+      'Couldn\'t play sound, alerting by vibration';
 
   @override
   String get alertScreenRouteVibrationOnly => 'Alerting by vibration only';
@@ -507,7 +507,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get placeSearchUnavailable =>
-      'Search is unavailable — move the map to set the location';
+      'Search is unavailable. move the map to set the location';
 
   @override
   String get placePickerPinHint => 'Move the map to place the pin';
@@ -707,7 +707,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String placeHomeWeakMissing(String items) {
-    return 'Turned off: $items — tap to turn on';
+    return 'Turned off: $items · tap to turn on';
   }
 
   @override
@@ -727,7 +727,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get scheduleAlwaysHint =>
-      'Alerts at any time — add a time range to limit them';
+      'Alerts at any time. add a time range to limit them';
 
   @override
   String get scheduleAdd => 'Add time range';
@@ -782,7 +782,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String scheduleCrossesMidnight(String window) {
-    return 'The end is earlier than the start, so this runs past midnight — $window';
+    return 'The end is earlier than the start, so this runs past midnight ($window)';
   }
 
   @override

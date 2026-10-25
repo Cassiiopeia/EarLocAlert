@@ -68,7 +68,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get permissionReliabilityBody =>
-      'スマートフォンが省電力状態のときや他のアプリを見ているときは、到着アラートが遅れたり、小さな通知だけで終わったりします。\n\n次の3つをオンにすると、画面いっぱいに表示されるアラートを止めるまで鳴り続けます。\n\n• バッテリー最適化の除外 — 省電力中でも時間どおりに知らせます\n• 他のアプリの上に表示 — 動画を見ている間もアラート画面が表示されます\n• 全画面通知 — 画面が消えていても自動で点灯します';
+      'スマートフォンが省電力状態のときや他のアプリを見ているときは、到着アラートが遅れたり、小さな通知だけで終わったりします。\n\n次の3つをオンにすると、画面いっぱいに表示されるアラートを止めるまで鳴り続けます。\n\n• バッテリー最適化の除外：省電力中でも時間どおりに知らせます\n• 他のアプリの上に表示：動画を見ている間もアラート画面が表示されます\n• 全画面通知：画面が消えていても自動で点灯します';
 
   @override
   String get permissionReliabilityAction => '3つすべてオンにする';
@@ -483,7 +483,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get placeSearchHint => '場所・住所を検索';
 
   @override
-  String get placeSearchUnavailable => '検索を利用できません — 地図を動かして位置を合わせてください';
+  String get placeSearchUnavailable => '検索を利用できません。地図を動かして位置を合わせてください';
 
   @override
   String get placePickerPinHint => '地図を動かしてピンを合わせてください';
@@ -679,7 +679,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String placeHomeWeakMissing(String items) {
-    return '$itemsがオフです — タップしてオンにする';
+    return '$itemsがオフです · タップしてオンにする';
   }
 
   @override
@@ -698,7 +698,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get scheduleAlways => '常にアラート';
 
   @override
-  String get scheduleAlwaysHint => '常にアラート — 時間帯を追加すると、その時間だけ鳴ります';
+  String get scheduleAlwaysHint => '常にアラート。時間帯を追加すると、その時間だけ鳴ります';
 
   @override
   String get scheduleAdd => '時間帯を追加';
@@ -753,7 +753,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String scheduleCrossesMidnight(String window) {
-    return '終了が開始より早いため、深夜0時をまたぐものとして扱います — $window';
+    return '終了が開始より早いため、深夜0時をまたぐものとして扱います（$window）';
   }
 
   @override

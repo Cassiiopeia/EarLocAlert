@@ -25,7 +25,7 @@
   "permissionNotificationTitle": "알림 권한이 필요합니다",
   "permissionNotificationBody": "도착하거나 떠날 때 알려드리기 위해 사용합니다.",
   "permissionReliabilityTitle": "알림을 놓치지 않으려면",
-  "permissionReliabilityBody": "휴대폰이 절전에 들어가거나 다른 앱을 보고 있으면, 도착 알림이 늦게 오거나 작은 알림으로만 지나갑니다.\n\n다음 세 가지를 켜면 화면을 덮는 알림이 해제할 때까지 계속됩니다.\n\n• 배터리 사용량 최적화 제외 — 절전 중에도 제때 알립니다\n• 다른 앱 위에 표시 — 영상을 보는 중에도 알림 화면이 뜹니다\n• 전체 화면 알림 — 화면이 꺼져 있어도 깨웁니다",
+  "permissionReliabilityBody": "휴대폰이 절전에 들어가거나 다른 앱을 보고 있으면, 도착 알림이 늦게 오거나 작은 알림으로만 지나갑니다.\n\n다음 세 가지를 켜면 화면을 덮는 알림이 해제할 때까지 계속됩니다.\n\n• 배터리 사용량 최적화 제외: 절전 중에도 제때 알립니다\n• 다른 앱 위에 표시: 영상을 보는 중에도 알림 화면이 뜹니다\n• 전체 화면 알림: 화면이 꺼져 있어도 깨웁니다",
   "permissionReliabilityAction": "세 가지 모두 켜기",
   "permissionReliabilityFootnote": "설정 화면이 차례로 열립니다. 건너뛰면 알림 화면이 저절로 뜨지 않아, 진동을 끄려면 알림을 눌러 앱을 열어야 합니다.",
   "permissionOpenSettingsTitle": "설정에서 직접 바꿔주세요",
@@ -289,7 +289,7 @@
   "placePickerTitle": "지도에서 선택",
   "placeMyLocation": "내 위치",
   "placeSearchHint": "장소·주소 검색",
-  "placeSearchUnavailable": "검색을 사용할 수 없습니다 — 지도를 움직여 위치를 맞춰주세요",
+  "placeSearchUnavailable": "검색을 사용할 수 없습니다. 지도를 움직여 위치를 맞춰주세요",
   "placePickerPinHint": "지도를 움직여 핀을 맞추세요",
   "placePickerConfirm": "이 위치로 선택",
   "placeDirectionEnter": "도착 알림",
@@ -404,7 +404,7 @@
   "placeHomeAudioVibrationOnly": "진동만",
   "placeHomeWeakTitle": "알림이 안 울릴 수 있어요",
   "placeHomeWeakPowerSaving": "절전 중이거나 다른 앱을 쓰는 동안 알림이 약해집니다",
-  "placeHomeWeakMissing": "{items} 꺼짐 — 눌러서 켜기",
+  "placeHomeWeakMissing": "{items} 꺼짐 · 눌러서 켜기",
   "@placeHomeWeakMissing": {
     "placeholders": {
       "items": {
@@ -417,7 +417,7 @@
   "placeHomeSettings": "설정",
   "scheduleTitle": "알림 시간대",
   "scheduleAlways": "항상 알림",
-  "scheduleAlwaysHint": "항상 알림 — 시간대를 더하면 그 시간에만 울립니다",
+  "scheduleAlwaysHint": "항상 알림. 시간대를 더하면 그 시간에만 울립니다",
   "scheduleAdd": "시간대 추가",
   "scheduleRemove": "이 시간대 삭제",
   "scheduleSheetAddTitle": "시간대 추가",
@@ -435,7 +435,7 @@
   "scheduleDaySun": "일",
   "scheduleStart": "시작",
   "scheduleEnd": "종료",
-  "scheduleCrossesMidnight": "종료가 시작보다 이르므로 자정을 넘긴 것으로 봅니다 — {window}",
+  "scheduleCrossesMidnight": "종료가 시작보다 이르므로 자정을 넘긴 것으로 봅니다 ({window})",
   "@scheduleCrossesMidnight": {
     "placeholders": {
       "window": {

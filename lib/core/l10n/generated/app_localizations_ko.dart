@@ -69,7 +69,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get permissionReliabilityBody =>
-      '휴대폰이 절전에 들어가거나 다른 앱을 보고 있으면, 도착 알림이 늦게 오거나 작은 알림으로만 지나갑니다.\n\n다음 세 가지를 켜면 화면을 덮는 알림이 해제할 때까지 계속됩니다.\n\n• 배터리 사용량 최적화 제외 — 절전 중에도 제때 알립니다\n• 다른 앱 위에 표시 — 영상을 보는 중에도 알림 화면이 뜹니다\n• 전체 화면 알림 — 화면이 꺼져 있어도 깨웁니다';
+      '휴대폰이 절전에 들어가거나 다른 앱을 보고 있으면, 도착 알림이 늦게 오거나 작은 알림으로만 지나갑니다.\n\n다음 세 가지를 켜면 화면을 덮는 알림이 해제할 때까지 계속됩니다.\n\n• 배터리 사용량 최적화 제외: 절전 중에도 제때 알립니다\n• 다른 앱 위에 표시: 영상을 보는 중에도 알림 화면이 뜹니다\n• 전체 화면 알림: 화면이 꺼져 있어도 깨웁니다';
 
   @override
   String get permissionReliabilityAction => '세 가지 모두 켜기';
@@ -484,7 +484,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get placeSearchHint => '장소·주소 검색';
 
   @override
-  String get placeSearchUnavailable => '검색을 사용할 수 없습니다 — 지도를 움직여 위치를 맞춰주세요';
+  String get placeSearchUnavailable => '검색을 사용할 수 없습니다. 지도를 움직여 위치를 맞춰주세요';
 
   @override
   String get placePickerPinHint => '지도를 움직여 핀을 맞추세요';
@@ -680,7 +680,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String placeHomeWeakMissing(String items) {
-    return '$items 꺼짐 — 눌러서 켜기';
+    return '$items 꺼짐 · 눌러서 켜기';
   }
 
   @override
@@ -699,7 +699,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get scheduleAlways => '항상 알림';
 
   @override
-  String get scheduleAlwaysHint => '항상 알림 — 시간대를 더하면 그 시간에만 울립니다';
+  String get scheduleAlwaysHint => '항상 알림. 시간대를 더하면 그 시간에만 울립니다';
 
   @override
   String get scheduleAdd => '시간대 추가';
@@ -754,7 +754,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String scheduleCrossesMidnight(String window) {
-    return '종료가 시작보다 이르므로 자정을 넘긴 것으로 봅니다 — $window';
+    return '종료가 시작보다 이르므로 자정을 넘긴 것으로 봅니다 ($window)';
   }
 
   @override

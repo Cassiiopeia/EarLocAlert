@@ -68,7 +68,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get permissionReliabilityBody =>
-      '手机处于省电状态或正在使用其他应用时，到达提醒可能会延迟，或只显示为一条小通知。\n\n开启以下三项后，全屏提醒会一直持续到您关闭为止。\n\n• 忽略电池优化 — 省电时也能准时提醒\n• 显示在其他应用的上层 — 看视频时也会弹出提醒界面\n• 全屏通知 — 屏幕熄灭时也会自动点亮';
+      '手机处于省电状态或正在使用其他应用时，到达提醒可能会延迟，或只显示为一条小通知。\n\n开启以下三项后，全屏提醒会一直持续到您关闭为止。\n\n• 忽略电池优化：省电时也能准时提醒\n• 显示在其他应用的上层：看视频时也会弹出提醒界面\n• 全屏通知：屏幕熄灭时也会自动点亮';
 
   @override
   String get permissionReliabilityAction => '全部开启';
@@ -478,7 +478,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get placeSearchHint => '搜索地点或地址';
 
   @override
-  String get placeSearchUnavailable => '无法使用搜索——请移动地图来确定位置';
+  String get placeSearchUnavailable => '无法使用搜索，请移动地图来确定位置';
 
   @override
   String get placePickerPinHint => '移动地图来放置图钉';
@@ -674,7 +674,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String placeHomeWeakMissing(String items) {
-    return '$items 已关闭——点按开启';
+    return '$items 已关闭 · 点按开启';
   }
 
   @override
@@ -693,7 +693,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get scheduleAlways => '始终提醒';
 
   @override
-  String get scheduleAlwaysHint => '始终提醒——添加时段后仅在该时段响起';
+  String get scheduleAlwaysHint => '始终提醒，添加时段后仅在该时段响起';
 
   @override
   String get scheduleAdd => '添加时段';
@@ -748,7 +748,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String scheduleCrossesMidnight(String window) {
-    return '结束早于开始，因此视为跨过午夜——$window';
+    return '结束早于开始，因此视为跨过午夜（$window）';
   }
 
   @override
