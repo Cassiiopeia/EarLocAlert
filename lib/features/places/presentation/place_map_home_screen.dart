@@ -312,7 +312,6 @@ class _PlaceMapHomeScreenState extends ConsumerState<PlaceMapHomeScreen>
 
             _StatusBubble(
               isOpen: _isStatusBubbleOpen,
-              sheetFraction: _sheetExtent,
               isMonitoring: widget.isMonitoring,
               isBroken: isStatusBroken,
               isChecking: isStatusChecking,

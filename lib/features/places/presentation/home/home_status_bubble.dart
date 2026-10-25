@@ -1,15 +1,14 @@
 part of '../place_map_home_screen.dart';
 
-// 상단 알약을 누르면 장소 시트 위로 떠오르는 상태 물방울 (이슈 #306)
+// 상단 알약을 누르면 알약 밑으로 흘러내리듯 펼쳐지는 상태 물방울 (이슈 #306)
 
 /// 상태 물방울: 감시 상태 + 이어폰 상태 + (고장이면) 해결 버튼
 ///
-/// 진입 > 가로가 먼저 퍼지며 시트 위에서 솟음 / 퇴장 > 짧게 가라앉음
+/// 진입 > 알약 왼쪽 끝을 기점으로 아래로 늘어나며 펼침 / 퇴장 > 알약으로 되감김
 /// 바깥을 누르면 닫힌다 — 모달이 아니라 지도 위에 얹힌 팝업이다
 class _StatusBubble extends StatefulWidget {
   const _StatusBubble({
     required this.isOpen,
-    required this.sheetFraction,
     required this.isMonitoring,
     required this.isBroken,
     required this.isChecking,
@@ -20,8 +19,6 @@ class _StatusBubble extends StatefulWidget {
 
   final bool isOpen;
 
-  /// 장소 시트가 차지한 화면 비율 — 물방울이 시트 바로 위에 선다
-  final double sheetFraction;
   final bool isMonitoring;
   final bool isBroken;
   final bool isChecking;
@@ -37,8 +34,10 @@ class _StatusBubble extends StatefulWidget {
 
 class _StatusBubbleState extends State<_StatusBubble>
     with SingleTickerProviderStateMixin {
-  static const _riseOffsetPixels = 28.0;
-  static const _hiddenScale = 0.55;
+  static const _hiddenScale = 0.25;
+
+  // 알약 높이 + 위 여백 + 알약과 물방울 사이 틈
+  static const _pillGap = AppSpacing.xs;
 
   late final AnimationController _controller = AnimationController(
     vsync: this,
@@ -47,7 +46,7 @@ class _StatusBubbleState extends State<_StatusBubble>
     value: widget.isOpen ? 1 : 0,
   );
 
-  // 가로는 살짝 넘쳤다 돌아오고(물방울이 퍼지는 느낌), 세로는 부드럽게 오른다
+  // 가로는 살짝 넘쳤다 돌아오고(물방울이 퍼지는 느낌), 세로는 부드럽게 흘러내린다
   late final Animation<double> _scaleX = CurvedAnimation(
     parent: _controller,
     curve: Curves.easeOutBack,
@@ -93,25 +92,25 @@ class _StatusBubbleState extends State<_StatusBubble>
             behavior: HitTestBehavior.opaque,
             onTap: widget.onDismiss,
             child: Align(
-              alignment: Alignment.bottomCenter,
+              alignment: Alignment.topLeft,
               child: Padding(
+                // 알약 바로 밑 — 알약과 같은 왼쪽 선에서 시작한다
                 padding: EdgeInsets.fromLTRB(
                   AppSpacing.sm,
-                  0,
+                  MediaQuery.paddingOf(context).top +
+                      AppSpacing.sm +
+                      AppControlSize.floating +
+                      _pillGap,
                   AppSpacing.sm,
-                  MediaQuery.sizeOf(context).height * widget.sheetFraction +
-                      AppSpacing.sm,
+                  0,
                 ),
                 child: Opacity(
                   opacity: _fade.value.clamp(0.0, 1.0),
-                  child: Transform.translate(
-                    offset: Offset(0, (1 - _scaleY.value) * _riseOffsetPixels),
-                    child: Transform.scale(
-                      alignment: Alignment.bottomCenter,
-                      scaleX: _hiddenScale + (1 - _hiddenScale) * _scaleX.value,
-                      scaleY: _hiddenScale + (1 - _hiddenScale) * _scaleY.value,
-                      child: bubble,
-                    ),
+                  child: Transform.scale(
+                    alignment: Alignment.topLeft,
+                    scaleX: _hiddenScale + (1 - _hiddenScale) * _scaleX.value,
+                    scaleY: _hiddenScale + (1 - _hiddenScale) * _scaleY.value,
+                    child: bubble,
                   ),
                 ),
               ),
@@ -141,7 +140,7 @@ class _StatusBubbleState extends State<_StatusBubble>
       child: Container(
         padding: const EdgeInsets.all(AppSpacing.sm),
         decoration: BoxDecoration(
-          color: colors.elevated,
+          color: colors.surface,
           borderRadius: BorderRadius.circular(AppRadius.card),
           border: Border.all(color: colors.separator),
         ),
