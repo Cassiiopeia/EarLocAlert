@@ -3149,6 +3149,168 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'백업하지 못했어요. 폴더를 다시 골라 주세요'**
   String get autoBackupFailed;
+
+  /// No description provided for @routineTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'루틴'**
+  String get routineTitle;
+
+  /// No description provided for @settingsRoutineSubtitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'장소 여러 개를 묶어 한 번에 켜고 꺼요'**
+  String get settingsRoutineSubtitle;
+
+  /// No description provided for @routineDescription.
+  ///
+  /// In ko, this message translates to:
+  /// **'출근길처럼 함께 쓰는 장소를 묶어 두면 홈에서 한 번에 켜고 끌 수 있어요.'**
+  String get routineDescription;
+
+  /// No description provided for @routineAdd.
+  ///
+  /// In ko, this message translates to:
+  /// **'루틴 만들기'**
+  String get routineAdd;
+
+  /// No description provided for @routineManage.
+  ///
+  /// In ko, this message translates to:
+  /// **'루틴 관리'**
+  String get routineManage;
+
+  /// No description provided for @routineNoPlaces.
+  ///
+  /// In ko, this message translates to:
+  /// **'장소 없음'**
+  String get routineNoPlaces;
+
+  /// No description provided for @routinePlaceCount.
+  ///
+  /// In ko, this message translates to:
+  /// **'장소 {count}개'**
+  String routinePlaceCount(int count);
+
+  /// No description provided for @routineExclusiveShort.
+  ///
+  /// In ko, this message translates to:
+  /// **'나머지 끄기'**
+  String get routineExclusiveShort;
+
+  /// No description provided for @routineExampleCommute.
+  ///
+  /// In ko, this message translates to:
+  /// **'출근길'**
+  String get routineExampleCommute;
+
+  /// No description provided for @routineExampleHome.
+  ///
+  /// In ko, this message translates to:
+  /// **'퇴근길'**
+  String get routineExampleHome;
+
+  /// No description provided for @routineNewTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'루틴 만들기'**
+  String get routineNewTitle;
+
+  /// No description provided for @routineEditTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'루틴 고치기'**
+  String get routineEditTitle;
+
+  /// No description provided for @routineNameLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'이름'**
+  String get routineNameLabel;
+
+  /// No description provided for @routineNameRequired.
+  ///
+  /// In ko, this message translates to:
+  /// **'이름을 적어 주세요'**
+  String get routineNameRequired;
+
+  /// No description provided for @routinePlacesRequired.
+  ///
+  /// In ko, this message translates to:
+  /// **'장소를 하나 이상 골라 주세요'**
+  String get routinePlacesRequired;
+
+  /// No description provided for @routineSaveFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'저장하지 못했어요. 다시 해 주세요'**
+  String get routineSaveFailed;
+
+  /// No description provided for @routineExclusiveTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'켜면 나머지 장소는 끄기'**
+  String get routineExclusiveTitle;
+
+  /// No description provided for @routineExclusiveSubtitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'출근 모드처럼 이 루틴 장소만 울리게 해요'**
+  String get routineExclusiveSubtitle;
+
+  /// No description provided for @routinePlacesHeader.
+  ///
+  /// In ko, this message translates to:
+  /// **'묶을 장소 ({count}개 고름)'**
+  String routinePlacesHeader(int count);
+
+  /// No description provided for @routineNoPlacesYet.
+  ///
+  /// In ko, this message translates to:
+  /// **'아직 등록한 장소가 없어요. 장소를 먼저 등록해 주세요.'**
+  String get routineNoPlacesYet;
+
+  /// No description provided for @routineSave.
+  ///
+  /// In ko, this message translates to:
+  /// **'저장'**
+  String get routineSave;
+
+  /// No description provided for @routineDelete.
+  ///
+  /// In ko, this message translates to:
+  /// **'루틴 지우기'**
+  String get routineDelete;
+
+  /// No description provided for @routineDeleteTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 루틴을 지울까요?'**
+  String get routineDeleteTitle;
+
+  /// No description provided for @routineDeleteBody.
+  ///
+  /// In ko, this message translates to:
+  /// **'묶은 장소는 지워지지 않아요.'**
+  String get routineDeleteBody;
+
+  /// No description provided for @routineCancel.
+  ///
+  /// In ko, this message translates to:
+  /// **'취소'**
+  String get routineCancel;
+
+  /// No description provided for @proRowRoutines.
+  ///
+  /// In ko, this message translates to:
+  /// **'루틴 묶음'**
+  String get proRowRoutines;
+
+  /// No description provided for @proLockedRoutines.
+  ///
+  /// In ko, this message translates to:
+  /// **'루틴으로 장소 묶기'**
+  String get proLockedRoutines;
 }
 
 class _AppLocalizationsDelegate

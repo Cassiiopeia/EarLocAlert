@@ -130,3 +130,24 @@ class CustomSounds extends Table {
   @override
   Set<Column> get primaryKey => {id};
 }
+
+/// 장소 루틴 묶음 (#315): 이름 붙인 장소 묶음. 켜짐은 저장하지 않음 (묶은 장소 상태에서 계산)
+@DataClassName('PlaceRoutineRow')
+class PlaceRoutines extends Table {
+  /// UUIDv7
+  TextColumn get id => text()();
+
+  TextColumn get name => text().withLength(min: 1, max: 50)();
+
+  /// 묶은 장소 id 목록 — JSON 배열. 값 참조라 장소를 지워도 루틴은 남음
+  TextColumn get placeIds => text().withDefault(const Constant('[]'))();
+
+  /// 켤 때 루틴 밖 장소를 모두 끄는가
+  BoolColumn get isExclusive => boolean().withDefault(const Constant(false))();
+
+  /// UTC
+  DateTimeColumn get createdAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}

@@ -17,6 +17,21 @@ class _ArrivalHistoryRoute extends ConsumerWidget {
   );
 }
 
+/// 루틴 목록 (#315): 만들기는 프로, 이미 만든 루틴은 무료여도 켜고 끔
+class _PlaceRoutineListRoute extends ConsumerWidget {
+  const _PlaceRoutineListRoute();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) => PlaceRoutineListScreen(
+    isLocked: !ref.watch(featureAccessControllerProvider).canUseRoutines,
+    onUnlockPro: () =>
+        unawaited(showProOfferSheet(context, entryPoint: 'routines')),
+    onAddRoutine: () => context.push(AppRoutes.routineEdit),
+    onEditRoutine: (routine) =>
+        context.push(AppRoutes.routineEdit, extra: routine),
+  );
+}
+
 class _DiagnosticsRoute extends ConsumerWidget {
   const _DiagnosticsRoute();
 
@@ -179,6 +194,8 @@ class _SettingsRouteState extends ConsumerState<_SettingsRoute>
       onOpenDiagnostics: () => context.push(AppRoutes.diagnostics),
       // 도착 기록 (#313)
       onOpenArrivalHistory: () => context.push(AppRoutes.arrivalHistory),
+      // 루틴 (#315)
+      onOpenRoutines: () => context.push(AppRoutes.routines),
       // 장소 내보내기·불러오기 (이슈 #256)
       onExportPlaces: () => exportPlacesBackup(
         context,

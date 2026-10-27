@@ -258,6 +258,7 @@ class _PlanComparisonTable extends StatelessWidget {
         l10n.proValueRecentHistory,
         l10n.proValueFullHistory,
       ),
+      (l10n.proRowRoutines, '', null),
       (l10n.proRowBackup, '', null),
       (l10n.proRowAds, l10n.proValueAdsOn, l10n.proValueAdsOff),
     ];

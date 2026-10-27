@@ -1637,4 +1637,89 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get autoBackupFailed => '备份失败，请重新选择文件夹';
+
+  @override
+  String get routineTitle => '例程';
+
+  @override
+  String get settingsRoutineSubtitle => '将多个地点分组，一次开启或关闭';
+
+  @override
+  String get routineDescription => '把一起使用的地点（如通勤路线）分成一组，就能在主屏幕一次开启或关闭。';
+
+  @override
+  String get routineAdd => '新建例程';
+
+  @override
+  String get routineManage => '管理';
+
+  @override
+  String get routineNoPlaces => '无地点';
+
+  @override
+  String routinePlaceCount(int count) {
+    return '$count 个地点';
+  }
+
+  @override
+  String get routineExclusiveShort => '关闭其他';
+
+  @override
+  String get routineExampleCommute => '通勤';
+
+  @override
+  String get routineExampleHome => '回家路';
+
+  @override
+  String get routineNewTitle => '新建例程';
+
+  @override
+  String get routineEditTitle => '编辑例程';
+
+  @override
+  String get routineNameLabel => '名称';
+
+  @override
+  String get routineNameRequired => '请输入名称';
+
+  @override
+  String get routinePlacesRequired => '请至少选择一个地点';
+
+  @override
+  String get routineSaveFailed => '保存失败，请重试';
+
+  @override
+  String get routineExclusiveTitle => '开启时关闭其他地点';
+
+  @override
+  String get routineExclusiveSubtitle => '像通勤模式一样，只让此例程的地点提醒';
+
+  @override
+  String routinePlacesHeader(int count) {
+    return '选择地点（已选 $count 个）';
+  }
+
+  @override
+  String get routineNoPlacesYet => '还没有添加地点，请先添加地点。';
+
+  @override
+  String get routineSave => '保存';
+
+  @override
+  String get routineDelete => '删除例程';
+
+  @override
+  String get routineDeleteTitle => '要删除此例程吗？';
+
+  @override
+  String get routineDeleteBody => '其中的地点不会被删除。';
+
+  @override
+  String get routineCancel => '取消';
+
+  @override
+  String get proRowRoutines => '例程';
+
+  @override
+  String get proLockedRoutines => '用例程分组地点';
 }

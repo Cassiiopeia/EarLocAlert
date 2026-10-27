@@ -1655,4 +1655,89 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get autoBackupFailed => '백업하지 못했어요. 폴더를 다시 골라 주세요';
+
+  @override
+  String get routineTitle => '루틴';
+
+  @override
+  String get settingsRoutineSubtitle => '장소 여러 개를 묶어 한 번에 켜고 꺼요';
+
+  @override
+  String get routineDescription => '출근길처럼 함께 쓰는 장소를 묶어 두면 홈에서 한 번에 켜고 끌 수 있어요.';
+
+  @override
+  String get routineAdd => '루틴 만들기';
+
+  @override
+  String get routineManage => '루틴 관리';
+
+  @override
+  String get routineNoPlaces => '장소 없음';
+
+  @override
+  String routinePlaceCount(int count) {
+    return '장소 $count개';
+  }
+
+  @override
+  String get routineExclusiveShort => '나머지 끄기';
+
+  @override
+  String get routineExampleCommute => '출근길';
+
+  @override
+  String get routineExampleHome => '퇴근길';
+
+  @override
+  String get routineNewTitle => '루틴 만들기';
+
+  @override
+  String get routineEditTitle => '루틴 고치기';
+
+  @override
+  String get routineNameLabel => '이름';
+
+  @override
+  String get routineNameRequired => '이름을 적어 주세요';
+
+  @override
+  String get routinePlacesRequired => '장소를 하나 이상 골라 주세요';
+
+  @override
+  String get routineSaveFailed => '저장하지 못했어요. 다시 해 주세요';
+
+  @override
+  String get routineExclusiveTitle => '켜면 나머지 장소는 끄기';
+
+  @override
+  String get routineExclusiveSubtitle => '출근 모드처럼 이 루틴 장소만 울리게 해요';
+
+  @override
+  String routinePlacesHeader(int count) {
+    return '묶을 장소 ($count개 고름)';
+  }
+
+  @override
+  String get routineNoPlacesYet => '아직 등록한 장소가 없어요. 장소를 먼저 등록해 주세요.';
+
+  @override
+  String get routineSave => '저장';
+
+  @override
+  String get routineDelete => '루틴 지우기';
+
+  @override
+  String get routineDeleteTitle => '이 루틴을 지울까요?';
+
+  @override
+  String get routineDeleteBody => '묶은 장소는 지워지지 않아요.';
+
+  @override
+  String get routineCancel => '취소';
+
+  @override
+  String get proRowRoutines => '루틴 묶음';
+
+  @override
+  String get proLockedRoutines => '루틴으로 장소 묶기';
 }

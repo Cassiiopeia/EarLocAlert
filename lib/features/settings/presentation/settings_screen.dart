@@ -74,6 +74,7 @@ class SettingsScreen extends StatelessWidget {
     required this.onOpenVibrationPatternSettings,
     required this.onOpenDiagnostics,
     required this.onOpenArrivalHistory,
+    required this.onOpenRoutines,
     required this.onExportPlaces,
     required this.onImportPlaces,
     required this.autoBackupSubtitle,
@@ -118,6 +119,9 @@ class SettingsScreen extends StatelessWidget {
 
   /// 도착 기록 화면 (#313)
   final VoidCallback onOpenArrivalHistory;
+
+  /// 루틴 목록 (#315)
+  final VoidCallback onOpenRoutines;
 
   /// 장소 내보내기·불러오기 (이슈 #256). 구현은 places feature 에 있어 app 계층이 잇는다
   final VoidCallback onExportPlaces;
@@ -280,6 +284,12 @@ class SettingsScreen extends StatelessWidget {
                   title: context.l10n.settingsHistoryTitle,
                   subtitle: context.l10n.settingsHistorySubtitle,
                   onTap: onOpenArrivalHistory,
+                ),
+                GroupedListRow.navigation(
+                  icon: Icons.route_outlined,
+                  title: context.l10n.routineTitle,
+                  subtitle: context.l10n.settingsRoutineSubtitle,
+                  onTap: onOpenRoutines,
                 ),
                 GroupedListRow.navigation(
                   icon: Icons.vibration_outlined,

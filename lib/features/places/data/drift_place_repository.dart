@@ -57,6 +57,18 @@ class DriftPlaceRepository implements PlaceRepository {
   }
 
   @override
+  Future<void> setEnabledMany(Map<String, bool> enabledById) async {
+    if (enabledById.isEmpty) return;
+    await _db.transaction(() async {
+      for (final entry in enabledById.entries) {
+        await (_db.update(_db.alertPlaces)
+              ..where((t) => t.id.equals(entry.key)))
+            .write(AlertPlacesCompanion(enabled: Value(entry.value)));
+      }
+    });
+  }
+
+  @override
   Future<int> count() async {
     final countExp = _db.alertPlaces.id.count();
     final query = _db.selectOnly(_db.alertPlaces)..addColumns([countExp]);

@@ -1652,4 +1652,89 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get autoBackupFailed => 'バックアップできませんでした。フォルダを選び直してください';
+
+  @override
+  String get routineTitle => 'ルーティン';
+
+  @override
+  String get settingsRoutineSubtitle => '複数の場所をまとめて一度にオン・オフします';
+
+  @override
+  String get routineDescription => '通勤経路のように一緒に使う場所をまとめておくと、ホームから一度にオン・オフできます。';
+
+  @override
+  String get routineAdd => 'ルーティンを作る';
+
+  @override
+  String get routineManage => '管理';
+
+  @override
+  String get routineNoPlaces => '場所なし';
+
+  @override
+  String routinePlaceCount(int count) {
+    return '場所$count件';
+  }
+
+  @override
+  String get routineExclusiveShort => 'ほかをオフ';
+
+  @override
+  String get routineExampleCommute => '通勤';
+
+  @override
+  String get routineExampleHome => '帰り道';
+
+  @override
+  String get routineNewTitle => 'ルーティンを作る';
+
+  @override
+  String get routineEditTitle => 'ルーティンを編集';
+
+  @override
+  String get routineNameLabel => '名前';
+
+  @override
+  String get routineNameRequired => '名前を入力してください';
+
+  @override
+  String get routinePlacesRequired => '場所を1つ以上選んでください';
+
+  @override
+  String get routineSaveFailed => '保存できませんでした。もう一度お試しください';
+
+  @override
+  String get routineExclusiveTitle => 'オンにしたらほかの場所はオフ';
+
+  @override
+  String get routineExclusiveSubtitle => '通勤モードのように、このルーティンの場所だけ鳴らします';
+
+  @override
+  String routinePlacesHeader(int count) {
+    return 'まとめる場所（$count件選択）';
+  }
+
+  @override
+  String get routineNoPlacesYet => 'まだ場所が登録されていません。先に場所を登録してください。';
+
+  @override
+  String get routineSave => '保存';
+
+  @override
+  String get routineDelete => 'ルーティンを削除';
+
+  @override
+  String get routineDeleteTitle => 'このルーティンを削除しますか？';
+
+  @override
+  String get routineDeleteBody => 'まとめた場所は削除されません。';
+
+  @override
+  String get routineCancel => 'キャンセル';
+
+  @override
+  String get proRowRoutines => 'ルーティン';
+
+  @override
+  String get proLockedRoutines => 'ルーティンで場所をまとめる';
 }

@@ -1725,4 +1725,93 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get autoBackupFailed =>
       'Couldn\'t back up. Please choose the folder again';
+
+  @override
+  String get routineTitle => 'Routines';
+
+  @override
+  String get settingsRoutineSubtitle =>
+      'Group places and turn them on or off at once';
+
+  @override
+  String get routineDescription =>
+      'Group places you use together, like your commute, and turn them on or off at once from the home screen.';
+
+  @override
+  String get routineAdd => 'New routine';
+
+  @override
+  String get routineManage => 'Manage';
+
+  @override
+  String get routineNoPlaces => 'No places';
+
+  @override
+  String routinePlaceCount(int count) {
+    return '$count places';
+  }
+
+  @override
+  String get routineExclusiveShort => 'Turns others off';
+
+  @override
+  String get routineExampleCommute => 'Commute';
+
+  @override
+  String get routineExampleHome => 'Way home';
+
+  @override
+  String get routineNewTitle => 'New routine';
+
+  @override
+  String get routineEditTitle => 'Edit routine';
+
+  @override
+  String get routineNameLabel => 'Name';
+
+  @override
+  String get routineNameRequired => 'Please enter a name';
+
+  @override
+  String get routinePlacesRequired => 'Please choose at least one place';
+
+  @override
+  String get routineSaveFailed => 'Couldn\'t save. Please try again';
+
+  @override
+  String get routineExclusiveTitle => 'Turn other places off';
+
+  @override
+  String get routineExclusiveSubtitle =>
+      'Only this routine\'s places alert, like a commute mode';
+
+  @override
+  String routinePlacesHeader(int count) {
+    return 'Places ($count chosen)';
+  }
+
+  @override
+  String get routineNoPlacesYet =>
+      'You haven\'t added any places yet. Please add a place first.';
+
+  @override
+  String get routineSave => 'Save';
+
+  @override
+  String get routineDelete => 'Delete routine';
+
+  @override
+  String get routineDeleteTitle => 'Delete this routine?';
+
+  @override
+  String get routineDeleteBody => 'Its places won\'t be deleted.';
+
+  @override
+  String get routineCancel => 'Cancel';
+
+  @override
+  String get proRowRoutines => 'Routines';
+
+  @override
+  String get proLockedRoutines => 'Group places into routines';
 }

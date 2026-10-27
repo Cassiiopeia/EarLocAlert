@@ -32,6 +32,7 @@ import '../../../core/map/marker_hue.dart';
 import '../../../core/ui/components/loading_indicator.dart';
 
 // 화면 조각은 파일을 나눴다 (아키텍처 검수 #276 — 한 파일 1000줄 안팎)
+import 'routine/place_routine_chip_bar.dart';
 part 'home/home_status_bar.dart';
 part 'home/home_status_bubble.dart';
 part 'home/home_weak_alert_capsule.dart';
@@ -61,6 +62,7 @@ class PlaceMapHomeScreen extends ConsumerStatefulWidget {
     this.planBadge,
     this.isPlaceAddLocked = false,
     this.onUnlockPro,
+    this.onManageRoutines,
     required this.locationService,
     super.key,
   });
@@ -121,6 +123,9 @@ class PlaceMapHomeScreen extends ConsumerStatefulWidget {
 
   /// 잠긴 기능을 눌렀을 때 — 프로 안내
   final VoidCallback? onUnlockPro;
+
+  /// 루틴 관리 화면 (#315). 루틴 칩 줄 끝의 관리 칩
+  final VoidCallback? onManageRoutines;
 
   @override
   ConsumerState<PlaceMapHomeScreen> createState() => _PlaceMapHomeScreenState();
@@ -308,6 +313,7 @@ class _PlaceMapHomeScreenState extends ConsumerState<PlaceMapHomeScreen>
                   onUnlockPro: widget.isPlaceAddLocked
                       ? widget.onUnlockPro
                       : null,
+                  onManageRoutines: widget.onManageRoutines,
                 ),
               ),
             ),
