@@ -1586,4 +1586,55 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get proLockedHistory => '全部记录和摘要';
+
+  @override
+  String get autoBackupTitle => '自动备份';
+
+  @override
+  String get autoBackupDescription =>
+      '每次更改地点时，都会在所选文件夹中重新写入备份文件。选择 iCloud 云盘等位置，删除应用后也会保留。';
+
+  @override
+  String get autoBackupOff => '关闭 · 选择文件夹即可开启';
+
+  @override
+  String autoBackupOnNever(String folder) {
+    return '$folder · 尚未备份';
+  }
+
+  @override
+  String autoBackupOnLast(String folder, String time) {
+    return '$folder · 上次 $time';
+  }
+
+  @override
+  String get autoBackupFolderTitle => '备份文件夹';
+
+  @override
+  String get autoBackupNoFolder => '未选择';
+
+  @override
+  String get autoBackupLastTitle => '上次备份';
+
+  @override
+  String get autoBackupNever => '暂无';
+
+  @override
+  String get autoBackupRestoreHint =>
+      '恢复时，在“导入地点”中选择 earlocalert-places-auto.json 文件即可。';
+
+  @override
+  String get autoBackupChooseFolder => '选择文件夹';
+
+  @override
+  String get autoBackupNow => '立即备份';
+
+  @override
+  String get autoBackupTurnOff => '关闭自动备份';
+
+  @override
+  String get autoBackupDone => '已备份';
+
+  @override
+  String get autoBackupFailed => '备份失败，请重新选择文件夹';
 }

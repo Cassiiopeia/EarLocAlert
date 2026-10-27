@@ -1673,4 +1673,56 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get proLockedHistory => 'Full history and summary';
+
+  @override
+  String get autoBackupTitle => 'Auto backup';
+
+  @override
+  String get autoBackupDescription =>
+      'Writes a fresh backup file to the folder you pick whenever your places change. Pick a place like iCloud Drive and it stays even if you delete the app.';
+
+  @override
+  String get autoBackupOff => 'Off · Pick a folder to turn it on';
+
+  @override
+  String autoBackupOnNever(String folder) {
+    return '$folder · Not backed up yet';
+  }
+
+  @override
+  String autoBackupOnLast(String folder, String time) {
+    return '$folder · Last $time';
+  }
+
+  @override
+  String get autoBackupFolderTitle => 'Backup folder';
+
+  @override
+  String get autoBackupNoFolder => 'None';
+
+  @override
+  String get autoBackupLastTitle => 'Last backup';
+
+  @override
+  String get autoBackupNever => 'Not yet';
+
+  @override
+  String get autoBackupRestoreHint =>
+      'To restore, choose earlocalert-places-auto.json in Import places.';
+
+  @override
+  String get autoBackupChooseFolder => 'Choose folder';
+
+  @override
+  String get autoBackupNow => 'Back up now';
+
+  @override
+  String get autoBackupTurnOff => 'Turn off auto backup';
+
+  @override
+  String get autoBackupDone => 'Backed up';
+
+  @override
+  String get autoBackupFailed =>
+      'Couldn\'t back up. Please choose the folder again';
 }

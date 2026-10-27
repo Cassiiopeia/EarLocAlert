@@ -872,5 +872,37 @@
   "proRowHistory": "도착 기록",
   "proValueRecentHistory": "최근 3건",
   "proValueFullHistory": "90일 + 요약",
-  "proLockedHistory": "전체 기록과 요약"
+  "proLockedHistory": "전체 기록과 요약",
+  "autoBackupTitle": "자동 백업",
+  "autoBackupDescription": "고른 폴더에 장소를 바꿀 때마다 백업 파일을 새로 써요. iCloud Drive 같은 곳을 고르면 앱을 지워도 남아요.",
+  "autoBackupOff": "꺼짐 · 폴더를 고르면 켜져요",
+  "autoBackupOnNever": "{folder} · 아직 백업 전",
+  "@autoBackupOnNever": {
+    "placeholders": {
+      "folder": {
+        "type": "String"
+      }
+    }
+  },
+  "autoBackupOnLast": "{folder} · 마지막 {time}",
+  "@autoBackupOnLast": {
+    "placeholders": {
+      "folder": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "autoBackupFolderTitle": "백업 폴더",
+  "autoBackupNoFolder": "고르지 않음",
+  "autoBackupLastTitle": "마지막 백업",
+  "autoBackupNever": "아직 없음",
+  "autoBackupRestoreHint": "복원할 때는 장소 불러오기에서 earlocalert-places-auto.json 파일을 고르면 돼요.",
+  "autoBackupChooseFolder": "폴더 고르기",
+  "autoBackupNow": "지금 백업하기",
+  "autoBackupTurnOff": "자동 백업 끄기",
+  "autoBackupDone": "백업했어요",
+  "autoBackupFailed": "백업하지 못했어요. 폴더를 다시 골라 주세요"
 }

@@ -547,5 +547,20 @@
   "proRowHistory": "提醒记录",
   "proValueRecentHistory": "最近 3 条",
   "proValueFullHistory": "90 天 + 摘要",
-  "proLockedHistory": "全部记录和摘要"
+  "proLockedHistory": "全部记录和摘要",
+  "autoBackupTitle": "自动备份",
+  "autoBackupDescription": "每次更改地点时，都会在所选文件夹中重新写入备份文件。选择 iCloud 云盘等位置，删除应用后也会保留。",
+  "autoBackupOff": "关闭 · 选择文件夹即可开启",
+  "autoBackupOnNever": "{folder} · 尚未备份",
+  "autoBackupOnLast": "{folder} · 上次 {time}",
+  "autoBackupFolderTitle": "备份文件夹",
+  "autoBackupNoFolder": "未选择",
+  "autoBackupLastTitle": "上次备份",
+  "autoBackupNever": "暂无",
+  "autoBackupRestoreHint": "恢复时，在“导入地点”中选择 earlocalert-places-auto.json 文件即可。",
+  "autoBackupChooseFolder": "选择文件夹",
+  "autoBackupNow": "立即备份",
+  "autoBackupTurnOff": "关闭自动备份",
+  "autoBackupDone": "已备份",
+  "autoBackupFailed": "备份失败，请重新选择文件夹"
 }

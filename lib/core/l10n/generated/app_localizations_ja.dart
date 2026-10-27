@@ -1601,4 +1601,55 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get proLockedHistory => 'すべての記録と要約';
+
+  @override
+  String get autoBackupTitle => '自動バックアップ';
+
+  @override
+  String get autoBackupDescription =>
+      '場所を変えるたびに、選んだフォルダへバックアップファイルを書き直します。iCloud Drive などを選ぶとアプリを削除しても残ります。';
+
+  @override
+  String get autoBackupOff => 'オフ · フォルダを選ぶとオンになります';
+
+  @override
+  String autoBackupOnNever(String folder) {
+    return '$folder · まだバックアップしていません';
+  }
+
+  @override
+  String autoBackupOnLast(String folder, String time) {
+    return '$folder · 最終 $time';
+  }
+
+  @override
+  String get autoBackupFolderTitle => 'バックアップフォルダ';
+
+  @override
+  String get autoBackupNoFolder => '未選択';
+
+  @override
+  String get autoBackupLastTitle => '最終バックアップ';
+
+  @override
+  String get autoBackupNever => 'まだありません';
+
+  @override
+  String get autoBackupRestoreHint =>
+      '復元するときは「場所を読み込む」で earlocalert-places-auto.json を選んでください。';
+
+  @override
+  String get autoBackupChooseFolder => 'フォルダを選ぶ';
+
+  @override
+  String get autoBackupNow => '今すぐバックアップ';
+
+  @override
+  String get autoBackupTurnOff => '自動バックアップをオフ';
+
+  @override
+  String get autoBackupDone => 'バックアップしました';
+
+  @override
+  String get autoBackupFailed => 'バックアップできませんでした。フォルダを選び直してください';
 }

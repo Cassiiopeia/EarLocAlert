@@ -76,6 +76,8 @@ class SettingsScreen extends StatelessWidget {
     required this.onOpenArrivalHistory,
     required this.onExportPlaces,
     required this.onImportPlaces,
+    required this.autoBackupSubtitle,
+    required this.onOpenAutoBackup,
     required this.onReportProblem,
     required this.language,
     required this.onLanguageChanged,
@@ -120,6 +122,10 @@ class SettingsScreen extends StatelessWidget {
   /// 장소 내보내기·불러오기 (이슈 #256). 구현은 places feature 에 있어 app 계층이 잇는다
   final VoidCallback onExportPlaces;
   final VoidCallback onImportPlaces;
+
+  /// 자동 백업 (#314): 상태 문구와 시트 열기 (places feature 시트를 app 이 잇는다)
+  final String autoBackupSubtitle;
+  final VoidCallback onOpenAutoBackup;
 
   /// 문제 신고 메일 (이슈 #255). 시트는 diagnostics feature 에 있어 app 계층이 연결한다
   final VoidCallback onReportProblem;
@@ -231,6 +237,12 @@ class SettingsScreen extends StatelessWidget {
         title: context.l10n.settingsBackupImportTitle,
         subtitle: context.l10n.settingsBackupImportSubtitle,
         onTap: onImportPlaces,
+      ),
+      GroupedListRow.navigation(
+        icon: Icons.cloud_sync_outlined,
+        title: context.l10n.autoBackupTitle,
+        subtitle: autoBackupSubtitle,
+        onTap: onOpenAutoBackup,
       ),
     ];
     final onUnlock = onUnlockPro;

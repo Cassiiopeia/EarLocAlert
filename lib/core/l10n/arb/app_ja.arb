@@ -547,5 +547,20 @@
   "proRowHistory": "通知の記録",
   "proValueRecentHistory": "直近3件",
   "proValueFullHistory": "90日 + 要約",
-  "proLockedHistory": "すべての記録と要約"
+  "proLockedHistory": "すべての記録と要約",
+  "autoBackupTitle": "自動バックアップ",
+  "autoBackupDescription": "場所を変えるたびに、選んだフォルダへバックアップファイルを書き直します。iCloud Drive などを選ぶとアプリを削除しても残ります。",
+  "autoBackupOff": "オフ · フォルダを選ぶとオンになります",
+  "autoBackupOnNever": "{folder} · まだバックアップしていません",
+  "autoBackupOnLast": "{folder} · 最終 {time}",
+  "autoBackupFolderTitle": "バックアップフォルダ",
+  "autoBackupNoFolder": "未選択",
+  "autoBackupLastTitle": "最終バックアップ",
+  "autoBackupNever": "まだありません",
+  "autoBackupRestoreHint": "復元するときは「場所を読み込む」で earlocalert-places-auto.json を選んでください。",
+  "autoBackupChooseFolder": "フォルダを選ぶ",
+  "autoBackupNow": "今すぐバックアップ",
+  "autoBackupTurnOff": "自動バックアップをオフ",
+  "autoBackupDone": "バックアップしました",
+  "autoBackupFailed": "バックアップできませんでした。フォルダを選び直してください"
 }

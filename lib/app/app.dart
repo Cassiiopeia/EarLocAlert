@@ -37,6 +37,7 @@ import 'geofence_providers.dart';
 import 'notification_dismiss_action.dart';
 import 'pending_alert_resumer.dart';
 import 'pro_access_coordinator.dart';
+import 'auto_backup_coordinator.dart';
 import 'review_prompt_coordinator.dart';
 import '../core/entitlement/feature_access_controller.dart';
 import 'router.dart';
@@ -233,6 +234,8 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
     Diagnostics.log('device', BuildInfo.deviceLabel);
     // 무료/프로 상태 맞추기 (#294) — 기다리지 않고 일찍 시작 (늦으면 기존 사용자가 잠깐 잠긴 화면을 봄)
     unawaited(ref.read(proAccessCoordinatorProvider).start());
+    // 장소 자동 백업 (#314) — 프로이고 폴더를 골랐을 때만 실제로 씀
+    ref.read(autoBackupCoordinatorProvider).start();
     // 후기 창 판정 (#296) — 시작 직후 알림 승격·동의 창과 겹치지 않게 잠시 뒤
     unawaited(
       Future<void>.delayed(

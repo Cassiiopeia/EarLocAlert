@@ -3059,6 +3059,96 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'전체 기록과 요약'**
   String get proLockedHistory;
+
+  /// No description provided for @autoBackupTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'자동 백업'**
+  String get autoBackupTitle;
+
+  /// No description provided for @autoBackupDescription.
+  ///
+  /// In ko, this message translates to:
+  /// **'고른 폴더에 장소를 바꿀 때마다 백업 파일을 새로 써요. iCloud Drive 같은 곳을 고르면 앱을 지워도 남아요.'**
+  String get autoBackupDescription;
+
+  /// No description provided for @autoBackupOff.
+  ///
+  /// In ko, this message translates to:
+  /// **'꺼짐 · 폴더를 고르면 켜져요'**
+  String get autoBackupOff;
+
+  /// No description provided for @autoBackupOnNever.
+  ///
+  /// In ko, this message translates to:
+  /// **'{folder} · 아직 백업 전'**
+  String autoBackupOnNever(String folder);
+
+  /// No description provided for @autoBackupOnLast.
+  ///
+  /// In ko, this message translates to:
+  /// **'{folder} · 마지막 {time}'**
+  String autoBackupOnLast(String folder, String time);
+
+  /// No description provided for @autoBackupFolderTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'백업 폴더'**
+  String get autoBackupFolderTitle;
+
+  /// No description provided for @autoBackupNoFolder.
+  ///
+  /// In ko, this message translates to:
+  /// **'고르지 않음'**
+  String get autoBackupNoFolder;
+
+  /// No description provided for @autoBackupLastTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'마지막 백업'**
+  String get autoBackupLastTitle;
+
+  /// No description provided for @autoBackupNever.
+  ///
+  /// In ko, this message translates to:
+  /// **'아직 없음'**
+  String get autoBackupNever;
+
+  /// No description provided for @autoBackupRestoreHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'복원할 때는 장소 불러오기에서 earlocalert-places-auto.json 파일을 고르면 돼요.'**
+  String get autoBackupRestoreHint;
+
+  /// No description provided for @autoBackupChooseFolder.
+  ///
+  /// In ko, this message translates to:
+  /// **'폴더 고르기'**
+  String get autoBackupChooseFolder;
+
+  /// No description provided for @autoBackupNow.
+  ///
+  /// In ko, this message translates to:
+  /// **'지금 백업하기'**
+  String get autoBackupNow;
+
+  /// No description provided for @autoBackupTurnOff.
+  ///
+  /// In ko, this message translates to:
+  /// **'자동 백업 끄기'**
+  String get autoBackupTurnOff;
+
+  /// No description provided for @autoBackupDone.
+  ///
+  /// In ko, this message translates to:
+  /// **'백업했어요'**
+  String get autoBackupDone;
+
+  /// No description provided for @autoBackupFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'백업하지 못했어요. 폴더를 다시 골라 주세요'**
+  String get autoBackupFailed;
 }
 
 class _AppLocalizationsDelegate

@@ -547,5 +547,20 @@
   "proRowHistory": "Alert history",
   "proValueRecentHistory": "Last 3",
   "proValueFullHistory": "90 days + summary",
-  "proLockedHistory": "Full history and summary"
+  "proLockedHistory": "Full history and summary",
+  "autoBackupTitle": "Auto backup",
+  "autoBackupDescription": "Writes a fresh backup file to the folder you pick whenever your places change. Pick a place like iCloud Drive and it stays even if you delete the app.",
+  "autoBackupOff": "Off · Pick a folder to turn it on",
+  "autoBackupOnNever": "{folder} · Not backed up yet",
+  "autoBackupOnLast": "{folder} · Last {time}",
+  "autoBackupFolderTitle": "Backup folder",
+  "autoBackupNoFolder": "None",
+  "autoBackupLastTitle": "Last backup",
+  "autoBackupNever": "Not yet",
+  "autoBackupRestoreHint": "To restore, choose earlocalert-places-auto.json in Import places.",
+  "autoBackupChooseFolder": "Choose folder",
+  "autoBackupNow": "Back up now",
+  "autoBackupTurnOff": "Turn off auto backup",
+  "autoBackupDone": "Backed up",
+  "autoBackupFailed": "Couldn't back up. Please choose the folder again"
 }

@@ -190,6 +190,17 @@ class _SettingsRouteState extends ConsumerState<_SettingsRoute>
         repository: ref.read(placeRepositoryProvider),
         maxPlaces: ref.read(featureAccessControllerProvider).placeLimit,
       ),
+      // 자동 백업 (#314) — 수동 백업과 같은 잠금 묶음
+      autoBackupSubtitle: autoBackupSubtitle(
+        context.l10n,
+        ref.watch(autoBackupStatusProvider).valueOrNull,
+      ),
+      onOpenAutoBackup: () => showAutoBackupSheet(
+        context,
+        onBackupNow: () => ref
+            .read(autoBackupCoordinatorProvider)
+            .runNow(reason: 'manual', force: true),
+      ),
       // 무료/프로 (#294) — 맨 위 카드와 백업 잠금
       planCard: ProSettingsCard(
         placeCount: ref.watch(placeListProvider).valueOrNull?.length ?? 0,

@@ -1604,4 +1604,55 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get proLockedHistory => '전체 기록과 요약';
+
+  @override
+  String get autoBackupTitle => '자동 백업';
+
+  @override
+  String get autoBackupDescription =>
+      '고른 폴더에 장소를 바꿀 때마다 백업 파일을 새로 써요. iCloud Drive 같은 곳을 고르면 앱을 지워도 남아요.';
+
+  @override
+  String get autoBackupOff => '꺼짐 · 폴더를 고르면 켜져요';
+
+  @override
+  String autoBackupOnNever(String folder) {
+    return '$folder · 아직 백업 전';
+  }
+
+  @override
+  String autoBackupOnLast(String folder, String time) {
+    return '$folder · 마지막 $time';
+  }
+
+  @override
+  String get autoBackupFolderTitle => '백업 폴더';
+
+  @override
+  String get autoBackupNoFolder => '고르지 않음';
+
+  @override
+  String get autoBackupLastTitle => '마지막 백업';
+
+  @override
+  String get autoBackupNever => '아직 없음';
+
+  @override
+  String get autoBackupRestoreHint =>
+      '복원할 때는 장소 불러오기에서 earlocalert-places-auto.json 파일을 고르면 돼요.';
+
+  @override
+  String get autoBackupChooseFolder => '폴더 고르기';
+
+  @override
+  String get autoBackupNow => '지금 백업하기';
+
+  @override
+  String get autoBackupTurnOff => '자동 백업 끄기';
+
+  @override
+  String get autoBackupDone => '백업했어요';
+
+  @override
+  String get autoBackupFailed => '백업하지 못했어요. 폴더를 다시 골라 주세요';
 }
