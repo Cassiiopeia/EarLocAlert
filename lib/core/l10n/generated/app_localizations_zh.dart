@@ -1431,4 +1431,90 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get homeStatusFixButton => '去检查权限';
+
+  @override
+  String get settingsVibrationPatternTitle => '振动模式';
+
+  @override
+  String get settingsVibrationPatternSubtitle => '选择节奏，仅凭振动就能分辨地点';
+
+  @override
+  String get vibrationPatternTitle => '振动模式';
+
+  @override
+  String get vibrationPatternDescription => '选择后会振动一次以便确认。振动强度设置也会一起生效。';
+
+  @override
+  String get vibrationPatternIosNote => '屏幕关闭时只保留节奏，强度保持不变。';
+
+  @override
+  String get vibrationPatternFollowDefault => '跟随默认设置';
+
+  @override
+  String get vibrationPatternFollowDefaultHint => '使用设置中选择的振动模式';
+
+  @override
+  String get vibrationPatternStandard => '默认';
+
+  @override
+  String get vibrationPatternDoubleTap => '嗒嗒';
+
+  @override
+  String get vibrationPatternTripleTap => '嗒嗒嗒';
+
+  @override
+  String get vibrationPatternHeartbeat => '心跳';
+
+  @override
+  String get vibrationPatternLongShort => '长、短';
+
+  @override
+  String get vibrationPatternShortLong => '短、长';
+
+  @override
+  String get vibrationPatternSos => 'SOS';
+
+  @override
+  String get vibrationPatternRapid => '连击';
+
+  @override
+  String get vibrationPatternWave => '波浪';
+
+  @override
+  String get vibrationPatternCrescendo => '渐强';
+
+  @override
+  String get vibrationPatternKnock => '敲门';
+
+  @override
+  String get vibrationPatternWaltz => '华尔兹';
+
+  @override
+  String get vibrationPatternSiren => '警笛';
+
+  @override
+  String get vibrationPatternLongPulse => '长振一次';
+
+  @override
+  String get placeFormVibrationTitle => '振动';
+
+  @override
+  String get placeFormVibrationPatternLabel => '振动模式';
+
+  @override
+  String get proRowVibrationPattern => '振动模式';
+
+  @override
+  String proValueAllPatterns(int count) {
+    return '$count 种';
+  }
+
+  @override
+  String get proLockedVibrationPatterns => '全部振动模式';
+
+  @override
+  String get vibrationPatternDone => '完成';
+
+  @override
+  String get proValueDefaultPattern => '仅默认';
 }

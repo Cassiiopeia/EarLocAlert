@@ -4,6 +4,7 @@ import 'dart:math' as math;
 import '../../../core/domain/alert_direction.dart';
 import '../../../core/domain/alert_schedule.dart';
 import '../../../core/domain/alert_sound.dart';
+import '../../../core/domain/vibration_pattern.dart';
 import '../../../core/domain/id_generator.dart';
 import '../../../core/entitlement/place_limits.dart';
 import 'alert_place.dart';
@@ -52,6 +53,9 @@ abstract final class PlaceBackup {
         'sound': sound is CustomSoundRef
             ? AlertSound.fallback.storageValue
             : sound.storageValue,
+        // 선택 필드 (#311): 없으면 기본 패턴 따름
+        if (place.vibrationPattern != null)
+          'vibrationPattern': place.vibrationPattern!.name,
         'schedules': [
           for (final schedule in place.schedules)
             {
@@ -179,6 +183,10 @@ abstract final class PlaceBackup {
       sound: sound is String && AlertSound.parse(sound) is PresetSound
           ? AlertSound.parse(sound)
           : AlertSound.fallback,
+      // 없거나 모르는 이름은 기본 패턴 따름 (#311)
+      vibrationPattern: item['vibrationPattern'] is String
+          ? VibrationPattern.tryParse(item['vibrationPattern'] as String)
+          : null,
       schedules: schedules,
       createdAt: now.toUtc(),
     );

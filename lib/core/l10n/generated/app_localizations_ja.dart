@@ -1445,4 +1445,91 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get homeStatusFixButton => '権限を確認する';
+
+  @override
+  String get settingsVibrationPatternTitle => 'バイブレーションパターン';
+
+  @override
+  String get settingsVibrationPatternSubtitle => '振動だけで場所を見分けられるようにリズムを選びます';
+
+  @override
+  String get vibrationPatternTitle => 'バイブレーションパターン';
+
+  @override
+  String get vibrationPatternDescription =>
+      '選ぶと一度振動して確認できます。バイブレーションの強さも反映されます。';
+
+  @override
+  String get vibrationPatternIosNote => '画面がオフのときはリズムだけが同じで、強さは一定です。';
+
+  @override
+  String get vibrationPatternFollowDefault => '基本設定に従う';
+
+  @override
+  String get vibrationPatternFollowDefaultHint => '設定で選んだパターンで振動します';
+
+  @override
+  String get vibrationPatternStandard => '標準';
+
+  @override
+  String get vibrationPatternDoubleTap => 'トントン';
+
+  @override
+  String get vibrationPatternTripleTap => 'トントントン';
+
+  @override
+  String get vibrationPatternHeartbeat => 'ハートビート';
+
+  @override
+  String get vibrationPatternLongShort => '長く、短く';
+
+  @override
+  String get vibrationPatternShortLong => '短く、長く';
+
+  @override
+  String get vibrationPatternSos => 'SOS';
+
+  @override
+  String get vibrationPatternRapid => '連打';
+
+  @override
+  String get vibrationPatternWave => '波';
+
+  @override
+  String get vibrationPatternCrescendo => 'だんだん強く';
+
+  @override
+  String get vibrationPatternKnock => 'ノック';
+
+  @override
+  String get vibrationPatternWaltz => 'ワルツ';
+
+  @override
+  String get vibrationPatternSiren => 'サイレン';
+
+  @override
+  String get vibrationPatternLongPulse => '長く一回';
+
+  @override
+  String get placeFormVibrationTitle => 'バイブレーション';
+
+  @override
+  String get placeFormVibrationPatternLabel => 'バイブレーションパターン';
+
+  @override
+  String get proRowVibrationPattern => '振動パターン';
+
+  @override
+  String proValueAllPatterns(int count) {
+    return '$count種類';
+  }
+
+  @override
+  String get proLockedVibrationPatterns => 'すべての振動パターン';
+
+  @override
+  String get vibrationPatternDone => '完了';
+
+  @override
+  String get proValueDefaultPattern => '標準1つ';
 }

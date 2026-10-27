@@ -18,6 +18,8 @@ import '../../../core/ui/foundation/app_semantic_colors.dart';
 import '../../../core/ui/foundation/map_style.dart';
 import '../../../core/ui/foundation/app_spacing.dart';
 import '../../../core/domain/sound_preset_label.dart';
+import '../../../core/domain/vibration_pattern.dart';
+import '../../../core/domain/vibration_pattern_label.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/text/keep_all.dart';
 import '../domain/alert_place.dart';
@@ -51,6 +53,7 @@ class PlaceFormScreen extends ConsumerStatefulWidget {
     this.onPickOnMap,
     this.onPickSound,
     this.onDescribeSound,
+    this.onPickVibrationPattern,
     super.key,
   });
 
@@ -83,6 +86,13 @@ class PlaceFormScreen extends ConsumerStatefulWidget {
   /// 그 이름은 `sounds` 의 저장소에 있고, `places` 는 그것을 볼 수 없다.
   /// 없으면 "내 음원" 으로 표시한다.
   final Future<String> Function(AlertSound sound)? onDescribeSound;
+
+  /// 진동 패턴 시트를 열고 결과를 돌려줌 (#311). null = 취소, pattern null = 기본 따르기.
+  /// alert feature 시트라 라우터가 배선
+  final Future<({VibrationPattern? pattern})?> Function(
+    VibrationPattern? current,
+  )?
+  onPickVibrationPattern;
 
   @override
   ConsumerState<PlaceFormScreen> createState() => _PlaceFormScreenState();
@@ -128,6 +138,9 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
   late bool _soundEnabled =
       widget.existing?.soundEnabled ?? PlaceDraft.defaultSoundEnabled;
   late AlertSound _sound = widget.existing?.sound ?? AlertSound.fallback;
+
+  /// null 이면 기본 패턴 설정 따름 (#311)
+  late VibrationPattern? _vibrationPattern = widget.existing?.vibrationPattern;
 
   /// 조회로 얻은 알림음 이름. null 이면 잠정값을 쓴다.
   ///
@@ -181,6 +194,15 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
     }
   }
 
+  /// 진동 패턴 고르기 (#311): 취소면 그대로
+  Future<void> _pickVibrationPattern() async {
+    final pick = widget.onPickVibrationPattern;
+    if (pick == null) return;
+    final choice = await pick(_vibrationPattern);
+    if (choice == null || !mounted) return;
+    setState(() => _vibrationPattern = choice.pattern);
+  }
+
   Future<void> _pickSound() async {
     final pick = widget.onPickSound;
     if (pick == null) return;
@@ -223,6 +245,7 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
     soundEnabled: _soundEnabled,
     sound: _sound,
     schedules: _schedules,
+    vibrationPattern: _vibrationPattern,
   ).hasUnsavedChangesFrom(widget.existing);
 
   /// 나가도 되는지 묻는다 (이슈 #112).
@@ -478,6 +501,24 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
                       ),
                   ],
                 ),
+                if (widget.onPickVibrationPattern != null) ...[
+                  const SizedBox(height: AppSpacing.md),
+                  // 진동은 이어폰 여부와 무관하게 늘 오므로 소리 칸과 따로 둔다 (#311)
+                  GroupedListSection(
+                    header: l10n.placeFormVibrationTitle,
+                    headerIndent: 0,
+                    children: [
+                      GroupedListRow.navigation(
+                        icon: Icons.graphic_eq_outlined,
+                        title: l10n.placeFormVibrationPatternLabel,
+                        subtitle:
+                            _vibrationPattern?.localizedLabel(l10n) ??
+                            l10n.vibrationPatternFollowDefault,
+                        onTap: _pickVibrationPattern,
+                      ),
+                    ],
+                  ),
+                ],
                 // 삭제는 편집 중인 장소에만 있다. 저장 버튼은 하단 고정 막대로 올라갔고,
                 // 삭제는 폼 맨 끝에 옅게 둔다 — 주 동작과 같은 무게로 놓으면 저장하려다
                 // 누른다 (이슈 #205). 스와이프를 모르는 사용자도 여기서 찾을 수 있다
@@ -685,6 +726,7 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
                   direction: _direction,
                   soundEnabled: _soundEnabled,
                   sound: _sound,
+                  vibrationPattern: _vibrationPattern,
                   schedules: _schedules,
                 );
     } on Object catch (error) {

@@ -32,6 +32,9 @@ class AlertPlaces extends Table {
       .map(const AlertSoundConverter())
       .withDefault(const Constant('preset:default'))();
 
+  /// 이 장소 진동 패턴 이름 (#311). null 이면 기본 패턴 설정을 따름 (기존 장소 동작 그대로)
+  TextColumn get vibrationPattern => text().nullable()();
+
   /// 알림이 활성인 시간 창 목록 (이슈 #81) — JSON 배열
   ///
   /// 기본값 `'[]'` 가 곧 "항상 활성"이다. 마이그레이션된 기존 장소가

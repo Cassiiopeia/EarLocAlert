@@ -71,6 +71,7 @@ class SettingsScreen extends StatelessWidget {
   const SettingsScreen({
     required this.onOpenVolumeSettings,
     required this.onOpenVibrationSettings,
+    required this.onOpenVibrationPatternSettings,
     required this.onOpenDiagnostics,
     required this.onExportPlaces,
     required this.onImportPlaces,
@@ -107,6 +108,9 @@ class SettingsScreen extends StatelessWidget {
 
   /// 진동 세기 (이슈 #103)
   final VoidCallback onOpenVibrationSettings;
+
+  /// 기본 진동 패턴 (#311)
+  final VoidCallback onOpenVibrationPatternSettings;
   final VoidCallback onOpenDiagnostics;
 
   /// 장소 내보내기·불러오기 (이슈 #256). 구현은 places feature 에 있어 app 계층이 잇는다
@@ -260,6 +264,12 @@ class SettingsScreen extends StatelessWidget {
                   title: context.l10n.settingsVibrationTitle,
                   subtitle: context.l10n.settingsVibrationSubtitle,
                   onTap: onOpenVibrationSettings,
+                ),
+                GroupedListRow.navigation(
+                  icon: Icons.graphic_eq_outlined,
+                  title: context.l10n.settingsVibrationPatternTitle,
+                  subtitle: context.l10n.settingsVibrationPatternSubtitle,
+                  onTap: onOpenVibrationPatternSettings,
                 ),
                 GroupedListRow.navigation(
                   icon: Icons.tune_outlined,

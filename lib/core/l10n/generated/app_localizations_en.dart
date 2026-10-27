@@ -1512,4 +1512,94 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get homeStatusFixButton => 'Check permissions';
+
+  @override
+  String get settingsVibrationPatternTitle => 'Vibration pattern';
+
+  @override
+  String get settingsVibrationPatternSubtitle =>
+      'Pick a rhythm so you can tell places apart by feel';
+
+  @override
+  String get vibrationPatternTitle => 'Vibration pattern';
+
+  @override
+  String get vibrationPatternDescription =>
+      'Pick one to feel it once. Your vibration strength applies too.';
+
+  @override
+  String get vibrationPatternIosNote =>
+      'While the screen is off, only the rhythm is kept and the strength stays the same.';
+
+  @override
+  String get vibrationPatternFollowDefault => 'Use default setting';
+
+  @override
+  String get vibrationPatternFollowDefaultHint =>
+      'Uses the pattern chosen in Settings';
+
+  @override
+  String get vibrationPatternStandard => 'Default';
+
+  @override
+  String get vibrationPatternDoubleTap => 'Double tap';
+
+  @override
+  String get vibrationPatternTripleTap => 'Triple tap';
+
+  @override
+  String get vibrationPatternHeartbeat => 'Heartbeat';
+
+  @override
+  String get vibrationPatternLongShort => 'Long, short';
+
+  @override
+  String get vibrationPatternShortLong => 'Short, long';
+
+  @override
+  String get vibrationPatternSos => 'SOS';
+
+  @override
+  String get vibrationPatternRapid => 'Rapid';
+
+  @override
+  String get vibrationPatternWave => 'Wave';
+
+  @override
+  String get vibrationPatternCrescendo => 'Crescendo';
+
+  @override
+  String get vibrationPatternKnock => 'Knock';
+
+  @override
+  String get vibrationPatternWaltz => 'Waltz';
+
+  @override
+  String get vibrationPatternSiren => 'Siren';
+
+  @override
+  String get vibrationPatternLongPulse => 'One long buzz';
+
+  @override
+  String get placeFormVibrationTitle => 'Vibration';
+
+  @override
+  String get placeFormVibrationPatternLabel => 'Vibration pattern';
+
+  @override
+  String get proRowVibrationPattern => 'Vibration pattern';
+
+  @override
+  String proValueAllPatterns(int count) {
+    return '$count patterns';
+  }
+
+  @override
+  String get proLockedVibrationPatterns => 'All vibration patterns';
+
+  @override
+  String get vibrationPatternDone => 'Done';
+
+  @override
+  String get proValueDefaultPattern => 'Default only';
 }

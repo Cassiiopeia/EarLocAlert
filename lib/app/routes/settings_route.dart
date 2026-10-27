@@ -154,6 +154,14 @@ class _SettingsRouteState extends ConsumerState<_SettingsRoute>
       onOpenVolumeSettings: () => showAlertVolumeSheet(context),
       // 진동 세기 (이슈 #103) — 이어폰이 없을 때 유일한 알림 수단이다
       onOpenVibrationSettings: () => showVibrationIntensitySheet(context),
+      // 기본 진동 패턴 (#311) — 무료는 기본만, 나머지는 프로 안내
+      onOpenVibrationPatternSettings: () => showDefaultVibrationPatternSheet(
+        context,
+        ref,
+        onUnlockPro: () => unawaited(
+          showProOfferSheet(context, entryPoint: 'vibration_pattern'),
+        ),
+      ),
       onOpenDiagnostics: () => context.push(AppRoutes.diagnostics),
       // 장소 내보내기·불러오기 (이슈 #256)
       onExportPlaces: () => exportPlacesBackup(

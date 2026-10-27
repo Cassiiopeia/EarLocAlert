@@ -34,8 +34,9 @@ class AppDatabase extends _$AppDatabase {
 
   /// v2 — `alert_places.schedules` 추가 (이슈 #81)
   /// v3 — `alert_places.sound` 추가 · `custom_sounds` 테이블 추가 (이슈 #121)
+  /// v4 — `alert_places.vibration_pattern` 추가 (#311)
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   /// 기존 사용자의 데이터를 살린 채 컬럼을 더한다.
   ///
@@ -55,6 +56,10 @@ class AppDatabase extends _$AppDatabase {
         // 소리로 올라온다 — 사용자가 체감하는 변화가 없다
         await m.addColumn(alertPlaces, alertPlaces.sound);
         await m.createTable(customSounds);
+      }
+      if (from < 4) {
+        // nullable 이라 기존 장소는 기본 패턴을 따름 (진동 변화 없음)
+        await m.addColumn(alertPlaces, alertPlaces.vibrationPattern);
       }
     },
   );

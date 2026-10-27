@@ -792,5 +792,40 @@
   "homeStatusIdleDescription": "켜진 장소가 없어요. 장소를 켜면 감시가 시작돼요",
   "homeAudioHeadphonesDescription": "이어폰으로 소리와 진동이 와요",
   "homeAudioVibrationOnlyDescription": "이어폰이 없어서 진동으로만 알려요",
-  "homeStatusFixButton": "권한 확인하러 가기"
+  "homeStatusFixButton": "권한 확인하러 가기",
+  "settingsVibrationPatternTitle": "진동 패턴",
+  "settingsVibrationPatternSubtitle": "진동만으로 장소를 구분할 수 있게 리듬을 골라요",
+  "vibrationPatternTitle": "진동 패턴",
+  "vibrationPatternDescription": "고르면 한 번 울려 확인할 수 있어요. 진동 세기 설정이 함께 적용돼요.",
+  "vibrationPatternIosNote": "화면이 꺼져 있을 때는 리듬만 같고 세기는 일정해요.",
+  "vibrationPatternFollowDefault": "기본 설정 따르기",
+  "vibrationPatternFollowDefaultHint": "설정의 진동 패턴으로 울려요",
+  "vibrationPatternStandard": "기본",
+  "vibrationPatternDoubleTap": "톡톡",
+  "vibrationPatternTripleTap": "톡톡톡",
+  "vibrationPatternHeartbeat": "심장박동",
+  "vibrationPatternLongShort": "길게, 짧게",
+  "vibrationPatternShortLong": "짧게, 길게",
+  "vibrationPatternSos": "SOS",
+  "vibrationPatternRapid": "연타",
+  "vibrationPatternWave": "파도",
+  "vibrationPatternCrescendo": "점점 강하게",
+  "vibrationPatternKnock": "노크",
+  "vibrationPatternWaltz": "쿵짝짝",
+  "vibrationPatternSiren": "사이렌",
+  "vibrationPatternLongPulse": "길게 한 번",
+  "placeFormVibrationTitle": "진동",
+  "placeFormVibrationPatternLabel": "진동 패턴",
+  "proRowVibrationPattern": "진동 패턴",
+  "proValueAllPatterns": "{count}가지",
+  "@proValueAllPatterns": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "proLockedVibrationPatterns": "모든 진동 패턴",
+  "vibrationPatternDone": "완료",
+  "proValueDefaultPattern": "기본 1개"
 }

@@ -1448,4 +1448,91 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get homeStatusFixButton => '권한 확인하러 가기';
+
+  @override
+  String get settingsVibrationPatternTitle => '진동 패턴';
+
+  @override
+  String get settingsVibrationPatternSubtitle => '진동만으로 장소를 구분할 수 있게 리듬을 골라요';
+
+  @override
+  String get vibrationPatternTitle => '진동 패턴';
+
+  @override
+  String get vibrationPatternDescription =>
+      '고르면 한 번 울려 확인할 수 있어요. 진동 세기 설정이 함께 적용돼요.';
+
+  @override
+  String get vibrationPatternIosNote => '화면이 꺼져 있을 때는 리듬만 같고 세기는 일정해요.';
+
+  @override
+  String get vibrationPatternFollowDefault => '기본 설정 따르기';
+
+  @override
+  String get vibrationPatternFollowDefaultHint => '설정의 진동 패턴으로 울려요';
+
+  @override
+  String get vibrationPatternStandard => '기본';
+
+  @override
+  String get vibrationPatternDoubleTap => '톡톡';
+
+  @override
+  String get vibrationPatternTripleTap => '톡톡톡';
+
+  @override
+  String get vibrationPatternHeartbeat => '심장박동';
+
+  @override
+  String get vibrationPatternLongShort => '길게, 짧게';
+
+  @override
+  String get vibrationPatternShortLong => '짧게, 길게';
+
+  @override
+  String get vibrationPatternSos => 'SOS';
+
+  @override
+  String get vibrationPatternRapid => '연타';
+
+  @override
+  String get vibrationPatternWave => '파도';
+
+  @override
+  String get vibrationPatternCrescendo => '점점 강하게';
+
+  @override
+  String get vibrationPatternKnock => '노크';
+
+  @override
+  String get vibrationPatternWaltz => '쿵짝짝';
+
+  @override
+  String get vibrationPatternSiren => '사이렌';
+
+  @override
+  String get vibrationPatternLongPulse => '길게 한 번';
+
+  @override
+  String get placeFormVibrationTitle => '진동';
+
+  @override
+  String get placeFormVibrationPatternLabel => '진동 패턴';
+
+  @override
+  String get proRowVibrationPattern => '진동 패턴';
+
+  @override
+  String proValueAllPatterns(int count) {
+    return '$count가지';
+  }
+
+  @override
+  String get proLockedVibrationPatterns => '모든 진동 패턴';
+
+  @override
+  String get vibrationPatternDone => '완료';
+
+  @override
+  String get proValueDefaultPattern => '기본 1개';
 }

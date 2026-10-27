@@ -22,6 +22,7 @@ import '../features/alert/presentation/alert_controller_provider.dart';
 import '../features/alert/presentation/alert_screen.dart';
 import '../features/alert/presentation/alert_volume_sheet.dart';
 import '../features/alert/presentation/vibration_intensity_sheet.dart';
+import '../features/alert/presentation/vibration_pattern_sheet.dart';
 import '../features/permission/domain/ios_notification_settings.dart';
 import '../features/permission/data/ios_notification_settings_provider.dart';
 import '../features/permission/domain/permission_kind.dart';

@@ -2,6 +2,7 @@ import 'package:drift/drift.dart';
 
 import '../../../core/database/app_database.dart';
 import '../../../core/domain/alert_direction.dart';
+import '../../../core/domain/vibration_pattern.dart';
 import '../domain/alert_place.dart';
 import '../domain/place_repository.dart';
 
@@ -81,6 +82,7 @@ class DriftPlaceRepository implements PlaceRepository {
       enabled: row.enabled,
       soundEnabled: row.soundEnabled,
       sound: row.sound,
+      vibrationPattern: VibrationPattern.tryParse(row.vibrationPattern),
       schedules: row.schedules,
       // Drift 는 DateTime 을 로컬로 되돌려주므로 UTC 로 되돌린다
       // (docs/04-CONVENTIONS.md — 저장은 UTC, 표시 직전에만 로컬)
@@ -99,6 +101,7 @@ class DriftPlaceRepository implements PlaceRepository {
       enabled: Value(place.enabled),
       soundEnabled: Value(place.soundEnabled),
       sound: Value(place.sound),
+      vibrationPattern: Value(place.vibrationPattern?.name),
       schedules: Value(place.schedules),
       createdAt: Value(place.createdAt.toUtc()),
     );

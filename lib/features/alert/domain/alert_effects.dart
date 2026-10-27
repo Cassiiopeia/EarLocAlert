@@ -2,6 +2,7 @@ import '../../../core/audio/alert_sound_source.dart';
 
 import 'audio_route.dart';
 import 'vibration_intensity.dart';
+import 'vibration_waveform.dart';
 
 /// 음원 타입은 `core/audio` 에 있다 — 여기서는 재노출만 한다.
 export '../../../core/audio/alert_sound_source.dart';
@@ -15,9 +16,13 @@ abstract interface class VibrationService {
   ///
   /// [intensity] 는 사용자가 설정한 세기다 (이슈 #103). 진폭 제어를
   /// 지원하지 않는 기기에서는 길이만 반영된다.
+  ///
+  /// [waveform] 이 있으면 주기마다 그 파형을 1회 재생 (#311). null 이면 기존 단일 진동.
+  /// 주기는 파형보다 짧아지지 않는다.
   Future<void> startRepeating({
     required Duration interval,
     VibrationIntensity intensity = VibrationIntensity.normal,
+    VibrationWaveform? waveform,
   });
 
   /// 즉시 중단한다. **어떤 상황에서도 실패하지 않아야 한다.**

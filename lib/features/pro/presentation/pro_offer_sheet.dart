@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/diagnostics/diagnostics.dart';
+import '../../../core/domain/vibration_pattern.dart';
 import '../../../core/entitlement/feature_access_controller.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/text/keep_all.dart';
@@ -246,6 +247,11 @@ class _PlanComparisonTable extends StatelessWidget {
       (l10n.proRowDirections, null, null),
       (l10n.proRowSchedules, null, null),
       (l10n.proRowVibration, null, null),
+      (
+        l10n.proRowVibrationPattern,
+        l10n.proValueDefaultPattern,
+        l10n.proValueAllPatterns(VibrationPattern.values.length),
+      ),
       (l10n.proRowSound, l10n.proValueDefaultSound, l10n.proValueAllSounds),
       (l10n.proRowBackup, '', null),
       (l10n.proRowAds, l10n.proValueAdsOn, l10n.proValueAdsOff),

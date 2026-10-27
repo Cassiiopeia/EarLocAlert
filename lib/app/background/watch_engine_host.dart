@@ -1,5 +1,6 @@
 import '../../core/diagnostics/diagnostics.dart';
 import '../../features/alert/domain/vibration_intensity.dart';
+import '../../features/alert/domain/vibration_waveform.dart';
 import '../../features/geofence/domain/geofence_event.dart';
 import '../../features/geofence/domain/position_sample.dart';
 import 'alert_decision.dart';
@@ -25,9 +26,11 @@ class WatchEngineHost {
     required GeofenceBackgroundProcessor processor,
     required PendingAlertStore store,
     VibrationIntensityStore? vibrationStore,
+    VibrationPatternStore? vibrationPatternStore,
   }) : _processor = processor,
        _store = store,
-       _vibrationStore = vibrationStore;
+       _vibrationStore = vibrationStore,
+       _vibrationPatternStore = vibrationPatternStore;
 
   final GeofenceBackgroundProcessor _processor;
   final PendingAlertStore _store;
@@ -37,6 +40,9 @@ class WatchEngineHost {
   /// 네이티브가 설정을 직접 읽지 않고 판정 결과에 실어 보낸다 — 설정을
   /// 읽는 자리가 둘이 되면 반드시 어긋난다.
   final VibrationIntensityStore? _vibrationStore;
+
+  /// 기본 진동 패턴 설정 (#311). 세기와 같이 판정 결과에 실어 보냄
+  final VibrationPatternStore? _vibrationPatternStore;
 
   /// 정밀 모드 위치 측정 하나를 판정한다.
   ///
@@ -108,12 +114,14 @@ class WatchEngineHost {
       await _store.save(alert);
 
       final intensity = await _readIntensity();
+      final pattern = alert.vibrationPattern ?? await _readDefaultPattern();
+      final waveform = VibrationWaveform.build(pattern, intensity);
 
       Diagnostics.log(
         'engine',
         'alert raised place=${alert.placeId} name=${alert.placeName} '
             'direction=${alert.direction.name} sound=${alert.soundEnabled} '
-            'vibration=${intensity.name}',
+            'vibration=${intensity.name} pattern=${pattern.name}',
       );
 
       return AlertDecision(
@@ -124,6 +132,8 @@ class WatchEngineHost {
         soundEnabled: alert.soundEnabled,
         vibrationAmplitude: intensity.amplitude,
         vibrationPulseMs: intensity.pulseMs,
+        vibrationTimings: waveform?.timingsMs ?? const [],
+        vibrationAmplitudes: waveform?.amplitudes ?? const [],
       );
     } on Object catch (error) {
       // 예외를 삼키되 **기록은 남긴다** (이슈 #95).
@@ -131,6 +141,18 @@ class WatchEngineHost {
       // 실패를 추적할 방법이 통째로 없었다.
       Diagnostics.log('engine', 'decision failed $error');
       return AlertDecision.none;
+    }
+  }
+
+  /// 기본 진동 패턴: 실패하면 기본 진동 (#311)
+  Future<VibrationPattern> _readDefaultPattern() async {
+    final store = _vibrationPatternStore;
+    if (store == null) return VibrationPattern.standard;
+    try {
+      return await store.pattern();
+    } on Object catch (error) {
+      Diagnostics.log('engine', 'vibration pattern lookup failed $error');
+      return VibrationPattern.standard;
     }
   }
 

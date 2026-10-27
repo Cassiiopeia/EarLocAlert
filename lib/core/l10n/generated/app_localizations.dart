@@ -2765,6 +2765,174 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'권한 확인하러 가기'**
   String get homeStatusFixButton;
+
+  /// No description provided for @settingsVibrationPatternTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'진동 패턴'**
+  String get settingsVibrationPatternTitle;
+
+  /// No description provided for @settingsVibrationPatternSubtitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'진동만으로 장소를 구분할 수 있게 리듬을 골라요'**
+  String get settingsVibrationPatternSubtitle;
+
+  /// No description provided for @vibrationPatternTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'진동 패턴'**
+  String get vibrationPatternTitle;
+
+  /// No description provided for @vibrationPatternDescription.
+  ///
+  /// In ko, this message translates to:
+  /// **'고르면 한 번 울려 확인할 수 있어요. 진동 세기 설정이 함께 적용돼요.'**
+  String get vibrationPatternDescription;
+
+  /// No description provided for @vibrationPatternIosNote.
+  ///
+  /// In ko, this message translates to:
+  /// **'화면이 꺼져 있을 때는 리듬만 같고 세기는 일정해요.'**
+  String get vibrationPatternIosNote;
+
+  /// No description provided for @vibrationPatternFollowDefault.
+  ///
+  /// In ko, this message translates to:
+  /// **'기본 설정 따르기'**
+  String get vibrationPatternFollowDefault;
+
+  /// No description provided for @vibrationPatternFollowDefaultHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'설정의 진동 패턴으로 울려요'**
+  String get vibrationPatternFollowDefaultHint;
+
+  /// No description provided for @vibrationPatternStandard.
+  ///
+  /// In ko, this message translates to:
+  /// **'기본'**
+  String get vibrationPatternStandard;
+
+  /// No description provided for @vibrationPatternDoubleTap.
+  ///
+  /// In ko, this message translates to:
+  /// **'톡톡'**
+  String get vibrationPatternDoubleTap;
+
+  /// No description provided for @vibrationPatternTripleTap.
+  ///
+  /// In ko, this message translates to:
+  /// **'톡톡톡'**
+  String get vibrationPatternTripleTap;
+
+  /// No description provided for @vibrationPatternHeartbeat.
+  ///
+  /// In ko, this message translates to:
+  /// **'심장박동'**
+  String get vibrationPatternHeartbeat;
+
+  /// No description provided for @vibrationPatternLongShort.
+  ///
+  /// In ko, this message translates to:
+  /// **'길게, 짧게'**
+  String get vibrationPatternLongShort;
+
+  /// No description provided for @vibrationPatternShortLong.
+  ///
+  /// In ko, this message translates to:
+  /// **'짧게, 길게'**
+  String get vibrationPatternShortLong;
+
+  /// No description provided for @vibrationPatternSos.
+  ///
+  /// In ko, this message translates to:
+  /// **'SOS'**
+  String get vibrationPatternSos;
+
+  /// No description provided for @vibrationPatternRapid.
+  ///
+  /// In ko, this message translates to:
+  /// **'연타'**
+  String get vibrationPatternRapid;
+
+  /// No description provided for @vibrationPatternWave.
+  ///
+  /// In ko, this message translates to:
+  /// **'파도'**
+  String get vibrationPatternWave;
+
+  /// No description provided for @vibrationPatternCrescendo.
+  ///
+  /// In ko, this message translates to:
+  /// **'점점 강하게'**
+  String get vibrationPatternCrescendo;
+
+  /// No description provided for @vibrationPatternKnock.
+  ///
+  /// In ko, this message translates to:
+  /// **'노크'**
+  String get vibrationPatternKnock;
+
+  /// No description provided for @vibrationPatternWaltz.
+  ///
+  /// In ko, this message translates to:
+  /// **'쿵짝짝'**
+  String get vibrationPatternWaltz;
+
+  /// No description provided for @vibrationPatternSiren.
+  ///
+  /// In ko, this message translates to:
+  /// **'사이렌'**
+  String get vibrationPatternSiren;
+
+  /// No description provided for @vibrationPatternLongPulse.
+  ///
+  /// In ko, this message translates to:
+  /// **'길게 한 번'**
+  String get vibrationPatternLongPulse;
+
+  /// No description provided for @placeFormVibrationTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'진동'**
+  String get placeFormVibrationTitle;
+
+  /// No description provided for @placeFormVibrationPatternLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'진동 패턴'**
+  String get placeFormVibrationPatternLabel;
+
+  /// No description provided for @proRowVibrationPattern.
+  ///
+  /// In ko, this message translates to:
+  /// **'진동 패턴'**
+  String get proRowVibrationPattern;
+
+  /// No description provided for @proValueAllPatterns.
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}가지'**
+  String proValueAllPatterns(int count);
+
+  /// No description provided for @proLockedVibrationPatterns.
+  ///
+  /// In ko, this message translates to:
+  /// **'모든 진동 패턴'**
+  String get proLockedVibrationPatterns;
+
+  /// No description provided for @vibrationPatternDone.
+  ///
+  /// In ko, this message translates to:
+  /// **'완료'**
+  String get vibrationPatternDone;
+
+  /// No description provided for @proValueDefaultPattern.
+  ///
+  /// In ko, this message translates to:
+  /// **'기본 1개'**
+  String get proValueDefaultPattern;
 }
 
 class _AppLocalizationsDelegate

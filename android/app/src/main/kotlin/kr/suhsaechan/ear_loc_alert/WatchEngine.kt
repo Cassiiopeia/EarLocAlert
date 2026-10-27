@@ -307,6 +307,10 @@ data class AlertDecision(
      */
     val vibrationAmplitude: Int,
     val vibrationPulseMs: Int,
+    /** 진동 패턴 파형 [쉬기, 떨기, …] ms (#311). 비면 기존 기본 진동 */
+    val vibrationTimings: LongArray = LongArray(0),
+    /** vibrationTimings 와 같은 길이의 칸별 진폭 (쉬기 0, 떨기 1~255) */
+    val vibrationAmplitudes: IntArray = IntArray(0),
 ) {
     companion object {
         fun none() = AlertDecision(false, null, null, null, true, 0, 0)
@@ -321,6 +325,12 @@ data class AlertDecision(
                 soundEnabled = map["soundEnabled"] as? Boolean ?: true,
                 vibrationAmplitude = (map["vibrationAmplitude"] as? Number)?.toInt() ?: 0,
                 vibrationPulseMs = (map["vibrationPulseMs"] as? Number)?.toInt() ?: 0,
+                vibrationTimings = (map["vibrationTimings"] as? List<*>)
+                    ?.mapNotNull { (it as? Number)?.toLong() }
+                    ?.toLongArray() ?: LongArray(0),
+                vibrationAmplitudes = (map["vibrationAmplitudes"] as? List<*>)
+                    ?.mapNotNull { (it as? Number)?.toInt() }
+                    ?.toIntArray() ?: IntArray(0),
             )
         }
     }

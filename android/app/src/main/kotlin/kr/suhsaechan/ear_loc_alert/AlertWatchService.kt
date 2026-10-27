@@ -1029,6 +1029,8 @@ class AlertWatchService : Service() {
      * 효과도 없으면 사용자는 설정이 고장 났다고 판단한다.
      */
     private fun startVibration(decision: AlertDecision) {
+        // 진동 패턴이 실려 왔으면 그 파형으로 (#311), 아니면 기존 단일 진동
+        if (startPatternVibration(decision)) return
         try {
             val pulse = decision.vibrationPulseMs.takeIf { it > 0 }?.toLong()
                 ?: VIBRATION_PATTERN[1]
@@ -1053,6 +1055,46 @@ class AlertWatchService : Service() {
         } catch (error: Exception) {
             // 진동을 못 걸어도 알림과 화면 승격은 계속된다
             DiagnosticLog.write(this, "alert", "vibration start failed $error")
+        }
+    }
+
+    /**
+     * 진동 패턴 파형 반복 (#311): 파형이 없거나 깨졌으면 false (기본 진동으로 진행)
+     * 진폭 제어 없는 기기는 길이만 반영
+     */
+    private fun startPatternVibration(decision: AlertDecision): Boolean {
+        val timings = decision.vibrationTimings
+        if (timings.size < 2) return false
+        if (timings.size != decision.vibrationAmplitudes.size) {
+            DiagnosticLog.write(
+                this,
+                "alert",
+                "vibration pattern ignored reason=length_mismatch " +
+                    "timings=${timings.size} amplitudes=${decision.vibrationAmplitudes.size}",
+            )
+            return false
+        }
+        return try {
+            val canControlAmplitude =
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
+                    vibrator.hasAmplitudeControl()
+            // repeat = 0 — 해제할 때까지 파형 처음부터 반복 (#74)
+            val effect = if (canControlAmplitude) {
+                VibrationEffect.createWaveform(timings, decision.vibrationAmplitudes, 0)
+            } else {
+                VibrationEffect.createWaveform(timings, 0)
+            }
+            vibrator.vibrate(effect)
+            DiagnosticLog.write(
+                this,
+                "alert",
+                "vibration pattern started segments=${timings.size} amplitude=$canControlAmplitude",
+            )
+            true
+        } catch (error: Exception) {
+            // 패턴을 못 걸면 기본 진동으로 진행 (진동 자체는 포기하지 않음)
+            DiagnosticLog.write(this, "alert", "vibration pattern failed fallback=standard $error")
+            false
         }
     }
 
