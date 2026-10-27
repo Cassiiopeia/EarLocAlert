@@ -1532,4 +1532,73 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get proValueDefaultPattern => '標準1つ';
+
+  @override
+  String get settingsHistoryTitle => '通知の記録';
+
+  @override
+  String get settingsHistorySubtitle => 'いつどこで通知が鳴ったかを確認します';
+
+  @override
+  String get historyTitle => '通知の記録';
+
+  @override
+  String get historyEmpty => 'まだ鳴った通知はありません。場所に着いたり離れたりするとここに残ります。';
+
+  @override
+  String get historyRetentionNote => '直近90日の記録だけをこの端末に保存します';
+
+  @override
+  String get historyArrived => '到着';
+
+  @override
+  String get historyDeparted => '出発';
+
+  @override
+  String get historyDeletedPlace => '削除した場所';
+
+  @override
+  String get historyToday => '今日';
+
+  @override
+  String get historyYesterday => '昨日';
+
+  @override
+  String historyDate(int month, int day) {
+    return '$month月$day日';
+  }
+
+  @override
+  String get historyAllPlaces => 'すべて';
+
+  @override
+  String historySummaryTitle(int days) {
+    return '直近$days日';
+  }
+
+  @override
+  String get historyArrivalCountTitle => '到着通知';
+
+  @override
+  String get historyDepartureCountTitle => '出発通知';
+
+  @override
+  String get historyTopPlaceTitle => 'いちばん多く鳴った場所';
+
+  @override
+  String historyCount(int count) {
+    return '$count回';
+  }
+
+  @override
+  String get proRowHistory => '通知の記録';
+
+  @override
+  String get proValueRecentHistory => '直近3件';
+
+  @override
+  String get proValueFullHistory => '90日 + 要約';
+
+  @override
+  String get proLockedHistory => 'すべての記録と要約';
 }

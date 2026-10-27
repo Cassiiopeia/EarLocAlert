@@ -2933,6 +2933,132 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'기본 1개'**
   String get proValueDefaultPattern;
+
+  /// No description provided for @settingsHistoryTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'도착 기록'**
+  String get settingsHistoryTitle;
+
+  /// No description provided for @settingsHistorySubtitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'언제 어디서 알림이 울렸는지 봐요'**
+  String get settingsHistorySubtitle;
+
+  /// No description provided for @historyTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'도착 기록'**
+  String get historyTitle;
+
+  /// No description provided for @historyEmpty.
+  ///
+  /// In ko, this message translates to:
+  /// **'아직 울린 알림이 없어요. 장소에 도착하거나 떠나면 여기에 남아요.'**
+  String get historyEmpty;
+
+  /// No description provided for @historyRetentionNote.
+  ///
+  /// In ko, this message translates to:
+  /// **'최근 90일 기록만 이 기기에 보관해요'**
+  String get historyRetentionNote;
+
+  /// No description provided for @historyArrived.
+  ///
+  /// In ko, this message translates to:
+  /// **'도착'**
+  String get historyArrived;
+
+  /// No description provided for @historyDeparted.
+  ///
+  /// In ko, this message translates to:
+  /// **'출발'**
+  String get historyDeparted;
+
+  /// No description provided for @historyDeletedPlace.
+  ///
+  /// In ko, this message translates to:
+  /// **'삭제된 장소'**
+  String get historyDeletedPlace;
+
+  /// No description provided for @historyToday.
+  ///
+  /// In ko, this message translates to:
+  /// **'오늘'**
+  String get historyToday;
+
+  /// No description provided for @historyYesterday.
+  ///
+  /// In ko, this message translates to:
+  /// **'어제'**
+  String get historyYesterday;
+
+  /// No description provided for @historyDate.
+  ///
+  /// In ko, this message translates to:
+  /// **'{month}월 {day}일'**
+  String historyDate(int month, int day);
+
+  /// No description provided for @historyAllPlaces.
+  ///
+  /// In ko, this message translates to:
+  /// **'전체'**
+  String get historyAllPlaces;
+
+  /// No description provided for @historySummaryTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'최근 {days}일'**
+  String historySummaryTitle(int days);
+
+  /// No description provided for @historyArrivalCountTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'도착 알림'**
+  String get historyArrivalCountTitle;
+
+  /// No description provided for @historyDepartureCountTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'출발 알림'**
+  String get historyDepartureCountTitle;
+
+  /// No description provided for @historyTopPlaceTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'가장 자주 울린 장소'**
+  String get historyTopPlaceTitle;
+
+  /// No description provided for @historyCount.
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}회'**
+  String historyCount(int count);
+
+  /// No description provided for @proRowHistory.
+  ///
+  /// In ko, this message translates to:
+  /// **'도착 기록'**
+  String get proRowHistory;
+
+  /// No description provided for @proValueRecentHistory.
+  ///
+  /// In ko, this message translates to:
+  /// **'최근 3건'**
+  String get proValueRecentHistory;
+
+  /// No description provided for @proValueFullHistory.
+  ///
+  /// In ko, this message translates to:
+  /// **'90일 + 요약'**
+  String get proValueFullHistory;
+
+  /// No description provided for @proLockedHistory.
+  ///
+  /// In ko, this message translates to:
+  /// **'전체 기록과 요약'**
+  String get proLockedHistory;
 }
 
 class _AppLocalizationsDelegate

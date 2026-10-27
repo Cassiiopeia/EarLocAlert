@@ -1535,4 +1535,73 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get proValueDefaultPattern => '기본 1개';
+
+  @override
+  String get settingsHistoryTitle => '도착 기록';
+
+  @override
+  String get settingsHistorySubtitle => '언제 어디서 알림이 울렸는지 봐요';
+
+  @override
+  String get historyTitle => '도착 기록';
+
+  @override
+  String get historyEmpty => '아직 울린 알림이 없어요. 장소에 도착하거나 떠나면 여기에 남아요.';
+
+  @override
+  String get historyRetentionNote => '최근 90일 기록만 이 기기에 보관해요';
+
+  @override
+  String get historyArrived => '도착';
+
+  @override
+  String get historyDeparted => '출발';
+
+  @override
+  String get historyDeletedPlace => '삭제된 장소';
+
+  @override
+  String get historyToday => '오늘';
+
+  @override
+  String get historyYesterday => '어제';
+
+  @override
+  String historyDate(int month, int day) {
+    return '$month월 $day일';
+  }
+
+  @override
+  String get historyAllPlaces => '전체';
+
+  @override
+  String historySummaryTitle(int days) {
+    return '최근 $days일';
+  }
+
+  @override
+  String get historyArrivalCountTitle => '도착 알림';
+
+  @override
+  String get historyDepartureCountTitle => '출발 알림';
+
+  @override
+  String get historyTopPlaceTitle => '가장 자주 울린 장소';
+
+  @override
+  String historyCount(int count) {
+    return '$count회';
+  }
+
+  @override
+  String get proRowHistory => '도착 기록';
+
+  @override
+  String get proValueRecentHistory => '최근 3건';
+
+  @override
+  String get proValueFullHistory => '90일 + 요약';
+
+  @override
+  String get proLockedHistory => '전체 기록과 요약';
 }

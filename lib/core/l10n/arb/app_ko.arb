@@ -827,5 +827,50 @@
   },
   "proLockedVibrationPatterns": "모든 진동 패턴",
   "vibrationPatternDone": "완료",
-  "proValueDefaultPattern": "기본 1개"
+  "proValueDefaultPattern": "기본 1개",
+  "settingsHistoryTitle": "도착 기록",
+  "settingsHistorySubtitle": "언제 어디서 알림이 울렸는지 봐요",
+  "historyTitle": "도착 기록",
+  "historyEmpty": "아직 울린 알림이 없어요. 장소에 도착하거나 떠나면 여기에 남아요.",
+  "historyRetentionNote": "최근 90일 기록만 이 기기에 보관해요",
+  "historyArrived": "도착",
+  "historyDeparted": "출발",
+  "historyDeletedPlace": "삭제된 장소",
+  "historyToday": "오늘",
+  "historyYesterday": "어제",
+  "historyDate": "{month}월 {day}일",
+  "@historyDate": {
+    "placeholders": {
+      "month": {
+        "type": "int"
+      },
+      "day": {
+        "type": "int"
+      }
+    }
+  },
+  "historyAllPlaces": "전체",
+  "historySummaryTitle": "최근 {days}일",
+  "@historySummaryTitle": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "historyArrivalCountTitle": "도착 알림",
+  "historyDepartureCountTitle": "출발 알림",
+  "historyTopPlaceTitle": "가장 자주 울린 장소",
+  "historyCount": "{count}회",
+  "@historyCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "proRowHistory": "도착 기록",
+  "proValueRecentHistory": "최근 3건",
+  "proValueFullHistory": "90일 + 요약",
+  "proLockedHistory": "전체 기록과 요약"
 }

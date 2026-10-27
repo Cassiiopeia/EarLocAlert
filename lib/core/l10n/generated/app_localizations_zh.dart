@@ -1517,4 +1517,73 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get proValueDefaultPattern => '仅默认';
+
+  @override
+  String get settingsHistoryTitle => '提醒记录';
+
+  @override
+  String get settingsHistorySubtitle => '查看何时何地响过提醒';
+
+  @override
+  String get historyTitle => '提醒记录';
+
+  @override
+  String get historyEmpty => '还没有响过的提醒。到达或离开地点后会记录在这里。';
+
+  @override
+  String get historyRetentionNote => '本机只保存最近 90 天的记录';
+
+  @override
+  String get historyArrived => '到达';
+
+  @override
+  String get historyDeparted => '出发';
+
+  @override
+  String get historyDeletedPlace => '已删除的地点';
+
+  @override
+  String get historyToday => '今天';
+
+  @override
+  String get historyYesterday => '昨天';
+
+  @override
+  String historyDate(int month, int day) {
+    return '$month月$day日';
+  }
+
+  @override
+  String get historyAllPlaces => '全部';
+
+  @override
+  String historySummaryTitle(int days) {
+    return '最近 $days 天';
+  }
+
+  @override
+  String get historyArrivalCountTitle => '到达提醒';
+
+  @override
+  String get historyDepartureCountTitle => '出发提醒';
+
+  @override
+  String get historyTopPlaceTitle => '最常响的地点';
+
+  @override
+  String historyCount(int count) {
+    return '$count 次';
+  }
+
+  @override
+  String get proRowHistory => '提醒记录';
+
+  @override
+  String get proValueRecentHistory => '最近 3 条';
+
+  @override
+  String get proValueFullHistory => '90 天 + 摘要';
+
+  @override
+  String get proLockedHistory => '全部记录和摘要';
 }

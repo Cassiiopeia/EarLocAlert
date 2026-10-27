@@ -3,6 +3,20 @@ part of '../router.dart';
 // 설정 라우트와 권한 줄 조립, 진동 시험·신뢰도 재권유
 
 /// 진단 기록 라우트: 앱 상태 수집기를 화면에 값으로 넘김 (이슈 #290)
+/// 도착 기록 (#313): 이력 + 장소 이름은 app 이 묶어 값으로 내려줌. 무료는 일부만
+class _ArrivalHistoryRoute extends ConsumerWidget {
+  const _ArrivalHistoryRoute();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) => ArrivalHistoryScreen(
+    records: ref.watch(arrivalHistoryProvider).valueOrNull,
+    isLocked: !ref.watch(featureAccessControllerProvider).canViewFullHistory,
+    onUnlockPro: () =>
+        unawaited(showProOfferSheet(context, entryPoint: 'history')),
+    onRefresh: () => ref.refresh(arrivalHistoryProvider.future),
+  );
+}
+
 class _DiagnosticsRoute extends ConsumerWidget {
   const _DiagnosticsRoute();
 
@@ -163,6 +177,8 @@ class _SettingsRouteState extends ConsumerState<_SettingsRoute>
         ),
       ),
       onOpenDiagnostics: () => context.push(AppRoutes.diagnostics),
+      // 도착 기록 (#313)
+      onOpenArrivalHistory: () => context.push(AppRoutes.arrivalHistory),
       // 장소 내보내기·불러오기 (이슈 #256)
       onExportPlaces: () => exportPlacesBackup(
         context,

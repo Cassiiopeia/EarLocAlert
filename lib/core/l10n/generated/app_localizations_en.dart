@@ -1602,4 +1602,75 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get proValueDefaultPattern => 'Default only';
+
+  @override
+  String get settingsHistoryTitle => 'Alert history';
+
+  @override
+  String get settingsHistorySubtitle => 'See when and where alerts went off';
+
+  @override
+  String get historyTitle => 'Alert history';
+
+  @override
+  String get historyEmpty =>
+      'No alerts yet. When you arrive at or leave a place, it shows up here.';
+
+  @override
+  String get historyRetentionNote =>
+      'Only the last 90 days are kept on this device';
+
+  @override
+  String get historyArrived => 'Arrived';
+
+  @override
+  String get historyDeparted => 'Left';
+
+  @override
+  String get historyDeletedPlace => 'Deleted place';
+
+  @override
+  String get historyToday => 'Today';
+
+  @override
+  String get historyYesterday => 'Yesterday';
+
+  @override
+  String historyDate(int month, int day) {
+    return '$month/$day';
+  }
+
+  @override
+  String get historyAllPlaces => 'All';
+
+  @override
+  String historySummaryTitle(int days) {
+    return 'Last $days days';
+  }
+
+  @override
+  String get historyArrivalCountTitle => 'Arrival alerts';
+
+  @override
+  String get historyDepartureCountTitle => 'Departure alerts';
+
+  @override
+  String get historyTopPlaceTitle => 'Most frequent place';
+
+  @override
+  String historyCount(int count) {
+    return '$count';
+  }
+
+  @override
+  String get proRowHistory => 'Alert history';
+
+  @override
+  String get proValueRecentHistory => 'Last 3';
+
+  @override
+  String get proValueFullHistory => '90 days + summary';
+
+  @override
+  String get proLockedHistory => 'Full history and summary';
 }

@@ -35,6 +35,8 @@ import '../features/places/presentation/place_form_screen.dart';
 import '../features/places/presentation/place_map_home_screen.dart';
 import '../features/places/presentation/place_map_picker_screen.dart';
 import '../features/diagnostics/presentation/diagnostics_screen.dart';
+import '../features/history/presentation/arrival_history_screen.dart';
+import 'arrival_history_provider.dart';
 import '../features/diagnostics/data/bug_report_sender.dart';
 import '../features/diagnostics/presentation/bug_report_sheet.dart';
 import '../features/places/presentation/place_backup_actions.dart';
@@ -86,6 +88,9 @@ abstract final class AppRoutes {
   /// 진단 기록 (이슈 #95) — 백그라운드 문제를 확인하는 유일한 창구
   static const diagnostics = '/diagnostics';
 
+  /// 도착 기록 (#313) — 울린 도착·출발 알림 목록
+  static const arrivalHistory = '/history';
+
   /// 설정 (이슈 #98) — 알림음 크기·진단 기록이 여기 모인다
   static const settings = '/settings';
 }
@@ -135,6 +140,11 @@ GoRouter createRouter() {
         path: AppRoutes.placeMap,
         builder: (context, state) =>
             _MapPickerRoute(args: state.extra! as MapPickArgs),
+      ),
+      GoRoute(
+        path: AppRoutes.arrivalHistory,
+        builder: (context, state) =>
+            const AdBannerFrame(child: _ArrivalHistoryRoute()),
       ),
       GoRoute(
         path: AppRoutes.diagnostics,
