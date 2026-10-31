@@ -94,6 +94,15 @@ env:
   CLOSED_TESTING_TRACK: ${{ vars.ANDROID_CLOSED_TESTING_TRACK || 'alpha' }}
   OPEN_TESTING_TRACK: ${{ vars.ANDROID_OPEN_TESTING_TRACK || 'beta' }}
 
+  # ============================================
+  # 📝 Play '출시 노트' 문구 덮어쓰기
+  # ============================================
+  #   값이 있으면 → 버전과 상관없이 매번 이 문구를 모든 언어(ko-KR + release-notes/ 아래 언어 폴더)에 넣는다.
+  #   ""(빈 문자열)이면 → 덮어쓰지 않고 CHANGELOG.json · release-notes/<언어>/<버전>.txt 로 만든다.
+  # Play 는 트랙마다 노트를 따로 두지 않고 업로드 때 함께 올린다 — 내부·비공개·프로덕션 모두 이 문구다.
+  # iOS(PROJECT-FLUTTER-IOS-TESTFLIGHT.yaml)에도 같은 이름의 설정이 있다. 두 곳을 함께 바꾼다.
+  STORE_WHATS_NEW_OVERRIDE: "We've improved how alerts work and fixed several bugs so the app runs more reliably."
+
 jobs:
   prepare-build:
     name: 환경 설정 및 준비
@@ -698,7 +707,23 @@ jobs:
           CHANGELOG_DIR="android/fastlane/metadata/android/ko-KR/changelogs"
           mkdir -p "$CHANGELOG_DIR"
 
-          if [ -f "$GITHUB_WORKSPACE/final_release_notes.txt" ]; then
+          # 덮어쓰기 문구 사용 여부 (공백만 있는 값은 없는 것으로 본다)
+          IS_WHATS_NEW_OVERRIDDEN=false
+          if [ -n "$(printf '%s' "$STORE_WHATS_NEW_OVERRIDE" | tr -d '[:space:]')" ]; then
+            IS_WHATS_NEW_OVERRIDDEN=true
+          fi
+
+          if [ "$IS_WHATS_NEW_OVERRIDDEN" = "true" ]; then
+            # 고정 문구: ko-KR + release-notes/ 아래 언어 폴더 전부 같은 문구 (언어별·CHANGELOG 노트 무시)
+            printf '%s\n' "$STORE_WHATS_NEW_OVERRIDE" > "$CHANGELOG_DIR/${VERSION_CODE}.txt"
+            for LANG_PATH in "$GITHUB_WORKSPACE"/release-notes/*/; do
+              [ -d "$LANG_PATH" ] || continue
+              LANG_DIR="$(basename "$LANG_PATH")"
+              mkdir -p "android/fastlane/metadata/android/$LANG_DIR/changelogs"
+              printf '%s\n' "$STORE_WHATS_NEW_OVERRIDE" > "android/fastlane/metadata/android/$LANG_DIR/changelogs/${VERSION_CODE}.txt"
+            done
+            echo "✅ Changelog 준비 완료 — STORE_WHATS_NEW_OVERRIDE 덮어쓰기 (버전 코드: $VERSION_CODE)"
+          elif [ -f "$GITHUB_WORKSPACE/final_release_notes.txt" ]; then
             # Google Play release notes 한도(500 글자)에 맞춰 절단 (마진 두어 480자)
             # final_release_notes.txt·truncate 스크립트는 레포 루트 기준 — working-directory가 FLUTTER_PROJECT_DIR이므로 절대경로 사용
             bash "$GITHUB_WORKSPACE/.github/scripts/truncate_release_notes.sh" "$GITHUB_WORKSPACE/final_release_notes.txt" 480 char
@@ -710,7 +735,8 @@ jobs:
           fi
 
           # 다른 언어 릴리스 노트 (이슈 #167) — 로직은 스크립트에 있다(템플릿 갱신에 덮이지 않게)
-          if [ -x "$GITHUB_WORKSPACE/.github/scripts/prepare_play_changelogs.sh" ]; then
+          # 고정 문구일 때는 건너뛴다 — 언어별 파일이 덮어쓰지 않게
+          if [ "$IS_WHATS_NEW_OVERRIDDEN" != "true" ] && [ -x "$GITHUB_WORKSPACE/.github/scripts/prepare_play_changelogs.sh" ]; then
             bash "$GITHUB_WORKSPACE/.github/scripts/prepare_play_changelogs.sh" "$GITHUB_WORKSPACE" "$VERSION_NAME" "$VERSION_CODE"
           fi
 
@@ -719,7 +745,7 @@ jobs:
           # 번역이 없는 언어는 기본 언어 문구로 채운다 (빈 채로 두지 않는다).
           python3 "$GITHUB_WORKSPACE/.github/scripts/store_notes.py" write --platform play \
             --workspace "$GITHUB_WORKSPACE" --app-root "$PWD" --version "$VERSION_NAME" --version-code "$VERSION_CODE" \
-            --default-file "$CHANGELOG_DIR/${VERSION_CODE}.txt" || echo "⚠️ 언어별 릴리스 노트 준비 실패 — 기본 changelog 로 진행"
+            --default-file "$CHANGELOG_DIR/${VERSION_CODE}.txt" --override "$STORE_WHATS_NEW_OVERRIDE" || echo "⚠️ 언어별 릴리스 노트 준비 실패 — 기본 changelog 로 진행"
           
           # Service Account JSON 파일 확인
           GOOGLE_PLAY_JSON_KEY="$HOME/.config/gcloud/service-account.json"
