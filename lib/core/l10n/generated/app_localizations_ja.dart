@@ -1445,4 +1445,296 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get homeStatusFixButton => '権限を確認する';
+
+  @override
+  String get settingsVibrationPatternTitle => 'バイブレーションパターン';
+
+  @override
+  String get settingsVibrationPatternSubtitle => '振動だけで場所を見分けられるようにリズムを選びます';
+
+  @override
+  String get vibrationPatternTitle => 'バイブレーションパターン';
+
+  @override
+  String get vibrationPatternDescription =>
+      '選ぶと一度振動して確認できます。バイブレーションの強さも反映されます。';
+
+  @override
+  String get vibrationPatternIosNote => '画面がオフのときはリズムだけが同じで、強さは一定です。';
+
+  @override
+  String get vibrationPatternFollowDefault => '基本設定に従う';
+
+  @override
+  String get vibrationPatternFollowDefaultHint => '設定で選んだパターンで振動します';
+
+  @override
+  String get vibrationPatternStandard => '標準';
+
+  @override
+  String get vibrationPatternDoubleTap => 'トントン';
+
+  @override
+  String get vibrationPatternTripleTap => 'トントントン';
+
+  @override
+  String get vibrationPatternHeartbeat => 'ハートビート';
+
+  @override
+  String get vibrationPatternLongShort => '長く、短く';
+
+  @override
+  String get vibrationPatternShortLong => '短く、長く';
+
+  @override
+  String get vibrationPatternSos => 'SOS';
+
+  @override
+  String get vibrationPatternRapid => '連打';
+
+  @override
+  String get vibrationPatternWave => '波';
+
+  @override
+  String get vibrationPatternCrescendo => 'だんだん強く';
+
+  @override
+  String get vibrationPatternKnock => 'ノック';
+
+  @override
+  String get vibrationPatternWaltz => 'ワルツ';
+
+  @override
+  String get vibrationPatternSiren => 'サイレン';
+
+  @override
+  String get vibrationPatternLongPulse => '長く一回';
+
+  @override
+  String get placeFormVibrationTitle => 'バイブレーション';
+
+  @override
+  String get placeFormVibrationPatternLabel => 'バイブレーションパターン';
+
+  @override
+  String get proRowVibrationPattern => '振動パターン';
+
+  @override
+  String proValueAllPatterns(int count) {
+    return '$count種類';
+  }
+
+  @override
+  String get proLockedVibrationPatterns => 'すべての振動パターン';
+
+  @override
+  String get vibrationPatternDone => '完了';
+
+  @override
+  String get proValueDefaultPattern => '標準1つ';
+
+  @override
+  String get settingsHistoryTitle => '通知の記録';
+
+  @override
+  String get settingsHistorySubtitle => 'いつどこで通知が鳴ったかを確認します';
+
+  @override
+  String get historyTitle => '通知の記録';
+
+  @override
+  String get historyEmpty => 'まだ鳴った通知はありません。場所に着いたり離れたりするとここに残ります。';
+
+  @override
+  String get historyRetentionNote => '直近90日の記録だけをこの端末に保存します';
+
+  @override
+  String get historyArrived => '到着';
+
+  @override
+  String get historyDeparted => '出発';
+
+  @override
+  String get historyDeletedPlace => '削除した場所';
+
+  @override
+  String get historyToday => '今日';
+
+  @override
+  String get historyYesterday => '昨日';
+
+  @override
+  String historyDate(int month, int day) {
+    return '$month月$day日';
+  }
+
+  @override
+  String get historyAllPlaces => 'すべて';
+
+  @override
+  String historySummaryTitle(int days) {
+    return '直近$days日';
+  }
+
+  @override
+  String get historyArrivalCountTitle => '到着通知';
+
+  @override
+  String get historyDepartureCountTitle => '出発通知';
+
+  @override
+  String get historyTopPlaceTitle => 'いちばん多く鳴った場所';
+
+  @override
+  String historyCount(int count) {
+    return '$count回';
+  }
+
+  @override
+  String get proRowHistory => '通知の記録';
+
+  @override
+  String get proValueRecentHistory => '直近3件';
+
+  @override
+  String get proValueFullHistory => '90日 + 要約';
+
+  @override
+  String get proLockedHistory => 'すべての記録と要約';
+
+  @override
+  String get autoBackupTitle => '自動バックアップ';
+
+  @override
+  String get autoBackupDescription =>
+      '場所を変えるたびに、選んだフォルダへバックアップファイルを書き直します。iCloud Drive などを選ぶとアプリを削除しても残ります。';
+
+  @override
+  String get autoBackupOff => 'オフ · フォルダを選ぶとオンになります';
+
+  @override
+  String autoBackupOnNever(String folder) {
+    return '$folder · まだバックアップしていません';
+  }
+
+  @override
+  String autoBackupOnLast(String folder, String time) {
+    return '$folder · 最終 $time';
+  }
+
+  @override
+  String get autoBackupFolderTitle => 'バックアップフォルダ';
+
+  @override
+  String get autoBackupNoFolder => '未選択';
+
+  @override
+  String get autoBackupLastTitle => '最終バックアップ';
+
+  @override
+  String get autoBackupNever => 'まだありません';
+
+  @override
+  String get autoBackupRestoreHint =>
+      '復元するときは「場所を読み込む」で earlocalert-places-auto.json を選んでください。';
+
+  @override
+  String get autoBackupChooseFolder => 'フォルダを選ぶ';
+
+  @override
+  String get autoBackupNow => '今すぐバックアップ';
+
+  @override
+  String get autoBackupTurnOff => '自動バックアップをオフ';
+
+  @override
+  String get autoBackupDone => 'バックアップしました';
+
+  @override
+  String get autoBackupFailed => 'バックアップできませんでした。フォルダを選び直してください';
+
+  @override
+  String get routineTitle => 'ルーティン';
+
+  @override
+  String get settingsRoutineSubtitle => '複数の場所をまとめて一度にオン・オフします';
+
+  @override
+  String get routineDescription => '通勤経路のように一緒に使う場所をまとめておくと、ホームから一度にオン・オフできます。';
+
+  @override
+  String get routineAdd => 'ルーティンを作る';
+
+  @override
+  String get routineManage => '管理';
+
+  @override
+  String get routineNoPlaces => '場所なし';
+
+  @override
+  String routinePlaceCount(int count) {
+    return '場所$count件';
+  }
+
+  @override
+  String get routineExclusiveShort => 'ほかをオフ';
+
+  @override
+  String get routineExampleCommute => '通勤';
+
+  @override
+  String get routineExampleHome => '帰り道';
+
+  @override
+  String get routineNewTitle => 'ルーティンを作る';
+
+  @override
+  String get routineEditTitle => 'ルーティンを編集';
+
+  @override
+  String get routineNameLabel => '名前';
+
+  @override
+  String get routineNameRequired => '名前を入力してください';
+
+  @override
+  String get routinePlacesRequired => '場所を1つ以上選んでください';
+
+  @override
+  String get routineSaveFailed => '保存できませんでした。もう一度お試しください';
+
+  @override
+  String get routineExclusiveTitle => 'オンにしたらほかの場所はオフ';
+
+  @override
+  String get routineExclusiveSubtitle => '通勤モードのように、このルーティンの場所だけ鳴らします';
+
+  @override
+  String routinePlacesHeader(int count) {
+    return 'まとめる場所（$count件選択）';
+  }
+
+  @override
+  String get routineNoPlacesYet => 'まだ場所が登録されていません。先に場所を登録してください。';
+
+  @override
+  String get routineSave => '保存';
+
+  @override
+  String get routineDelete => 'ルーティンを削除';
+
+  @override
+  String get routineDeleteTitle => 'このルーティンを削除しますか？';
+
+  @override
+  String get routineDeleteBody => 'まとめた場所は削除されません。';
+
+  @override
+  String get routineCancel => 'キャンセル';
+
+  @override
+  String get proRowRoutines => 'ルーティン';
+
+  @override
+  String get proLockedRoutines => 'ルーティンで場所をまとめる';
 }

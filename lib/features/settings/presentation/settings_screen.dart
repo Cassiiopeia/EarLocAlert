@@ -71,9 +71,14 @@ class SettingsScreen extends StatelessWidget {
   const SettingsScreen({
     required this.onOpenVolumeSettings,
     required this.onOpenVibrationSettings,
+    required this.onOpenVibrationPatternSettings,
     required this.onOpenDiagnostics,
+    required this.onOpenArrivalHistory,
+    required this.onOpenRoutines,
     required this.onExportPlaces,
     required this.onImportPlaces,
+    required this.autoBackupSubtitle,
+    required this.onOpenAutoBackup,
     required this.onReportProblem,
     required this.language,
     required this.onLanguageChanged,
@@ -107,11 +112,24 @@ class SettingsScreen extends StatelessWidget {
 
   /// 진동 세기 (이슈 #103)
   final VoidCallback onOpenVibrationSettings;
+
+  /// 기본 진동 패턴 (#311)
+  final VoidCallback onOpenVibrationPatternSettings;
   final VoidCallback onOpenDiagnostics;
+
+  /// 도착 기록 화면 (#313)
+  final VoidCallback onOpenArrivalHistory;
+
+  /// 루틴 목록 (#315)
+  final VoidCallback onOpenRoutines;
 
   /// 장소 내보내기·불러오기 (이슈 #256). 구현은 places feature 에 있어 app 계층이 잇는다
   final VoidCallback onExportPlaces;
   final VoidCallback onImportPlaces;
+
+  /// 자동 백업 (#314): 상태 문구와 시트 열기 (places feature 시트를 app 이 잇는다)
+  final String autoBackupSubtitle;
+  final VoidCallback onOpenAutoBackup;
 
   /// 문제 신고 메일 (이슈 #255). 시트는 diagnostics feature 에 있어 app 계층이 연결한다
   final VoidCallback onReportProblem;
@@ -224,6 +242,12 @@ class SettingsScreen extends StatelessWidget {
         subtitle: context.l10n.settingsBackupImportSubtitle,
         onTap: onImportPlaces,
       ),
+      GroupedListRow.navigation(
+        icon: Icons.cloud_sync_outlined,
+        title: context.l10n.autoBackupTitle,
+        subtitle: autoBackupSubtitle,
+        onTap: onOpenAutoBackup,
+      ),
     ];
     final onUnlock = onUnlockPro;
     if (!isPlaceBackupLocked || onUnlock == null) return rows;
@@ -256,10 +280,28 @@ class SettingsScreen extends StatelessWidget {
               header: context.l10n.settingsSectionAlert,
               children: [
                 GroupedListRow.navigation(
+                  icon: Icons.history_outlined,
+                  title: context.l10n.settingsHistoryTitle,
+                  subtitle: context.l10n.settingsHistorySubtitle,
+                  onTap: onOpenArrivalHistory,
+                ),
+                GroupedListRow.navigation(
+                  icon: Icons.route_outlined,
+                  title: context.l10n.routineTitle,
+                  subtitle: context.l10n.settingsRoutineSubtitle,
+                  onTap: onOpenRoutines,
+                ),
+                GroupedListRow.navigation(
                   icon: Icons.vibration_outlined,
                   title: context.l10n.settingsVibrationTitle,
                   subtitle: context.l10n.settingsVibrationSubtitle,
                   onTap: onOpenVibrationSettings,
+                ),
+                GroupedListRow.navigation(
+                  icon: Icons.graphic_eq_outlined,
+                  title: context.l10n.settingsVibrationPatternTitle,
+                  subtitle: context.l10n.settingsVibrationPatternSubtitle,
+                  onTap: onOpenVibrationPatternSettings,
                 ),
                 GroupedListRow.navigation(
                   icon: Icons.tune_outlined,

@@ -57,6 +57,8 @@ class _HomeRoute extends ConsumerWidget {
           ? () => _fixIosReliability(context, ref, status.missingReliability)
           : () => _reofferReliability(context, ref),
       onOpenSettings: () => context.push(AppRoutes.settings),
+      // 루틴 칩 줄 끝 관리 칩 (#315)
+      onManageRoutines: () => context.push(AppRoutes.routines),
       onRefreshStatus: () => ref.invalidate(homeStatusProvider),
     );
   }

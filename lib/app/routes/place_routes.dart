@@ -52,6 +52,18 @@ class _PlaceFormRoute extends ConsumerWidget {
             unawaited(showProOfferSheet(context, entryPoint: 'sound_picker')),
       ),
       onDescribeSound: (sound) => _describeSound(ref, sound, context.l10n),
+      // 장소별 진동 패턴 (#311) — 무료는 기본만, 이미 고른 패턴은 그대로 유지
+      onPickVibrationPattern: (current) async {
+        final choice = await showVibrationPatternSheet(
+          context,
+          current: current,
+          allowFollowDefault: true,
+          onUnlockPro: () => unawaited(
+            showProOfferSheet(context, entryPoint: 'vibration_pattern'),
+          ),
+        );
+        return choice == null ? null : (pattern: choice.pattern);
+      },
     );
   }
 }

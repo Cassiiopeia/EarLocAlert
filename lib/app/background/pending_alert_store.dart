@@ -5,6 +5,7 @@ import '../../core/diagnostics/log_format.dart';
 
 import '../../core/domain/alert_direction.dart';
 import '../../core/domain/alert_sound.dart';
+import '../../core/domain/vibration_pattern.dart';
 import 'pending_alert.dart';
 
 /// PendingAlert 의 isolate 간 전달 저장소 (이슈 #63)
@@ -23,6 +24,8 @@ class PendingAlertStore {
   static const _keySoundEnabled = 'pending_alert.sound_enabled';
   static const _keyOccurredAt = 'pending_alert.occurred_at';
   static const _keySound = 'pending_alert.sound';
+  // 장소 진동 패턴 이름 (#311). 없으면 기본 패턴 설정을 따름
+  static const _keyVibrationPattern = 'pending_alert.vibration_pattern';
   static const _keyLatitude = 'pending_alert.latitude';
   static const _keyLongitude = 'pending_alert.longitude';
   static const _keyRadius = 'pending_alert.radius_meters';
@@ -38,6 +41,12 @@ class PendingAlertStore {
       alert.occurredAt.toUtc().toIso8601String(),
     );
     await prefs.setString(_keySound, alert.sound.storageValue);
+    final vibrationPattern = alert.vibrationPattern;
+    if (vibrationPattern == null) {
+      await prefs.remove(_keyVibrationPattern);
+    } else {
+      await prefs.setString(_keyVibrationPattern, vibrationPattern.name);
+    }
 
     // 좌표는 없을 수 있다 (이슈 #142). 없는 값을 0 으로 저장하면
     // 아프리카 앞바다 지도가 뜨므로, 아예 지워 "없음"으로 남긴다.
@@ -53,6 +62,7 @@ class PendingAlertStore {
       'saved place=${shortId(alert.placeId)} name=${alert.placeName} '
           'direction=${alert.direction.name} sound=${alert.soundEnabled} '
           'tone=${alert.sound.storageValue} '
+          'pattern=${alert.vibrationPattern?.name ?? "default"} '
           'coords=${_formatLocation(alert.latitude, alert.longitude, alert.radiusMeters)}',
     );
   }
@@ -119,6 +129,8 @@ class PendingAlertStore {
     // 값을 보게 되고, 파서가 규약대로 기본음으로 흡수해 **예외도 로그도
     // 없이** 장소별 알림음이 통째로 사라진다.
     final soundRaw = prefs.getString(_keySound);
+    // 진동 패턴도 _clear 앞에서 읽음 (#125 와 같은 자리, #311)
+    final vibrationPatternRaw = prefs.getString(_keyVibrationPattern);
     // 좌표도 **반드시 여기서** 읽는다 (이슈 #142). 아래 _clear 뒤로
     // 옮기는 순간 #125 가 그대로 재현된다 — 지도가 예외도 로그도 없이
     // 사라지고, 코드를 읽기 전에는 아무도 이유를 모른다.
@@ -177,6 +189,7 @@ class PendingAlertStore {
       // 알림 전체를 버리지 않는다 (이슈 #121).
       // 이 필드가 없던 버전에서 저장된 값을 읽는 경우도 여기로 온다.
       sound: AlertSound.parse(soundRaw ?? ''),
+      vibrationPattern: VibrationPattern.tryParse(vibrationPatternRaw),
       latitude: hasFullCoordinates ? latitude : null,
       longitude: hasFullCoordinates ? longitude : null,
       radiusMeters: hasFullCoordinates ? radiusMeters : null,
@@ -195,6 +208,7 @@ class PendingAlertStore {
       'pending',
       'restored place=${shortId(alert.placeId)} name=${alert.placeName} '
           'tone=${alert.sound.storageValue} '
+          'pattern=${alert.vibrationPattern?.name ?? "default"} '
           'coords=${_formatLocation(alert.latitude, alert.longitude, alert.radiusMeters)} '
           'age=${age.inSeconds}s',
     );
@@ -207,6 +221,7 @@ class PendingAlertStore {
     await prefs.remove(_keySoundEnabled);
     await prefs.remove(_keyOccurredAt);
     await prefs.remove(_keySound);
+    await prefs.remove(_keyVibrationPattern);
     await prefs.remove(_keyLatitude);
     await prefs.remove(_keyLongitude);
     await prefs.remove(_keyRadius);

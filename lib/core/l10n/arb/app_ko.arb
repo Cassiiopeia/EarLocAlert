@@ -792,5 +792,158 @@
   "homeStatusIdleDescription": "켜진 장소가 없어요. 장소를 켜면 감시가 시작돼요",
   "homeAudioHeadphonesDescription": "이어폰으로 소리와 진동이 와요",
   "homeAudioVibrationOnlyDescription": "이어폰이 없어서 진동으로만 알려요",
-  "homeStatusFixButton": "권한 확인하러 가기"
+  "homeStatusFixButton": "권한 확인하러 가기",
+  "settingsVibrationPatternTitle": "진동 패턴",
+  "settingsVibrationPatternSubtitle": "진동만으로 장소를 구분할 수 있게 리듬을 골라요",
+  "vibrationPatternTitle": "진동 패턴",
+  "vibrationPatternDescription": "고르면 한 번 울려 확인할 수 있어요. 진동 세기 설정이 함께 적용돼요.",
+  "vibrationPatternIosNote": "화면이 꺼져 있을 때는 리듬만 같고 세기는 일정해요.",
+  "vibrationPatternFollowDefault": "기본 설정 따르기",
+  "vibrationPatternFollowDefaultHint": "설정의 진동 패턴으로 울려요",
+  "vibrationPatternStandard": "기본",
+  "vibrationPatternDoubleTap": "톡톡",
+  "vibrationPatternTripleTap": "톡톡톡",
+  "vibrationPatternHeartbeat": "심장박동",
+  "vibrationPatternLongShort": "길게, 짧게",
+  "vibrationPatternShortLong": "짧게, 길게",
+  "vibrationPatternSos": "SOS",
+  "vibrationPatternRapid": "연타",
+  "vibrationPatternWave": "파도",
+  "vibrationPatternCrescendo": "점점 강하게",
+  "vibrationPatternKnock": "노크",
+  "vibrationPatternWaltz": "쿵짝짝",
+  "vibrationPatternSiren": "사이렌",
+  "vibrationPatternLongPulse": "길게 한 번",
+  "placeFormVibrationTitle": "진동",
+  "placeFormVibrationPatternLabel": "진동 패턴",
+  "proRowVibrationPattern": "진동 패턴",
+  "proValueAllPatterns": "{count}가지",
+  "@proValueAllPatterns": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "proLockedVibrationPatterns": "모든 진동 패턴",
+  "vibrationPatternDone": "완료",
+  "proValueDefaultPattern": "기본 1개",
+  "settingsHistoryTitle": "도착 기록",
+  "settingsHistorySubtitle": "언제 어디서 알림이 울렸는지 봐요",
+  "historyTitle": "도착 기록",
+  "historyEmpty": "아직 울린 알림이 없어요. 장소에 도착하거나 떠나면 여기에 남아요.",
+  "historyRetentionNote": "최근 90일 기록만 이 기기에 보관해요",
+  "historyArrived": "도착",
+  "historyDeparted": "출발",
+  "historyDeletedPlace": "삭제된 장소",
+  "historyToday": "오늘",
+  "historyYesterday": "어제",
+  "historyDate": "{month}월 {day}일",
+  "@historyDate": {
+    "placeholders": {
+      "month": {
+        "type": "int"
+      },
+      "day": {
+        "type": "int"
+      }
+    }
+  },
+  "historyAllPlaces": "전체",
+  "historySummaryTitle": "최근 {days}일",
+  "@historySummaryTitle": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "historyArrivalCountTitle": "도착 알림",
+  "historyDepartureCountTitle": "출발 알림",
+  "historyTopPlaceTitle": "가장 자주 울린 장소",
+  "historyCount": "{count}회",
+  "@historyCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "proRowHistory": "도착 기록",
+  "proValueRecentHistory": "최근 3건",
+  "proValueFullHistory": "90일 + 요약",
+  "proLockedHistory": "전체 기록과 요약",
+  "autoBackupTitle": "자동 백업",
+  "autoBackupDescription": "고른 폴더에 장소를 바꿀 때마다 백업 파일을 새로 써요. iCloud Drive 같은 곳을 고르면 앱을 지워도 남아요.",
+  "autoBackupOff": "꺼짐 · 폴더를 고르면 켜져요",
+  "autoBackupOnNever": "{folder} · 아직 백업 전",
+  "@autoBackupOnNever": {
+    "placeholders": {
+      "folder": {
+        "type": "String"
+      }
+    }
+  },
+  "autoBackupOnLast": "{folder} · 마지막 {time}",
+  "@autoBackupOnLast": {
+    "placeholders": {
+      "folder": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "autoBackupFolderTitle": "백업 폴더",
+  "autoBackupNoFolder": "고르지 않음",
+  "autoBackupLastTitle": "마지막 백업",
+  "autoBackupNever": "아직 없음",
+  "autoBackupRestoreHint": "복원할 때는 장소 불러오기에서 earlocalert-places-auto.json 파일을 고르면 돼요.",
+  "autoBackupChooseFolder": "폴더 고르기",
+  "autoBackupNow": "지금 백업하기",
+  "autoBackupTurnOff": "자동 백업 끄기",
+  "autoBackupDone": "백업했어요",
+  "autoBackupFailed": "백업하지 못했어요. 폴더를 다시 골라 주세요",
+  "routineTitle": "루틴",
+  "settingsRoutineSubtitle": "장소 여러 개를 묶어 한 번에 켜고 꺼요",
+  "routineDescription": "출근길처럼 함께 쓰는 장소를 묶어 두면 홈에서 한 번에 켜고 끌 수 있어요.",
+  "routineAdd": "루틴 만들기",
+  "routineManage": "루틴 관리",
+  "routineNoPlaces": "장소 없음",
+  "routinePlaceCount": "장소 {count}개",
+  "@routinePlaceCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "routineExclusiveShort": "나머지 끄기",
+  "routineExampleCommute": "출근길",
+  "routineExampleHome": "퇴근길",
+  "routineNewTitle": "루틴 만들기",
+  "routineEditTitle": "루틴 고치기",
+  "routineNameLabel": "이름",
+  "routineNameRequired": "이름을 적어 주세요",
+  "routinePlacesRequired": "장소를 하나 이상 골라 주세요",
+  "routineSaveFailed": "저장하지 못했어요. 다시 해 주세요",
+  "routineExclusiveTitle": "켜면 나머지 장소는 끄기",
+  "routineExclusiveSubtitle": "출근 모드처럼 이 루틴 장소만 울리게 해요",
+  "routinePlacesHeader": "묶을 장소 ({count}개 고름)",
+  "@routinePlacesHeader": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "routineNoPlacesYet": "아직 등록한 장소가 없어요. 장소를 먼저 등록해 주세요.",
+  "routineSave": "저장",
+  "routineDelete": "루틴 지우기",
+  "routineDeleteTitle": "이 루틴을 지울까요?",
+  "routineDeleteBody": "묶은 장소는 지워지지 않아요.",
+  "routineCancel": "취소",
+  "proRowRoutines": "루틴 묶음",
+  "proLockedRoutines": "루틴으로 장소 묶기"
 }

@@ -20,6 +20,7 @@
 		EA1C0F152E9D000100A1C0DE /* NotificationSettingsReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA1C0F142E9D000100A1C0DE /* NotificationSettingsReader.swift */; };
 		7C301A012F0E000100B1C0DE /* VibrationTestNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C301A002F0E000100B1C0DE /* VibrationTestNotification.swift */; };
 		7C305B012F0E000100B1C0DE /* OfferCodeRedeemSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C305B002F0E000100B1C0DE /* OfferCodeRedeemSheet.swift */; };
+		7C314A012F0E000100B1C0DE /* BackupFolderChannel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C314A002F0E000100B1C0DE /* BackupFolderChannel.swift */; };
 		EA1C0F372E9D000100A1C0DE /* DebugSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA1C0F362E9D000100A1C0DE /* DebugSnapshot.swift */; };
 		97C146FC1CF9000F007C117D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FA1CF9000F007C117D /* Main.storyboard */; };
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
@@ -73,6 +74,7 @@
 		EA1C0F142E9D000100A1C0DE /* NotificationSettingsReader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotificationSettingsReader.swift; sourceTree = "<group>"; };
 		7C301A002F0E000100B1C0DE /* VibrationTestNotification.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VibrationTestNotification.swift; sourceTree = "<group>"; };
 		7C305B002F0E000100B1C0DE /* OfferCodeRedeemSheet.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OfferCodeRedeemSheet.swift; sourceTree = "<group>"; };
+		7C314A002F0E000100B1C0DE /* BackupFolderChannel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BackupFolderChannel.swift; sourceTree = "<group>"; };
 		EA1C0F362E9D000100A1C0DE /* DebugSnapshot.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DebugSnapshot.swift; sourceTree = "<group>"; };
 		75809D62B09D16E81C3C8D6D /* en */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		7AFA3C8E1D35360C0083082E /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Release.xcconfig; path = Flutter/Release.xcconfig; sourceTree = "<group>"; };
@@ -200,6 +202,7 @@
 				EA1C0F142E9D000100A1C0DE /* NotificationSettingsReader.swift */,
 				7C301A002F0E000100B1C0DE /* VibrationTestNotification.swift */,
 				7C305B002F0E000100B1C0DE /* OfferCodeRedeemSheet.swift */,
+				7C314A002F0E000100B1C0DE /* BackupFolderChannel.swift */,
 				EA1C0F362E9D000100A1C0DE /* DebugSnapshot.swift */,
 				74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */,
 				DBAB3E7172EA9947AF67617E /* InfoPlist.strings */,
@@ -453,6 +456,7 @@
 				EA1C0F152E9D000100A1C0DE /* NotificationSettingsReader.swift in Sources */,
 				7C301A012F0E000100B1C0DE /* VibrationTestNotification.swift in Sources */,
 				7C305B012F0E000100B1C0DE /* OfferCodeRedeemSheet.swift in Sources */,
+				7C314A012F0E000100B1C0DE /* BackupFolderChannel.swift in Sources */,
 				EA1C0F372E9D000100A1C0DE /* DebugSnapshot.swift in Sources */,
 				1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */,
 			);

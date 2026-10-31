@@ -22,6 +22,7 @@ import '../features/alert/presentation/alert_controller_provider.dart';
 import '../features/alert/presentation/alert_screen.dart';
 import '../features/alert/presentation/alert_volume_sheet.dart';
 import '../features/alert/presentation/vibration_intensity_sheet.dart';
+import '../features/alert/presentation/vibration_pattern_sheet.dart';
 import '../features/permission/domain/ios_notification_settings.dart';
 import '../features/permission/data/ios_notification_settings_provider.dart';
 import '../features/permission/domain/permission_kind.dart';
@@ -34,9 +35,17 @@ import '../features/places/presentation/place_form_screen.dart';
 import '../features/places/presentation/place_map_home_screen.dart';
 import '../features/places/presentation/place_map_picker_screen.dart';
 import '../features/diagnostics/presentation/diagnostics_screen.dart';
+import '../features/history/presentation/arrival_history_screen.dart';
+import 'arrival_history_provider.dart';
 import '../features/diagnostics/data/bug_report_sender.dart';
 import '../features/diagnostics/presentation/bug_report_sheet.dart';
 import '../features/places/presentation/place_backup_actions.dart';
+import '../features/places/domain/place_routine.dart';
+import '../features/places/presentation/routine/place_routine_edit_screen.dart';
+import '../features/places/presentation/routine/place_routine_list_screen.dart';
+import '../features/places/presentation/auto_backup_sheet.dart';
+import '../features/places/data/auto_backup_providers.dart';
+import 'auto_backup_coordinator.dart';
 import '../features/places/data/place_search_provider.dart';
 import 'always_dark_alert_theme.dart';
 import '../core/ui/foundation/app_theme_controller.dart';
@@ -84,6 +93,13 @@ abstract final class AppRoutes {
 
   /// 진단 기록 (이슈 #95) — 백그라운드 문제를 확인하는 유일한 창구
   static const diagnostics = '/diagnostics';
+
+  /// 도착 기록 (#313) — 울린 도착·출발 알림 목록
+  static const arrivalHistory = '/history';
+
+  /// 루틴 (#315) — 목록, 만들기·고치기 (extra: PlaceRoutine?)
+  static const routines = '/routines';
+  static const routineEdit = '/routines/edit';
 
   /// 설정 (이슈 #98) — 알림음 크기·진단 기록이 여기 모인다
   static const settings = '/settings';
@@ -134,6 +150,23 @@ GoRouter createRouter() {
         path: AppRoutes.placeMap,
         builder: (context, state) =>
             _MapPickerRoute(args: state.extra! as MapPickArgs),
+      ),
+      GoRoute(
+        path: AppRoutes.routines,
+        builder: (context, state) =>
+            const AdBannerFrame(child: _PlaceRoutineListRoute()),
+      ),
+      GoRoute(
+        path: AppRoutes.routineEdit,
+        builder: (context, state) => PlaceRoutineEditScreen(
+          existing: state.extra as PlaceRoutine?,
+          onFinished: () => context.pop(),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.arrivalHistory,
+        builder: (context, state) =>
+            const AdBannerFrame(child: _ArrivalHistoryRoute()),
       ),
       GoRoute(
         path: AppRoutes.diagnostics,

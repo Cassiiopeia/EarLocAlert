@@ -13,6 +13,8 @@ class AlertDecision {
     this.soundEnabled = true,
     this.vibrationAmplitude = 0,
     this.vibrationPulseMs = 0,
+    this.vibrationTimings = const [],
+    this.vibrationAmplitudes = const [],
   });
 
   /// 알림 없음 — 가장 흔한 결과다.
@@ -41,6 +43,12 @@ class AlertDecision {
   /// 한 번의 진동 길이(ms). 0 이면 네이티브 기본 패턴을 쓴다.
   final int vibrationPulseMs;
 
+  /// 진동 패턴 파형 `[쉬기, 떨기, …]` ms (#311). 비면 네이티브 기본 진동
+  final List<int> vibrationTimings;
+
+  /// [vibrationTimings] 와 같은 길이의 칸별 진폭 (쉬기 0, 떨기 1~255)
+  final List<int> vibrationAmplitudes;
+
   Map<String, Object?> toMap() => {
     'shouldAlert': shouldAlert,
     'placeId': placeId,
@@ -49,5 +57,7 @@ class AlertDecision {
     'soundEnabled': soundEnabled,
     'vibrationAmplitude': vibrationAmplitude,
     'vibrationPulseMs': vibrationPulseMs,
+    'vibrationTimings': vibrationTimings,
+    'vibrationAmplitudes': vibrationAmplitudes,
   };
 }

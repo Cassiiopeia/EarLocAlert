@@ -5,6 +5,7 @@ import 'package:vibration/vibration.dart';
 import '../../../core/diagnostics/diagnostics.dart';
 import '../domain/alert_effects.dart';
 import '../domain/vibration_intensity.dart';
+import '../domain/vibration_waveform.dart';
 
 /// 화면 없이 도는 동안 쓰는 시스템 진동 (이슈 #235)
 ///
@@ -32,20 +33,28 @@ class VibrationServiceImpl implements VibrationService {
     Future<bool> Function()? hasVibrator,
     Future<bool> Function()? hasAmplitudeControl,
     Future<void> Function(int durationMs, int? amplitude)? vibrate,
+    Future<void> Function(List<int> timingsMs, List<int>? amplitudes)?
+    vibratePattern,
     Future<void> Function()? cancel,
   }) : _system = system,
        _hasVibrator = hasVibrator ?? _pluginHasVibrator,
        _hasAmplitudeControl = hasAmplitudeControl ?? _pluginHasAmplitude,
        _vibrate = vibrate ?? _pluginVibrate,
+       _vibratePattern = vibratePattern ?? _pluginVibratePattern,
        _cancel = cancel ?? Vibration.cancel;
 
   final SystemVibration? _system;
   final Future<bool> Function() _hasVibrator;
   final Future<bool> Function() _hasAmplitudeControl;
   final Future<void> Function(int durationMs, int? amplitude) _vibrate;
+  final Future<void> Function(List<int> timingsMs, List<int>? amplitudes)
+  _vibratePattern;
   final Future<void> Function() _cancel;
 
   Timer? _timer;
+
+  /// 세션 번호: 멈춘 뒤 예약된 시스템 진동 박자가 울리지 않게 구분 (#311)
+  int _sessionToken = 0;
 
   /// 마지막으로 쓴 경로 — 바뀔 때만 기록한다. 매 진동마다 남기면 로그가 묻힌다
   String? _route;
@@ -66,8 +75,10 @@ class VibrationServiceImpl implements VibrationService {
   Future<void> startRepeating({
     required Duration interval,
     VibrationIntensity intensity = VibrationIntensity.normal,
+    VibrationWaveform? waveform,
   }) async {
     await stop();
+    final sessionToken = _sessionToken;
     _route = null;
     _systemFailureLogged = false;
     _hasLoggedHapticsFailure = false;
@@ -105,23 +116,27 @@ class VibrationServiceImpl implements VibrationService {
       final system = _system;
       if (system != null && system.shouldUse()) {
         _noteRoute('system');
-        try {
-          await system.pulse();
-        } on Object catch (error) {
-          if (!_systemFailureLogged) {
-            _systemFailureLogged = true;
-            Diagnostics.log('alert', 'system vibration failed error=$error');
-          }
+        if (waveform == null) {
+          await _pulseSystem(system);
+        } else {
+          _pulseSystemRhythm(system, waveform, sessionToken);
         }
         return;
       }
       if (!hasVibrator) return;
       _noteRoute('haptics');
       try {
-        await _vibrate(
-          intensity.pulseMs,
-          canControlAmplitude ? intensity.amplitude : null,
-        );
+        if (waveform == null) {
+          await _vibrate(
+            intensity.pulseMs,
+            canControlAmplitude ? intensity.amplitude : null,
+          );
+        } else {
+          await _vibratePattern(
+            waveform.timingsMs,
+            canControlAmplitude ? waveform.amplitudes : null,
+          );
+        }
       } on Object catch (error) {
         // 개별 진동 실패는 무시한다 — 다음 주기에 다시 시도된다 (기록은 세션당 1회)
         if (!_hasLoggedHapticsFailure) {
@@ -132,7 +147,43 @@ class VibrationServiceImpl implements VibrationService {
     }
 
     await pulse();
-    _timer = Timer.periodic(interval, (_) => pulse());
+    _timer = Timer.periodic(_cycleOf(interval, waveform), (_) => pulse());
+  }
+
+  /// 반복 주기: 요청 주기와 파형 길이 중 긴 쪽 (파형이 겹쳐 뭉개지지 않게)
+  static Duration _cycleOf(Duration interval, VibrationWaveform? waveform) {
+    if (waveform == null) return interval;
+    final waveformDuration = Duration(milliseconds: waveform.totalMs);
+    return waveformDuration > interval ? waveformDuration : interval;
+  }
+
+  /// 시스템 진동 1회 (실패는 세션당 1회 기록)
+  Future<void> _pulseSystem(SystemVibration system) async {
+    try {
+      await system.pulse();
+    } on Object catch (error) {
+      if (!_systemFailureLogged) {
+        _systemFailureLogged = true;
+        Diagnostics.log('alert', 'system vibration failed error=$error');
+      }
+    }
+  }
+
+  /// 파형의 떨기 칸 시작마다 시스템 진동 1회: 길이·세기는 못 바꿔 리듬만 전달 (#311)
+  void _pulseSystemRhythm(
+    SystemVibration system,
+    VibrationWaveform waveform,
+    int sessionToken,
+  ) {
+    for (final offsetMs in waveform.pulseStartOffsetsMs) {
+      unawaited(
+        Future<void>.delayed(Duration(milliseconds: offsetMs), () async {
+          // 그 사이 멈췄거나 새 세션이면 울리지 않음
+          if (sessionToken != _sessionToken) return;
+          await _pulseSystem(system);
+        }),
+      );
+    }
   }
 
   void _noteRoute(String route) {
@@ -163,6 +214,7 @@ class VibrationServiceImpl implements VibrationService {
     }
     _timer?.cancel();
     _timer = null;
+    _sessionToken++;
     try {
       await _cancel();
     } on Object catch (error) {
@@ -176,6 +228,13 @@ class VibrationServiceImpl implements VibrationService {
 
   static Future<bool> _pluginHasAmplitude() async =>
       await Vibration.hasAmplitudeControl() == true;
+
+  static Future<void> _pluginVibratePattern(
+    List<int> timingsMs,
+    List<int>? amplitudes,
+  ) => amplitudes == null
+      ? Vibration.vibrate(pattern: timingsMs)
+      : Vibration.vibrate(pattern: timingsMs, intensities: amplitudes);
 
   static Future<void> _pluginVibrate(int durationMs, int? amplitude) =>
       amplitude == null

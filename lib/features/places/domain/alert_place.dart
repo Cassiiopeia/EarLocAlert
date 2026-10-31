@@ -3,6 +3,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import '../../../core/domain/alert_direction.dart';
 import '../../../core/domain/alert_schedule.dart';
 import '../../../core/domain/alert_sound.dart';
+import '../../../core/domain/vibration_pattern.dart';
 
 part 'alert_place.freezed.dart';
 
@@ -37,6 +38,9 @@ abstract class AlertPlace with _$AlertPlace {
     /// `@Default` 는 컴파일 타임 상수를 요구하는데, static const 필드
     /// 참조가 그 자리에서 평가되지 않는 경우가 있다.
     @Default(PresetSound(SoundPreset.defaultTone)) AlertSound sound,
+
+    /// 이 장소 진동 패턴 (#311). null 이면 기본 패턴 설정을 따름
+    VibrationPattern? vibrationPattern,
 
     /// 알림이 활성인 시간 창 (이슈 #81).
     ///
