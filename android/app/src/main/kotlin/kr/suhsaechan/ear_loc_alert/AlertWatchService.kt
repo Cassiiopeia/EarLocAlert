@@ -161,10 +161,13 @@ class AlertWatchService : Service() {
          * 알림 시간대가 열리기 이만큼 전부터 중간 단계 감시를 켠다 (이슈 #260).
          * 시간대 밖에서는 켜지 않는 것이 배터리 보호의 핵심이다.
          */
-        private const val MID_SCHEDULE_MARGIN_MIN = 30
+        private const val MID_SCHEDULE_MARGIN_MIN = PreciseWatchPolicy.SCHEDULE_MARGIN_MINUTES
 
-        /** 시간대·바깥 원 조건을 다시 확인하는 주기. 위치를 받지 않는 메모리 판단이다 */
-        private const val MID_GUARD_INTERVAL_MS = 5 * 60 * 1000L
+        /** 시간대·바깥 원·근접 원 조건을 다시 확인하는 주기. 위치를 받지 않는 메모리 판단이다 */
+        private const val TIER_GUARD_INTERVAL_MS = 5 * 60 * 1000L
+
+        /** 주기 점검 사유 토큰 — 이 사유로는 "보류" 로그를 남기지 않음 (근접 원 안 하루 288줄 방지) */
+        private const val GUARD_TICK_REASON = "guard_tick"
 
         /** 화면 켜짐마다 위치를 조회하지 않게 막는 최소 간격 */
         private const val SCREEN_CHECK_THROTTLE_MS = 30_000L
@@ -207,8 +210,13 @@ class AlertWatchService : Service() {
     private val registrar by lazy { GeofenceRegistrar(this) }
     private val tracker by lazy { PreciseLocationTracker(this) }
 
-    /** 정밀 감시를 요구하는 장소들. 비면 스트림을 끈다 */
+    /** 근접 원 안에 있다고 알고 있는 장소들. 실제 GPS 는 [reconcilePrecise] 가 시간대·처리 완료로 거름 */
     private val proximityPlaces = mutableSetOf<String>()
+
+    /** 알림이 울려 다시 알릴 일이 없는 장소 — 정밀 감시 대상에서 제외 (#318) */
+    private val settledPlaces = SettledPlaces()
+
+    private val preciseSession = PreciseWatchSession()
 
     // ---- 중간 단계 감시 (이슈 #260)
 
@@ -237,8 +245,10 @@ class AlertWatchService : Service() {
     }
 
     private val timeoutTask = Runnable { endAlert(timedOut = true) }
-    private val preciseTimeoutTask = Runnable { stopPreciseTracking() }
-    private val midGuardTask = Runnable { reconcileMid("guard_tick") }
+    private val preciseTimeoutTask = Runnable { stopPreciseTracking("timeout") }
+
+    /** 시간대 열림·닫힘 확인 (정밀·중간 단계 공통) — 위치를 받지 않는 메모리 판단 */
+    private val tierGuardTask = Runnable { reconcileTiers(GUARD_TICK_REASON) }
 
     /**
      * 화면 켜짐 수신 (이슈 #260).
@@ -332,7 +342,7 @@ class AlertWatchService : Service() {
         when (intent?.action) {
             ACTION_STOP_WATCH -> {
                 endAlert()
-                stopPreciseTracking()
+                stopPreciseTracking("watch_stopped", shouldResumeMid = false)
                 outerPlaces.clear()
                 reconcileMid("watch_stopped")
                 stopSelf()
@@ -374,8 +384,8 @@ class AlertWatchService : Service() {
         DiagnosticLog.write(this, "watch", "watch service destroyed")
         handler.removeCallbacks(timeoutTask)
         handler.removeCallbacks(preciseTimeoutTask)
-        handler.removeCallbacks(midGuardTask)
-        stopPreciseTracking()
+        handler.removeCallbacks(tierGuardTask)
+        stopPreciseTracking("service_destroyed", shouldResumeMid = false)
         if (midTracker.isRunning) {
             midTracker.stop()
             DiagnosticLog.write(this, "mid", "mid tracking stopped reason=service_destroyed fixes=$midFixCount")
@@ -510,16 +520,17 @@ class AlertWatchService : Service() {
         places = fences.mapNotNull(WatchPlace::fromMap)
         val knownIds = places.map { it.id }.toSet()
         outerPlaces.retainAll(knownIds)
+        settledPlaces.retainAll(knownIds)
         DiagnosticLog.write(
             this,
             "tier",
             "tier places synced places=${places.size} " +
                 places.joinToString(" ") {
                     "${it.shortId}(r=${it.radiusMeters.toInt()} prox=${it.proximityRadiusMeters.toInt()} " +
-                        "outer=${it.outerRadiusMeters.toInt()} windows=${it.windows.size})"
+                        "outer=${it.outerRadiusMeters.toInt()} windows=${it.windows.size} dir=${it.direction})"
                 },
         )
-        reconcileMid("sync")
+        reconcileTiers("sync")
 
         // 등록 개수가 0 이면 어떤 도착도 감지되지 않는다 (이슈 #95)
         DiagnosticLog.write(
@@ -529,13 +540,13 @@ class AlertWatchService : Service() {
         )
 
         // 등록 대상이 사라지면 정밀 감시도 의미가 없다
-        if (fences.isEmpty()) stopPreciseTracking()
+        if (fences.isEmpty()) stopPreciseTracking("no_places")
     }
 
     /**
      * 지오펜스 이벤트를 처리한다 (이슈 #93).
      *
-     * **근접 반경**은 정밀 감시를 켜고 끈다 — 그 자체로는 알림이 아니다.
+     * **근접 반경**은 정밀 감시 대상 소속을 바꾼다 — 그 자체로는 알림이 아니다 (켤지는 [reconcilePrecise]).
      * **실제 반경**은 판정 대상이다. 정밀 감시가 죽어 있어도(권한 취소·
      * 스트림 오류) 이 경로로 알림이 나간다.
      *
@@ -575,15 +586,22 @@ class AlertWatchService : Service() {
                     "places=${proximityIds.joinToString(",") { it.take(8) }} " +
                     "mid_running=${midTracker.isRunning} precise_running=${tracker.isRunning}",
             )
-            if (entered) startPreciseTracking(proximityIds)
-            else stopPreciseTrackingIfIdle(proximityIds)
+            // 소속만 갱신, 실제 GPS 는 시간대·처리 완료를 보고 정함 (#318)
+            if (entered) proximityPlaces += proximityIds else proximityPlaces -= proximityIds.toSet()
+            reconcilePrecise(if (entered) "proximity_enter" else "proximity_exit")
         }
 
         for (placeId in placeIds) {
-            engine.evaluateOsTransition(placeId, entered, latitude, longitude) { decision ->
-                if (decision.shouldAlert) beginAlert(decision)
-            }
+            releaseSettledByTransition(placeId, entered)
+            engine.evaluateOsTransition(placeId, entered, latitude, longitude, ::handleDecision)
         }
+    }
+
+    /** 판정 결과 처리 (OS 전이·중간 단계·정밀 공통): 알림이면 처리 완료 표시 > 발화 */
+    private fun handleDecision(decision: AlertDecision) {
+        if (!decision.shouldAlert) return
+        settleAfterAlert(decision)
+        beginAlert(decision)
     }
 
     // ------------------------------------------------------ 중간 단계 감시 (#260)
@@ -592,20 +610,19 @@ class AlertWatchService : Service() {
      * 중간 단계 위치 감시를 켜고 끌지 정한다.
      *
      * **켜는 조건** — 바깥 원 안에 있고, 그 장소의 알림 시간대가 열려 있거나
-     * [MID_SCHEDULE_MARGIN_MIN] 분 안에 열린다. 둘 중 하나라도 어긋나면 끈다.
+     * [MID_SCHEDULE_MARGIN_MIN] 분 안에 열린다. 둘 중 하나라도 어긋나거나 정밀 감시 중이면 끈다.
      *
      * 이벤트가 올 때마다, 장소 목록이 바뀔 때마다, 그리고 주기적으로 부른다.
      * 주기 호출은 "아직 안 열렸던 시간대가 열렸는가"를 잡는다 — 바깥 원
      * 이벤트는 시간대와 무관하게 한 번만 오기 때문이다.
      */
     private fun reconcileMid(reason: String) {
-        handler.removeCallbacks(midGuardTask)
-
         val nowMs = System.currentTimeMillis()
         val inside = places.filter { it.id in outerPlaces }
         val eligible = inside.filter { it.isScheduleActive(nowMs, MID_SCHEDULE_MARGIN_MIN) }
 
-        if (eligible.isNotEmpty()) {
+        // 정밀 감시 중이면 균형 전력 스트림은 중복 — 정밀이 멈출 때 다시 확인 (#318)
+        if (eligible.isNotEmpty() && !tracker.isRunning) {
             if (!midTracker.isRunning) {
                 val started = midTracker.start { location -> handleFix(location, "mid") }
                 if (started) {
@@ -626,13 +643,18 @@ class AlertWatchService : Service() {
             if (midTracker.isRunning) {
                 midTracker.stop()
                 val ranS = (SystemClock.elapsedRealtime() - midStartedElapsedMs) / 1000
+                val stopReason = when {
+                    eligible.isNotEmpty() -> "precise_running"
+                    inside.isEmpty() -> "left_outer_ring"
+                    else -> "outside_schedule"
+                }
                 DiagnosticLog.write(
                     this,
                     "mid",
-                    "mid tracking stopped reason=${if (inside.isEmpty()) "left_outer_ring" else "outside_schedule"} " +
+                    "mid tracking stopped reason=$stopReason " +
                         "trigger=$reason fixes=$midFixCount ran_s=$ranS ${DeviceState.snapshot(this)}",
                 )
-            } else if (inside.isNotEmpty()) {
+            } else if (eligible.isEmpty() && inside.isNotEmpty() && reason != GUARD_TICK_REASON) {
                 // 바깥 원 안인데 시간대가 아니라 안 켜는 경우 — 안 울린 이유를 남긴다
                 DiagnosticLog.write(
                     this,
@@ -643,15 +665,28 @@ class AlertWatchService : Service() {
             }
         }
 
-        // 바깥 원 안에 있는 동안은 시간대 변화를 계속 지켜본다
-        if (outerPlaces.isNotEmpty()) handler.postDelayed(midGuardTask, MID_GUARD_INTERVAL_MS)
+        scheduleTierGuard()
+    }
+
+    /** 정밀 > 중간 단계 순서로 다시 판단 (정밀 상태가 중간 단계 켜짐을 좌우) */
+    private fun reconcileTiers(reason: String) {
+        reconcilePrecise(reason)
+        reconcileMid(reason)
+    }
+
+    /** 바깥 원·근접 원 안에 있는 동안 시간대 변화를 계속 지켜본다 */
+    private fun scheduleTierGuard() {
+        handler.removeCallbacks(tierGuardTask)
+        if (outerPlaces.isNotEmpty() || proximityPlaces.isNotEmpty()) {
+            handler.postDelayed(tierGuardTask, TIER_GUARD_INTERVAL_MS)
+        }
     }
 
     /**
      * 위치 한 건을 처리한다 — 중간 단계 측정·화면 켜짐·서비스 시작 때 공통이다.
      *
      * 하는 일: ① 바깥 원 소속을 실측으로 바로잡고 ② 근접 원 근처면 정밀
-     * 감시로 올리고 ③ 기존 판정기에 넘긴다. **알림 여부는 ③ 이 정한다.**
+     * 감시 대상에 넣고 ③ 기존 판정기에 넘긴다. **알림 여부는 ③ 이 정한다.**
      */
     private fun handleFix(location: Location, source: String) {
         if (source == "mid") midFixCount++
@@ -695,27 +730,32 @@ class AlertWatchService : Service() {
             dist <= place.proximityRadiusMeters + PRECISE_START_MARGIN_M &&
                 place.isScheduleActive(nowMs, MID_SCHEDULE_MARGIN_MIN)
         }.keys.map { it.id }
-        if (near.isNotEmpty() && !tracker.isRunning) {
+        val newlyNear = near.filter { it !in proximityPlaces }
+        if (newlyNear.isNotEmpty()) {
             DiagnosticLog.write(
                 this,
                 "tier",
                 "precise start requested by fix source=$source " +
-                    "targets=${near.joinToString(",") { it.take(8) }}",
+                    "targets=${newlyNear.joinToString(",") { it.take(8) }}",
             )
-            startPreciseTracking(near)
+            proximityPlaces += newlyNear
         }
+        releaseSettledByFix(location, source)
 
         // ③ 기존 판정기에 넘긴다 — 중복 발화는 상태 전이가 막는다
+        evaluateFix(location)
+
+        reconcileTiers("fix_$source")
+    }
+
+    private fun evaluateFix(location: Location) {
         engine.evaluatePosition(
             latitude = location.latitude,
             longitude = location.longitude,
             accuracyMeters = location.accuracy.toDouble(),
             timestampMs = location.time,
-        ) { decision ->
-            if (decision.shouldAlert) beginAlert(decision)
-        }
-
-        reconcileMid("fix_$source")
+            onDecision = ::handleDecision,
+        )
     }
 
     /**
@@ -788,38 +828,136 @@ class AlertWatchService : Service() {
 
     // ------------------------------------------------------------ 정밀 감시
 
-    private fun startPreciseTracking(placeIds: List<String>) {
-        proximityPlaces += placeIds
+    /**
+     * 정밀 감시 켜기·끄기 (#318): 대상 = 근접 원 안 + 시간대 활성 + 처리 완료 아님
+     * 대상이 비면 GPS 만 멈추고 근접 원 소속은 유지 > 시간대가 열리면 주기 점검이 다시 켬
+     */
+    private fun reconcilePrecise(reason: String) {
+        val nowMs = System.currentTimeMillis()
+        logSettleReleased(settledPlaces.releaseOutsideSchedule(places, nowMs), "schedule_closed")
+        val targets = PreciseWatchPolicy.eligibleTargets(places, proximityPlaces, settledPlaces.placeIds, nowMs)
+
+        if (targets.isNotEmpty()) {
+            if (!tracker.isRunning) startPreciseTracking(targets, reason)
+        } else if (tracker.isRunning) {
+            pausePreciseTracking(idleCauseOf(), reason)
+        } else if (proximityPlaces.isNotEmpty() && reason != GUARD_TICK_REASON) {
+            // 근접 원 안인데 안 켜는 경우 — 안 울린 이유를 남긴다
+            DiagnosticLog.write(
+                this,
+                "precise",
+                "precise tracking deferred cause=${idleCauseOf()} trigger=$reason " +
+                    "proximity=${proximityPlaces.joinToString(",") { it.take(8) }}",
+            )
+        }
+        scheduleTierGuard()
+    }
+
+    /** 근접 원 안인데 대상이 없는 이유: left_proximity · already_alerted · outside_schedule */
+    private fun idleCauseOf(): String = when {
+        proximityPlaces.isEmpty() -> "left_proximity"
+        proximityPlaces.all { it in settledPlaces.placeIds } -> "already_alerted"
+        else -> "outside_schedule"
+    }
+
+    private fun startPreciseTracking(targets: List<WatchPlace>, reason: String) {
+        preciseSession.reset()
+        // 첫 위치 전에는 거리를 모름 > 경계 근처 주기로 시작, 첫 위치에서 조정
+        tracker.start(PreciseWatchPolicy.NEAR_INTERVAL_MILLISECONDS, ::handlePreciseFix)
+        if (!tracker.isRunning) return
+
         handler.removeCallbacks(preciseTimeoutTask)
         handler.postDelayed(preciseTimeoutTask, PRECISE_TIMEOUT_MS)
-        if (tracker.isRunning) return
+        DiagnosticLog.write(
+            this,
+            "precise",
+            "precise tracking started trigger=$reason targets=${targets.joinToString(",") { it.shortId }} " +
+                "interval_ms=${tracker.intervalMilliseconds}",
+        )
+        reconcileMid("precise_started")
+    }
 
-        DiagnosticLog.write(this, "precise", "precise tracking started targets=${proximityPlaces.size}")
+    /**
+     * 정밀 위치 1건: 처리 완료 해제 확인 > 판정 생략 여부 > 판정 > 주기 조정
+     * 판정 생략은 경계에서 먼 위치만 (안/밖 바뀜·하트비트는 항상 판정)
+     */
+    private fun handlePreciseFix(location: Location) {
+        releaseSettledByFix(location, "precise")
+        val targets = PreciseWatchPolicy.eligibleTargets(
+            places, proximityPlaces, settledPlaces.placeIds, System.currentTimeMillis(),
+        )
+        val nearestBoundaryMeters = targets.minOfOrNull {
+            PreciseWatchPolicy.distanceToBoundary(it, location.latitude, location.longitude)
+        }
+        val shouldEvaluate = preciseSession.recordFix(
+            places, nearestBoundaryMeters, location.latitude, location.longitude,
+        )
+        if (shouldEvaluate) evaluateFix(location)
 
-        tracker.start { location ->
-            engine.evaluatePosition(
-                latitude = location.latitude,
-                longitude = location.longitude,
-                accuracyMeters = location.accuracy.toDouble(),
-                timestampMs = location.time,
-            ) { decision ->
-                if (decision.shouldAlert) beginAlert(decision)
-            }
+        if (targets.isEmpty()) {
+            reconcilePrecise("precise_fix")
+            return
+        }
+        val previousIntervalMs = tracker.intervalMilliseconds
+        val nextIntervalMs = PreciseWatchPolicy.intervalFor(nearestBoundaryMeters)
+        if (tracker.updateInterval(nextIntervalMs)) {
+            DiagnosticLog.write(
+                this,
+                "precise",
+                "precise interval changed ${previousIntervalMs}ms -> ${nextIntervalMs}ms " +
+                    "nearest_boundary=${nearestBoundaryMeters?.toInt()}m acc=${location.accuracy.toInt()}m " +
+                    preciseSession.summary(),
+            )
         }
     }
 
-    private fun stopPreciseTrackingIfIdle(placeIds: List<String>) {
-        proximityPlaces -= placeIds.toSet()
-        if (proximityPlaces.isEmpty()) stopPreciseTracking()
+    /** GPS 만 멈춤 (근접 원 소속 유지) > 중간 단계 재확인 */
+    private fun pausePreciseTracking(cause: String, reason: String) {
+        handler.removeCallbacks(preciseTimeoutTask)
+        tracker.stop()
+        DiagnosticLog.write(
+            this,
+            "precise",
+            "precise tracking paused cause=$cause trigger=$reason ${preciseSession.summary()}",
+        )
+        reconcileMid("precise_paused")
     }
 
-    private fun stopPreciseTracking() {
-        if (tracker.isRunning) {
-            DiagnosticLog.write(this, "precise", "precise tracking stopped")
-        }
+    /** 완전 종료 (상한·감시 중지·장소 없음): 근접 원 소속까지 비움 */
+    private fun stopPreciseTracking(reason: String, shouldResumeMid: Boolean = true) {
+        val wasRunning = tracker.isRunning
         handler.removeCallbacks(preciseTimeoutTask)
         proximityPlaces.clear()
         tracker.stop()
+        if (!wasRunning) return
+        DiagnosticLog.write(this, "precise", "precise tracking stopped reason=$reason ${preciseSession.summary()}")
+        if (shouldResumeMid) reconcileMid("precise_stopped")
+    }
+
+    // ---------------------------------------------------- 처리 완료 장소 (#318)
+
+    /** 알림이 울린 enter·exit 전용 장소 > 정밀 감시 대상에서 제외 */
+    private fun settleAfterAlert(decision: AlertDecision) {
+        val place = places.firstOrNull { it.id == decision.placeId } ?: return
+        if (!settledPlaces.settle(place)) return
+        DiagnosticLog.write(this, "precise", "place settled after alert place=${place.shortId} direction=${place.direction}")
+        reconcilePrecise("alert_settled")
+    }
+
+    private fun releaseSettledByTransition(placeId: String, entered: Boolean) {
+        val place = places.firstOrNull { it.id == placeId } ?: return
+        if (settledPlaces.releaseByTransition(place, entered)) logSettleReleased(listOf(place), "os_transition")
+    }
+
+    private fun releaseSettledByFix(location: Location, source: String) {
+        val released = settledPlaces.releaseByFix(places, location.latitude, location.longitude, location.accuracy)
+        logSettleReleased(released, "fix_$source")
+    }
+
+    private fun logSettleReleased(released: List<WatchPlace>, reason: String) {
+        for (place in released) {
+            DiagnosticLog.write(this, "precise", "place settle released place=${place.shortId} reason=$reason")
+        }
     }
 
     // ---------------------------------------------------------------- 알림 발화

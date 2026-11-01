@@ -52,6 +52,8 @@ class AndroidGeofenceMonitor implements GeofenceMonitor {
     'outerRadiusMeters': androidOuterRadiusMeters(target.radiusMeters),
     // 알림 시간대 밖에서는 중간 단계 감시를 켜지 않아 배터리를 아낀다
     'scheduleWindows': encodeScheduleWindows(target.schedules),
+    // 알림 뒤 정밀 감시 대상에서 뺄지 판단 (enter·exit 전용만, #318)
+    'direction': target.direction.name,
   };
 
   @override

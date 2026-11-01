@@ -21,6 +21,8 @@ data class WatchPlace(
     /** 중간 단계 감시를 켜는 바깥 원. 0 이면 이 장소는 중간 단계를 쓰지 않는다 */
     val outerRadiusMeters: Float,
     val windows: List<ScheduleWindow>,
+    /** 알림 방향: enter · exit · both (Dart `AlertDirection.name`). 키 없는 옛 사본은 both (#318) */
+    val direction: String = DIRECTION_BOTH,
 ) {
 
     /**
@@ -73,6 +75,10 @@ data class WatchPlace(
 
     companion object {
 
+        const val DIRECTION_ENTER = "enter"
+        const val DIRECTION_EXIT = "exit"
+        const val DIRECTION_BOTH = "both"
+
         private fun isoWeekday(calendar: Calendar): Int =
             // Calendar 는 일요일이 1 이다 → ISO 월=1 ~ 일=7 로 맞춘다
             (calendar.get(Calendar.DAY_OF_WEEK) + 5) % 7 + 1
@@ -99,6 +105,7 @@ data class WatchPlace(
                 proximityRadiusMeters = proximity,
                 outerRadiusMeters = outer,
                 windows = parseWindows(fence["scheduleWindows"] as? String),
+                direction = fence["direction"] as? String ?: DIRECTION_BOTH,
             )
         }
 
