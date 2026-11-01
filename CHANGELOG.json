@@ -1,14 +1,35 @@
 {
   "metadata": {
-    "lastUpdated": "2026-11-01T12:42:30Z",
-    "currentVersion": "1.45.0",
+    "lastUpdated": "2026-11-01T12:59:35Z",
+    "currentVersion": "1.46.0",
     "projectType": "flutter",
-    "totalReleases": 118,
+    "totalReleases": 119,
     "projectTypes": [
       "flutter"
     ]
   },
   "releases": [
+    {
+      "version": "1.46.0",
+      "project_type": "flutter",
+      "project_types": [
+        "flutter"
+      ],
+      "date": "2026-11-01",
+      "pr_number": 321,
+      "raw_summary": "## Summary by CodeRabbit\n\n## 릴리스 노트\n\n* **개선**\n  * Android 백그라운드 위치 감시의 배터리 사용을 크게 줄였습니다\n  * 알림 시간대 밖이나 이미 도착 알림이 울린 뒤에는 GPS를 쓰지 않습니다\n  * 목적지에서 멀 때는 위치 확인 간격을 늘리고, 가까워지면 다시 촘촘히 확인합니다",
+      "parsed_changes": {
+        "개선": {
+          "title": "개선",
+          "items": [
+            "Android 백그라운드 위치 감시의 배터리 사용을 크게 줄였습니다",
+            "알림 시간대 밖이나 이미 도착 알림이 울린 뒤에는 GPS를 쓰지 않습니다",
+            "목적지에서 멀 때는 위치 확인 간격을 늘리고, 가까워지면 다시 촘촘히 확인합니다"
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "1.45.0",
       "project_type": "flutter",
