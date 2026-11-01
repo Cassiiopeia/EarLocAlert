@@ -9,6 +9,7 @@ import './alert_notifier_impl.dart';
 import './alert_sound_service_impl.dart';
 import './prefs_alert_volume_store.dart';
 import './prefs_vibration_intensity_store.dart';
+import './prefs_vibration_pattern_store.dart';
 import './system_volume_channel.dart';
 import './ios_system_vibration.dart';
 import './vibration_service_impl.dart';
@@ -16,6 +17,7 @@ import '../domain/alert_controller.dart';
 import '../domain/alert_effects.dart';
 import '../domain/audio_route.dart';
 import '../domain/vibration_intensity.dart';
+import '../domain/vibration_waveform.dart';
 
 part 'alert_providers.g.dart';
 
@@ -60,6 +62,11 @@ SystemVolumeService systemVolumeService(Ref ref) => const SystemVolumeChannel();
 VibrationIntensityStore vibrationIntensityStore(Ref ref) =>
     PrefsVibrationIntensityStore();
 
+/// 기본 진동 패턴 설정 (#311)
+@Riverpod(keepAlive: true)
+VibrationPatternStore vibrationPatternStore(Ref ref) =>
+    PrefsVibrationPatternStore();
+
 @Riverpod(keepAlive: true)
 AlertController alertController(Ref ref) {
   final controller = AlertController(
@@ -70,6 +77,7 @@ AlertController alertController(Ref ref) {
     volumeStore: ref.watch(alertVolumeStoreProvider),
     systemVolume: ref.watch(systemVolumeServiceProvider),
     vibrationStore: ref.watch(vibrationIntensityStoreProvider),
+    vibrationPatternStore: ref.watch(vibrationPatternStoreProvider),
     // 화면 없이 도는 iOS 세션만 — Android 는 진동이 오디오와 무관하다 (이슈 #241)
     needsSilentKeepAlive: () =>
         Platform.isIOS &&

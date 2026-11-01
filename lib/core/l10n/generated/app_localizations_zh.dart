@@ -1431,4 +1431,295 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get homeStatusFixButton => '去检查权限';
+
+  @override
+  String get settingsVibrationPatternTitle => '振动模式';
+
+  @override
+  String get settingsVibrationPatternSubtitle => '选择节奏，仅凭振动就能分辨地点';
+
+  @override
+  String get vibrationPatternTitle => '振动模式';
+
+  @override
+  String get vibrationPatternDescription => '选择后会振动一次以便确认。振动强度设置也会一起生效。';
+
+  @override
+  String get vibrationPatternIosNote => '屏幕关闭时只保留节奏，强度保持不变。';
+
+  @override
+  String get vibrationPatternFollowDefault => '跟随默认设置';
+
+  @override
+  String get vibrationPatternFollowDefaultHint => '使用设置中选择的振动模式';
+
+  @override
+  String get vibrationPatternStandard => '默认';
+
+  @override
+  String get vibrationPatternDoubleTap => '嗒嗒';
+
+  @override
+  String get vibrationPatternTripleTap => '嗒嗒嗒';
+
+  @override
+  String get vibrationPatternHeartbeat => '心跳';
+
+  @override
+  String get vibrationPatternLongShort => '长、短';
+
+  @override
+  String get vibrationPatternShortLong => '短、长';
+
+  @override
+  String get vibrationPatternSos => 'SOS';
+
+  @override
+  String get vibrationPatternRapid => '连击';
+
+  @override
+  String get vibrationPatternWave => '波浪';
+
+  @override
+  String get vibrationPatternCrescendo => '渐强';
+
+  @override
+  String get vibrationPatternKnock => '敲门';
+
+  @override
+  String get vibrationPatternWaltz => '华尔兹';
+
+  @override
+  String get vibrationPatternSiren => '警笛';
+
+  @override
+  String get vibrationPatternLongPulse => '长振一次';
+
+  @override
+  String get placeFormVibrationTitle => '振动';
+
+  @override
+  String get placeFormVibrationPatternLabel => '振动模式';
+
+  @override
+  String get proRowVibrationPattern => '振动模式';
+
+  @override
+  String proValueAllPatterns(int count) {
+    return '$count 种';
+  }
+
+  @override
+  String get proLockedVibrationPatterns => '全部振动模式';
+
+  @override
+  String get vibrationPatternDone => '完成';
+
+  @override
+  String get proValueDefaultPattern => '仅默认';
+
+  @override
+  String get settingsHistoryTitle => '提醒记录';
+
+  @override
+  String get settingsHistorySubtitle => '查看何时何地响过提醒';
+
+  @override
+  String get historyTitle => '提醒记录';
+
+  @override
+  String get historyEmpty => '还没有响过的提醒。到达或离开地点后会记录在这里。';
+
+  @override
+  String get historyRetentionNote => '本机只保存最近 90 天的记录';
+
+  @override
+  String get historyArrived => '到达';
+
+  @override
+  String get historyDeparted => '出发';
+
+  @override
+  String get historyDeletedPlace => '已删除的地点';
+
+  @override
+  String get historyToday => '今天';
+
+  @override
+  String get historyYesterday => '昨天';
+
+  @override
+  String historyDate(int month, int day) {
+    return '$month月$day日';
+  }
+
+  @override
+  String get historyAllPlaces => '全部';
+
+  @override
+  String historySummaryTitle(int days) {
+    return '最近 $days 天';
+  }
+
+  @override
+  String get historyArrivalCountTitle => '到达提醒';
+
+  @override
+  String get historyDepartureCountTitle => '出发提醒';
+
+  @override
+  String get historyTopPlaceTitle => '最常响的地点';
+
+  @override
+  String historyCount(int count) {
+    return '$count 次';
+  }
+
+  @override
+  String get proRowHistory => '提醒记录';
+
+  @override
+  String get proValueRecentHistory => '最近 3 条';
+
+  @override
+  String get proValueFullHistory => '90 天 + 摘要';
+
+  @override
+  String get proLockedHistory => '全部记录和摘要';
+
+  @override
+  String get autoBackupTitle => '自动备份';
+
+  @override
+  String get autoBackupDescription =>
+      '每次更改地点时，都会在所选文件夹中重新写入备份文件。选择 iCloud 云盘等位置，删除应用后也会保留。';
+
+  @override
+  String get autoBackupOff => '关闭 · 选择文件夹即可开启';
+
+  @override
+  String autoBackupOnNever(String folder) {
+    return '$folder · 尚未备份';
+  }
+
+  @override
+  String autoBackupOnLast(String folder, String time) {
+    return '$folder · 上次 $time';
+  }
+
+  @override
+  String get autoBackupFolderTitle => '备份文件夹';
+
+  @override
+  String get autoBackupNoFolder => '未选择';
+
+  @override
+  String get autoBackupLastTitle => '上次备份';
+
+  @override
+  String get autoBackupNever => '暂无';
+
+  @override
+  String get autoBackupRestoreHint =>
+      '恢复时，在“导入地点”中选择 earlocalert-places-auto.json 文件即可。';
+
+  @override
+  String get autoBackupChooseFolder => '选择文件夹';
+
+  @override
+  String get autoBackupNow => '立即备份';
+
+  @override
+  String get autoBackupTurnOff => '关闭自动备份';
+
+  @override
+  String get autoBackupDone => '已备份';
+
+  @override
+  String get autoBackupFailed => '备份失败，请重新选择文件夹';
+
+  @override
+  String get routineTitle => '例程';
+
+  @override
+  String get settingsRoutineSubtitle => '将多个地点分组，一次开启或关闭';
+
+  @override
+  String get routineDescription => '把一起使用的地点（如通勤路线）分成一组，就能在主屏幕一次开启或关闭。';
+
+  @override
+  String get routineAdd => '新建例程';
+
+  @override
+  String get routineManage => '管理';
+
+  @override
+  String get routineNoPlaces => '无地点';
+
+  @override
+  String routinePlaceCount(int count) {
+    return '$count 个地点';
+  }
+
+  @override
+  String get routineExclusiveShort => '关闭其他';
+
+  @override
+  String get routineExampleCommute => '通勤';
+
+  @override
+  String get routineExampleHome => '回家路';
+
+  @override
+  String get routineNewTitle => '新建例程';
+
+  @override
+  String get routineEditTitle => '编辑例程';
+
+  @override
+  String get routineNameLabel => '名称';
+
+  @override
+  String get routineNameRequired => '请输入名称';
+
+  @override
+  String get routinePlacesRequired => '请至少选择一个地点';
+
+  @override
+  String get routineSaveFailed => '保存失败，请重试';
+
+  @override
+  String get routineExclusiveTitle => '开启时关闭其他地点';
+
+  @override
+  String get routineExclusiveSubtitle => '像通勤模式一样，只让此例程的地点提醒';
+
+  @override
+  String routinePlacesHeader(int count) {
+    return '选择地点（已选 $count 个）';
+  }
+
+  @override
+  String get routineNoPlacesYet => '还没有添加地点，请先添加地点。';
+
+  @override
+  String get routineSave => '保存';
+
+  @override
+  String get routineDelete => '删除例程';
+
+  @override
+  String get routineDeleteTitle => '要删除此例程吗？';
+
+  @override
+  String get routineDeleteBody => '其中的地点不会被删除。';
+
+  @override
+  String get routineCancel => '取消';
+
+  @override
+  String get proRowRoutines => '例程';
+
+  @override
+  String get proLockedRoutines => '用例程分组地点';
 }

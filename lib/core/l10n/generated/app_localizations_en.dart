@@ -1512,4 +1512,306 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get homeStatusFixButton => 'Check permissions';
+
+  @override
+  String get settingsVibrationPatternTitle => 'Vibration pattern';
+
+  @override
+  String get settingsVibrationPatternSubtitle =>
+      'Pick a rhythm so you can tell places apart by feel';
+
+  @override
+  String get vibrationPatternTitle => 'Vibration pattern';
+
+  @override
+  String get vibrationPatternDescription =>
+      'Pick one to feel it once. Your vibration strength applies too.';
+
+  @override
+  String get vibrationPatternIosNote =>
+      'While the screen is off, only the rhythm is kept and the strength stays the same.';
+
+  @override
+  String get vibrationPatternFollowDefault => 'Use default setting';
+
+  @override
+  String get vibrationPatternFollowDefaultHint =>
+      'Uses the pattern chosen in Settings';
+
+  @override
+  String get vibrationPatternStandard => 'Default';
+
+  @override
+  String get vibrationPatternDoubleTap => 'Double tap';
+
+  @override
+  String get vibrationPatternTripleTap => 'Triple tap';
+
+  @override
+  String get vibrationPatternHeartbeat => 'Heartbeat';
+
+  @override
+  String get vibrationPatternLongShort => 'Long, short';
+
+  @override
+  String get vibrationPatternShortLong => 'Short, long';
+
+  @override
+  String get vibrationPatternSos => 'SOS';
+
+  @override
+  String get vibrationPatternRapid => 'Rapid';
+
+  @override
+  String get vibrationPatternWave => 'Wave';
+
+  @override
+  String get vibrationPatternCrescendo => 'Crescendo';
+
+  @override
+  String get vibrationPatternKnock => 'Knock';
+
+  @override
+  String get vibrationPatternWaltz => 'Waltz';
+
+  @override
+  String get vibrationPatternSiren => 'Siren';
+
+  @override
+  String get vibrationPatternLongPulse => 'One long buzz';
+
+  @override
+  String get placeFormVibrationTitle => 'Vibration';
+
+  @override
+  String get placeFormVibrationPatternLabel => 'Vibration pattern';
+
+  @override
+  String get proRowVibrationPattern => 'Vibration pattern';
+
+  @override
+  String proValueAllPatterns(int count) {
+    return '$count patterns';
+  }
+
+  @override
+  String get proLockedVibrationPatterns => 'All vibration patterns';
+
+  @override
+  String get vibrationPatternDone => 'Done';
+
+  @override
+  String get proValueDefaultPattern => 'Default only';
+
+  @override
+  String get settingsHistoryTitle => 'Alert history';
+
+  @override
+  String get settingsHistorySubtitle => 'See when and where alerts went off';
+
+  @override
+  String get historyTitle => 'Alert history';
+
+  @override
+  String get historyEmpty =>
+      'No alerts yet. When you arrive at or leave a place, it shows up here.';
+
+  @override
+  String get historyRetentionNote =>
+      'Only the last 90 days are kept on this device';
+
+  @override
+  String get historyArrived => 'Arrived';
+
+  @override
+  String get historyDeparted => 'Left';
+
+  @override
+  String get historyDeletedPlace => 'Deleted place';
+
+  @override
+  String get historyToday => 'Today';
+
+  @override
+  String get historyYesterday => 'Yesterday';
+
+  @override
+  String historyDate(int month, int day) {
+    return '$month/$day';
+  }
+
+  @override
+  String get historyAllPlaces => 'All';
+
+  @override
+  String historySummaryTitle(int days) {
+    return 'Last $days days';
+  }
+
+  @override
+  String get historyArrivalCountTitle => 'Arrival alerts';
+
+  @override
+  String get historyDepartureCountTitle => 'Departure alerts';
+
+  @override
+  String get historyTopPlaceTitle => 'Most frequent place';
+
+  @override
+  String historyCount(int count) {
+    return '$count';
+  }
+
+  @override
+  String get proRowHistory => 'Alert history';
+
+  @override
+  String get proValueRecentHistory => 'Last 3';
+
+  @override
+  String get proValueFullHistory => '90 days + summary';
+
+  @override
+  String get proLockedHistory => 'Full history and summary';
+
+  @override
+  String get autoBackupTitle => 'Auto backup';
+
+  @override
+  String get autoBackupDescription =>
+      'Writes a fresh backup file to the folder you pick whenever your places change. Pick a place like iCloud Drive and it stays even if you delete the app.';
+
+  @override
+  String get autoBackupOff => 'Off · Pick a folder to turn it on';
+
+  @override
+  String autoBackupOnNever(String folder) {
+    return '$folder · Not backed up yet';
+  }
+
+  @override
+  String autoBackupOnLast(String folder, String time) {
+    return '$folder · Last $time';
+  }
+
+  @override
+  String get autoBackupFolderTitle => 'Backup folder';
+
+  @override
+  String get autoBackupNoFolder => 'None';
+
+  @override
+  String get autoBackupLastTitle => 'Last backup';
+
+  @override
+  String get autoBackupNever => 'Not yet';
+
+  @override
+  String get autoBackupRestoreHint =>
+      'To restore, choose earlocalert-places-auto.json in Import places.';
+
+  @override
+  String get autoBackupChooseFolder => 'Choose folder';
+
+  @override
+  String get autoBackupNow => 'Back up now';
+
+  @override
+  String get autoBackupTurnOff => 'Turn off auto backup';
+
+  @override
+  String get autoBackupDone => 'Backed up';
+
+  @override
+  String get autoBackupFailed =>
+      'Couldn\'t back up. Please choose the folder again';
+
+  @override
+  String get routineTitle => 'Routines';
+
+  @override
+  String get settingsRoutineSubtitle =>
+      'Group places and turn them on or off at once';
+
+  @override
+  String get routineDescription =>
+      'Group places you use together, like your commute, and turn them on or off at once from the home screen.';
+
+  @override
+  String get routineAdd => 'New routine';
+
+  @override
+  String get routineManage => 'Manage';
+
+  @override
+  String get routineNoPlaces => 'No places';
+
+  @override
+  String routinePlaceCount(int count) {
+    return '$count places';
+  }
+
+  @override
+  String get routineExclusiveShort => 'Turns others off';
+
+  @override
+  String get routineExampleCommute => 'Commute';
+
+  @override
+  String get routineExampleHome => 'Way home';
+
+  @override
+  String get routineNewTitle => 'New routine';
+
+  @override
+  String get routineEditTitle => 'Edit routine';
+
+  @override
+  String get routineNameLabel => 'Name';
+
+  @override
+  String get routineNameRequired => 'Please enter a name';
+
+  @override
+  String get routinePlacesRequired => 'Please choose at least one place';
+
+  @override
+  String get routineSaveFailed => 'Couldn\'t save. Please try again';
+
+  @override
+  String get routineExclusiveTitle => 'Turn other places off';
+
+  @override
+  String get routineExclusiveSubtitle =>
+      'Only this routine\'s places alert, like a commute mode';
+
+  @override
+  String routinePlacesHeader(int count) {
+    return 'Places ($count chosen)';
+  }
+
+  @override
+  String get routineNoPlacesYet =>
+      'You haven\'t added any places yet. Please add a place first.';
+
+  @override
+  String get routineSave => 'Save';
+
+  @override
+  String get routineDelete => 'Delete routine';
+
+  @override
+  String get routineDeleteTitle => 'Delete this routine?';
+
+  @override
+  String get routineDeleteBody => 'Its places won\'t be deleted.';
+
+  @override
+  String get routineCancel => 'Cancel';
+
+  @override
+  String get proRowRoutines => 'Routines';
+
+  @override
+  String get proLockedRoutines => 'Group places into routines';
 }

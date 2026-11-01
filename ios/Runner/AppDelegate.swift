@@ -101,6 +101,8 @@ import native_geofence
       VibrationTestNotification.register(messenger: controller.binaryMessenger)
       // 프로모션(오퍼) 코드 입력 시트 (이슈 #305)
       OfferCodeRedeemSheet.register(messenger: controller.binaryMessenger)
+      // 자동 백업 폴더 (이슈 #314)
+      BackupFolderChannel.shared.register(messenger: controller.binaryMessenger)
 
       // 버전·기기 정보·진단 보고서용 네이티브 상태 (이슈 #290)
       DebugSnapshot.register(messenger: controller.binaryMessenger)

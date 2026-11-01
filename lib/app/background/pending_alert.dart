@@ -2,6 +2,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../core/domain/alert_direction.dart';
 import '../../core/domain/alert_sound.dart';
+import '../../core/domain/vibration_pattern.dart';
 
 part 'pending_alert.freezed.dart';
 
@@ -26,6 +27,9 @@ abstract class PendingAlert with _$PendingAlert {
     /// **필수가 아니다** — 이 값이 없던 버전에서 저장된 값을 읽을 수 있고,
     /// 그때는 기본음으로 울려야 한다.
     @Default(PresetSound(SoundPreset.defaultTone)) AlertSound sound,
+
+    /// 이 장소에 지정된 진동 패턴 (#311). null 이면 기본 패턴 설정을 따름
+    VibrationPattern? vibrationPattern,
 
     /// 장소 좌표와 반경 — 알림 화면의 지도 카드용 (이슈 #142).
     ///

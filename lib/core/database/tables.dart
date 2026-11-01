@@ -32,6 +32,9 @@ class AlertPlaces extends Table {
       .map(const AlertSoundConverter())
       .withDefault(const Constant('preset:default'))();
 
+  /// 이 장소 진동 패턴 이름 (#311). null 이면 기본 패턴 설정을 따름 (기존 장소 동작 그대로)
+  TextColumn get vibrationPattern => text().nullable()();
+
   /// 알림이 활성인 시간 창 목록 (이슈 #81) — JSON 배열
   ///
   /// 기본값 `'[]'` 가 곧 "항상 활성"이다. 마이그레이션된 기존 장소가
@@ -122,6 +125,27 @@ class CustomSounds extends Table {
   IntColumn get sizeBytes => integer()();
 
   /// UTC (docs/04-CONVENTIONS.md)
+  DateTimeColumn get createdAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+/// 장소 루틴 묶음 (#315): 이름 붙인 장소 묶음. 켜짐은 저장하지 않음 (묶은 장소 상태에서 계산)
+@DataClassName('PlaceRoutineRow')
+class PlaceRoutines extends Table {
+  /// UUIDv7
+  TextColumn get id => text()();
+
+  TextColumn get name => text().withLength(min: 1, max: 50)();
+
+  /// 묶은 장소 id 목록 — JSON 배열. 값 참조라 장소를 지워도 루틴은 남음
+  TextColumn get placeIds => text().withDefault(const Constant('[]'))();
+
+  /// 켤 때 루틴 밖 장소를 모두 끄는가
+  BoolColumn get isExclusive => boolean().withDefault(const Constant(false))();
+
+  /// UTC
   DateTimeColumn get createdAt => dateTime()();
 
   @override

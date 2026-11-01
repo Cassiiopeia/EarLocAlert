@@ -34,4 +34,7 @@ abstract final class ChannelNames {
 
   /// App Store 오퍼 코드 입력 시트 (이슈 #305) — Swift `OfferCodeRedeemSheet`
   static const offerCode = '$_prefix/offer_code';
+
+  /// 자동 백업 폴더 (#314) — Kotlin·Swift `BackupFolderChannel`
+  static const backupFolder = '$_prefix/backup_folder';
 }

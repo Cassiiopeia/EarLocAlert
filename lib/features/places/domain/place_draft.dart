@@ -1,6 +1,7 @@
 import '../../../core/domain/alert_direction.dart';
 import '../../../core/domain/alert_schedule.dart';
 import '../../../core/domain/alert_sound.dart';
+import '../../../core/domain/vibration_pattern.dart';
 import 'alert_place.dart';
 
 /// 등록·편집 폼의 저장 전 값: 신규 기본값, 저장하지 않은 변경 판정 (이슈 #112)
@@ -15,6 +16,7 @@ class PlaceDraft {
     required this.soundEnabled,
     required this.sound,
     required this.schedules,
+    this.vibrationPattern,
   });
 
   // 신규 등록 기본값 (폼 초기값과 변경 판정이 함께 읽음)
@@ -37,6 +39,9 @@ class PlaceDraft {
   final AlertSound sound;
   final List<AlertSchedule> schedules;
 
+  /// null 이면 기본 패턴 설정 따름 (#311)
+  final VibrationPattern? vibrationPattern;
+
   /// 저장하지 않은 변경이 있는가
   ///
   /// 기준 2개: 편집은 원본과 다른가, 신규는 기본값에서 건드렸는가
@@ -49,7 +54,8 @@ class PlaceDraft {
           radiusMeters != defaultRadiusMeters ||
           direction != defaultDirection ||
           soundEnabled != defaultSoundEnabled ||
-          sound != AlertSound.fallback;
+          sound != AlertSound.fallback ||
+          vibrationPattern != null;
     }
 
     // 좌표는 숫자로 비교 (`37.4` <-> `37.40` 같은 값)
@@ -60,6 +66,7 @@ class PlaceDraft {
         direction != existing.direction ||
         soundEnabled != existing.soundEnabled ||
         sound != existing.sound ||
+        vibrationPattern != existing.vibrationPattern ||
         !_isSameScheduleOrder(schedules, existing.schedules);
   }
 

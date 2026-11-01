@@ -1448,4 +1448,296 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get homeStatusFixButton => '권한 확인하러 가기';
+
+  @override
+  String get settingsVibrationPatternTitle => '진동 패턴';
+
+  @override
+  String get settingsVibrationPatternSubtitle => '진동만으로 장소를 구분할 수 있게 리듬을 골라요';
+
+  @override
+  String get vibrationPatternTitle => '진동 패턴';
+
+  @override
+  String get vibrationPatternDescription =>
+      '고르면 한 번 울려 확인할 수 있어요. 진동 세기 설정이 함께 적용돼요.';
+
+  @override
+  String get vibrationPatternIosNote => '화면이 꺼져 있을 때는 리듬만 같고 세기는 일정해요.';
+
+  @override
+  String get vibrationPatternFollowDefault => '기본 설정 따르기';
+
+  @override
+  String get vibrationPatternFollowDefaultHint => '설정의 진동 패턴으로 울려요';
+
+  @override
+  String get vibrationPatternStandard => '기본';
+
+  @override
+  String get vibrationPatternDoubleTap => '톡톡';
+
+  @override
+  String get vibrationPatternTripleTap => '톡톡톡';
+
+  @override
+  String get vibrationPatternHeartbeat => '심장박동';
+
+  @override
+  String get vibrationPatternLongShort => '길게, 짧게';
+
+  @override
+  String get vibrationPatternShortLong => '짧게, 길게';
+
+  @override
+  String get vibrationPatternSos => 'SOS';
+
+  @override
+  String get vibrationPatternRapid => '연타';
+
+  @override
+  String get vibrationPatternWave => '파도';
+
+  @override
+  String get vibrationPatternCrescendo => '점점 강하게';
+
+  @override
+  String get vibrationPatternKnock => '노크';
+
+  @override
+  String get vibrationPatternWaltz => '쿵짝짝';
+
+  @override
+  String get vibrationPatternSiren => '사이렌';
+
+  @override
+  String get vibrationPatternLongPulse => '길게 한 번';
+
+  @override
+  String get placeFormVibrationTitle => '진동';
+
+  @override
+  String get placeFormVibrationPatternLabel => '진동 패턴';
+
+  @override
+  String get proRowVibrationPattern => '진동 패턴';
+
+  @override
+  String proValueAllPatterns(int count) {
+    return '$count가지';
+  }
+
+  @override
+  String get proLockedVibrationPatterns => '모든 진동 패턴';
+
+  @override
+  String get vibrationPatternDone => '완료';
+
+  @override
+  String get proValueDefaultPattern => '기본 1개';
+
+  @override
+  String get settingsHistoryTitle => '도착 기록';
+
+  @override
+  String get settingsHistorySubtitle => '언제 어디서 알림이 울렸는지 봐요';
+
+  @override
+  String get historyTitle => '도착 기록';
+
+  @override
+  String get historyEmpty => '아직 울린 알림이 없어요. 장소에 도착하거나 떠나면 여기에 남아요.';
+
+  @override
+  String get historyRetentionNote => '최근 90일 기록만 이 기기에 보관해요';
+
+  @override
+  String get historyArrived => '도착';
+
+  @override
+  String get historyDeparted => '출발';
+
+  @override
+  String get historyDeletedPlace => '삭제된 장소';
+
+  @override
+  String get historyToday => '오늘';
+
+  @override
+  String get historyYesterday => '어제';
+
+  @override
+  String historyDate(int month, int day) {
+    return '$month월 $day일';
+  }
+
+  @override
+  String get historyAllPlaces => '전체';
+
+  @override
+  String historySummaryTitle(int days) {
+    return '최근 $days일';
+  }
+
+  @override
+  String get historyArrivalCountTitle => '도착 알림';
+
+  @override
+  String get historyDepartureCountTitle => '출발 알림';
+
+  @override
+  String get historyTopPlaceTitle => '가장 자주 울린 장소';
+
+  @override
+  String historyCount(int count) {
+    return '$count회';
+  }
+
+  @override
+  String get proRowHistory => '도착 기록';
+
+  @override
+  String get proValueRecentHistory => '최근 3건';
+
+  @override
+  String get proValueFullHistory => '90일 + 요약';
+
+  @override
+  String get proLockedHistory => '전체 기록과 요약';
+
+  @override
+  String get autoBackupTitle => '자동 백업';
+
+  @override
+  String get autoBackupDescription =>
+      '고른 폴더에 장소를 바꿀 때마다 백업 파일을 새로 써요. iCloud Drive 같은 곳을 고르면 앱을 지워도 남아요.';
+
+  @override
+  String get autoBackupOff => '꺼짐 · 폴더를 고르면 켜져요';
+
+  @override
+  String autoBackupOnNever(String folder) {
+    return '$folder · 아직 백업 전';
+  }
+
+  @override
+  String autoBackupOnLast(String folder, String time) {
+    return '$folder · 마지막 $time';
+  }
+
+  @override
+  String get autoBackupFolderTitle => '백업 폴더';
+
+  @override
+  String get autoBackupNoFolder => '고르지 않음';
+
+  @override
+  String get autoBackupLastTitle => '마지막 백업';
+
+  @override
+  String get autoBackupNever => '아직 없음';
+
+  @override
+  String get autoBackupRestoreHint =>
+      '복원할 때는 장소 불러오기에서 earlocalert-places-auto.json 파일을 고르면 돼요.';
+
+  @override
+  String get autoBackupChooseFolder => '폴더 고르기';
+
+  @override
+  String get autoBackupNow => '지금 백업하기';
+
+  @override
+  String get autoBackupTurnOff => '자동 백업 끄기';
+
+  @override
+  String get autoBackupDone => '백업했어요';
+
+  @override
+  String get autoBackupFailed => '백업하지 못했어요. 폴더를 다시 골라 주세요';
+
+  @override
+  String get routineTitle => '루틴';
+
+  @override
+  String get settingsRoutineSubtitle => '장소 여러 개를 묶어 한 번에 켜고 꺼요';
+
+  @override
+  String get routineDescription => '출근길처럼 함께 쓰는 장소를 묶어 두면 홈에서 한 번에 켜고 끌 수 있어요.';
+
+  @override
+  String get routineAdd => '루틴 만들기';
+
+  @override
+  String get routineManage => '루틴 관리';
+
+  @override
+  String get routineNoPlaces => '장소 없음';
+
+  @override
+  String routinePlaceCount(int count) {
+    return '장소 $count개';
+  }
+
+  @override
+  String get routineExclusiveShort => '나머지 끄기';
+
+  @override
+  String get routineExampleCommute => '출근길';
+
+  @override
+  String get routineExampleHome => '퇴근길';
+
+  @override
+  String get routineNewTitle => '루틴 만들기';
+
+  @override
+  String get routineEditTitle => '루틴 고치기';
+
+  @override
+  String get routineNameLabel => '이름';
+
+  @override
+  String get routineNameRequired => '이름을 적어 주세요';
+
+  @override
+  String get routinePlacesRequired => '장소를 하나 이상 골라 주세요';
+
+  @override
+  String get routineSaveFailed => '저장하지 못했어요. 다시 해 주세요';
+
+  @override
+  String get routineExclusiveTitle => '켜면 나머지 장소는 끄기';
+
+  @override
+  String get routineExclusiveSubtitle => '출근 모드처럼 이 루틴 장소만 울리게 해요';
+
+  @override
+  String routinePlacesHeader(int count) {
+    return '묶을 장소 ($count개 고름)';
+  }
+
+  @override
+  String get routineNoPlacesYet => '아직 등록한 장소가 없어요. 장소를 먼저 등록해 주세요.';
+
+  @override
+  String get routineSave => '저장';
+
+  @override
+  String get routineDelete => '루틴 지우기';
+
+  @override
+  String get routineDeleteTitle => '이 루틴을 지울까요?';
+
+  @override
+  String get routineDeleteBody => '묶은 장소는 지워지지 않아요.';
+
+  @override
+  String get routineCancel => '취소';
+
+  @override
+  String get proRowRoutines => '루틴 묶음';
+
+  @override
+  String get proLockedRoutines => '루틴으로 장소 묶기';
 }

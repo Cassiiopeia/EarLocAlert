@@ -21,6 +21,9 @@ abstract interface class PlaceRepository {
   /// 활성/비활성 토글 (F1.7)
   Future<void> setEnabled(String id, {required bool enabled});
 
+  /// 여러 장소 켜기·끄기를 한 번에 (#315 루틴). 감시 동기화가 한 번만 돌게 한 트랜잭션
+  Future<void> setEnabledMany(Map<String, bool> enabledById);
+
   /// 등록 개수 — iOS 20개 제한 확인에 쓴다 (docs/05-PLATFORM.md)
   Future<int> count();
 

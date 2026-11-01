@@ -2765,6 +2765,552 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'권한 확인하러 가기'**
   String get homeStatusFixButton;
+
+  /// No description provided for @settingsVibrationPatternTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'진동 패턴'**
+  String get settingsVibrationPatternTitle;
+
+  /// No description provided for @settingsVibrationPatternSubtitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'진동만으로 장소를 구분할 수 있게 리듬을 골라요'**
+  String get settingsVibrationPatternSubtitle;
+
+  /// No description provided for @vibrationPatternTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'진동 패턴'**
+  String get vibrationPatternTitle;
+
+  /// No description provided for @vibrationPatternDescription.
+  ///
+  /// In ko, this message translates to:
+  /// **'고르면 한 번 울려 확인할 수 있어요. 진동 세기 설정이 함께 적용돼요.'**
+  String get vibrationPatternDescription;
+
+  /// No description provided for @vibrationPatternIosNote.
+  ///
+  /// In ko, this message translates to:
+  /// **'화면이 꺼져 있을 때는 리듬만 같고 세기는 일정해요.'**
+  String get vibrationPatternIosNote;
+
+  /// No description provided for @vibrationPatternFollowDefault.
+  ///
+  /// In ko, this message translates to:
+  /// **'기본 설정 따르기'**
+  String get vibrationPatternFollowDefault;
+
+  /// No description provided for @vibrationPatternFollowDefaultHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'설정의 진동 패턴으로 울려요'**
+  String get vibrationPatternFollowDefaultHint;
+
+  /// No description provided for @vibrationPatternStandard.
+  ///
+  /// In ko, this message translates to:
+  /// **'기본'**
+  String get vibrationPatternStandard;
+
+  /// No description provided for @vibrationPatternDoubleTap.
+  ///
+  /// In ko, this message translates to:
+  /// **'톡톡'**
+  String get vibrationPatternDoubleTap;
+
+  /// No description provided for @vibrationPatternTripleTap.
+  ///
+  /// In ko, this message translates to:
+  /// **'톡톡톡'**
+  String get vibrationPatternTripleTap;
+
+  /// No description provided for @vibrationPatternHeartbeat.
+  ///
+  /// In ko, this message translates to:
+  /// **'심장박동'**
+  String get vibrationPatternHeartbeat;
+
+  /// No description provided for @vibrationPatternLongShort.
+  ///
+  /// In ko, this message translates to:
+  /// **'길게, 짧게'**
+  String get vibrationPatternLongShort;
+
+  /// No description provided for @vibrationPatternShortLong.
+  ///
+  /// In ko, this message translates to:
+  /// **'짧게, 길게'**
+  String get vibrationPatternShortLong;
+
+  /// No description provided for @vibrationPatternSos.
+  ///
+  /// In ko, this message translates to:
+  /// **'SOS'**
+  String get vibrationPatternSos;
+
+  /// No description provided for @vibrationPatternRapid.
+  ///
+  /// In ko, this message translates to:
+  /// **'연타'**
+  String get vibrationPatternRapid;
+
+  /// No description provided for @vibrationPatternWave.
+  ///
+  /// In ko, this message translates to:
+  /// **'파도'**
+  String get vibrationPatternWave;
+
+  /// No description provided for @vibrationPatternCrescendo.
+  ///
+  /// In ko, this message translates to:
+  /// **'점점 강하게'**
+  String get vibrationPatternCrescendo;
+
+  /// No description provided for @vibrationPatternKnock.
+  ///
+  /// In ko, this message translates to:
+  /// **'노크'**
+  String get vibrationPatternKnock;
+
+  /// No description provided for @vibrationPatternWaltz.
+  ///
+  /// In ko, this message translates to:
+  /// **'쿵짝짝'**
+  String get vibrationPatternWaltz;
+
+  /// No description provided for @vibrationPatternSiren.
+  ///
+  /// In ko, this message translates to:
+  /// **'사이렌'**
+  String get vibrationPatternSiren;
+
+  /// No description provided for @vibrationPatternLongPulse.
+  ///
+  /// In ko, this message translates to:
+  /// **'길게 한 번'**
+  String get vibrationPatternLongPulse;
+
+  /// No description provided for @placeFormVibrationTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'진동'**
+  String get placeFormVibrationTitle;
+
+  /// No description provided for @placeFormVibrationPatternLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'진동 패턴'**
+  String get placeFormVibrationPatternLabel;
+
+  /// No description provided for @proRowVibrationPattern.
+  ///
+  /// In ko, this message translates to:
+  /// **'진동 패턴'**
+  String get proRowVibrationPattern;
+
+  /// No description provided for @proValueAllPatterns.
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}가지'**
+  String proValueAllPatterns(int count);
+
+  /// No description provided for @proLockedVibrationPatterns.
+  ///
+  /// In ko, this message translates to:
+  /// **'모든 진동 패턴'**
+  String get proLockedVibrationPatterns;
+
+  /// No description provided for @vibrationPatternDone.
+  ///
+  /// In ko, this message translates to:
+  /// **'완료'**
+  String get vibrationPatternDone;
+
+  /// No description provided for @proValueDefaultPattern.
+  ///
+  /// In ko, this message translates to:
+  /// **'기본 1개'**
+  String get proValueDefaultPattern;
+
+  /// No description provided for @settingsHistoryTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'도착 기록'**
+  String get settingsHistoryTitle;
+
+  /// No description provided for @settingsHistorySubtitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'언제 어디서 알림이 울렸는지 봐요'**
+  String get settingsHistorySubtitle;
+
+  /// No description provided for @historyTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'도착 기록'**
+  String get historyTitle;
+
+  /// No description provided for @historyEmpty.
+  ///
+  /// In ko, this message translates to:
+  /// **'아직 울린 알림이 없어요. 장소에 도착하거나 떠나면 여기에 남아요.'**
+  String get historyEmpty;
+
+  /// No description provided for @historyRetentionNote.
+  ///
+  /// In ko, this message translates to:
+  /// **'최근 90일 기록만 이 기기에 보관해요'**
+  String get historyRetentionNote;
+
+  /// No description provided for @historyArrived.
+  ///
+  /// In ko, this message translates to:
+  /// **'도착'**
+  String get historyArrived;
+
+  /// No description provided for @historyDeparted.
+  ///
+  /// In ko, this message translates to:
+  /// **'출발'**
+  String get historyDeparted;
+
+  /// No description provided for @historyDeletedPlace.
+  ///
+  /// In ko, this message translates to:
+  /// **'삭제된 장소'**
+  String get historyDeletedPlace;
+
+  /// No description provided for @historyToday.
+  ///
+  /// In ko, this message translates to:
+  /// **'오늘'**
+  String get historyToday;
+
+  /// No description provided for @historyYesterday.
+  ///
+  /// In ko, this message translates to:
+  /// **'어제'**
+  String get historyYesterday;
+
+  /// No description provided for @historyDate.
+  ///
+  /// In ko, this message translates to:
+  /// **'{month}월 {day}일'**
+  String historyDate(int month, int day);
+
+  /// No description provided for @historyAllPlaces.
+  ///
+  /// In ko, this message translates to:
+  /// **'전체'**
+  String get historyAllPlaces;
+
+  /// No description provided for @historySummaryTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'최근 {days}일'**
+  String historySummaryTitle(int days);
+
+  /// No description provided for @historyArrivalCountTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'도착 알림'**
+  String get historyArrivalCountTitle;
+
+  /// No description provided for @historyDepartureCountTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'출발 알림'**
+  String get historyDepartureCountTitle;
+
+  /// No description provided for @historyTopPlaceTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'가장 자주 울린 장소'**
+  String get historyTopPlaceTitle;
+
+  /// No description provided for @historyCount.
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}회'**
+  String historyCount(int count);
+
+  /// No description provided for @proRowHistory.
+  ///
+  /// In ko, this message translates to:
+  /// **'도착 기록'**
+  String get proRowHistory;
+
+  /// No description provided for @proValueRecentHistory.
+  ///
+  /// In ko, this message translates to:
+  /// **'최근 3건'**
+  String get proValueRecentHistory;
+
+  /// No description provided for @proValueFullHistory.
+  ///
+  /// In ko, this message translates to:
+  /// **'90일 + 요약'**
+  String get proValueFullHistory;
+
+  /// No description provided for @proLockedHistory.
+  ///
+  /// In ko, this message translates to:
+  /// **'전체 기록과 요약'**
+  String get proLockedHistory;
+
+  /// No description provided for @autoBackupTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'자동 백업'**
+  String get autoBackupTitle;
+
+  /// No description provided for @autoBackupDescription.
+  ///
+  /// In ko, this message translates to:
+  /// **'고른 폴더에 장소를 바꿀 때마다 백업 파일을 새로 써요. iCloud Drive 같은 곳을 고르면 앱을 지워도 남아요.'**
+  String get autoBackupDescription;
+
+  /// No description provided for @autoBackupOff.
+  ///
+  /// In ko, this message translates to:
+  /// **'꺼짐 · 폴더를 고르면 켜져요'**
+  String get autoBackupOff;
+
+  /// No description provided for @autoBackupOnNever.
+  ///
+  /// In ko, this message translates to:
+  /// **'{folder} · 아직 백업 전'**
+  String autoBackupOnNever(String folder);
+
+  /// No description provided for @autoBackupOnLast.
+  ///
+  /// In ko, this message translates to:
+  /// **'{folder} · 마지막 {time}'**
+  String autoBackupOnLast(String folder, String time);
+
+  /// No description provided for @autoBackupFolderTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'백업 폴더'**
+  String get autoBackupFolderTitle;
+
+  /// No description provided for @autoBackupNoFolder.
+  ///
+  /// In ko, this message translates to:
+  /// **'고르지 않음'**
+  String get autoBackupNoFolder;
+
+  /// No description provided for @autoBackupLastTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'마지막 백업'**
+  String get autoBackupLastTitle;
+
+  /// No description provided for @autoBackupNever.
+  ///
+  /// In ko, this message translates to:
+  /// **'아직 없음'**
+  String get autoBackupNever;
+
+  /// No description provided for @autoBackupRestoreHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'복원할 때는 장소 불러오기에서 earlocalert-places-auto.json 파일을 고르면 돼요.'**
+  String get autoBackupRestoreHint;
+
+  /// No description provided for @autoBackupChooseFolder.
+  ///
+  /// In ko, this message translates to:
+  /// **'폴더 고르기'**
+  String get autoBackupChooseFolder;
+
+  /// No description provided for @autoBackupNow.
+  ///
+  /// In ko, this message translates to:
+  /// **'지금 백업하기'**
+  String get autoBackupNow;
+
+  /// No description provided for @autoBackupTurnOff.
+  ///
+  /// In ko, this message translates to:
+  /// **'자동 백업 끄기'**
+  String get autoBackupTurnOff;
+
+  /// No description provided for @autoBackupDone.
+  ///
+  /// In ko, this message translates to:
+  /// **'백업했어요'**
+  String get autoBackupDone;
+
+  /// No description provided for @autoBackupFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'백업하지 못했어요. 폴더를 다시 골라 주세요'**
+  String get autoBackupFailed;
+
+  /// No description provided for @routineTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'루틴'**
+  String get routineTitle;
+
+  /// No description provided for @settingsRoutineSubtitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'장소 여러 개를 묶어 한 번에 켜고 꺼요'**
+  String get settingsRoutineSubtitle;
+
+  /// No description provided for @routineDescription.
+  ///
+  /// In ko, this message translates to:
+  /// **'출근길처럼 함께 쓰는 장소를 묶어 두면 홈에서 한 번에 켜고 끌 수 있어요.'**
+  String get routineDescription;
+
+  /// No description provided for @routineAdd.
+  ///
+  /// In ko, this message translates to:
+  /// **'루틴 만들기'**
+  String get routineAdd;
+
+  /// No description provided for @routineManage.
+  ///
+  /// In ko, this message translates to:
+  /// **'루틴 관리'**
+  String get routineManage;
+
+  /// No description provided for @routineNoPlaces.
+  ///
+  /// In ko, this message translates to:
+  /// **'장소 없음'**
+  String get routineNoPlaces;
+
+  /// No description provided for @routinePlaceCount.
+  ///
+  /// In ko, this message translates to:
+  /// **'장소 {count}개'**
+  String routinePlaceCount(int count);
+
+  /// No description provided for @routineExclusiveShort.
+  ///
+  /// In ko, this message translates to:
+  /// **'나머지 끄기'**
+  String get routineExclusiveShort;
+
+  /// No description provided for @routineExampleCommute.
+  ///
+  /// In ko, this message translates to:
+  /// **'출근길'**
+  String get routineExampleCommute;
+
+  /// No description provided for @routineExampleHome.
+  ///
+  /// In ko, this message translates to:
+  /// **'퇴근길'**
+  String get routineExampleHome;
+
+  /// No description provided for @routineNewTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'루틴 만들기'**
+  String get routineNewTitle;
+
+  /// No description provided for @routineEditTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'루틴 고치기'**
+  String get routineEditTitle;
+
+  /// No description provided for @routineNameLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'이름'**
+  String get routineNameLabel;
+
+  /// No description provided for @routineNameRequired.
+  ///
+  /// In ko, this message translates to:
+  /// **'이름을 적어 주세요'**
+  String get routineNameRequired;
+
+  /// No description provided for @routinePlacesRequired.
+  ///
+  /// In ko, this message translates to:
+  /// **'장소를 하나 이상 골라 주세요'**
+  String get routinePlacesRequired;
+
+  /// No description provided for @routineSaveFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'저장하지 못했어요. 다시 해 주세요'**
+  String get routineSaveFailed;
+
+  /// No description provided for @routineExclusiveTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'켜면 나머지 장소는 끄기'**
+  String get routineExclusiveTitle;
+
+  /// No description provided for @routineExclusiveSubtitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'출근 모드처럼 이 루틴 장소만 울리게 해요'**
+  String get routineExclusiveSubtitle;
+
+  /// No description provided for @routinePlacesHeader.
+  ///
+  /// In ko, this message translates to:
+  /// **'묶을 장소 ({count}개 고름)'**
+  String routinePlacesHeader(int count);
+
+  /// No description provided for @routineNoPlacesYet.
+  ///
+  /// In ko, this message translates to:
+  /// **'아직 등록한 장소가 없어요. 장소를 먼저 등록해 주세요.'**
+  String get routineNoPlacesYet;
+
+  /// No description provided for @routineSave.
+  ///
+  /// In ko, this message translates to:
+  /// **'저장'**
+  String get routineSave;
+
+  /// No description provided for @routineDelete.
+  ///
+  /// In ko, this message translates to:
+  /// **'루틴 지우기'**
+  String get routineDelete;
+
+  /// No description provided for @routineDeleteTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 루틴을 지울까요?'**
+  String get routineDeleteTitle;
+
+  /// No description provided for @routineDeleteBody.
+  ///
+  /// In ko, this message translates to:
+  /// **'묶은 장소는 지워지지 않아요.'**
+  String get routineDeleteBody;
+
+  /// No description provided for @routineCancel.
+  ///
+  /// In ko, this message translates to:
+  /// **'취소'**
+  String get routineCancel;
+
+  /// No description provided for @proRowRoutines.
+  ///
+  /// In ko, this message translates to:
+  /// **'루틴 묶음'**
+  String get proRowRoutines;
+
+  /// No description provided for @proLockedRoutines.
+  ///
+  /// In ko, this message translates to:
+  /// **'루틴으로 장소 묶기'**
+  String get proLockedRoutines;
 }
 
 class _AppLocalizationsDelegate

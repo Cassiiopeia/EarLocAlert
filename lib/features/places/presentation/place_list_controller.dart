@@ -7,6 +7,7 @@ import '../data/place_repository_provider.dart';
 import '../../../core/domain/alert_direction.dart';
 import '../../../core/domain/alert_schedule.dart';
 import '../../../core/domain/alert_sound.dart';
+import '../../../core/domain/vibration_pattern.dart';
 import '../../../core/domain/id_generator.dart';
 import '../../../core/entitlement/feature_access_controller.dart';
 import '../domain/alert_place.dart';
@@ -41,6 +42,9 @@ class PlaceActions extends _$PlaceActions {
 
     /// 이 장소에 쓸 알림음 (이슈 #121)
     AlertSound sound = AlertSound.fallback,
+
+    /// 이 장소 진동 패턴 (#311). null 이면 기본 패턴 설정 따름
+    VibrationPattern? vibrationPattern,
   }) async {
     final repo = ref.read(placeRepositoryProvider);
     final isNew = id == null;
@@ -75,6 +79,7 @@ class PlaceActions extends _$PlaceActions {
         direction: direction,
         soundEnabled: soundEnabled,
         sound: sound,
+        vibrationPattern: vibrationPattern,
         schedules: schedules,
         enabled: existing?.enabled ?? true,
         createdAt: existing?.createdAt ?? DateTime.now().toUtc(),
@@ -91,6 +96,7 @@ class PlaceActions extends _$PlaceActions {
           'lat=$latitude lng=$longitude radius=${radiusMeters}m '
           'direction=${direction.name} sound=$soundEnabled '
           'tone=${sound.storageValue} '
+          'vibration=${vibrationPattern?.name ?? "default"} '
           'schedules=${schedules.length}',
     );
     return const [];

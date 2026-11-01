@@ -13,6 +13,7 @@ class _PlaceSheet extends ConsumerWidget {
     required this.onAddPlace,
     this.onEditPlace,
     this.onUnlockPro,
+    this.onManageRoutines,
   });
 
   final ScrollController scrollController;
@@ -26,8 +27,12 @@ class _PlaceSheet extends ConsumerWidget {
   /// 무료 상한으로 추가가 잠겼을 때만 non-null (#294) — 목록 끝에 흐린 예시
   final VoidCallback? onUnlockPro;
 
+  /// 루틴 관리 (#315). null 이면 루틴 칩 줄 숨김
+  final VoidCallback? onManageRoutines;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final manageRoutines = onManageRoutines;
     return Container(
       decoration: BoxDecoration(
         color: context.appColors.background,
@@ -49,6 +54,12 @@ class _PlaceSheet extends ConsumerWidget {
               ),
             ),
           ),
+          // 루틴 칩 줄 (#315) — 루틴이 있을 때만, 장소 목록 바로 위
+          if (manageRoutines != null && places.isNotEmpty)
+            PlaceRoutineChipBar(
+              places: places,
+              onManageRoutines: manageRoutines,
+            ),
           Expanded(child: _buildPlaceListOrEmptyState(context, ref)),
         ],
       ),

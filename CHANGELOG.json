@@ -1,14 +1,42 @@
 {
   "metadata": {
-    "lastUpdated": "2026-10-29T07:56:27Z",
-    "currentVersion": "1.44.0",
+    "lastUpdated": "2026-11-01T12:42:30Z",
+    "currentVersion": "1.45.0",
     "projectType": "flutter",
-    "totalReleases": 117,
+    "totalReleases": 118,
     "projectTypes": [
       "flutter"
     ]
   },
   "releases": [
+    {
+      "version": "1.45.0",
+      "project_type": "flutter",
+      "project_types": [
+        "flutter"
+      ],
+      "date": "2026-11-01",
+      "pr_number": 320,
+      "raw_summary": "## Summary by CodeRabbit\n\n## 릴리스 노트\n\n* **새 기능**\n  * 프로 이용권으로 진동 패턴 14종을 고를 수 있어요\n  * 설정에서 지난 도착·출발 알림 기록을 날짜별로 볼 수 있어요\n  * 고른 폴더에 장소가 자동으로 백업돼요\n  * 장소 여러 개를 루틴으로 묶어 한 번에 켜고 끌 수 있어요\n\n* **개선**\n  * Play 스토어 출시 노트가 iOS와 같은 영어 문구로 올라가요",
+      "parsed_changes": {
+        "새_기능": {
+          "title": "새 기능",
+          "items": [
+            "프로 이용권으로 진동 패턴 14종을 고를 수 있어요",
+            "설정에서 지난 도착·출발 알림 기록을 날짜별로 볼 수 있어요",
+            "고른 폴더에 장소가 자동으로 백업돼요",
+            "장소 여러 개를 루틴으로 묶어 한 번에 켜고 끌 수 있어요"
+          ]
+        },
+        "개선": {
+          "title": "개선",
+          "items": [
+            "Play 스토어 출시 노트가 iOS와 같은 영어 문구로 올라가요"
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "1.44.0",
       "project_type": "flutter",

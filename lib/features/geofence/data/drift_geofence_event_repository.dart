@@ -38,6 +38,23 @@ class DriftGeofenceEventRepository implements GeofenceEventRepository {
   }
 
   @override
+  Future<List<GeofenceEvent>> findNotified({
+    required DateTime sinceUtc,
+    int limit = 1000,
+  }) async {
+    final query = _db.select(_db.geofenceEvents)
+      ..where(
+        (t) =>
+            t.notified.equals(true) &
+            t.occurredAt.isBiggerOrEqualValue(sinceUtc.toUtc()),
+      )
+      ..orderBy([(t) => OrderingTerm.desc(t.occurredAt)])
+      ..limit(limit);
+    final rows = await query.get();
+    return rows.map(_toDomain).toList();
+  }
+
+  @override
   Future<List<GeofenceEvent>> findByPlace(
     String placeId, {
     int limit = 100,

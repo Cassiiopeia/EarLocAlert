@@ -15,6 +15,15 @@ import io.flutter.plugins.googlemobileads.GoogleMobileAdsPlugin
 
 class MainActivity : FlutterActivity() {
 
+    /** 자동 백업 폴더 채널 (#314) — 폴더 고르기 결과를 onActivityResult 로 받음 */
+    private val backupFolder by lazy { BackupFolderChannel(this) }
+
+    @Deprecated("FlutterActivity 가 아직 Activity Result API 로 옮기지 않아 같은 방식을 씀")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (backupFolder.onActivityResult(requestCode, resultCode, data)) return
+        super.onActivityResult(requestCode, resultCode, data)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -32,6 +41,9 @@ class MainActivity : FlutterActivity() {
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
+
+        // 자동 백업 폴더 (#314)
+        backupFolder.register(flutterEngine.dartExecutor.binaryMessenger)
 
         // 하단 한 줄 광고 띠 팩토리 (이슈 #283). Dart NativeAd 의 factoryId 가 이 이름을 찾는다
         // (GoogleNativeStripAdLoader.factoryId 와 같은 값). 엔진 수명과 함께 등록·해제

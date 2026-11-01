@@ -10,6 +10,12 @@ abstract interface class GeofenceEventRepository {
   /// 최근 이력 (발생 시각 내림차순)
   Future<List<GeofenceEvent>> findRecent({int limit = 100});
 
+  /// 실제로 알림이 울린 이력 (#313 도착 기록): [sinceUtc] 이후, 발생 시각 내림차순
+  Future<List<GeofenceEvent>> findNotified({
+    required DateTime sinceUtc,
+    int limit = 1000,
+  });
+
   /// 특정 장소의 이력
   Future<List<GeofenceEvent>> findByPlace(String placeId, {int limit = 100});
 

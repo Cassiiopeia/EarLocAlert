@@ -7,6 +7,7 @@ import 'alert_strings.dart';
 import 'alert_session.dart';
 import 'audio_route.dart';
 import 'vibration_intensity.dart';
+import 'vibration_waveform.dart';
 
 /// 알림 발화 요청 — feature 간 값 전달 (docs/02-ARCHITECTURE.md 규칙 1)
 ///
@@ -19,6 +20,7 @@ class AlertRequest {
     required this.soundEnabled,
     required this.occurredAt,
     this.soundSource,
+    this.vibrationPattern,
     this.latitude,
     this.longitude,
     this.radiusMeters,
@@ -39,6 +41,9 @@ class AlertRequest {
   /// 실제로 있는지를 여기서 판단하지 않는다 (규칙 1).
   /// `null` 이면 기본 음원이다.
   final AlertSoundSource? soundSource;
+
+  /// 이 장소에 지정된 진동 패턴 (#311). null 이면 기본 패턴 설정을 따름
+  final VibrationPattern? vibrationPattern;
 
   /// 장소 좌표와 반경 — 알림 화면이 지도를 그리는 데 쓴다 (이슈 #142).
   ///
@@ -62,6 +67,7 @@ class AlertController {
     required AlertVolumeStore volumeStore,
     required SystemVolumeService systemVolume,
     VibrationIntensityStore? vibrationStore,
+    VibrationPatternStore? vibrationPatternStore,
     bool Function()? needsSilentKeepAlive,
   }) : _needsSilentKeepAlive = needsSilentKeepAlive ?? (() => false),
        _vibration = vibration,
@@ -70,7 +76,8 @@ class AlertController {
        _routeDecider = routeDecider,
        _volumeStore = volumeStore,
        _systemVolume = systemVolume,
-       _vibrationStore = vibrationStore;
+       _vibrationStore = vibrationStore,
+       _vibrationPatternStore = vibrationPatternStore;
 
   final VibrationService _vibration;
 
@@ -88,6 +95,9 @@ class AlertController {
   /// 없으면 기본 세기로 돈다 — 설정 하나를 못 읽었다고 알림이 멎으면 안
   /// 된다. 기존 테스트가 이 인자 없이 컨트롤러를 만들 수 있게도 한다.
   final VibrationIntensityStore? _vibrationStore;
+
+  /// 기본 진동 패턴 설정 (#311). 없거나 못 읽으면 기본 진동
+  final VibrationPatternStore? _vibrationPatternStore;
 
   AlertSession? _current;
   final List<AlertRequest> _queue = [];
@@ -169,16 +179,33 @@ class AlertController {
     }
   }
 
+  /// 이번 세션 패턴: 장소 지정 > 기본 패턴 설정 > 기본 진동 (#311). 실패해도 진동은 돈다
+  Future<VibrationPattern> _resolvePattern(AlertRequest request) async {
+    final placePattern = request.vibrationPattern;
+    if (placePattern != null) return placePattern;
+    final store = _vibrationPatternStore;
+    if (store == null) return VibrationPattern.standard;
+    try {
+      return await store.pattern();
+    } on Object catch (error) {
+      Diagnostics.log('alert', 'vibration pattern read failed error=$error');
+      return VibrationPattern.standard;
+    }
+  }
+
   Future<AlertSession> _start(
     AlertRequest request, {
     required Duration vibrationInterval,
   }) async {
     final intensity = await _readIntensity();
+    final pattern = await _resolvePattern(request);
     Diagnostics.log(
       'alert',
       'session start place=${request.placeName} '
           'direction=${request.direction.name} '
           'sound=${request.soundEnabled} vibration=${intensity.name} '
+          'pattern=${pattern.name} '
+          'pattern_source=${request.vibrationPattern == null ? "default" : "place"} '
           // 발화 시점의 음원을 남긴다 (이슈 #127) — 오디오 판정 로그만
           // 있으면 이어폰이 없을 때 무엇으로 울리려 했는지 알 수 없다
           'source=${_describeSource(request.soundSource)}',
@@ -188,6 +215,7 @@ class AlertController {
     await _vibration.startRepeating(
       interval: vibrationInterval,
       intensity: intensity,
+      waveform: VibrationWaveform.build(pattern, intensity),
     );
     // 문구 조회는 던지지 않는다 — 실패해도 알림은 나가야 한다
     final strings = await resolveAlertStrings();

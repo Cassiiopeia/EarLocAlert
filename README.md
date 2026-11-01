@@ -2,7 +2,7 @@
 
 <!-- Do not edit: synced automatically (수정하지마세요 자동으로 동기화 됩니다) -->
 <!-- AUTO-VERSION-SECTION: DO NOT EDIT MANUALLY -->
-## Latest Version : v1.44.0 (2026-10-29)
+## Latest Version : v1.45.0 (2026-11-01)
 
 **English** · [한국어](README.ko.md) · [日本語](README.ja.md) · [简体中文](README.zh-CN.md)
 

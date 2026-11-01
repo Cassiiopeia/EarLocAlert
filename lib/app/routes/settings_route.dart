@@ -3,6 +3,35 @@ part of '../router.dart';
 // 설정 라우트와 권한 줄 조립, 진동 시험·신뢰도 재권유
 
 /// 진단 기록 라우트: 앱 상태 수집기를 화면에 값으로 넘김 (이슈 #290)
+/// 도착 기록 (#313): 이력 + 장소 이름은 app 이 묶어 값으로 내려줌. 무료는 일부만
+class _ArrivalHistoryRoute extends ConsumerWidget {
+  const _ArrivalHistoryRoute();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) => ArrivalHistoryScreen(
+    records: ref.watch(arrivalHistoryProvider).valueOrNull,
+    isLocked: !ref.watch(featureAccessControllerProvider).canViewFullHistory,
+    onUnlockPro: () =>
+        unawaited(showProOfferSheet(context, entryPoint: 'history')),
+    onRefresh: () => ref.refresh(arrivalHistoryProvider.future),
+  );
+}
+
+/// 루틴 목록 (#315): 만들기는 프로, 이미 만든 루틴은 무료여도 켜고 끔
+class _PlaceRoutineListRoute extends ConsumerWidget {
+  const _PlaceRoutineListRoute();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) => PlaceRoutineListScreen(
+    isLocked: !ref.watch(featureAccessControllerProvider).canUseRoutines,
+    onUnlockPro: () =>
+        unawaited(showProOfferSheet(context, entryPoint: 'routines')),
+    onAddRoutine: () => context.push(AppRoutes.routineEdit),
+    onEditRoutine: (routine) =>
+        context.push(AppRoutes.routineEdit, extra: routine),
+  );
+}
+
 class _DiagnosticsRoute extends ConsumerWidget {
   const _DiagnosticsRoute();
 
@@ -154,7 +183,19 @@ class _SettingsRouteState extends ConsumerState<_SettingsRoute>
       onOpenVolumeSettings: () => showAlertVolumeSheet(context),
       // 진동 세기 (이슈 #103) — 이어폰이 없을 때 유일한 알림 수단이다
       onOpenVibrationSettings: () => showVibrationIntensitySheet(context),
+      // 기본 진동 패턴 (#311) — 무료는 기본만, 나머지는 프로 안내
+      onOpenVibrationPatternSettings: () => showDefaultVibrationPatternSheet(
+        context,
+        ref,
+        onUnlockPro: () => unawaited(
+          showProOfferSheet(context, entryPoint: 'vibration_pattern'),
+        ),
+      ),
       onOpenDiagnostics: () => context.push(AppRoutes.diagnostics),
+      // 도착 기록 (#313)
+      onOpenArrivalHistory: () => context.push(AppRoutes.arrivalHistory),
+      // 루틴 (#315)
+      onOpenRoutines: () => context.push(AppRoutes.routines),
       // 장소 내보내기·불러오기 (이슈 #256)
       onExportPlaces: () => exportPlacesBackup(
         context,
@@ -165,6 +206,17 @@ class _SettingsRouteState extends ConsumerState<_SettingsRoute>
         context,
         repository: ref.read(placeRepositoryProvider),
         maxPlaces: ref.read(featureAccessControllerProvider).placeLimit,
+      ),
+      // 자동 백업 (#314) — 수동 백업과 같은 잠금 묶음
+      autoBackupSubtitle: autoBackupSubtitle(
+        context.l10n,
+        ref.watch(autoBackupStatusProvider).valueOrNull,
+      ),
+      onOpenAutoBackup: () => showAutoBackupSheet(
+        context,
+        onBackupNow: () => ref
+            .read(autoBackupCoordinatorProvider)
+            .runNow(reason: 'manual', force: true),
       ),
       // 무료/프로 (#294) — 맨 위 카드와 백업 잠금
       planCard: ProSettingsCard(
