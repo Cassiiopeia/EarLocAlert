@@ -73,6 +73,7 @@ class SettingsScreen extends StatelessWidget {
     required this.onOpenVibrationSettings,
     required this.onOpenVibrationPatternSettings,
     required this.onOpenDiagnostics,
+    required this.onReplayCoachMarks,
     required this.onOpenArrivalHistory,
     required this.onOpenRoutines,
     required this.onExportPlaces,
@@ -116,6 +117,9 @@ class SettingsScreen extends StatelessWidget {
   /// 기본 진동 패턴 (#311)
   final VoidCallback onOpenVibrationPatternSettings;
   final VoidCallback onOpenDiagnostics;
+
+  /// 홈 코치마크 다시 보기 (#326)
+  final VoidCallback onReplayCoachMarks;
 
   /// 도착 기록 화면 (#313)
   final VoidCallback onOpenArrivalHistory;
@@ -359,6 +363,12 @@ class SettingsScreen extends StatelessWidget {
                   title: context.l10n.settingsThemeTitle,
                   subtitle: themePreferenceLabel(context.l10n, themePreference),
                   onTap: () => _openTheme(context),
+                ),
+                GroupedListRow.navigation(
+                  icon: Icons.help_outline,
+                  title: context.l10n.settingsCoachMarkTitle,
+                  subtitle: context.l10n.settingsCoachMarkSubtitle,
+                  onTap: onReplayCoachMarks,
                 ),
               ],
             ),

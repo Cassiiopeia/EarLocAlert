@@ -1529,7 +1529,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get vibrationPatternIosNote =>
-      'While the screen is off, only the rhythm is kept and the strength stays the same.';
+      'Due to iOS limits, vibration may not play when the app isn\'t on screen.';
 
   @override
   String get vibrationPatternFollowDefault => 'Use default setting';
@@ -1814,4 +1814,45 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get proLockedRoutines => 'Group places into routines';
+
+  @override
+  String get coachMarkStatusTitle => 'See if watching is on';
+
+  @override
+  String get coachMarkStatusBody =>
+      'When a place is turned on, it shows Watching here, along with whether earphones are connected';
+
+  @override
+  String get coachMarkAddTitle => 'Add a place';
+
+  @override
+  String get coachMarkAddBody =>
+      'Pick a spot on the map, then set the radius and when to alert (arrive or leave). Alerts come only by vibration or earphones';
+
+  @override
+  String get coachMarkSheetTitle => 'Manage your places';
+
+  @override
+  String get coachMarkSheetBody =>
+      'Use the switch to turn a place on or off, and tap it to edit. Drag up to see the full list';
+
+  @override
+  String get coachMarkNext => 'Next';
+
+  @override
+  String get coachMarkDone => 'Get started';
+
+  @override
+  String get coachMarkSkip => 'Skip';
+
+  @override
+  String coachMarkStepCounter(int current, int total) {
+    return '$current / $total';
+  }
+
+  @override
+  String get settingsCoachMarkTitle => 'Replay the tour';
+
+  @override
+  String get settingsCoachMarkSubtitle => 'Show the home screen tips again';
 }

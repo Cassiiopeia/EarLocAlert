@@ -503,7 +503,7 @@
   "settingsVibrationPatternSubtitle": "Pick a rhythm so you can tell places apart by feel",
   "vibrationPatternTitle": "Vibration pattern",
   "vibrationPatternDescription": "Pick one to feel it once. Your vibration strength applies too.",
-  "vibrationPatternIosNote": "While the screen is off, only the rhythm is kept and the strength stays the same.",
+  "vibrationPatternIosNote": "Due to iOS limits, vibration may not play when the app isn't on screen.",
   "vibrationPatternFollowDefault": "Use default setting",
   "vibrationPatternFollowDefaultHint": "Uses the pattern chosen in Settings",
   "vibrationPatternStandard": "Default",
@@ -589,5 +589,27 @@
   "routineDeleteBody": "Its places won't be deleted.",
   "routineCancel": "Cancel",
   "proRowRoutines": "Routines",
-  "proLockedRoutines": "Group places into routines"
+  "proLockedRoutines": "Group places into routines",
+  "coachMarkStatusTitle": "See if watching is on",
+  "coachMarkStatusBody": "When a place is turned on, it shows Watching here, along with whether earphones are connected",
+  "coachMarkAddTitle": "Add a place",
+  "coachMarkAddBody": "Pick a spot on the map, then set the radius and when to alert (arrive or leave). Alerts come only by vibration or earphones",
+  "coachMarkSheetTitle": "Manage your places",
+  "coachMarkSheetBody": "Use the switch to turn a place on or off, and tap it to edit. Drag up to see the full list",
+  "coachMarkNext": "Next",
+  "coachMarkDone": "Get started",
+  "coachMarkSkip": "Skip",
+  "coachMarkStepCounter": "{current} / {total}",
+  "@coachMarkStepCounter": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsCoachMarkTitle": "Replay the tour",
+  "settingsCoachMarkSubtitle": "Show the home screen tips again"
 }
