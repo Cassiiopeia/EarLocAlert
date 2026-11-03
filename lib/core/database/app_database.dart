@@ -80,6 +80,15 @@ QueryExecutor _openConnection() {
   return LazyDatabase(() async {
     final dir = await getApplicationDocumentsDirectory();
     final file = File(p.join(dir.path, 'ear_loc_alert.sqlite'));
-    return NativeDatabase.createInBackground(file);
+    return NativeDatabase.createInBackground(
+      file,
+      // 화면 isolate 와 백그라운드 감시가 같은 파일을 각자 연결로 연다 (#337)
+      setup: (database) {
+        // WAL: 읽기와 쓰기가 서로 막지 않음
+        database.execute('PRAGMA journal_mode = WAL;');
+        // 잠겨 있어도 5초까지 기다렸다 재시도 (기본 0 = 즉시 실패)
+        database.execute('PRAGMA busy_timeout = 5000;');
+      },
+    );
   });
 }
