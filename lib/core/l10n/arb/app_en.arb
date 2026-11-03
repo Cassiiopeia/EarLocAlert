@@ -502,7 +502,7 @@
   "settingsVibrationPatternTitle": "Vibration pattern",
   "settingsVibrationPatternSubtitle": "Pick a rhythm so you can tell places apart by feel",
   "vibrationPatternTitle": "Vibration pattern",
-  "vibrationPatternDescription": "Pick one to feel it once. Your vibration strength applies too.",
+  "vibrationPatternDescription": "Pick one to feel it repeat like a real alert. It stops when you pick another or close this. Your vibration strength applies too.",
   "vibrationPatternIosNote": "While the screen is off, only the rhythm is kept and the strength stays the same.",
   "vibrationPatternFollowDefault": "Use default setting",
   "vibrationPatternFollowDefaultHint": "Uses the pattern chosen in Settings",

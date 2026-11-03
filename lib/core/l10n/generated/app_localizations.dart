@@ -2787,7 +2787,7 @@ abstract class AppLocalizations {
   /// No description provided for @vibrationPatternDescription.
   ///
   /// In ko, this message translates to:
-  /// **'고르면 한 번 울려 확인할 수 있어요. 진동 세기 설정이 함께 적용돼요.'**
+  /// **'고르면 실제 알림처럼 반복해서 울려 확인할 수 있어요. 다른 걸 고르거나 닫으면 멈춰요. 진동 세기 설정이 함께 적용돼요.'**
   String get vibrationPatternDescription;
 
   /// No description provided for @vibrationPatternIosNote.
