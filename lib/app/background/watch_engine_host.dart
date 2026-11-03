@@ -102,7 +102,7 @@ class WatchEngineHost {
     Future<PendingAlert?> Function() evaluate,
   ) async {
     try {
-      final alert = await evaluate();
+      final alert = await _evaluateWithLockRetry(evaluate);
       if (alert == null) {
         // 사유는 판정 지점이 남긴다 (이슈 #127) — 여기서 한 번 더
         // "알림 없음"만 찍으면 정보 없는 줄이 두 배가 된다
@@ -141,6 +141,29 @@ class WatchEngineHost {
       // 실패를 추적할 방법이 통째로 없었다.
       Diagnostics.log('engine', 'decision failed $error');
       return AlertDecision.none;
+    }
+  }
+
+  /// DB 잠김 재시도 횟수와 간격 (#337) — busy_timeout 이 못 푼 잠김의 안전망
+  static const int _lockRetryCount = 3;
+  static const Duration _lockRetryDelay = Duration(milliseconds: 700);
+
+  /// 판정 실행: DB 잠김이면 잠시 뒤 다시 시도 (그 외 오류는 그대로 던짐)
+  Future<PendingAlert?> _evaluateWithLockRetry(
+    Future<PendingAlert?> Function() evaluate,
+  ) async {
+    for (var attempt = 1; ; attempt++) {
+      try {
+        return await evaluate();
+      } on Object catch (error) {
+        final isLocked = error.toString().contains('database is locked');
+        if (!isLocked || attempt >= _lockRetryCount) rethrow;
+        Diagnostics.log(
+          'engine',
+          'decision retry reason=db_locked attempt=$attempt',
+        );
+        await Future<void>.delayed(_lockRetryDelay);
+      }
     }
   }
 
