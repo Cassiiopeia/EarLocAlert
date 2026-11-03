@@ -49,7 +49,7 @@ void watchEngineMain() {
 
   // 엔진 수명 동안 하나만 연다. 짧은 콜백과 달리 여기서는 연결을 유지해도
   // 되지만, 판정은 장소 목록을 그때그때 읽어 최신 상태를 본다.
-  final db = AppDatabase();
+  final db = AppDatabase(connectionLabel: 'engine');
 
   final host = WatchEngineHost(
     processor: GeofenceBackgroundProcessor(
