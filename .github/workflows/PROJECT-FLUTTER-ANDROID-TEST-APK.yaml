@@ -55,6 +55,12 @@ on:
   repository_dispatch:
     types: [build-android-app]
 
+# 진행 상황 댓글(이슈·PR)을 쓰려면 필요 — 레포 기본 토큰이 read 라서 선언한다
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
 # ===================================================================
 # 🔧 프로젝트별 설정 (아래 값들을 수정하세요)
 # ===================================================================
