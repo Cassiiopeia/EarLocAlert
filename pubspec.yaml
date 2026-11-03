@@ -22,6 +22,7 @@ dependencies:
   riverpod_annotation: ^2.6.1
   # 로컬 저장소 — Drift(SQLite). Hive·Isar 를 쓰지 않는다 (docs/10-DECISIONS.md 003)
   drift: ^2.20.0
+  sqlite3: ^2.4.0 # 연결 설정(PRAGMA)용 Database 타입
   sqlite3_flutter_libs: ^0.5.24
   path_provider: ^2.1.4
   path: ^1.9.0
