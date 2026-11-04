@@ -1,14 +1,45 @@
 {
   "metadata": {
-    "lastUpdated": "2026-11-04T03:25:20Z",
-    "currentVersion": "1.47.0",
+    "lastUpdated": "2026-11-04T17:52:55Z",
+    "currentVersion": "1.48.0",
     "projectType": "flutter",
-    "totalReleases": 122,
+    "totalReleases": 123,
     "projectTypes": [
       "flutter"
     ]
   },
   "releases": [
+    {
+      "version": "1.48.0",
+      "project_type": "flutter",
+      "project_types": [
+        "flutter"
+      ],
+      "date": "2026-11-04",
+      "pr_number": 355,
+      "raw_summary": "## Summary by CodeRabbit\n\n## 릴리스 노트\n\n* **새 기능**\n  * 이용권 정보에서 프로로 열린 혜택을 한눈에 볼 수 있습니다\n\n* **버그 수정**\n  * 테스트용 설치 앱에서는 실제 광고 대신 테스트 광고가 나옵니다\n\n* **개선**\n  * Android 자동 백업이 문서 폴더에서 시작하고, 고른 폴더 안 EarLocAlert 폴더에 따로 저장됩니다",
+      "parsed_changes": {
+        "새_기능": {
+          "title": "새 기능",
+          "items": [
+            "이용권 정보에서 프로로 열린 혜택을 한눈에 볼 수 있습니다"
+          ]
+        },
+        "버그_수정": {
+          "title": "버그 수정",
+          "items": [
+            "테스트용 설치 앱에서는 실제 광고 대신 테스트 광고가 나옵니다"
+          ]
+        },
+        "개선": {
+          "title": "개선",
+          "items": [
+            "Android 자동 백업이 문서 폴더에서 시작하고, 고른 폴더 안 EarLocAlert 폴더에 따로 저장됩니다"
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "1.47.0",
       "project_type": "flutter",
