@@ -1,14 +1,33 @@
 {
   "metadata": {
-    "lastUpdated": "2026-11-03T23:45:30Z",
-    "currentVersion": "1.46.2",
+    "lastUpdated": "2026-11-04T03:25:20Z",
+    "currentVersion": "1.47.0",
     "projectType": "flutter",
-    "totalReleases": 121,
+    "totalReleases": 122,
     "projectTypes": [
       "flutter"
     ]
   },
   "releases": [
+    {
+      "version": "1.47.0",
+      "project_type": "flutter",
+      "project_types": [
+        "flutter"
+      ],
+      "date": "2026-11-04",
+      "pr_number": 347,
+      "raw_summary": "## Summary by CodeRabbit\n\n## 릴리스 노트\n\n* **개선**\n  * 진동을 낼 수 없는 상황도 진단 기록에 남겨 알림 문제의 원인을 더 쉽게 찾을 수 있습니다",
+      "parsed_changes": {
+        "개선": {
+          "title": "개선",
+          "items": [
+            "진동을 낼 수 없는 상황도 진단 기록에 남겨 알림 문제의 원인을 더 쉽게 찾을 수 있습니다"
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "1.46.2",
       "project_type": "flutter",
