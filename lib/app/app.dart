@@ -38,6 +38,7 @@ import 'notification_dismiss_action.dart';
 import 'pending_alert_resumer.dart';
 import 'pro_access_coordinator.dart';
 import 'auto_backup_coordinator.dart';
+import 'cloud_sync_coordinator.dart';
 import 'review_prompt_coordinator.dart';
 import '../core/entitlement/feature_access_controller.dart';
 import 'router.dart';
@@ -236,6 +237,10 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
     unawaited(ref.read(proAccessCoordinatorProvider).start());
     // 장소 자동 백업 (#314) — 프로이고 폴더를 골랐을 때만 실제로 씀
     ref.read(autoBackupCoordinatorProvider).start();
+    // 구글 드라이브 동기화 (#330) — 프로이고 연결했을 때만 실제로 맞춤. 시작 직후 한 번
+    ref.read(cloudSyncCoordinatorProvider)
+      ..start()
+      ..onResumed();
     // 후기 창 판정 (#296) — 시작 직후 알림 승격·동의 창과 겹치지 않게 잠시 뒤
     unawaited(
       Future<void>.delayed(
@@ -311,6 +316,8 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
       unawaited(_backgroundRinger.onForeground());
       // 확인 못 한 구매 마저 확인·환불 반영 (#294) — 엔진이 며칠 살아 있어도 3일 자동 환불 전에 닿게
       unawaited(ref.read(proAccessCoordinatorProvider).onResumed());
+      // 다른 기기에서 바꾼 장소 반영 (#330)
+      ref.read(cloudSyncCoordinatorProvider).onResumed();
       // 잘 쓰는 사용자에게 스토어 후기 창 (#296) — 알림 중이면 건너뜀
       unawaited(ref.read(reviewPromptCoordinatorProvider).onAppForeground());
       // 앱 화면과 잠금 화면 알람이 함께 뜨지 않게 한다 (이슈 #235)
