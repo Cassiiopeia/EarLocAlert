@@ -38,6 +38,17 @@ rescue StandardError => e
   puts "ℹ️  프로덕션 출시 이력을 확인하지 못했습니다 (#{e.class}). 배포는 계속합니다: #{e.message}"
 end
 
+# 내부 트랙에 이 버전 코드가 이미 있는가 (#348)
+# push 배포가 같은 코드를 먼저 올린 뒤 수동 store_submit 을 돌리면 재업로드가 "already been used" 로 거부된다
+# 조회 실패 시 false > 업로드를 시도해 원래 오류가 그대로 보이게
+def internal_has_version_code?(package_name, json_key, version_code)
+  codes = google_play_track_version_codes(package_name: package_name, track: "internal", json_key: json_key)
+  codes.map(&:to_s).include?(version_code.to_s)
+rescue StandardError => e
+  puts "ℹ️  내부 트랙 버전 코드를 확인하지 못했습니다 (#{e.class}). 업로드를 시도합니다: #{e.message}"
+  false
+end
+
 default_platform(:android)
 
 platform :android do
@@ -176,6 +187,10 @@ platform :android do
     puts "📤 1단계: Play Store 내부 테스트 트랙에 업로드 중..."
     puts "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
+    # 이미 올라간 코드면 업로드 생략 > 아래 승급만 (같은 빌드를 프로덕션으로)
+    if internal_has_version_code?("kr.suhsaechan.ear_loc_alert", ENV["GOOGLE_PLAY_JSON_KEY"], version_code)
+      puts "⏭️  내부 트랙에 #{version_code} 가 이미 있음 — 업로드 생략, 승급만 진행"
+    else
     upload_to_play_store(
       package_name: "kr.suhsaechan.ear_loc_alert",          # Android 패키지 이름
       track: 'internal',                           # 내부 테스트 트랙
@@ -193,6 +208,7 @@ platform :android do
     )
 
     puts "✅ 내부 테스트 업로드 완료!"
+    end
 
     # ── Step 2: 중간 트랙 승급 (켠 것만) ──────────────────────
     # 프로덕션과 **독립**이다. store_only 여도 여기는 돈다 — 개인 계정이
