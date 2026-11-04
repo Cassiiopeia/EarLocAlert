@@ -86,7 +86,7 @@
 | 앱 ID | `AndroidManifest.xml` 메타데이터. **없으면 앱이 시작 시 크래시**하므로 `.env` 로 빼지 않는다 |
 | 전면 단위 ID | `AdUnitIds._prodInterstitialAndroid` |
 | 네이티브 띠 단위 ID (`native_strip_bottom`, 2026-10-18) | `AdUnitIds._prodNativeStripAndroid` (비면 릴리스는 요청하지 않는다) |
-| iOS | 2026-10-02 등록. 앱 ID `Info.plist`, 전면 `_prodInterstitialIos`, 네이티브 띠 `_prodNativeStripIos`. 서명(#51)이 막혀 아직 배포되지 않았다 |
+| iOS | 2026-10-02 등록. 앱 ID `Info.plist`, 전면 `_prodInterstitialIos`, 네이티브 띠 `_prodNativeStripIos`. App Store 에서 받은 빌드만 실제 광고, TestFlight·Xcode 설치는 테스트 광고 (영수증 `sandboxReceipt` 판정, #349) |
 
 **예전에는 `--dart-define` 으로 받았는데 CI 가 그것을 넘기지 않아 릴리스 빌드도 테스트 광고로 나가고 있었다.** 그 워크플로우는 템플릿이 관리해서 고쳐도 다음 갱신에 덮인다.
 
@@ -195,3 +195,5 @@ iOS 는 여기에 **ATT(앱 추적 투명성)** 가 추가된다 → [09-RELEASE
 ## 광고가 안 나가거나 수익이 0 일 때 (2026-10-13, 이슈 #264)
 
 요청(호출)은 쌓이는데 수익이 없으면 **AdMob 콘솔 > 앱** 에서 승인 상태를 먼저 본다. "검토 필요 · 광고 게재가 제한됨"이면 스토어(App Store·Google Play)가 연결되지 않은 것이다 — 스토어 추가로 해제한다. iOS 는 앱이 App Store 에 공개돼야 연결된다. iOS 는 `Info.plist` 의 SKAdNetworkItems 도 필요하다 → [10-DECISIONS](10-DECISIONS.md) 064
+
+**앱 인증은 스토어 등록정보의 웹사이트로 app-ads.txt 를 찾는다** (#349). 웹사이트가 비면 AdMob 이 파일을 못 찾아 "확인 안됨"으로 남고 광고가 제한된다. 두 스토어 모두 `https://cassiiopeia.github.io/EarLocAlert/` 를 넣는다 — 파일은 그 도메인 루트(`cassiiopeia.github.io/app-ads.txt`)에 있다. 2026-11-05 점검 때 iOS 는 판매자 URL 로 확인됐고, Play 등록정보에는 웹사이트가 없어 Android 앱이 제한 상태였다.
