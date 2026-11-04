@@ -3078,6 +3078,12 @@ abstract class AppLocalizations {
   /// **'고른 폴더에 장소를 바꿀 때마다 백업 파일을 새로 써요. iCloud Drive 같은 곳을 고르면 앱을 지워도 남아요.'**
   String get autoBackupDescription;
 
+  /// No description provided for @autoBackupDescriptionAndroid.
+  ///
+  /// In ko, this message translates to:
+  /// **'고른 폴더 안에 EarLocAlert 폴더를 만들고, 장소를 바꿀 때마다 그 안의 백업 파일을 새로 써요. 문서(Documents) 폴더를 추천해요. 앱을 지워도 남아요.'**
+  String get autoBackupDescriptionAndroid;
+
   /// No description provided for @autoBackupOff.
   ///
   /// In ko, this message translates to:

@@ -1598,6 +1598,10 @@ class AppLocalizationsZh extends AppLocalizations {
       '每次更改地点时，都会在所选文件夹中重新写入备份文件。选择 iCloud 云盘等位置，删除应用后也会保留。';
 
   @override
+  String get autoBackupDescriptionAndroid =>
+      '在所选文件夹中创建 EarLocAlert 文件夹，每次更改地点时都会重新写入其中的备份文件。推荐选择“Documents”文件夹。删除应用后也会保留。';
+
+  @override
   String get autoBackupOff => '关闭 · 选择文件夹即可开启';
 
   @override

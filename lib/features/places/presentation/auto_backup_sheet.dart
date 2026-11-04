@@ -107,7 +107,10 @@ class _AutoBackupSheetState extends ConsumerState<_AutoBackupSheet> {
     return BottomSheetWithHeaderLayout(
       headerIcon: Icons.cloud_sync_outlined,
       title: l10n.autoBackupTitle,
-      description: l10n.autoBackupDescription,
+      // 추천 위치가 플랫폼마다 다름: iOS iCloud Drive, Android 문서 폴더 안 앱 전용 폴더 (#353)
+      description: Theme.of(context).platform == TargetPlatform.android
+          ? l10n.autoBackupDescriptionAndroid
+          : l10n.autoBackupDescription,
       body: status.isLoading && !status.hasValue
           ? const CenteredLoadingIndicator()
           : Column(

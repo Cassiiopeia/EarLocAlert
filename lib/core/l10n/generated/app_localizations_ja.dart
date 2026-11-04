@@ -1613,6 +1613,10 @@ class AppLocalizationsJa extends AppLocalizations {
       '場所を変えるたびに、選んだフォルダへバックアップファイルを書き直します。iCloud Drive などを選ぶとアプリを削除しても残ります。';
 
   @override
+  String get autoBackupDescriptionAndroid =>
+      '選んだフォルダの中にEarLocAlertフォルダを作り、場所を変えるたびにその中のバックアップファイルを書き直します。おすすめは「Documents」フォルダです。アプリを削除しても残ります。';
+
+  @override
   String get autoBackupOff => 'オフ · フォルダを選ぶとオンになります';
 
   @override

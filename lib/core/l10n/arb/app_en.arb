@@ -551,6 +551,7 @@
   "proLockedHistory": "Full history and summary",
   "autoBackupTitle": "Auto backup",
   "autoBackupDescription": "Writes a fresh backup file to the folder you pick whenever your places change. Pick a place like iCloud Drive and it stays even if you delete the app.",
+  "autoBackupDescriptionAndroid": "Creates an EarLocAlert folder inside the folder you pick and rewrites the backup file there whenever your places change. We recommend the Documents folder. It stays even if you delete the app.",
   "autoBackupOff": "Off · Pick a folder to turn it on",
   "autoBackupOnNever": "{folder} · Not backed up yet",
   "autoBackupOnLast": "{folder} · Last {time}",

@@ -1685,6 +1685,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Writes a fresh backup file to the folder you pick whenever your places change. Pick a place like iCloud Drive and it stays even if you delete the app.';
 
   @override
+  String get autoBackupDescriptionAndroid =>
+      'Creates an EarLocAlert folder inside the folder you pick and rewrites the backup file there whenever your places change. We recommend the Documents folder. It stays even if you delete the app.';
+
+  @override
   String get autoBackupOff => 'Off · Pick a folder to turn it on';
 
   @override

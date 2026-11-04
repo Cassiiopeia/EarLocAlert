@@ -876,6 +876,7 @@
   "proLockedHistory": "전체 기록과 요약",
   "autoBackupTitle": "자동 백업",
   "autoBackupDescription": "고른 폴더에 장소를 바꿀 때마다 백업 파일을 새로 써요. iCloud Drive 같은 곳을 고르면 앱을 지워도 남아요.",
+  "autoBackupDescriptionAndroid": "고른 폴더 안에 EarLocAlert 폴더를 만들고, 장소를 바꿀 때마다 그 안의 백업 파일을 새로 써요. 문서(Documents) 폴더를 추천해요. 앱을 지워도 남아요.",
   "autoBackupOff": "꺼짐 · 폴더를 고르면 켜져요",
   "autoBackupOnNever": "{folder} · 아직 백업 전",
   "@autoBackupOnNever": {

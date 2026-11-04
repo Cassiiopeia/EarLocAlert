@@ -551,6 +551,7 @@
   "proLockedHistory": "すべての記録と要約",
   "autoBackupTitle": "自動バックアップ",
   "autoBackupDescription": "場所を変えるたびに、選んだフォルダへバックアップファイルを書き直します。iCloud Drive などを選ぶとアプリを削除しても残ります。",
+  "autoBackupDescriptionAndroid": "選んだフォルダの中にEarLocAlertフォルダを作り、場所を変えるたびにその中のバックアップファイルを書き直します。おすすめは「Documents」フォルダです。アプリを削除しても残ります。",
   "autoBackupOff": "オフ · フォルダを選ぶとオンになります",
   "autoBackupOnNever": "{folder} · まだバックアップしていません",
   "autoBackupOnLast": "{folder} · 最終 {time}",
