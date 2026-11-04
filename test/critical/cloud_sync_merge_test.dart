@@ -231,6 +231,102 @@ void main() {
       },
     );
 
+    test(
+      'empty ledger first sync lets remote tombstone delete stale local copy',
+      () {
+        final stale = place('x');
+        final ledger = CloudSyncMerge.trackLocal(
+          places: [stale],
+          previous: const [],
+          nowUtc: t2,
+          unknownPlacesUpdatedAt: CloudSyncMerge.unknownEditTime,
+        );
+
+        final result = CloudSyncMerge.merge(
+          local: ledger,
+          localPlaces: [stale],
+          remote: remoteOf([
+            CloudSyncEntry(syncId: 'x', updatedAt: t1, isDeleted: true),
+          ]),
+          maximumPlaces: 30,
+        );
+
+        expect(result.toDelete, ['x']);
+      },
+    );
+
+    test(
+      'empty ledger first sync lets remote edit win over stale local copy',
+      () {
+        final stale = place('y', name: 'Old');
+        final ledger = CloudSyncMerge.trackLocal(
+          places: [stale],
+          previous: const [],
+          nowUtc: t2,
+          unknownPlacesUpdatedAt: CloudSyncMerge.unknownEditTime,
+        );
+
+        final result = CloudSyncMerge.merge(
+          local: ledger,
+          localPlaces: [stale],
+          remote: remoteOf([
+            CloudSyncEntry(
+              syncId: 'y',
+              updatedAt: t1,
+              place: place('y', name: 'New'),
+            ),
+          ]),
+          maximumPlaces: 30,
+        );
+
+        expect(result.toSave.single.name, 'New');
+      },
+    );
+
+    test('over limit counts existing local places', () {
+      final a = place('a');
+      final b = place('b');
+      final result = CloudSyncMerge.merge(
+        local: [ledgerOf(a, t0), ledgerOf(b, t0)],
+        localPlaces: [a, b],
+        remote: remoteOf([
+          CloudSyncEntry(syncId: 'a', updatedAt: t0, place: a),
+          CloudSyncEntry(syncId: 'b', updatedAt: t0, place: b),
+          CloudSyncEntry(syncId: 'c', updatedAt: t2, place: place('c')),
+        ]),
+        maximumPlaces: 2,
+      );
+
+      expect(result.toSave, isEmpty);
+      expect(result.droppedOverLimit, 1);
+      expect(result.mergedEntries.map((entry) => entry.syncId), contains('c'));
+    });
+
+    test('remote edit to existing place applies even when over limit', () {
+      final a = place('a', name: 'Old');
+      final b = place('b');
+      final result = CloudSyncMerge.merge(
+        local: [ledgerOf(a, t0), ledgerOf(b, t0)],
+        localPlaces: [a, b],
+        remote: remoteOf([
+          CloudSyncEntry(
+            syncId: 'a',
+            updatedAt: t2,
+            place: place('a', name: 'New'),
+          ),
+          CloudSyncEntry(syncId: 'b', updatedAt: t0, place: b),
+          CloudSyncEntry(syncId: 'c', updatedAt: t2, place: place('c')),
+        ]),
+        maximumPlaces: 2,
+      );
+
+      expect(result.toSave.map((value) => value.name), ['New']);
+      expect(
+        result.ledger.map((entry) => entry.syncId),
+        containsAll(['a', 'b']),
+      );
+    });
+
     test('no remote file keeps local and uploads', () {
       final home = place('a');
       final result = CloudSyncMerge.merge(

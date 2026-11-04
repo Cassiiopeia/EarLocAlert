@@ -58,11 +58,17 @@ class _CloudSyncSheetState extends ConsumerState<_CloudSyncSheet> {
   /// 연결·동기화 중 (버튼 중복 방지)
   bool _isBusy = false;
 
+  /// 바쁨 표시로 감싸 실행 (실패·시트 닫힘에도 상태 복구, 성공·실패 공통)
   Future<void> _runBusy(Future<void> Function() task) async {
     setState(() => _isBusy = true);
-    await task();
-    ref.invalidate(cloudSyncStatusProvider);
-    if (mounted) setState(() => _isBusy = false);
+    try {
+      await task();
+    } finally {
+      if (mounted) {
+        ref.invalidate(cloudSyncStatusProvider);
+        setState(() => _isBusy = false);
+      }
+    }
   }
 
   /// 연결 > (빈 기기 + Drive 장소) 가져오기 확인 > 결과 안내
@@ -74,8 +80,11 @@ class _CloudSyncSheetState extends ConsumerState<_CloudSyncSheet> {
         context.showToast(context.l10n.cloudSyncConnectFailed);
       case CloudSyncConnectNeedsImport():
         final shouldImport = await _askImport(result);
-        if (shouldImport && mounted) {
+        if (shouldImport) {
           _showOutcome(await widget.actions.confirmImport());
+        } else {
+          // 나중에 = 연결하지 않음 (연결만 남으면 동기화가 조용히 멈추고, 장소를 더하는 순간 묻지 않고 섞임)
+          await widget.actions.disconnect(deleteRemote: false);
         }
       case CloudSyncConnectDone(:final outcome):
         _showOutcome(outcome);

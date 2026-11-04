@@ -173,17 +173,21 @@ class CloudSyncService {
         }
     }
 
-    // 로컬 변화 감지
+    // 로컬 변화 감지 (첫 읽기 전·장부 유실이면 장부에 없는 장소는 시각 모름 > 원격이 이김)
     final now = nowUtc();
     final localPlaces = await repository.findAll();
+    final previousLedger = await store.ledger();
+    final isFirstRead = !await store.hasCompletedFirstRead();
     final ledger = CloudSyncMerge.trackLocal(
       places: localPlaces,
-      previous: await store.ledger(),
+      previous: previousLedger,
       nowUtc: now,
+      unknownPlacesUpdatedAt: isFirstRead || previousLedger.isEmpty
+          ? CloudSyncMerge.unknownEditTime
+          : null,
     );
 
     // 재설치 보호: 첫 읽기 전 빈 기기 + 원격 장소 > 사용자 확인까지 대기
-    final isFirstRead = !await store.hasCompletedFirstRead();
     if (isFirstRead &&
         localPlaces.isEmpty &&
         (remoteDocument?.placeCount ?? 0) > 0) {

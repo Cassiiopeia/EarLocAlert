@@ -171,6 +171,24 @@ void main() {
     );
   });
 
+  test(
+    'first sync after reconnect lets remote edit win over stale local copy',
+    () async {
+      store.email = 'user@gmail.com';
+      repository.places['y'] = place('y', name: 'Old');
+      remote.nextRead = CloudSyncReadFound(
+        remoteJson([
+          place('y', name: 'New'),
+        ], updatedAt: DateTime.utc(2026, 11, 4)),
+      );
+
+      final outcome = await service().sync(reason: 'test');
+
+      expect(outcome, CloudSyncOutcome.synced);
+      expect(repository.places['y']?.name, 'New');
+    },
+  );
+
   test('newer remote schema stops with newerSchema', () async {
     store.email = 'user@gmail.com';
     store.firstReadDone = true;

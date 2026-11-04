@@ -66,11 +66,18 @@ abstract final class CloudSyncMerge {
   static String signatureOf(AlertPlace place) =>
       jsonEncode(PlaceBackup.encodePlace(place));
 
+  /// 수정 시각을 모르는 장소의 시각 (가장 이른 값 > 원격의 수정·삭제가 항상 이김)
+  static final unknownEditTime = DateTime.utc(1970);
+
   /// 로컬 변화 감지: 서명이 바뀐 장소 > 지금 시각, 사라진 장소 > 삭제 표시, 오래된 삭제 표시 제거
+  ///
+  /// 장부에 없던 장소는 [unknownPlacesUpdatedAt] (기본 지금). 재연결·장부 유실 직후엔
+  /// [unknownEditTime] 을 넘겨 옛 사본이 다른 기기의 삭제·수정을 덮지 않게 함
   static List<SyncLedgerEntry> trackLocal({
     required List<AlertPlace> places,
     required List<SyncLedgerEntry> previous,
     required DateTime nowUtc,
+    DateTime? unknownPlacesUpdatedAt,
   }) {
     final previousById = {for (final entry in previous) entry.syncId: entry};
     final tracked = <SyncLedgerEntry>[];
@@ -87,7 +94,9 @@ abstract final class CloudSyncMerge {
             : SyncLedgerEntry(
                 syncId: place.id,
                 signature: signature,
-                updatedAt: nowUtc,
+                updatedAt: before == null
+                    ? (unknownPlacesUpdatedAt ?? nowUtc)
+                    : nowUtc,
               ),
       );
     }
@@ -162,21 +171,26 @@ abstract final class CloudSyncMerge {
       if (_differs(mine, theirs)) hasLocalChanges = true;
     }
 
-    // 상한: 살아 있는 항목 중 최근 수정 순으로 [maximumPlaces] 개까지만 로컬에 둠
-    final liveByRecency = merged.where((entry) => !entry.isDeleted).toList()
-      ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
-    final keptIds = liveByRecency
-        .take(maximumPlaces)
-        .map((entry) => entry.syncId)
-        .toSet();
-    final toSave = [
+    // 상한: 이미 있는 장소의 수정은 항상 반영, 새 장소는 남은 자리만큼 최근 수정 순으로
+    final edits = [
       for (final entry in imports)
-        if (keptIds.contains(entry.syncId)) entry.place!,
+        if (placeById.containsKey(entry.syncId)) entry,
     ];
-    final droppedOverLimit = imports.length - toSave.length;
-    final skippedIds = {
+    final additions = [
       for (final entry in imports)
-        if (!keptIds.contains(entry.syncId)) entry.syncId,
+        if (!placeById.containsKey(entry.syncId)) entry,
+    ]..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+    final remainingSlots = maximumPlaces - (placeById.length - toDelete.length);
+    final keptAdditions = additions.take(
+      remainingSlots < 0 ? 0 : remainingSlots,
+    );
+    final toSave = [
+      for (final entry in [...edits, ...keptAdditions]) entry.place!,
+    ];
+    final droppedOverLimit = additions.length - keptAdditions.length;
+    // 가져오지 않은 새 장소는 장부에 넣지 않음 (넣으면 다음 동기화가 삭제로 봄). Drive 에는 남김
+    final skippedIds = {
+      for (final entry in additions.skip(keptAdditions.length)) entry.syncId,
     };
 
     return CloudSyncMergeResult(
@@ -185,7 +199,6 @@ abstract final class CloudSyncMerge {
       mergedEntries: merged,
       ledger: [
         for (final entry in merged)
-          // 가져오지 않은 장소는 장부에 넣지 않음 (넣으면 다음 동기화가 삭제로 봄)
           if (!skippedIds.contains(entry.syncId)) _ledgerFrom(entry),
       ],
       droppedOverLimit: droppedOverLimit,
