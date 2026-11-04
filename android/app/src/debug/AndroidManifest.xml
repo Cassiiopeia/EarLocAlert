@@ -4,4 +4,11 @@
          to allow setting breakpoints, to provide hot reload, etc.
     -->
     <uses-permission android:name="android.permission.INTERNET"/>
+
+    <application>
+        <!-- e2e DB 잠금 주입 (#345): adb 가 보내야 해서 exported. 디버그 빌드에만 합쳐진다 -->
+        <receiver
+            android:name=".E2eDatabaseLockReceiver"
+            android:exported="true" />
+    </application>
 </manifest>
