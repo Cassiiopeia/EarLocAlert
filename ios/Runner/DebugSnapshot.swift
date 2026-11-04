@@ -10,9 +10,12 @@ import UserNotifications
 /// - `versionLabel` → `1.37.1(90151)`
 /// - `deviceInfo` → `model=iPhone15,2 ios=18.1 ...` 한 줄
 /// - `debugSnapshot` → 구역별 여러 줄 텍스트
-/// 그 외(`isDevBuild` 등)는 미구현 — Dart 가 기본값으로 떨어진다
+/// - `isDevBuild` → App Store 에서 받은 빌드가 아니면 true (TestFlight·Xcode 설치, #349)
 enum DebugSnapshot {
   private static let channelName = "kr.suhsaechan.ear_loc_alert/app_config"
+
+  // App Store 이외 설치의 영수증 파일 이름 (TestFlight·Xcode·Ad Hoc 공통)
+  private static let sandboxReceiptName = "sandboxReceipt"
 
   static func register(messenger: FlutterBinaryMessenger) {
     FlutterMethodChannel(name: channelName, binaryMessenger: messenger)
@@ -21,9 +24,16 @@ enum DebugSnapshot {
         case "versionLabel": result(versionLabel())
         case "deviceInfo": result(deviceInfo())
         case "debugSnapshot": collect { text in result(text) }
+        case "isDevBuild": result(isDevBuild())
         default: result(FlutterMethodNotImplemented)
         }
       }
+  }
+
+  /// 검증 빌드 판정: 영수증 경로 없음·sandboxReceipt > true (실제 광고 금지 쪽으로)
+  static func isDevBuild() -> Bool {
+    guard let receiptURL = Bundle.main.appStoreReceiptURL else { return true }
+    return receiptURL.lastPathComponent == sandboxReceiptName
   }
 
   /// 구역 전체 수집 > 알림 대기열(비동기)까지 모아 메인 스레드에서 한 번 응답
