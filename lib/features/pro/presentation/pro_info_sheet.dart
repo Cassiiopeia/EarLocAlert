@@ -12,6 +12,7 @@ import '../data/pro_purchase_providers.dart';
 import '../domain/pro_purchase_record.dart';
 import '../domain/pro_purchase_service.dart';
 import 'plan_badge_chip.dart';
+import 'pro_benefit_list.dart';
 import 'pro_purchase_record_controller.dart';
 import 'pro_restore_action.dart';
 
@@ -94,6 +95,9 @@ class _ProInfoSheetState extends ConsumerState<_ProInfoSheet> {
             ),
             style: context.appTextStyles.caption,
           ),
+          // 열린 혜택 (#352)
+          const SizedBox(height: AppSpacing.md),
+          const ProBenefitList(),
         ],
       ),
       primaryAction: OutlinedButton(

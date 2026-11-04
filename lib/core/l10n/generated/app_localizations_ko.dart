@@ -1419,6 +1419,9 @@ class AppLocalizationsKo extends AppLocalizations {
       '이 기기의 Apple 계정으로 구매됐어요. 기기를 바꿔도 같은 Apple 계정이면 \"구매 복원\"으로 다시 열려요.';
 
   @override
+  String get proInfoBenefitsTitle => '프로 혜택';
+
+  @override
   String get proInfoRestore => '구매 복원';
 
   @override
@@ -1611,6 +1614,10 @@ class AppLocalizationsKo extends AppLocalizations {
   @override
   String get autoBackupDescription =>
       '고른 폴더에 장소를 바꿀 때마다 백업 파일을 새로 써요. iCloud Drive 같은 곳을 고르면 앱을 지워도 남아요.';
+
+  @override
+  String get autoBackupDescriptionAndroid =>
+      '고른 폴더 안에 EarLocAlert 폴더를 만들고, 장소를 바꿀 때마다 그 안의 백업 파일을 새로 써요. 문서(Documents) 폴더를 추천해요. 앱을 지워도 남아요.';
 
   @override
   String get autoBackupOff => '꺼짐 · 폴더를 고르면 켜져요';

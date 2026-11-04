@@ -1416,6 +1416,9 @@ class AppLocalizationsJa extends AppLocalizations {
       'この端末の Apple アカウントで購入されました。機種変更しても同じ Apple アカウントなら「購入を復元」で再び使えます。';
 
   @override
+  String get proInfoBenefitsTitle => 'プロの特典';
+
+  @override
   String get proInfoRestore => '購入を復元';
 
   @override
@@ -1608,6 +1611,10 @@ class AppLocalizationsJa extends AppLocalizations {
   @override
   String get autoBackupDescription =>
       '場所を変えるたびに、選んだフォルダへバックアップファイルを書き直します。iCloud Drive などを選ぶとアプリを削除しても残ります。';
+
+  @override
+  String get autoBackupDescriptionAndroid =>
+      '選んだフォルダの中にEarLocAlertフォルダを作り、場所を変えるたびにその中のバックアップファイルを書き直します。おすすめは「Documents」フォルダです。アプリを削除しても残ります。';
 
   @override
   String get autoBackupOff => 'オフ · フォルダを選ぶとオンになります';

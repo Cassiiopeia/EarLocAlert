@@ -1479,6 +1479,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'Purchased with this device\'s Apple Account. On a new phone, the same Apple Account can bring it back with \"Restore purchase\".';
 
   @override
+  String get proInfoBenefitsTitle => 'Pro benefits';
+
+  @override
   String get proInfoRestore => 'Restore purchase';
 
   @override
@@ -1680,6 +1683,10 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get autoBackupDescription =>
       'Writes a fresh backup file to the folder you pick whenever your places change. Pick a place like iCloud Drive and it stays even if you delete the app.';
+
+  @override
+  String get autoBackupDescriptionAndroid =>
+      'Creates an EarLocAlert folder inside the folder you pick and rewrites the backup file there whenever your places change. We recommend the Documents folder. It stays even if you delete the app.';
 
   @override
   String get autoBackupOff => 'Off · Pick a folder to turn it on';
