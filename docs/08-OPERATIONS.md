@@ -25,6 +25,8 @@ develop 브랜치 (기본 작업 브랜치)
 # develop → main PR 을 머지하면 끝. 수동 조작 없음.
 ```
 
+**앱 배포 전에 도착 알림 e2e 를 돌린다 (결정 085, #345).** 배포를 요청받으면 agent 가 `tool/e2e/arrival_alert.sh all` 을 에뮬레이터에서 실행하고, 결과 표(`build/e2e/arrival_alert_*.md`)를 배포 PR 에 댓글로 남긴 뒤 배포한다. FAIL 이 있으면 배포를 멈추고 원인부터 보고한다. 워크플로우가 막지는 않는다 — 사용자가 건너뛰라고 하면 건너뛴다. 순서는 `tool/e2e/README.md`.
+
 **Firebase App Distribution 은 자동 트리거를 내려뒀다** — `FIREBASE_SERVICE_ACCOUNT_JSON_BASE64` 가 등록돼 있지 않아 main push 마다 실패로 남기 때문이다. 시크릿을 등록하면 `push: branches: ["main"]` 을 되살린다.
 
 ## 워크플로우
