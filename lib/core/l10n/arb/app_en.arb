@@ -489,6 +489,7 @@
   "proInfoUnknown": "Checking",
   "proInfoNotePurchase": "Purchased with this device's Google Play account. On a new phone, the same account can bring it back with \"Restore purchase\".",
   "proInfoNotePurchaseAppStore": "Purchased with this device's Apple Account. On a new phone, the same Apple Account can bring it back with \"Restore purchase\".",
+  "proInfoBenefitsTitle": "Pro benefits",
   "proInfoRestore": "Restore purchase",
   "proSheetRedeem": "Redeem promo code",
   "homeStatusSheetTitle": "Current status",

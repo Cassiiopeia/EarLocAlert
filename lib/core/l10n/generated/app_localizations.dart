@@ -2706,6 +2706,12 @@ abstract class AppLocalizations {
   /// **'이 기기의 Apple 계정으로 구매됐어요. 기기를 바꿔도 같은 Apple 계정이면 \"구매 복원\"으로 다시 열려요.'**
   String get proInfoNotePurchaseAppStore;
 
+  /// No description provided for @proInfoBenefitsTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'프로 혜택'**
+  String get proInfoBenefitsTitle;
+
   /// No description provided for @proInfoRestore.
   ///
   /// In ko, this message translates to:

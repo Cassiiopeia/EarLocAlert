@@ -1416,6 +1416,9 @@ class AppLocalizationsJa extends AppLocalizations {
       'この端末の Apple アカウントで購入されました。機種変更しても同じ Apple アカウントなら「購入を復元」で再び使えます。';
 
   @override
+  String get proInfoBenefitsTitle => 'プロの特典';
+
+  @override
   String get proInfoRestore => '購入を復元';
 
   @override

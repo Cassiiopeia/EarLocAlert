@@ -1479,6 +1479,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'Purchased with this device\'s Apple Account. On a new phone, the same Apple Account can bring it back with \"Restore purchase\".';
 
   @override
+  String get proInfoBenefitsTitle => 'Pro benefits';
+
+  @override
   String get proInfoRestore => 'Restore purchase';
 
   @override
