@@ -24,6 +24,9 @@ class FeatureAccess {
 
   bool get canUsePlaceBackup => _isUnlocked;
 
+  /// 구글 드라이브 동기화 (연결·가져오기·올리기 전부, #330). 무료는 장소 1개라 동기화할 것이 없음
+  bool get canUseCloudSync => _isUnlocked;
+
   /// 도착 기록 전체·요약을 볼 수 있는가 (#313). 무료는 최근 몇 건만
   bool get canViewFullHistory => _isUnlocked;
 
