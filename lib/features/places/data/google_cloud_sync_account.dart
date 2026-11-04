@@ -18,14 +18,14 @@ class GoogleCloudSyncAccount implements CloudSyncAccount {
     try {
       final account = await _googleSignIn.signIn();
       Diagnostics.log(
-        'sync',
+        'cloudsync',
         'sign in result=${account == null ? 'cancelled' : 'ok'} '
             'account=${_domainOf(account?.email)}',
       );
       return account?.email;
     } on Object catch (error) {
       // 콘솔 설정(OAuth 클라이언트·SHA-1)이 어긋나면 여기서 실패함 > 사유를 남김
-      Diagnostics.log('sync', 'sign in failed error=$error');
+      Diagnostics.log('cloudsync', 'sign in failed error=$error');
       return null;
     }
   }
@@ -36,7 +36,7 @@ class GoogleCloudSyncAccount implements CloudSyncAccount {
       final account = await _googleSignIn.signInSilently();
       return account?.email;
     } on Object catch (error) {
-      Diagnostics.log('sync', 'silent sign in failed error=$error');
+      Diagnostics.log('cloudsync', 'silent sign in failed error=$error');
       return null;
     }
   }
@@ -47,7 +47,7 @@ class GoogleCloudSyncAccount implements CloudSyncAccount {
       // disconnect: 앱 권한까지 반납 (다음 연결 때 범위 동의를 다시 받음)
       await _googleSignIn.disconnect();
     } on Object catch (error) {
-      Diagnostics.log('sync', 'sign out failed error=$error');
+      Diagnostics.log('cloudsync', 'sign out failed error=$error');
       await _googleSignIn.signOut();
     }
   }
@@ -59,7 +59,7 @@ class GoogleCloudSyncAccount implements CloudSyncAccount {
           _googleSignIn.currentUser ?? await _googleSignIn.signInSilently();
       return await account?.authHeaders;
     } on Object catch (error) {
-      Diagnostics.log('sync', 'auth headers failed error=$error');
+      Diagnostics.log('cloudsync', 'auth headers failed error=$error');
       return null;
     }
   }

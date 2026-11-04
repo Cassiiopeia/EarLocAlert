@@ -90,7 +90,7 @@ class CloudSyncService {
     final email = await account.signIn();
     if (email == null) return const CloudSyncConnectCancelled();
     await store.saveAccountEmail(email);
-    Diagnostics.log('sync', 'connected account=${_domainOf(email)}');
+    Diagnostics.log('cloudsync', 'connected account=${_domainOf(email)}');
 
     final read = await remote.read();
     if (read is CloudSyncReadFound) {
@@ -101,7 +101,7 @@ class CloudSyncService {
           localPlaces.isEmpty &&
           !await store.hasCompletedFirstRead()) {
         Diagnostics.log(
-          'sync',
+          'cloudsync',
           'import confirm needed remote_places=${decoded.document.placeCount}',
         );
         return CloudSyncConnectNeedsImport(
@@ -117,7 +117,7 @@ class CloudSyncService {
   /// 가져오기 확인 > 첫 읽기 완료로 표시 > 동기화 (빈 기기라 원격 장소를 전부 가져옴)
   Future<CloudSyncOutcome> confirmImport() async {
     await store.markFirstReadDone();
-    Diagnostics.log('sync', 'import confirmed');
+    Diagnostics.log('cloudsync', 'import confirmed');
     return sync(reason: 'import_confirmed');
   }
 
@@ -126,20 +126,20 @@ class CloudSyncService {
     if (deleteRemote) await remote.deleteAll();
     await account.signOut();
     await store.clear();
-    Diagnostics.log('sync', 'disconnected delete_remote=$deleteRemote');
+    Diagnostics.log('cloudsync', 'disconnected delete_remote=$deleteRemote');
   }
 
   Future<CloudSyncOutcome> _syncOnce(String reason) async {
     try {
       final outcome = await _runSteps();
       Diagnostics.log(
-        'sync',
+        'cloudsync',
         'sync done reason=$reason result=${outcome.name}',
       );
       return outcome;
     } on Object catch (error) {
       // 동기화 실패가 앱을 멈추면 안 됨 > 기록만
-      Diagnostics.log('sync', 'sync error reason=$reason error=$error');
+      Diagnostics.log('cloudsync', 'sync error reason=$reason error=$error');
       return CloudSyncOutcome.writeFailed;
     }
   }
@@ -166,7 +166,10 @@ class CloudSyncService {
             return CloudSyncOutcome.newerSchema;
           case CloudSyncDecodedFailure(:final error):
             // 깨진 원격 파일은 덮어쓰지 않음 (사람이 확인할 기회를 남김)
-            Diagnostics.log('sync', 'remote unreadable error=${error.name}');
+            Diagnostics.log(
+              'cloudsync',
+              'remote unreadable error=${error.name}',
+            );
             return CloudSyncOutcome.readFailed;
           case CloudSyncDecodedOk(:final document):
             remoteDocument = document;
@@ -237,7 +240,7 @@ class CloudSyncService {
       await repository.delete(id);
     }
     Diagnostics.log(
-      'sync',
+      'cloudsync',
       'merge applied imported=${result.toSave.length} '
           'deleted=${result.toDelete.length} '
           'dropped_over_limit=${result.droppedOverLimit} '

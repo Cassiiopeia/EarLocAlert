@@ -37,7 +37,7 @@ class PrefsCloudSyncStateStore implements CloudSyncStateStore {
       ];
     } on Object catch (error) {
       // 깨진 장부는 빈 장부로 > 다음 동기화가 현재 장소로 다시 만듦 (삭제 표시만 잃음)
-      Diagnostics.log('sync', 'ledger read failed error=$error');
+      Diagnostics.log('cloudsync', 'ledger read failed error=$error');
       return const [];
     }
   }

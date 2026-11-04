@@ -43,7 +43,10 @@ class GoogleDriveCloudSyncRemote implements CloudSyncRemote {
       return CloudSyncReadFound(utf8.decode(bytes));
     } on Object catch (error) {
       final reason = _reasonOf(error);
-      Diagnostics.log('sync', 'drive read failed reason=$reason error=$error');
+      Diagnostics.log(
+        'cloudsync',
+        'drive read failed reason=$reason error=$error',
+      );
       return CloudSyncReadFailed(reason);
     }
   }
@@ -79,7 +82,7 @@ class GoogleDriveCloudSyncRemote implements CloudSyncRemote {
       return true;
     } on Object catch (error) {
       Diagnostics.log(
-        'sync',
+        'cloudsync',
         'drive write failed reason=${_reasonOf(error)} error=$error',
       );
       return false;
@@ -98,13 +101,13 @@ class GoogleDriveCloudSyncRemote implements CloudSyncRemote {
         await api.files.delete(file.id!).timeout(_requestTimeout);
       }
       Diagnostics.log(
-        'sync',
+        'cloudsync',
         'drive data deleted files=${list.files?.length ?? 0}',
       );
       return true;
     } on Object catch (error) {
       Diagnostics.log(
-        'sync',
+        'cloudsync',
         'drive delete failed reason=${_reasonOf(error)} error=$error',
       );
       return false;
@@ -129,7 +132,7 @@ class GoogleDriveCloudSyncRemote implements CloudSyncRemote {
   Future<drive.DriveApi?> _driveApi() async {
     final headers = await _account.authHeaders();
     if (headers == null) {
-      Diagnostics.log('sync', 'drive call skipped reason=no_auth');
+      Diagnostics.log('cloudsync', 'drive call skipped reason=no_auth');
       return null;
     }
     return drive.DriveApi(_AuthHeaderClient(headers));

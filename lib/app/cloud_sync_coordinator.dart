@@ -35,7 +35,7 @@ class CloudSyncCoordinator {
         .listen(
           (_) => _schedule(),
           onError: (Object error) =>
-              Diagnostics.log('sync', 'places watch failed error=$error'),
+              Diagnostics.log('cloudsync', 'places watch failed error=$error'),
         );
   }
 
