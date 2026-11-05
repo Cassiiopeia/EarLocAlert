@@ -1460,7 +1460,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get vibrationPatternDescription =>
-      '選ぶと一度振動して確認できます。バイブレーションの強さも反映されます。';
+      '選ぶと実際の通知のように繰り返し振動して確認できます。別のものを選ぶか閉じると止まります。バイブレーションの強さも反映されます。';
 
   @override
   String get vibrationPatternIosNote => '画面がオフのときはリズムだけが同じで、強さは一定です。';
