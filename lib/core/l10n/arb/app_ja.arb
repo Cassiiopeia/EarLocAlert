@@ -504,7 +504,7 @@
   "settingsVibrationPatternSubtitle": "振動だけで場所を見分けられるようにリズムを選びます",
   "vibrationPatternTitle": "バイブレーションパターン",
   "vibrationPatternDescription": "選ぶと一度振動して確認できます。バイブレーションの強さも反映されます。",
-  "vibrationPatternIosNote": "画面がオフのときはリズムだけが同じで、強さは一定です。",
+  "vibrationPatternIosNote": "iOSの仕様上、アプリが画面に表示されていないと振動しないことがあります。",
   "vibrationPatternFollowDefault": "基本設定に従う",
   "vibrationPatternFollowDefaultHint": "設定で選んだパターンで振動します",
   "vibrationPatternStandard": "標準",
@@ -591,5 +591,27 @@
   "routineDeleteBody": "まとめた場所は削除されません。",
   "routineCancel": "キャンセル",
   "proRowRoutines": "ルーティン",
-  "proLockedRoutines": "ルーティンで場所をまとめる"
+  "proLockedRoutines": "ルーティンで場所をまとめる",
+  "coachMarkStatusTitle": "見守り中か確認できます",
+  "coachMarkStatusBody": "オンにした場所があると、ここに「見守り中」と表示されます。イヤホンの接続状況もわかります",
+  "coachMarkAddTitle": "場所を登録します",
+  "coachMarkAddBody": "地図で場所を選び、半径と通知のタイミング(到着・出発)を決めます。通知は振動かイヤホンだけで届きます",
+  "coachMarkSheetTitle": "登録した場所を管理します",
+  "coachMarkSheetBody": "スイッチでオン・オフでき、タップすると編集できます。上に引き上げると一覧が広がります",
+  "coachMarkNext": "次へ",
+  "coachMarkDone": "はじめる",
+  "coachMarkSkip": "スキップ",
+  "coachMarkStepCounter": "{current} / {total}",
+  "@coachMarkStepCounter": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsCoachMarkTitle": "使い方をもう一度見る",
+  "settingsCoachMarkSubtitle": "ホーム画面の基本機能の案内をもう一度表示します"
 }

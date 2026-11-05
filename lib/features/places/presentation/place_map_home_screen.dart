@@ -20,6 +20,7 @@ import '../../../core/ui/foundation/app_spacing.dart';
 import '../../../core/ui/foundation/map_style.dart';
 import '../../../core/text/keep_all.dart';
 import '../../../core/ui/components/status_bar_icons_following_theme.dart';
+import '../../../core/ui/components/coach_mark.dart';
 import '../../../core/ui/components/floating_circle_button.dart';
 import '../../../core/ui/components/locked_content_blur.dart';
 import '../domain/current_location_service.dart';
@@ -51,6 +52,8 @@ class PlaceMapHomeScreen extends ConsumerStatefulWidget {
     required this.isMonitoring,
     required this.isHeadphoneConnected,
     required this.onAddPlace,
+    this.coachMarkRequestId = 0,
+    this.onCoachMarksFinished,
     this.isStatusKnown = true,
     this.canAlertReliably = true,
     this.missingReliability = const [],
@@ -79,6 +82,12 @@ class PlaceMapHomeScreen extends ConsumerStatefulWidget {
   final bool isHeadphoneConnected;
 
   final VoidCallback onAddPlace;
+
+  /// 코치마크 요청 번호 — 이전보다 커지면 한 번 보여 준다 (0 이면 없음)
+  final int coachMarkRequestId;
+
+  /// 코치마크를 끝까지 봤거나 건너뜀
+  final VoidCallback? onCoachMarksFinished;
   final void Function(AlertPlace place)? onEditPlace;
 
   /// 백그라운드 알림이 놓치기 어려운 형태로 오는가 (이슈 #74).
@@ -163,10 +172,57 @@ class _PlaceMapHomeScreenState extends ConsumerState<PlaceMapHomeScreen>
   /// 현재 위치로 시작하는 조회는 화면이 살아 있는 동안 한 번만 (이슈 #218)
   bool _didTryStartAtCurrentLocation = false;
 
+  // 코치마크가 비출 대상 (알약 · 장소 추가 · 장소 목록)
+  final _statusPillKey = GlobalKey();
+  final _addButtonKey = GlobalKey();
+  final _placeSheetKey = GlobalKey();
+
+  /// 이미 보여 준 코치마크 요청 번호
+  int _shownCoachMarkRequestId = 0;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    _scheduleCoachMarks();
+  }
+
+  @override
+  void didUpdateWidget(PlaceMapHomeScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _scheduleCoachMarks();
+  }
+
+  /// 새 요청이 있으면 지도와 시트가 자리 잡은 뒤 코치마크를 띄운다
+  void _scheduleCoachMarks() {
+    final requestId = widget.coachMarkRequestId;
+    if (requestId <= _shownCoachMarkRequestId) return;
+    _shownCoachMarkRequestId = requestId;
+    Future<void>.delayed(const Duration(milliseconds: 900), () async {
+      if (!mounted) return;
+      final l10n = context.l10n;
+      await showCoachMarks(
+        context,
+        steps: [
+          CoachMarkStep(
+            targetKey: _statusPillKey,
+            title: l10n.coachMarkStatusTitle,
+            description: l10n.coachMarkStatusBody,
+          ),
+          CoachMarkStep(
+            targetKey: _addButtonKey,
+            title: l10n.coachMarkAddTitle,
+            description: l10n.coachMarkAddBody,
+          ),
+          CoachMarkStep(
+            targetKey: _placeSheetKey,
+            title: l10n.coachMarkSheetTitle,
+            description: l10n.coachMarkSheetBody,
+          ),
+        ],
+      );
+      widget.onCoachMarksFinished?.call();
+    });
   }
 
   @override
@@ -278,12 +334,14 @@ class _PlaceMapHomeScreenState extends ConsumerState<PlaceMapHomeScreen>
               onOpenSettings: widget.onOpenSettings,
               planBadge: widget.planBadge,
               onStatusTap: _toggleStatusBubble,
+              pillKey: _statusPillKey,
             ),
 
             _MapControls(
               bottomFraction: _sheetExtent,
               onMyLocation: _moveToCurrentLocation,
               onAddPlace: widget.onAddPlace,
+              addButtonKey: _addButtonKey,
             ),
 
             NotificationListener<DraggableScrollableNotification>(
@@ -303,6 +361,7 @@ class _PlaceMapHomeScreenState extends ConsumerState<PlaceMapHomeScreen>
                 snap: true,
                 snapSizes: const [_sheetInitial],
                 builder: (context, scrollController) => _PlaceSheet(
+                  key: _placeSheetKey,
                   scrollController: scrollController,
                   places: places,
                   loading: placesAsync.isLoading,

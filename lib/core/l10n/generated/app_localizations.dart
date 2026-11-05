@@ -2799,7 +2799,7 @@ abstract class AppLocalizations {
   /// No description provided for @vibrationPatternIosNote.
   ///
   /// In ko, this message translates to:
-  /// **'화면이 꺼져 있을 때는 리듬만 같고 세기는 일정해요.'**
+  /// **'iOS 정책상 앱 화면이 앞에 없으면 진동이 울리지 않을 수 있어요.'**
   String get vibrationPatternIosNote;
 
   /// No description provided for @vibrationPatternFollowDefault.
@@ -3323,6 +3323,78 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'루틴으로 장소 묶기'**
   String get proLockedRoutines;
+
+  /// No description provided for @coachMarkStatusTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'지금 감시 중인지 보여요'**
+  String get coachMarkStatusTitle;
+
+  /// No description provided for @coachMarkStatusBody.
+  ///
+  /// In ko, this message translates to:
+  /// **'켜 둔 장소가 있으면 여기에 \'감시 중\'이 떠요. 이어폰이 연결됐는지도 함께 알려 줘요'**
+  String get coachMarkStatusBody;
+
+  /// No description provided for @coachMarkAddTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'장소를 등록해요'**
+  String get coachMarkAddTitle;
+
+  /// No description provided for @coachMarkAddBody.
+  ///
+  /// In ko, this message translates to:
+  /// **'지도에서 위치를 고르고 반경과 알림 방향(도착·출발)을 정해요. 알림은 진동이나 이어폰으로만 와요'**
+  String get coachMarkAddBody;
+
+  /// No description provided for @coachMarkSheetTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'등록한 장소를 관리해요'**
+  String get coachMarkSheetTitle;
+
+  /// No description provided for @coachMarkSheetBody.
+  ///
+  /// In ko, this message translates to:
+  /// **'스위치로 켜고 끌 수 있고, 누르면 수정할 수 있어요. 위로 끌어 올리면 전체 목록이 보여요'**
+  String get coachMarkSheetBody;
+
+  /// No description provided for @coachMarkNext.
+  ///
+  /// In ko, this message translates to:
+  /// **'다음'**
+  String get coachMarkNext;
+
+  /// No description provided for @coachMarkDone.
+  ///
+  /// In ko, this message translates to:
+  /// **'시작하기'**
+  String get coachMarkDone;
+
+  /// No description provided for @coachMarkSkip.
+  ///
+  /// In ko, this message translates to:
+  /// **'건너뛰기'**
+  String get coachMarkSkip;
+
+  /// No description provided for @coachMarkStepCounter.
+  ///
+  /// In ko, this message translates to:
+  /// **'{current} / {total}'**
+  String coachMarkStepCounter(int current, int total);
+
+  /// No description provided for @settingsCoachMarkTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'사용법 다시 보기'**
+  String get settingsCoachMarkTitle;
+
+  /// No description provided for @settingsCoachMarkSubtitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'홈 화면의 핵심 기능 안내를 다시 보여줘요'**
+  String get settingsCoachMarkSubtitle;
 }
 
 class _AppLocalizationsDelegate

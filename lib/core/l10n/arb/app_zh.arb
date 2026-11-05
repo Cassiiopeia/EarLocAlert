@@ -504,7 +504,7 @@
   "settingsVibrationPatternSubtitle": "选择节奏，仅凭振动就能分辨地点",
   "vibrationPatternTitle": "振动模式",
   "vibrationPatternDescription": "选择后会振动一次以便确认。振动强度设置也会一起生效。",
-  "vibrationPatternIosNote": "屏幕关闭时只保留节奏，强度保持不变。",
+  "vibrationPatternIosNote": "受 iOS 限制,应用不在前台时可能不会振动。",
   "vibrationPatternFollowDefault": "跟随默认设置",
   "vibrationPatternFollowDefaultHint": "使用设置中选择的振动模式",
   "vibrationPatternStandard": "默认",
@@ -591,5 +591,27 @@
   "routineDeleteBody": "其中的地点不会被删除。",
   "routineCancel": "取消",
   "proRowRoutines": "例程",
-  "proLockedRoutines": "用例程分组地点"
+  "proLockedRoutines": "用例程分组地点",
+  "coachMarkStatusTitle": "查看是否正在监测",
+  "coachMarkStatusBody": "开启地点后,这里会显示“监测中”,同时显示耳机是否已连接",
+  "coachMarkAddTitle": "添加地点",
+  "coachMarkAddBody": "在地图上选好位置,再设置半径和提醒时机(到达或离开)。提醒只会通过振动或耳机传达",
+  "coachMarkSheetTitle": "管理已添加的地点",
+  "coachMarkSheetBody": "用开关启用或关闭地点,点按即可编辑。向上拖动可查看完整列表",
+  "coachMarkNext": "下一步",
+  "coachMarkDone": "开始使用",
+  "coachMarkSkip": "跳过",
+  "coachMarkStepCounter": "{current} / {total}",
+  "@coachMarkStepCounter": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsCoachMarkTitle": "重新查看使用指南",
+  "settingsCoachMarkSubtitle": "再次显示主页面的核心功能引导"
 }

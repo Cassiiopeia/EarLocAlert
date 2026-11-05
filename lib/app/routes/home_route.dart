@@ -16,6 +16,8 @@ class _HomeRoute extends ConsumerWidget {
         ref.watch(homeStatusProvider).valueOrNull ?? HomeStatus.unknown;
     final placeCount = ref.watch(placeListProvider).valueOrNull?.length ?? 0;
     final access = ref.watch(featureAccessControllerProvider);
+    final coachMarkRequestId =
+        ref.watch(homeCoachMarkRequestProvider).valueOrNull ?? 0;
 
     return PlaceMapHomeScreen(
       locationService: const CurrentLocationChannel(),
@@ -60,6 +62,10 @@ class _HomeRoute extends ConsumerWidget {
       // 루틴 칩 줄 끝 관리 칩 (#315)
       onManageRoutines: () => context.push(AppRoutes.routines),
       onRefreshStatus: () => ref.invalidate(homeStatusProvider),
+      // 첫 실행 · 설정에서 다시 보기 (#326)
+      coachMarkRequestId: coachMarkRequestId,
+      onCoachMarksFinished: () =>
+          unawaited(ref.read(homeCoachMarkRequestProvider.notifier).markSeen()),
     );
   }
 }

@@ -1466,7 +1466,8 @@ class AppLocalizationsKo extends AppLocalizations {
       '고르면 한 번 울려 확인할 수 있어요. 진동 세기 설정이 함께 적용돼요.';
 
   @override
-  String get vibrationPatternIosNote => '화면이 꺼져 있을 때는 리듬만 같고 세기는 일정해요.';
+  String get vibrationPatternIosNote =>
+      'iOS 정책상 앱 화면이 앞에 없으면 진동이 울리지 않을 수 있어요.';
 
   @override
   String get vibrationPatternFollowDefault => '기본 설정 따르기';
@@ -1747,4 +1748,45 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get proLockedRoutines => '루틴으로 장소 묶기';
+
+  @override
+  String get coachMarkStatusTitle => '지금 감시 중인지 보여요';
+
+  @override
+  String get coachMarkStatusBody =>
+      '켜 둔 장소가 있으면 여기에 \'감시 중\'이 떠요. 이어폰이 연결됐는지도 함께 알려 줘요';
+
+  @override
+  String get coachMarkAddTitle => '장소를 등록해요';
+
+  @override
+  String get coachMarkAddBody =>
+      '지도에서 위치를 고르고 반경과 알림 방향(도착·출발)을 정해요. 알림은 진동이나 이어폰으로만 와요';
+
+  @override
+  String get coachMarkSheetTitle => '등록한 장소를 관리해요';
+
+  @override
+  String get coachMarkSheetBody =>
+      '스위치로 켜고 끌 수 있고, 누르면 수정할 수 있어요. 위로 끌어 올리면 전체 목록이 보여요';
+
+  @override
+  String get coachMarkNext => '다음';
+
+  @override
+  String get coachMarkDone => '시작하기';
+
+  @override
+  String get coachMarkSkip => '건너뛰기';
+
+  @override
+  String coachMarkStepCounter(int current, int total) {
+    return '$current / $total';
+  }
+
+  @override
+  String get settingsCoachMarkTitle => '사용법 다시 보기';
+
+  @override
+  String get settingsCoachMarkSubtitle => '홈 화면의 핵심 기능 안내를 다시 보여줘요';
 }

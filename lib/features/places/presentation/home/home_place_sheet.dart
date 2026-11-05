@@ -14,6 +14,7 @@ class _PlaceSheet extends ConsumerWidget {
     this.onEditPlace,
     this.onUnlockPro,
     this.onManageRoutines,
+    super.key,
   });
 
   final ScrollController scrollController;

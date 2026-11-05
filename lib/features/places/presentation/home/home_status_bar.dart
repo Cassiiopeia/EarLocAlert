@@ -41,6 +41,7 @@ class _StatusBar extends StatelessWidget {
     this.onFixReliability,
     this.onOpenSettings,
     required this.onStatusTap,
+    this.pillKey,
     this.planBadge,
   });
 
@@ -72,6 +73,9 @@ class _StatusBar extends StatelessWidget {
 
   /// 알약을 눌렀을 때 — 상태 물방울을 토글한다 (#306)
   final VoidCallback onStatusTap;
+
+  /// 코치마크가 비출 알약의 키
+  final Key? pillKey;
 
   /// 등급 칩 (#294) — 설정 버튼 왼쪽
   final Widget? planBadge;
@@ -142,7 +146,12 @@ class _StatusBar extends StatelessWidget {
               // 설정을 오른쪽 끝에 민다.
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Flexible(child: _statusPill(context, semantic, statusColor)),
+                Flexible(
+                  child: KeyedSubtree(
+                    key: pillKey,
+                    child: _statusPill(context, semantic, statusColor),
+                  ),
+                ),
                 // 등급 칩과 설정은 한 묶음 — 오른쪽 끝에 붙어 선다 (#294)
                 Row(
                   mainAxisSize: MainAxisSize.min,

@@ -1463,7 +1463,7 @@ class AppLocalizationsJa extends AppLocalizations {
       '選ぶと一度振動して確認できます。バイブレーションの強さも反映されます。';
 
   @override
-  String get vibrationPatternIosNote => '画面がオフのときはリズムだけが同じで、強さは一定です。';
+  String get vibrationPatternIosNote => 'iOSの仕様上、アプリが画面に表示されていないと振動しないことがあります。';
 
   @override
   String get vibrationPatternFollowDefault => '基本設定に従う';
@@ -1744,4 +1744,44 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get proLockedRoutines => 'ルーティンで場所をまとめる';
+
+  @override
+  String get coachMarkStatusTitle => '見守り中か確認できます';
+
+  @override
+  String get coachMarkStatusBody =>
+      'オンにした場所があると、ここに「見守り中」と表示されます。イヤホンの接続状況もわかります';
+
+  @override
+  String get coachMarkAddTitle => '場所を登録します';
+
+  @override
+  String get coachMarkAddBody =>
+      '地図で場所を選び、半径と通知のタイミング(到着・出発)を決めます。通知は振動かイヤホンだけで届きます';
+
+  @override
+  String get coachMarkSheetTitle => '登録した場所を管理します';
+
+  @override
+  String get coachMarkSheetBody => 'スイッチでオン・オフでき、タップすると編集できます。上に引き上げると一覧が広がります';
+
+  @override
+  String get coachMarkNext => '次へ';
+
+  @override
+  String get coachMarkDone => 'はじめる';
+
+  @override
+  String get coachMarkSkip => 'スキップ';
+
+  @override
+  String coachMarkStepCounter(int current, int total) {
+    return '$current / $total';
+  }
+
+  @override
+  String get settingsCoachMarkTitle => '使い方をもう一度見る';
+
+  @override
+  String get settingsCoachMarkSubtitle => 'ホーム画面の基本機能の案内をもう一度表示します';
 }
