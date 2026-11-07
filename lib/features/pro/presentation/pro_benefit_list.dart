@@ -8,7 +8,7 @@ import '../../../core/ui/foundation/app_spacing.dart';
 /// 프로 혜택 한 줄: 아이콘, 항목 이름, 프로 값 (null = 체크 표시)
 typedef ProBenefit = ({IconData icon, String label, String? value});
 
-/// 프로 혜택 7개 (#352): 문구는 프로 안내 시트 비교표와 같은 키, 아이콘은 설정 화면과 같은 outlined
+/// 프로 혜택 8개 (#352, #330): 문구는 프로 안내 시트 비교표와 같은 키, 아이콘은 설정 화면과 같은 outlined
 List<ProBenefit> proBenefitsOf(AppLocalizations l10n) => [
   (
     icon: Icons.place_outlined,
@@ -32,6 +32,8 @@ List<ProBenefit> proBenefitsOf(AppLocalizations l10n) => [
   ),
   (icon: Icons.route_outlined, label: l10n.proRowRoutines, value: null),
   (icon: Icons.cloud_sync_outlined, label: l10n.proRowBackup, value: null),
+  // 구글 드라이브 동기화 (#330)
+  (icon: Icons.cloud_outlined, label: l10n.cloudSyncTitle, value: null),
   (
     icon: Icons.block_outlined,
     label: l10n.proRowAds,

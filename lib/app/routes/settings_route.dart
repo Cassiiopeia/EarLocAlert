@@ -218,6 +218,23 @@ class _SettingsRouteState extends ConsumerState<_SettingsRoute>
             .read(autoBackupCoordinatorProvider)
             .runNow(reason: 'manual', force: true),
       ),
+      // 구글 드라이브 동기화 (#330) — 백업과 같은 잠금 묶음
+      cloudSyncSubtitle: cloudSyncSubtitle(
+        context.l10n,
+        ref.watch(cloudSyncStatusProvider).valueOrNull,
+      ),
+      onOpenCloudSync: () {
+        final coordinator = ref.read(cloudSyncCoordinatorProvider);
+        showCloudSyncSheet(
+          context,
+          actions: (
+            connect: coordinator.connect,
+            confirmImport: coordinator.confirmImport,
+            syncNow: () => coordinator.runNow(reason: 'manual'),
+            disconnect: coordinator.disconnect,
+          ),
+        );
+      },
       // 무료/프로 (#294) — 맨 위 카드와 백업 잠금
       planCard: ProSettingsCard(
         placeCount: ref.watch(placeListProvider).valueOrNull?.length ?? 0,

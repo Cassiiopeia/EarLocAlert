@@ -1747,4 +1747,81 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get proLockedRoutines => '루틴으로 장소 묶기';
+
+  @override
+  String get cloudSyncTitle => '구글 드라이브 동기화';
+
+  @override
+  String get cloudSyncDescription =>
+      '구글 계정에 장소를 저장해요. 앱을 다시 깔거나 다른 기기(iPhone 포함)에서 같은 계정으로 연결하면 장소가 그대로 돌아와요.';
+
+  @override
+  String get cloudSyncPrivacyNote =>
+      '내 Drive 의 이 앱 전용 공간에만 저장돼요. 다른 파일은 보지 않아요.';
+
+  @override
+  String get cloudSyncOff => '꺼짐 · 구글 계정을 연결하면 켜져요';
+
+  @override
+  String cloudSyncOnNever(String account) {
+    return '$account · 아직 동기화 전';
+  }
+
+  @override
+  String cloudSyncOnLast(String account, String time) {
+    return '$account · 마지막 $time';
+  }
+
+  @override
+  String get cloudSyncAccountTitle => '계정';
+
+  @override
+  String get cloudSyncLastTitle => '마지막 동기화';
+
+  @override
+  String get cloudSyncNever => '아직 없음';
+
+  @override
+  String get cloudSyncConnect => '구글 계정 연결';
+
+  @override
+  String get cloudSyncNow => '지금 동기화';
+
+  @override
+  String get cloudSyncDisconnect => '연결 끊기';
+
+  @override
+  String get cloudSyncDisconnectDeleteTitle => 'Drive 에 저장된 장소도 지울까요?';
+
+  @override
+  String get cloudSyncDisconnectKeep => '남겨 두기';
+
+  @override
+  String get cloudSyncDisconnectDelete => '지우기';
+
+  @override
+  String get cloudSyncDone => '동기화했어요';
+
+  @override
+  String get cloudSyncFailed => '동기화하지 못했어요. 인터넷 연결을 확인해 주세요';
+
+  @override
+  String get cloudSyncConnectFailed => '구글 계정을 연결하지 못했어요';
+
+  @override
+  String get cloudSyncNewerVersion => '앱을 업데이트하면 동기화할 수 있어요';
+
+  @override
+  String get cloudSyncImportTitle => '장소를 가져올까요?';
+
+  @override
+  String cloudSyncImportMessage(int count, String device, String date) {
+    return 'Drive 에 장소 $count개가 있어요 ($device, $date 저장)';
+  }
+
+  @override
+  String get cloudSyncImportConfirm => '가져오기';
+
+  @override
+  String get cloudSyncImportLater => '나중에';
 }

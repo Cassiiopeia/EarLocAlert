@@ -352,6 +352,21 @@ keytool -list -v -keystore ~/.android/debug.keystore -alias androiddebugkey \
 
 **사람이 기억해서 바꾸지 않는다.** 실기기 테스트에서 실제 광고 ID 를 쓰면 무효 트래픽으로 집계되고, 반복되면 계정이 정지된다 → [07-MONETIZATION](07-MONETIZATION.md)
 
+### 구글 드라이브 동기화 OAuth — Cloud 프로젝트 `earlocalert` (#330)
+
+콘솔: Google 인증 플랫폼(`console.cloud.google.com/auth/clients?project=earlocalert`), 소유 계정 chancamera123. 범위는 `drive.appdata` 하나라 **민감하지 않은 범위 → 인증 심사 없이 프로덕션 게시**(2026-11-07).
+
+| 클라이언트 | 식별 | 서명 SHA-1 |
+|---|---|---|
+| Android (debug) | `kr.suhsaechan.ear_loc_alert` | `3E:F7:D9:41:…:8D:96` (로컬 디버그 키) |
+| Android (upload) | 같은 패키지 | `CB:69:22:ED:…:F6:E3` (업로드 키 — 로컬 릴리스·CI 빌드) |
+| Android (Play signing) | 같은 패키지 | `34:3A:C1:7B:…:CE:6E` (Play 앱 서명 키 — 스토어에서 받은 앱) |
+| iOS | `kr.suhsaechan.earlocAlert` · 팀 `CUK22HY6YC` | — (`Info.plist` 의 `GIDClientID`·역순 URL scheme) |
+
+**Android 는 앱에 클라이언트 ID 를 넣지 않는다** — 패키지 + 서명 SHA-1 쌍으로 Google 이 찾는다. 그래서 **서명 키가 바뀌면(키 업그레이드·새 업로드 키) 그 SHA-1 로 클라이언트를 하나 더 만들어야 한다.** 빠지면 로그인이 `ApiException: 10` 으로 실패하고 앱은 "연결하지 못했어요"만 보인다.
+
+브랜딩: 홈페이지·처리방침·약관은 `cassiiopeia.github.io/EarLocAlert/` (승인된 도메인 `cassiiopeia.github.io`). 로고를 올리면 브랜드 인증 심사가 생기므로 올리지 않았다.
+
 ---
 
 ## 개발 환경 제약 — 이 PC 에서는 빌드할 수 없다

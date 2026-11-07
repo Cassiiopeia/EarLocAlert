@@ -40,31 +40,8 @@ abstract final class PlaceBackup {
     var customSounds = 0;
     final items = <Map<String, Object?>>[];
     for (final place in places) {
-      final sound = place.sound;
-      if (sound is CustomSoundRef) customSounds++;
-      items.add({
-        'name': place.name,
-        'latitude': place.latitude,
-        'longitude': place.longitude,
-        'radiusMeters': place.radiusMeters,
-        'direction': place.direction.name,
-        'enabled': place.enabled,
-        'soundEnabled': place.soundEnabled,
-        'sound': sound is CustomSoundRef
-            ? AlertSound.fallback.storageValue
-            : sound.storageValue,
-        // 선택 필드 (#311): 없으면 기본 패턴 따름
-        if (place.vibrationPattern != null)
-          'vibrationPattern': place.vibrationPattern!.name,
-        'schedules': [
-          for (final schedule in place.schedules)
-            {
-              'days': (schedule.daysOfWeek.toList()..sort()),
-              'start': schedule.startMinuteOfDay,
-              'end': schedule.endMinuteOfDay,
-            },
-        ],
-      });
+      if (place.sound is CustomSoundRef) customSounds++;
+      items.add(encodePlace(place));
     }
 
     final json = const JsonEncoder.withIndent('  ').convert({
@@ -79,6 +56,34 @@ abstract final class PlaceBackup {
       placeCount: places.length,
       customSoundCount: customSounds,
     );
+  }
+
+  /// 장소 한 건 > 파일 필드 (id·createdAt 제외, 사용자 음원은 기본음으로). 동기화(#330)도 이 모양을 씀
+  static Map<String, Object?> encodePlace(AlertPlace place) {
+    final sound = place.sound;
+    return {
+      'name': place.name,
+      'latitude': place.latitude,
+      'longitude': place.longitude,
+      'radiusMeters': place.radiusMeters,
+      'direction': place.direction.name,
+      'enabled': place.enabled,
+      'soundEnabled': place.soundEnabled,
+      'sound': sound is CustomSoundRef
+          ? AlertSound.fallback.storageValue
+          : sound.storageValue,
+      // 선택 필드 (#311): 없으면 기본 패턴 따름
+      if (place.vibrationPattern != null)
+        'vibrationPattern': place.vibrationPattern!.name,
+      'schedules': [
+        for (final schedule in place.schedules)
+          {
+            'days': (schedule.daysOfWeek.toList()..sort()),
+            'start': schedule.startMinuteOfDay,
+            'end': schedule.endMinuteOfDay,
+          },
+      ],
+    };
   }
 
   /// 파일 내용을 읽는다. **절대 던지지 않는다** — 깨진 파일은 [PlaceBackupError]
@@ -109,7 +114,11 @@ abstract final class PlaceBackup {
     final places = <AlertPlace>[];
     var invalid = 0;
     for (final item in list) {
-      final place = _decodePlace(item, now);
+      final place = decodePlace(
+        item,
+        id: IdGenerator.generate(),
+        createdAt: now,
+      );
       if (place == null) {
         invalid++;
       } else {
@@ -121,7 +130,12 @@ abstract final class PlaceBackup {
 
   /// 장소 하나를 읽는다. 검증을 통과하지 못하면 null — 좌표가 범위 밖이거나
   /// 반경이 허용 범위 밖인 장소를 저장소에 들이지 않는다
-  static AlertPlace? _decodePlace(Object? item, DateTime now) {
+  /// [id]·[createdAt]: 불러오기는 새로 만들고, 동기화(#330)는 원래 값을 유지
+  static AlertPlace? decodePlace(
+    Object? item, {
+    required String id,
+    required DateTime createdAt,
+  }) {
     if (item is! Map<String, Object?>) return null;
 
     final name = item['name'];
@@ -168,7 +182,7 @@ abstract final class PlaceBackup {
     final sound = item['sound'];
 
     return AlertPlace(
-      id: IdGenerator.generate(),
+      id: id,
       name: name.trim(),
       latitude: latitude.toDouble(),
       longitude: longitude.toDouble(),
@@ -188,7 +202,7 @@ abstract final class PlaceBackup {
           ? VibrationPattern.tryParse(item['vibrationPattern'] as String)
           : null,
       schedules: schedules,
-      createdAt: now.toUtc(),
+      createdAt: createdAt.toUtc(),
     );
   }
 

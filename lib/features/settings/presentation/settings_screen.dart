@@ -79,6 +79,8 @@ class SettingsScreen extends StatelessWidget {
     required this.onImportPlaces,
     required this.autoBackupSubtitle,
     required this.onOpenAutoBackup,
+    required this.cloudSyncSubtitle,
+    required this.onOpenCloudSync,
     required this.onReportProblem,
     required this.language,
     required this.onLanguageChanged,
@@ -130,6 +132,10 @@ class SettingsScreen extends StatelessWidget {
   /// 자동 백업 (#314): 상태 문구와 시트 열기 (places feature 시트를 app 이 잇는다)
   final String autoBackupSubtitle;
   final VoidCallback onOpenAutoBackup;
+
+  /// 구글 드라이브 동기화 줄 (#330): 부제(꺼짐 / 계정 · 마지막)와 시트 열기
+  final String cloudSyncSubtitle;
+  final VoidCallback onOpenCloudSync;
 
   /// 문제 신고 메일 (이슈 #255). 시트는 diagnostics feature 에 있어 app 계층이 연결한다
   final VoidCallback onReportProblem;
@@ -227,7 +233,7 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-  /// 장소 백업 두 줄. 무료면 한 덩어리로 흐리게 잠금 (#294)
+  /// 장소 백업·동기화 네 줄 (내보내기, 불러오기, 자동 백업, 드라이브 동기화). 무료면 한 덩어리로 흐리게 잠금 (#294)
   List<Widget> _backupRowsLockedIfFree(BuildContext context) {
     final rows = [
       GroupedListRow.navigation(
@@ -247,6 +253,12 @@ class SettingsScreen extends StatelessWidget {
         title: context.l10n.autoBackupTitle,
         subtitle: autoBackupSubtitle,
         onTap: onOpenAutoBackup,
+      ),
+      GroupedListRow.navigation(
+        icon: Icons.cloud_outlined,
+        title: context.l10n.cloudSyncTitle,
+        subtitle: cloudSyncSubtitle,
+        onTap: onOpenCloudSync,
       ),
     ];
     final onUnlock = onUnlockPro;

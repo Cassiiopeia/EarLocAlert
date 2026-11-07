@@ -11,6 +11,21 @@
 	</array>
 	<key>CFBundleDevelopmentRegion</key>
 		<string>$(DEVELOPMENT_LANGUAGE)</string>
+		<!-- 구글 드라이브 동기화 로그인 (#330): Cloud 프로젝트 earlocalert 의 iOS OAuth 클라이언트
+	     URL scheme 은 클라이언트 ID 를 뒤집은 값 (로그인 후 앱으로 돌아오는 주소) -->
+		<key>GIDClientID</key>
+		<string>624308658084-f8gssflv5hlao4d34qd6jaiqje86qgmv.apps.googleusercontent.com</string>
+		<key>CFBundleURLTypes</key>
+		<array>
+			<dict>
+				<key>CFBundleTypeRole</key>
+				<string>Editor</string>
+				<key>CFBundleURLSchemes</key>
+				<array>
+					<string>com.googleusercontent.apps.624308658084-f8gssflv5hlao4d34qd6jaiqje86qgmv</string>
+				</array>
+			</dict>
+		</array>
 		<!-- ==========================================================
 	     위치 권한 사유 (docs/09-RELEASE.md)
 
