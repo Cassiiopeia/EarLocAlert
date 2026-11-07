@@ -27,12 +27,12 @@ class PrefsCloudSyncStateStore implements CloudSyncStateStore {
     try {
       final list = jsonDecode(raw) as List<Object?>;
       return [
-        for (final item in list.cast<Map<String, Object?>>())
+        for (final ledgerJson in list.cast<Map<String, Object?>>())
           SyncLedgerEntry(
-            syncId: item['id']! as String,
-            signature: item['sig']! as String,
-            updatedAt: DateTime.parse(item['at']! as String).toUtc(),
-            isDeleted: item['del'] == true,
+            syncId: ledgerJson['id']! as String,
+            signature: ledgerJson['sig']! as String,
+            updatedAt: DateTime.parse(ledgerJson['at']! as String).toUtc(),
+            isDeleted: ledgerJson['del'] == true,
           ),
       ];
     } on Object catch (error) {

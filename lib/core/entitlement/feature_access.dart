@@ -1,7 +1,7 @@
 import 'place_limits.dart';
 import 'pro_entitlement.dart';
 
-/// 지금 쓸 수 있는 기능: 장소 상한, 알림음 전체, 진동 패턴 전체, 도착 기록 전체, 루틴, 장소 백업, 광고 (#294 #311 #313 #315)
+/// 지금 쓸 수 있는 기능: 장소 상한, 알림음 전체, 진동 패턴 전체, 도착 기록 전체, 루틴, 장소 백업, 구글 드라이브 동기화, 광고 (#294 #311 #313 #315 #330)
 /// 결제 화면이 꺼진 플랫폼(Android·iOS 외)은 등급 없이 전부 열고 광고만 유지
 class FeatureAccess {
   const FeatureAccess({required this.isPaywallEnabled, required this.source});

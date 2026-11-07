@@ -73,13 +73,13 @@ class _CloudSyncSheetState extends ConsumerState<_CloudSyncSheet> {
 
   /// 연결 > (빈 기기 + Drive 장소) 가져오기 확인 > 결과 안내
   Future<void> _connect() => _runBusy(() async {
-    final result = await widget.actions.connect();
+    final connectResult = await widget.actions.connect();
     if (!mounted) return;
-    switch (result) {
+    switch (connectResult) {
       case CloudSyncConnectCancelled():
         context.showToast(context.l10n.cloudSyncConnectFailed);
       case CloudSyncConnectNeedsImport():
-        final shouldImport = await _askImport(result);
+        final shouldImport = await _askImport(connectResult);
         if (shouldImport) {
           _showOutcome(await widget.actions.confirmImport());
         } else {

@@ -13,7 +13,7 @@ void main() {
     'choosing later on import prompt disconnects without deleting drive',
     (tester) async {
       var disconnectCount = 0;
-      bool? deletedRemote;
+      bool? didDeleteRemote;
       var confirmCount = 0;
       final actions = (
         connect: () async => CloudSyncConnectNeedsImport(
@@ -28,7 +28,7 @@ void main() {
         syncNow: () async => CloudSyncOutcome.synced,
         disconnect: ({required bool deleteRemote}) async {
           disconnectCount++;
-          deletedRemote = deleteRemote;
+          didDeleteRemote = deleteRemote;
         },
       );
 
@@ -71,7 +71,7 @@ void main() {
 
       expect(confirmCount, 0);
       expect(disconnectCount, 1);
-      expect(deletedRemote, isFalse);
+      expect(didDeleteRemote, isFalse);
     },
   );
 }

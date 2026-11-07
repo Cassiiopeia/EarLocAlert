@@ -59,9 +59,9 @@ class CloudSyncCoordinator {
   }
 
   Future<CloudSyncConnectResult> connect() async {
-    final result = await service.connect();
+    final connectResult = await service.connect();
     _ref.invalidate(cloudSyncStatusProvider);
-    return result;
+    return connectResult;
   }
 
   Future<CloudSyncOutcome> confirmImport() async {

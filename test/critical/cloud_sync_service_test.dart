@@ -26,11 +26,11 @@ void main() {
         updatedAt: updatedAt ?? DateTime.utc(2026, 11, 4),
         deviceLabel: 'Pixel 8',
         entries: [
-          for (final value in places)
+          for (final localPlace in places)
             CloudSyncEntry(
-              syncId: value.id,
+              syncId: localPlace.id,
               updatedAt: updatedAt ?? DateTime.utc(2026, 11, 4),
-              place: value,
+              place: localPlace,
             ),
         ],
       ).toJson();
@@ -73,7 +73,7 @@ void main() {
 
   test('read failure does not write', () async {
     store.email = 'user@gmail.com';
-    store.firstReadDone = true;
+    store.isFirstReadDone = true;
     repository.places['a'] = place('a');
     remote.nextRead = const CloudSyncReadFailed('offline');
 
@@ -90,10 +90,10 @@ void main() {
         remoteJson([place('a'), place('b')]),
       );
 
-      final result = await service().connect();
+      final connectResult = await service().connect();
 
-      expect(result, isA<CloudSyncConnectNeedsImport>());
-      final needsImport = result as CloudSyncConnectNeedsImport;
+      expect(connectResult, isA<CloudSyncConnectNeedsImport>());
+      final needsImport = connectResult as CloudSyncConnectNeedsImport;
       expect(needsImport.remotePlaceCount, 2);
       expect(needsImport.deviceLabel, 'Pixel 8');
       expect(remote.writes, isEmpty);
@@ -112,7 +112,7 @@ void main() {
 
     expect(outcome, CloudSyncOutcome.synced);
     expect(repository.places['a']?.name, 'Home');
-    expect(store.firstReadDone, isTrue);
+    expect(store.isFirstReadDone, isTrue);
   });
 
   test(
@@ -131,7 +131,7 @@ void main() {
 
   test('merge result is applied through repository save and delete', () async {
     store.email = 'user@gmail.com';
-    store.firstReadDone = true;
+    store.isFirstReadDone = true;
     repository.places['local'] = place('local');
     repository.places['gone'] = place('gone');
     store.entries = CloudSyncMerge.trackLocal(
@@ -191,7 +191,7 @@ void main() {
 
   test('newer remote schema stops with newerSchema', () async {
     store.email = 'user@gmail.com';
-    store.firstReadDone = true;
+    store.isFirstReadDone = true;
     repository.places['a'] = place('a');
     remote.nextRead = const CloudSyncReadFound(
       '{"format":"earlocalert-sync","schemaVersion":99,"updatedAt":"2026-11-04T00:00:00Z","places":[]}',
@@ -205,7 +205,7 @@ void main() {
 
   test('empty local after merge never uploads', () async {
     store.email = 'user@gmail.com';
-    store.firstReadDone = true;
+    store.isFirstReadDone = true;
     remote.nextRead = const CloudSyncReadEmpty();
 
     final outcome = await service().sync(reason: 'test');
@@ -217,28 +217,28 @@ void main() {
   test('cancelled sign in stays disconnected', () async {
     account.nextEmail = null;
 
-    final result = await service().connect();
+    final connectResult = await service().connect();
 
-    expect(result, isA<CloudSyncConnectCancelled>());
+    expect(connectResult, isA<CloudSyncConnectCancelled>());
     expect(store.email, isNull);
   });
 
   test('disconnect with deleteRemote clears drive and local state', () async {
     store.email = 'user@gmail.com';
-    store.firstReadDone = true;
+    store.isFirstReadDone = true;
 
     await service().disconnect(deleteRemote: true);
 
     expect(remote.deleteAllCount, 1);
-    expect(account.signedOut, isTrue);
+    expect(account.isSignedOut, isTrue);
     expect(store.email, isNull);
-    expect(store.firstReadDone, isFalse);
+    expect(store.isFirstReadDone, isFalse);
   });
 }
 
 class _FakeAccount implements CloudSyncAccount {
   String? nextEmail = 'user@gmail.com';
-  bool signedOut = false;
+  bool isSignedOut = false;
 
   @override
   Future<String?> signIn() async => nextEmail;
@@ -247,7 +247,7 @@ class _FakeAccount implements CloudSyncAccount {
   Future<String?> signInSilently() async => nextEmail;
 
   @override
-  Future<void> signOut() async => signedOut = true;
+  Future<void> signOut() async => isSignedOut = true;
 
   @override
   Future<Map<String, String>?> authHeaders() async => const {};
@@ -283,7 +283,7 @@ class _MemoryStateStore implements CloudSyncStateStore {
   List<SyncLedgerEntry> entries = const [];
   String? email;
   DateTime? lastSynced;
-  bool firstReadDone = false;
+  bool isFirstReadDone = false;
 
   @override
   Future<List<SyncLedgerEntry>> ledger() async => entries;
@@ -304,17 +304,17 @@ class _MemoryStateStore implements CloudSyncStateStore {
   Future<void> saveLastSyncedAt(DateTime atUtc) async => lastSynced = atUtc;
 
   @override
-  Future<bool> hasCompletedFirstRead() async => firstReadDone;
+  Future<bool> hasCompletedFirstRead() async => isFirstReadDone;
 
   @override
-  Future<void> markFirstReadDone() async => firstReadDone = true;
+  Future<void> markFirstReadDone() async => isFirstReadDone = true;
 
   @override
   Future<void> clear() async {
     entries = const [];
     email = null;
     lastSynced = null;
-    firstReadDone = false;
+    isFirstReadDone = false;
   }
 }
 

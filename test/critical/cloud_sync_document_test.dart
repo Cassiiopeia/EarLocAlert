@@ -42,17 +42,17 @@ void main() {
       final decoded = CloudSyncDocument.fromJson(original.toJson());
 
       expect(decoded, isA<CloudSyncDecodedOk>());
-      final result = (decoded as CloudSyncDecodedOk).document;
-      expect(result.deviceLabel, 'Pixel 8');
-      expect(result.updatedAt, updatedAt);
-      expect(result.entries, hasLength(2));
-      final kept = result.entries.first;
+      final decodedDocument = (decoded as CloudSyncDecodedOk).document;
+      expect(decodedDocument.deviceLabel, 'Pixel 8');
+      expect(decodedDocument.updatedAt, updatedAt);
+      expect(decodedDocument.entries, hasLength(2));
+      final kept = decodedDocument.entries.first;
       expect(kept.syncId, 'place-1');
       expect(kept.isDeleted, isFalse);
       expect(kept.place?.id, 'place-1');
       expect(kept.place?.name, 'Home');
       expect(kept.place?.radiusMeters, 150);
-      final deleted = result.entries.last;
+      final deleted = decodedDocument.entries.last;
       expect(deleted.syncId, 'place-2');
       expect(deleted.isDeleted, isTrue);
       expect(deleted.place, isNull);

@@ -93,8 +93,8 @@ class CloudSyncDocument {
 
     final entries = <CloudSyncEntry>[];
     var invalid = 0;
-    for (final item in list) {
-      final entry = _decodeEntry(item);
+    for (final entryJson in list) {
+      final entry = _decodeEntry(entryJson);
       if (entry == null) {
         invalid++;
       } else {

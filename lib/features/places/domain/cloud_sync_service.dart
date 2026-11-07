@@ -198,20 +198,22 @@ class CloudSyncService {
     }
 
     // 병합 > 적용
-    final result = CloudSyncMerge.merge(
+    final mergeResult = CloudSyncMerge.merge(
       local: ledger,
       localPlaces: localPlaces,
       remote: remoteDocument,
       maximumPlaces: maximumPlaces(),
     );
-    await _apply(result);
-    await store.saveLedger(result.ledger);
+    await _apply(mergeResult);
+    await store.saveLedger(mergeResult.ledger);
     await store.markFirstReadDone();
 
     // 쓰기 (로컬 장소 0개면 절대 올리지 않음)
     final placeCountAfter =
-        localPlaces.length + result.toSave.length - result.toDelete.length;
-    final shouldWrite = result.hasLocalChanges || remoteDocument == null;
+        localPlaces.length +
+        mergeResult.toSave.length -
+        mergeResult.toDelete.length;
+    final shouldWrite = mergeResult.hasLocalChanges || remoteDocument == null;
     if (shouldWrite && placeCountAfter <= 0) {
       return CloudSyncOutcome.skippedEmpty;
     }
@@ -219,32 +221,32 @@ class CloudSyncService {
       final document = CloudSyncDocument(
         updatedAt: now,
         deviceLabel: deviceLabel,
-        entries: result.mergedEntries,
+        entries: mergeResult.mergedEntries,
       );
       if (!await remote.write(document.toJson())) {
         return CloudSyncOutcome.writeFailed;
       }
     }
     await store.saveLastSyncedAt(now);
-    return shouldWrite || result.hasRemoteChanges
+    return shouldWrite || mergeResult.hasRemoteChanges
         ? CloudSyncOutcome.synced
         : CloudSyncOutcome.unchanged;
   }
 
   /// 병합 결과 적용: 저장(가져옴·원격 수정) > 삭제. 저장소 경로라 지오펜스도 다시 맞춰짐
-  Future<void> _apply(CloudSyncMergeResult result) async {
-    for (final AlertPlace place in result.toSave) {
+  Future<void> _apply(CloudSyncMergeResult mergeResult) async {
+    for (final AlertPlace place in mergeResult.toSave) {
       await repository.save(place);
     }
-    for (final id in result.toDelete) {
+    for (final id in mergeResult.toDelete) {
       await repository.delete(id);
     }
     Diagnostics.log(
       'cloudsync',
-      'merge applied imported=${result.toSave.length} '
-          'deleted=${result.toDelete.length} '
-          'dropped_over_limit=${result.droppedOverLimit} '
-          'upload=${result.hasLocalChanges}',
+      'merge applied imported=${mergeResult.toSave.length} '
+          'deleted=${mergeResult.toDelete.length} '
+          'dropped_over_limit=${mergeResult.droppedOverLimit} '
+          'upload=${mergeResult.hasLocalChanges}',
     );
   }
 

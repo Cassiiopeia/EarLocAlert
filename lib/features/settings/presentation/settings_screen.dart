@@ -233,7 +233,7 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-  /// 장소 백업 두 줄. 무료면 한 덩어리로 흐리게 잠금 (#294)
+  /// 장소 백업·동기화 네 줄 (내보내기, 불러오기, 자동 백업, 드라이브 동기화). 무료면 한 덩어리로 흐리게 잠금 (#294)
   List<Widget> _backupRowsLockedIfFree(BuildContext context) {
     final rows = [
       GroupedListRow.navigation(
