@@ -1,14 +1,36 @@
 {
   "metadata": {
-    "lastUpdated": "2026-11-04T17:52:55Z",
-    "currentVersion": "1.48.0",
+    "lastUpdated": "2026-11-07T11:38:26Z",
+    "currentVersion": "1.49.0",
     "projectType": "flutter",
-    "totalReleases": 123,
+    "totalReleases": 124,
     "projectTypes": [
       "flutter"
     ]
   },
   "releases": [
+    {
+      "version": "1.49.0",
+      "project_type": "flutter",
+      "project_types": [
+        "flutter"
+      ],
+      "date": "2026-11-07",
+      "pr_number": 357,
+      "raw_summary": "## Summary by CodeRabbit\n\n## 릴리스 노트\n\n* **새 기능**\n  * 프로: 구글 드라이브 동기화로 앱을 다시 깔거나 다른 기기에서도 장소가 그대로 돌아와요\n  * 다른 기기(Android·iPhone)에서 같은 구글 계정으로 연결하면 장소가 서로 맞춰져요\n  * 새 기기에서 연결하면 Drive 에 있던 장소를 가져올지 먼저 물어봐요\n  * 프로 혜택 목록에 구글 드라이브 동기화가 추가됐어요",
+      "parsed_changes": {
+        "새_기능": {
+          "title": "새 기능",
+          "items": [
+            "프로: 구글 드라이브 동기화로 앱을 다시 깔거나 다른 기기에서도 장소가 그대로 돌아와요",
+            "다른 기기(Android·iPhone)에서 같은 구글 계정으로 연결하면 장소가 서로 맞춰져요",
+            "새 기기에서 연결하면 Drive 에 있던 장소를 가져올지 먼저 물어봐요",
+            "프로 혜택 목록에 구글 드라이브 동기화가 추가됐어요"
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "1.48.0",
       "project_type": "flutter",
