@@ -24,7 +24,7 @@ Sound never goes out through car audio or an external speaker.
 ■ Tell places apart by sound
 
 Choose a different alert sound for each place.
-Pick from Default, Bell, Electronic, Siren and Chime, or add a sound from your own phone.
+With Pro, pick from Default, Bell, Electronic, Siren and Chime, or add a sound from your own phone.
 
 Arriving home sounds different from arriving at work.
 You know where you are without looking at the screen.
@@ -36,10 +36,14 @@ When an alert goes off, the place you arrived at is shown on a map.
 Your set radius and your current position appear together, so you can confirm at a glance that you really arrived.
 
 
-■ Your location never leaves your phone
+■ Your movements stay off our servers
 
 Arrival is decided entirely on your phone.
-Where you go and which places you registered are never sent to any server.
+Your movements are never sent to our servers.
+If you turn on Google Drive sync (Pro), only your place list is saved to the app's private space in your own Google Drive.
+
+Free: 1 place, default sound and vibration, ads.
+Pro (one-time purchase): multiple places, all sounds and vibration patterns, your own sounds, routines, backup, Google Drive sync, no ads.
 No sign-up, no login.
 
 
@@ -57,10 +61,10 @@ No sign-up, no login.
 · Drop a pin on the map and set a radius (50 m to 2 km)
 · Alert on arrival, on leaving, or both
 · Set days and times, e.g. weekday mornings only
-· Choose a sound per place and add your own sound
+· Choose a sound per place and add your own sound (Pro)
 · 3 vibration strengths
 · Adjustable alert volume
-· Monitor several places at once
+· Monitor several places at once (Pro)
 
 
 ■ Permissions
@@ -75,4 +79,4 @@ If you decline the optional permissions, alerts and vibration still work normall
 
 ■ Battery
 
-Normally it uses Android's built-in location monitoring, so it barely uses any battery. It checks precisely only when you get near a registered place.
+Normally it saves battery with Android's built-in location monitoring. It checks precisely only when you get near a registered place.
