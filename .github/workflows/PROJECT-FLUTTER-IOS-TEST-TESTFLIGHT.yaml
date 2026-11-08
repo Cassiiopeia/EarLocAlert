@@ -586,14 +586,27 @@ jobs:
           fi
           echo "✅ ExportOptions.plist 확인됨"
 
+      # 빌드 프로파일 (test) — 개발자 도구 컴파일 게이트 APP_FLAVOR=dev (#359)
+      # 설정: .github/config/build-profile.json. 플래그는 아래 Flutter build 가 그대로 씀
+      - name: 빌드 프로파일 적용 (test)
+        id: build_profile
+        run: |
+          python3 .github/scripts/apply_build_profile.py \
+            test "${{ env.ENV_FILE_PATH }}" \
+            --config .github/config/build-profile.json
+
       - name: Flutter build (no codesign)
         env:
           # xcode-select만으로는 서브프로세스에 전파되지 않아 명시적으로 지정
           DEVELOPER_DIR: /Applications/Xcode_${{ env.XCODE_VERSION }}.app/Contents/Developer
+          BUILD_FLAGS: ${{ steps.build_profile.outputs.build_flags }}
         run: |
+          # 🔴 dart-define 은 여기 직접 적지 않는다 — 빌드 프로파일 한 곳에서 정한다 (#359)
+          # shellcheck disable=SC2086
           flutter build ios --release --no-codesign \
             --build-name="${{ needs.prepare-test-build.outputs.version }}" \
-            --build-number="${{ needs.prepare-test-build.outputs.build_number }}"
+            --build-number="${{ needs.prepare-test-build.outputs.build_number }}" \
+            $BUILD_FLAGS
 
       - name: Create Archive
         env:

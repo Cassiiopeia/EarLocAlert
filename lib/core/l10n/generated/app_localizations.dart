@@ -3461,6 +3461,294 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'나중에'**
   String get cloudSyncImportLater;
+
+  /// No description provided for @devToolsTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'개발자 도구'**
+  String get devToolsTitle;
+
+  /// No description provided for @devToolsDescription.
+  ///
+  /// In ko, this message translates to:
+  /// **'테스트 빌드 전용입니다. 강제값은 앱을 다시 켜면 꺼집니다'**
+  String get devToolsDescription;
+
+  /// No description provided for @devToolsOpen.
+  ///
+  /// In ko, this message translates to:
+  /// **'개발자 도구 열기'**
+  String get devToolsOpen;
+
+  /// No description provided for @devToolsTabPlan.
+  ///
+  /// In ko, this message translates to:
+  /// **'등급'**
+  String get devToolsTabPlan;
+
+  /// No description provided for @devToolsTabSituation.
+  ///
+  /// In ko, this message translates to:
+  /// **'상황'**
+  String get devToolsTabSituation;
+
+  /// No description provided for @devToolsTabDiagnostics.
+  ///
+  /// In ko, this message translates to:
+  /// **'진단'**
+  String get devToolsTabDiagnostics;
+
+  /// No description provided for @devToolsProSection.
+  ///
+  /// In ko, this message translates to:
+  /// **'등급 강제'**
+  String get devToolsProSection;
+
+  /// No description provided for @devToolsProActual.
+  ///
+  /// In ko, this message translates to:
+  /// **'실제 값 따르기'**
+  String get devToolsProActual;
+
+  /// No description provided for @devToolsProForceFree.
+  ///
+  /// In ko, this message translates to:
+  /// **'무료로 보기'**
+  String get devToolsProForceFree;
+
+  /// No description provided for @devToolsProForcePro.
+  ///
+  /// In ko, this message translates to:
+  /// **'프로로 보기'**
+  String get devToolsProForcePro;
+
+  /// No description provided for @devToolsProStored.
+  ///
+  /// In ko, this message translates to:
+  /// **'저장된 등급'**
+  String get devToolsProStored;
+
+  /// No description provided for @devToolsProShown.
+  ///
+  /// In ko, this message translates to:
+  /// **'지금 화면 등급'**
+  String get devToolsProShown;
+
+  /// No description provided for @devToolsProFree.
+  ///
+  /// In ko, this message translates to:
+  /// **'무료'**
+  String get devToolsProFree;
+
+  /// No description provided for @devToolsProPro.
+  ///
+  /// In ko, this message translates to:
+  /// **'프로'**
+  String get devToolsProPro;
+
+  /// No description provided for @devToolsPlaceLimit.
+  ///
+  /// In ko, this message translates to:
+  /// **'장소 한도'**
+  String get devToolsPlaceLimit;
+
+  /// No description provided for @devToolsPurchaseOrder.
+  ///
+  /// In ko, this message translates to:
+  /// **'구매 주문 번호'**
+  String get devToolsPurchaseOrder;
+
+  /// No description provided for @devToolsNone.
+  ///
+  /// In ko, this message translates to:
+  /// **'없음'**
+  String get devToolsNone;
+
+  /// No description provided for @devToolsAlertSection.
+  ///
+  /// In ko, this message translates to:
+  /// **'알림 시험'**
+  String get devToolsAlertSection;
+
+  /// No description provided for @devToolsAlertArrive.
+  ///
+  /// In ko, this message translates to:
+  /// **'도착 알림 바로 울리기'**
+  String get devToolsAlertArrive;
+
+  /// No description provided for @devToolsAlertLeave.
+  ///
+  /// In ko, this message translates to:
+  /// **'출발 알림 바로 울리기'**
+  String get devToolsAlertLeave;
+
+  /// No description provided for @devToolsAlertSubtitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'첫 장소로 실제 알림 경로를 탑니다'**
+  String get devToolsAlertSubtitle;
+
+  /// No description provided for @devToolsAlertQueued.
+  ///
+  /// In ko, this message translates to:
+  /// **'3초 안에 알림이 울립니다'**
+  String get devToolsAlertQueued;
+
+  /// No description provided for @devToolsAlertNoPlace.
+  ///
+  /// In ko, this message translates to:
+  /// **'장소를 먼저 등록하세요'**
+  String get devToolsAlertNoPlace;
+
+  /// No description provided for @devToolsAdSection.
+  ///
+  /// In ko, this message translates to:
+  /// **'광고'**
+  String get devToolsAdSection;
+
+  /// No description provided for @devToolsAdShowNow.
+  ///
+  /// In ko, this message translates to:
+  /// **'전면광고 바로 보기'**
+  String get devToolsAdShowNow;
+
+  /// No description provided for @devToolsAdNotReady.
+  ///
+  /// In ko, this message translates to:
+  /// **'광고를 아직 불러오지 못했습니다'**
+  String get devToolsAdNotReady;
+
+  /// No description provided for @devToolsAdReset.
+  ///
+  /// In ko, this message translates to:
+  /// **'광고 빈도 기록 초기화'**
+  String get devToolsAdReset;
+
+  /// No description provided for @devToolsReviewSection.
+  ///
+  /// In ko, this message translates to:
+  /// **'후기 요청'**
+  String get devToolsReviewSection;
+
+  /// No description provided for @devToolsReviewReset.
+  ///
+  /// In ko, this message translates to:
+  /// **'후기 요청 조건 초기화'**
+  String get devToolsReviewReset;
+
+  /// No description provided for @devToolsReviewRequest.
+  ///
+  /// In ko, this message translates to:
+  /// **'후기 창 바로 요청'**
+  String get devToolsReviewRequest;
+
+  /// No description provided for @devToolsReviewRequestFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'후기 창을 띄우지 못했습니다. 스토어에서 설치한 앱에서만 뜰 수 있습니다'**
+  String get devToolsReviewRequestFailed;
+
+  /// No description provided for @devToolsOnboardingSection.
+  ///
+  /// In ko, this message translates to:
+  /// **'처음 상태'**
+  String get devToolsOnboardingSection;
+
+  /// No description provided for @devToolsOnboardingReplay.
+  ///
+  /// In ko, this message translates to:
+  /// **'온보딩 다시 보기'**
+  String get devToolsOnboardingReplay;
+
+  /// No description provided for @devToolsDone.
+  ///
+  /// In ko, this message translates to:
+  /// **'완료했습니다'**
+  String get devToolsDone;
+
+  /// No description provided for @devToolsBuildSection.
+  ///
+  /// In ko, this message translates to:
+  /// **'빌드'**
+  String get devToolsBuildSection;
+
+  /// No description provided for @devToolsBuildFlavor.
+  ///
+  /// In ko, this message translates to:
+  /// **'빌드 종류'**
+  String get devToolsBuildFlavor;
+
+  /// No description provided for @devToolsBuildVersion.
+  ///
+  /// In ko, this message translates to:
+  /// **'버전'**
+  String get devToolsBuildVersion;
+
+  /// No description provided for @devToolsAdUnit.
+  ///
+  /// In ko, this message translates to:
+  /// **'광고 단위'**
+  String get devToolsAdUnit;
+
+  /// No description provided for @devToolsAdUnitTest.
+  ///
+  /// In ko, this message translates to:
+  /// **'테스트'**
+  String get devToolsAdUnitTest;
+
+  /// No description provided for @devToolsAdUnitLive.
+  ///
+  /// In ko, this message translates to:
+  /// **'실제'**
+  String get devToolsAdUnitLive;
+
+  /// No description provided for @devToolsWatchSection.
+  ///
+  /// In ko, this message translates to:
+  /// **'감시·동기화'**
+  String get devToolsWatchSection;
+
+  /// No description provided for @devToolsGeofenceResync.
+  ///
+  /// In ko, this message translates to:
+  /// **'지오펜스 다시 등록'**
+  String get devToolsGeofenceResync;
+
+  /// No description provided for @devToolsCloudSyncNow.
+  ///
+  /// In ko, this message translates to:
+  /// **'드라이브 지금 동기화'**
+  String get devToolsCloudSyncNow;
+
+  /// No description provided for @devToolsCloudSyncResult.
+  ///
+  /// In ko, this message translates to:
+  /// **'동기화 결과: {outcome}'**
+  String devToolsCloudSyncResult(String outcome);
+
+  /// No description provided for @devToolsCopyState.
+  ///
+  /// In ko, this message translates to:
+  /// **'상태 전체 복사'**
+  String get devToolsCopyState;
+
+  /// No description provided for @devToolsCopied.
+  ///
+  /// In ko, this message translates to:
+  /// **'복사했습니다'**
+  String get devToolsCopied;
+
+  /// No description provided for @devToolsOpenDiagnostics.
+  ///
+  /// In ko, this message translates to:
+  /// **'진단 기록 열기'**
+  String get devToolsOpenDiagnostics;
+
+  /// No description provided for @devToolsFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'실패했습니다: {error}'**
+  String devToolsFailed(String error);
 }
 
 class _AppLocalizationsDelegate

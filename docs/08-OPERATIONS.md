@@ -404,8 +404,20 @@ GitHub Actions:                         빌드·분석 검증
 | TestFlight | iOS 검증 | 수동 |
 | NAS | 임의 APK 공유 | 수동 |
 | Play 프로덕션 | 정식 출시 | **수동 승격** |
+| Firebase App Distribution | 개발자 도구가 든 테스트 APK (#359) | 이슈 댓글 `@projectops app build <브랜치>` 또는 `PROJECT-FLUTTER-ANDROID-TEST-APK` 수동 실행 |
+| TestFlight (테스트 빌드) | 개발자 도구가 든 iOS 빌드 (#359) | 같은 댓글 또는 `PROJECT-FLUTTER-IOS-TEST-TESTFLIGHT` 수동 실행 |
 
 **프로덕션 승격은 자동화하지 않는다.** 심사 통과 후 사람이 판단해서 올린다 → [09-RELEASE](09-RELEASE.md)
+
+### 테스트 빌드와 개발자 도구 (#359)
+
+- **개발자 도구는 테스트 빌드에만 들어간다.** 게이트는 컴파일 상수 `APP_FLAVOR=dev` 하나다(`lib/core/config/app_build_flavor.dart`). 값은 `.github/config/build-profile.json` 의 `test` 프로파일이 `apply_build_profile.py` 로 넣는다. 워크플로에 `--dart-define` 을 직접 적지 않는다.
+- `test` 프로파일: `PROJECT-FLUTTER-ANDROID-TEST-APK`(Firebase), `PROJECT-FLUTTER-IOS-TEST-TESTFLIGHT`.
+- `release` 프로파일: Play·iOS 정식 워크플로. 테스트 플래그가 섞이면 빌드가 멈춘다.
+- **Play 트랙(내부·비공개·정식)에는 넣을 수 없다** — 같은 AAB 를 승급하므로 내부 트랙에 넣으면 정식에도 나간다.
+- 테스트 빌드는 `DEV_FLAG` 와 무관하게 **항상 테스트 광고**다(`AdUnitIds._isTestBuild`). 테스트 APK 는 정식 `.env` 로 빌드되기 때문이다.
+- 테스트 APK 는 업로드 키로 서명되어 Play 에서 받은 앱과 서명이 다르다. 한 기기에 둘을 번갈아 깔려면 먼저 지운다.
+- Firebase 설정: 앱 ID·테스터 그룹은 워크플로 `env`(`FIREBASE_APP_ID`, `FIREBASE_TESTER_GROUP`), 서비스 계정은 시크릿 `FIREBASE_SERVICE_ACCOUNT_JSON_BASE64`(역할: Firebase App Distribution Admin 만). 시크릿이 없으면 업로드 단계를 조용히 건너뛴다.
 
 ## QA 브랜치로 스토어에 올리지 않는다 (2026-10-13, 이슈 #262)
 

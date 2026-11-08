@@ -1900,4 +1900,155 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cloudSyncImportLater => 'Later';
+
+  @override
+  String get devToolsTitle => 'Developer tools';
+
+  @override
+  String get devToolsDescription =>
+      'Test builds only. Overrides turn off when you restart the app';
+
+  @override
+  String get devToolsOpen => 'Open developer tools';
+
+  @override
+  String get devToolsTabPlan => 'Plan';
+
+  @override
+  String get devToolsTabSituation => 'Scenarios';
+
+  @override
+  String get devToolsTabDiagnostics => 'Diagnostics';
+
+  @override
+  String get devToolsProSection => 'Force plan';
+
+  @override
+  String get devToolsProActual => 'Follow actual plan';
+
+  @override
+  String get devToolsProForceFree => 'View as Free';
+
+  @override
+  String get devToolsProForcePro => 'View as Pro';
+
+  @override
+  String get devToolsProStored => 'Saved plan';
+
+  @override
+  String get devToolsProShown => 'Plan on screen';
+
+  @override
+  String get devToolsProFree => 'Free';
+
+  @override
+  String get devToolsProPro => 'Pro';
+
+  @override
+  String get devToolsPlaceLimit => 'Place limit';
+
+  @override
+  String get devToolsPurchaseOrder => 'Purchase order ID';
+
+  @override
+  String get devToolsNone => 'None';
+
+  @override
+  String get devToolsAlertSection => 'Alert test';
+
+  @override
+  String get devToolsAlertArrive => 'Ring arrival alert now';
+
+  @override
+  String get devToolsAlertLeave => 'Ring departure alert now';
+
+  @override
+  String get devToolsAlertSubtitle =>
+      'Uses the first place through the real alert path';
+
+  @override
+  String get devToolsAlertQueued => 'The alert will ring within 3 seconds';
+
+  @override
+  String get devToolsAlertNoPlace => 'Add a place first';
+
+  @override
+  String get devToolsAdSection => 'Ads';
+
+  @override
+  String get devToolsAdShowNow => 'Show interstitial now';
+
+  @override
+  String get devToolsAdNotReady => 'The ad hasn\'t loaded yet';
+
+  @override
+  String get devToolsAdReset => 'Reset ad frequency history';
+
+  @override
+  String get devToolsReviewSection => 'Review prompt';
+
+  @override
+  String get devToolsReviewReset => 'Reset review prompt conditions';
+
+  @override
+  String get devToolsReviewRequest => 'Request review now';
+
+  @override
+  String get devToolsReviewRequestFailed =>
+      'Couldn\'t show the review prompt. It may only appear in apps installed from the store';
+
+  @override
+  String get devToolsOnboardingSection => 'First-run state';
+
+  @override
+  String get devToolsOnboardingReplay => 'Replay onboarding';
+
+  @override
+  String get devToolsDone => 'Done';
+
+  @override
+  String get devToolsBuildSection => 'Build';
+
+  @override
+  String get devToolsBuildFlavor => 'Build type';
+
+  @override
+  String get devToolsBuildVersion => 'Version';
+
+  @override
+  String get devToolsAdUnit => 'Ad units';
+
+  @override
+  String get devToolsAdUnitTest => 'Test';
+
+  @override
+  String get devToolsAdUnitLive => 'Live';
+
+  @override
+  String get devToolsWatchSection => 'Monitoring & sync';
+
+  @override
+  String get devToolsGeofenceResync => 'Re-register geofences';
+
+  @override
+  String get devToolsCloudSyncNow => 'Sync Drive now';
+
+  @override
+  String devToolsCloudSyncResult(String outcome) {
+    return 'Sync result: $outcome';
+  }
+
+  @override
+  String get devToolsCopyState => 'Copy full state';
+
+  @override
+  String get devToolsCopied => 'Copied';
+
+  @override
+  String get devToolsOpenDiagnostics => 'Open diagnostics log';
+
+  @override
+  String devToolsFailed(String error) {
+    return 'Failed: $error';
+  }
 }

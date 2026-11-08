@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 
+import 'app_build_flavor.dart';
 import 'dev_flag.dart';
 
 /// 광고 단위 ID (docs/07-MONETIZATION.md · docs/08-OPERATIONS.md)
@@ -68,7 +69,7 @@ abstract final class AdUnitIds {
   /// 디버그·검증·판별 불가 빌드는 테스트 단위, 배포 빌드는 실제 단위다.
   /// 배포 빌드인데 실제 단위가 비어 있으면 테스트 ID 로 떨어지지 않고 빈 값이다.
   static String get nativeStrip {
-    if (kDebugMode || !DevFlag.isReleaseBuildConfirmed) {
+    if (_isTestBuild || !DevFlag.isReleaseBuildConfirmed) {
       return _testNativeStrip;
     }
     return Platform.isIOS ? _prodNativeStripIos : _prodNativeStripAndroid;
@@ -80,12 +81,16 @@ abstract final class AdUnitIds {
     required String prodAndroid,
     required String prodIos,
   }) {
-    if (kDebugMode) return test;
+    if (_isTestBuild) return test;
     if (!DevFlag.isReleaseBuildConfirmed) return test;
 
     final prod = Platform.isIOS ? prodIos : prodAndroid;
     return prod.isEmpty ? test : prod;
   }
+
+  /// 디버그 실행 또는 개발 빌드 (#359) — 테스트 APK 는 정식 `.env` 로 빌드되므로
+  /// `DEV_FLAG` 값과 무관하게 컴파일 상수로 테스트 광고 고정
+  static bool get _isTestBuild => kDebugMode || AppBuildFlavor.isDevBuild;
 
   static String get _testInterstitial =>
       Platform.isIOS ? _testInterstitialIos : _testInterstitialAndroid;

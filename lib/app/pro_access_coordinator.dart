@@ -112,7 +112,9 @@ ProAccessCoordinator proAccessCoordinator(Ref ref) {
   final access = ref.read(featureAccessControllerProvider.notifier);
   final coordinator = ProAccessCoordinator(
     purchases: ref.watch(proPurchaseServiceProvider),
-    currentSource: () => ref.read(featureAccessControllerProvider).source,
+    // 화면 상태가 아니라 저장 출처 — 개발자 도구 강제값으로 환불 판정이 흔들리지 않게 (#359)
+    currentSource: () =>
+        ref.read(featureAccessControllerProvider.notifier).storedSource,
     setSource: access.setSource,
     isPaywallEnabled: ref
         .read(featureAccessControllerProvider)

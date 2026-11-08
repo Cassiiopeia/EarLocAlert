@@ -32,4 +32,7 @@ abstract interface class AdFrequencyStore {
 
   /// 최초 실행 표시를 해제한다. 온보딩 완료 시점에 호출한다
   Future<void> markLaunched();
+
+  /// 노출 이력 초기화: 마지막 노출 시각·오늘 횟수 (개발자 도구 전용, #359). 최초 실행 표시는 유지
+  Future<void> resetShownHistory();
 }
