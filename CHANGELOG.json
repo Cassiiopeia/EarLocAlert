@@ -1,14 +1,33 @@
 {
   "metadata": {
-    "lastUpdated": "2026-11-07T11:38:26Z",
-    "currentVersion": "1.49.0",
+    "lastUpdated": "2026-11-08T05:14:03Z",
+    "currentVersion": "1.50.0",
     "projectType": "flutter",
-    "totalReleases": 124,
+    "totalReleases": 125,
     "projectTypes": [
       "flutter"
     ]
   },
   "releases": [
+    {
+      "version": "1.50.0",
+      "project_type": "flutter",
+      "project_types": [
+        "flutter"
+      ],
+      "date": "2026-11-08",
+      "pr_number": 362,
+      "raw_summary": "## Summary by CodeRabbit\n\n## 릴리스 노트\n\n* **새 기능**\n  * 진동 패턴을 고르면 실제 알림처럼 반복해서 미리 느껴 볼 수 있어요",
+      "parsed_changes": {
+        "새_기능": {
+          "title": "새 기능",
+          "items": [
+            "진동 패턴을 고르면 실제 알림처럼 반복해서 미리 느껴 볼 수 있어요"
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "1.49.0",
       "project_type": "flutter",
