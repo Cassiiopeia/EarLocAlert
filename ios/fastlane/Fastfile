@@ -54,6 +54,48 @@ def resolve_review_notes(path)
 end
 # <<< store-text
 
+# 심사 대기 제출 취소: 조회 > WAITING_FOR_REVIEW 면 취소 > 버전이 다시 열릴 때까지 대기 (#348)
+# 심사 진행 중(IN_REVIEW 등)은 건드리지 않는다 > deliver 가 그대로 실패해 원인이 로그에 남는다
+REVIEW_CANCEL_WAIT_SECONDS = 300
+REVIEW_CANCEL_POLL_SECONDS = 10
+# 취소 후 빌드를 다시 붙일 수 있는 버전 상태
+REVIEW_REOPENED_VERSION_STATES = %w[PREPARE_FOR_SUBMISSION DEVELOPER_REJECTED REJECTED METADATA_REJECTED].freeze
+
+def cancel_waiting_review_submission(api_key, bundle_id)
+  Spaceship::ConnectAPI.token = Spaceship::ConnectAPI::Token.from(hash: api_key)
+  platform = Spaceship::ConnectAPI::Platform::IOS
+  app = Spaceship::ConnectAPI::App.find(bundle_id)
+  UI.user_error!("App Store Connect 에서 앱을 찾지 못했습니다: #{bundle_id}") if app.nil?
+
+  submission = app.get_in_progress_review_submission(platform: platform)
+  if submission.nil?
+    UI.message("[review] no in-progress submission")
+    return
+  end
+  unless submission.state == "WAITING_FOR_REVIEW"
+    UI.important("[review] submission left as is state=#{submission.state} id=#{submission.id}")
+    return
+  end
+
+  UI.important("[review] canceling waiting submission id=#{submission.id} (new build replaces it)")
+  submission.cancel_submission
+
+  waited = 0
+  loop do
+    version = app.get_edit_app_store_version(platform: platform)
+    state = version&.app_version_state
+    if REVIEW_REOPENED_VERSION_STATES.include?(state)
+      UI.message("[review] version reopened version=#{version.version_string} state=#{state}")
+      return
+    end
+    if waited >= REVIEW_CANCEL_WAIT_SECONDS
+      UI.user_error!("[review] cancel timeout state=#{state || 'none'} waited=#{waited}s")
+    end
+    sleep(REVIEW_CANCEL_POLL_SECONDS)
+    waited += REVIEW_CANCEL_POLL_SECONDS
+  end
+end
+
 platform :ios do
   desc "TestFlight 업로드 (+ DEPLOY_MODE=store_submit이면 App Store 심사 자동 제출)"
   lane :deploy do
@@ -136,6 +178,9 @@ platform :ios do
       end
 
       UI.message("📂 metadata_path=#{metadata_path}")
+
+      # 심사 대기 중이면 새 빌드를 붙일 수 없다 > 이전 제출 취소 후 새 빌드로 다시 제출 (#348)
+      cancel_waiting_review_submission(api_key, app_id) if submit_to_appstore
 
       deliver(
         api_key: api_key,

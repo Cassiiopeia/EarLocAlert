@@ -93,7 +93,7 @@ abstract final class _LocalContext {
     final existing = _processor;
     if (existing != null) return existing;
 
-    final db = AppDatabase();
+    final db = AppDatabase(connectionLabel: 'geofence_callback');
     // 이 isolate 는 앱 부트스트랩을 거치지 않았다 — 플러그인을 직접
     // 초기화해야 알림 발행이 된다
     final plugin = FlutterLocalNotificationsPlugin();

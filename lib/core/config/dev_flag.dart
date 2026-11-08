@@ -20,6 +20,8 @@ import '../platform/channel_names.dart';
 ///
 /// 그래서 상태가 셋이다. `true`/`false` 이분법으로 두면 못 읽은 경우가
 /// 둘 중 한쪽에 붙어 반드시 한 쪽이 위험해진다.
+///
+/// iOS 는 App Store 영수증 여부로 답한다 (TestFlight·직접 설치 = 검증 빌드, #349).
 abstract final class DevFlag {
   static const _channel = MethodChannel(ChannelNames.appConfig);
 
@@ -31,9 +33,8 @@ abstract final class DevFlag {
   /// **읽기 전에 광고가 뜰 일은 없다** — 광고는 알림을 해제한 뒤에만
   /// 나오고, 그 시점은 부트스트랩보다 한참 뒤다.
   static Future<void> init() async {
-    if (!Platform.isAndroid) {
-      // iOS 는 이 플래그를 쓰지 않는다. 인앱 업데이트가 없고(사이드로드
-      // 경로 자체가 없다), 광고는 배포 빌드 기준으로 동작한다
+    if (!Platform.isAndroid && !Platform.isIOS) {
+      // 광고·인앱 업데이트가 없는 플랫폼
       _value = false;
       return;
     }

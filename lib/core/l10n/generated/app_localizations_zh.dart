@@ -1403,6 +1403,9 @@ class AppLocalizationsZh extends AppLocalizations {
       '已通过此设备的 Apple 账户购买。更换设备后，使用同一 Apple 账户可通过“恢复购买”重新解锁。';
 
   @override
+  String get proInfoBenefitsTitle => '专业版权益';
+
+  @override
   String get proInfoRestore => '恢复购买';
 
   @override
@@ -1595,6 +1598,10 @@ class AppLocalizationsZh extends AppLocalizations {
       '每次更改地点时，都会在所选文件夹中重新写入备份文件。选择 iCloud 云盘等位置，删除应用后也会保留。';
 
   @override
+  String get autoBackupDescriptionAndroid =>
+      '在所选文件夹中创建 EarLocAlert 文件夹，每次更改地点时都会重新写入其中的备份文件。推荐选择“Documents”文件夹。删除应用后也会保留。';
+
+  @override
   String get autoBackupOff => '关闭 · 选择文件夹即可开启';
 
   @override
@@ -1760,4 +1767,80 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get settingsCoachMarkSubtitle => '再次显示主页面的核心功能引导';
+
+  @override
+  String get cloudSyncTitle => 'Google 云端硬盘同步';
+
+  @override
+  String get cloudSyncDescription =>
+      '将地点保存到您的 Google 账号。重新安装应用，或在其他手机（包括 iPhone）上连接同一账号，地点就会恢复。';
+
+  @override
+  String get cloudSyncPrivacyNote => '仅保存在您云端硬盘中本应用的专用空间，不会查看您的其他文件。';
+
+  @override
+  String get cloudSyncOff => '已关闭 · 连接 Google 账号即可开启';
+
+  @override
+  String cloudSyncOnNever(String account) {
+    return '$account · 尚未同步';
+  }
+
+  @override
+  String cloudSyncOnLast(String account, String time) {
+    return '$account · 上次 $time';
+  }
+
+  @override
+  String get cloudSyncAccountTitle => '账号';
+
+  @override
+  String get cloudSyncLastTitle => '上次同步';
+
+  @override
+  String get cloudSyncNever => '暂无';
+
+  @override
+  String get cloudSyncConnect => '连接 Google 账号';
+
+  @override
+  String get cloudSyncNow => '立即同步';
+
+  @override
+  String get cloudSyncDisconnect => '断开连接';
+
+  @override
+  String get cloudSyncDisconnectDeleteTitle => '也要删除云端硬盘中保存的地点吗？';
+
+  @override
+  String get cloudSyncDisconnectKeep => '保留';
+
+  @override
+  String get cloudSyncDisconnectDelete => '删除';
+
+  @override
+  String get cloudSyncDone => '已同步';
+
+  @override
+  String get cloudSyncFailed => '无法同步，请检查网络连接';
+
+  @override
+  String get cloudSyncConnectFailed => '无法连接 Google 账号';
+
+  @override
+  String get cloudSyncNewerVersion => '更新应用后即可同步';
+
+  @override
+  String get cloudSyncImportTitle => '要恢复地点吗？';
+
+  @override
+  String cloudSyncImportMessage(int count, String device, String date) {
+    return '云端硬盘中有 $count 个地点（$device，$date 保存）';
+  }
+
+  @override
+  String get cloudSyncImportConfirm => '恢复';
+
+  @override
+  String get cloudSyncImportLater => '稍后';
 }

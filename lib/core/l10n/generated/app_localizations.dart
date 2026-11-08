@@ -2706,6 +2706,12 @@ abstract class AppLocalizations {
   /// **'이 기기의 Apple 계정으로 구매됐어요. 기기를 바꿔도 같은 Apple 계정이면 \"구매 복원\"으로 다시 열려요.'**
   String get proInfoNotePurchaseAppStore;
 
+  /// No description provided for @proInfoBenefitsTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'프로 혜택'**
+  String get proInfoBenefitsTitle;
+
   /// No description provided for @proInfoRestore.
   ///
   /// In ko, this message translates to:
@@ -3072,6 +3078,12 @@ abstract class AppLocalizations {
   /// **'고른 폴더에 장소를 바꿀 때마다 백업 파일을 새로 써요. iCloud Drive 같은 곳을 고르면 앱을 지워도 남아요.'**
   String get autoBackupDescription;
 
+  /// No description provided for @autoBackupDescriptionAndroid.
+  ///
+  /// In ko, this message translates to:
+  /// **'고른 폴더 안에 EarLocAlert 폴더를 만들고, 장소를 바꿀 때마다 그 안의 백업 파일을 새로 써요. 문서(Documents) 폴더를 추천해요. 앱을 지워도 남아요.'**
+  String get autoBackupDescriptionAndroid;
+
   /// No description provided for @autoBackupOff.
   ///
   /// In ko, this message translates to:
@@ -3383,6 +3395,144 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'홈 화면의 핵심 기능 안내를 다시 보여줘요'**
   String get settingsCoachMarkSubtitle;
+
+  /// No description provided for @cloudSyncTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'구글 드라이브 동기화'**
+  String get cloudSyncTitle;
+
+  /// No description provided for @cloudSyncDescription.
+  ///
+  /// In ko, this message translates to:
+  /// **'구글 계정에 장소를 저장해요. 앱을 다시 깔거나 다른 기기(iPhone 포함)에서 같은 계정으로 연결하면 장소가 그대로 돌아와요.'**
+  String get cloudSyncDescription;
+
+  /// No description provided for @cloudSyncPrivacyNote.
+  ///
+  /// In ko, this message translates to:
+  /// **'내 Drive 의 이 앱 전용 공간에만 저장돼요. 다른 파일은 보지 않아요.'**
+  String get cloudSyncPrivacyNote;
+
+  /// No description provided for @cloudSyncOff.
+  ///
+  /// In ko, this message translates to:
+  /// **'꺼짐 · 구글 계정을 연결하면 켜져요'**
+  String get cloudSyncOff;
+
+  /// No description provided for @cloudSyncOnNever.
+  ///
+  /// In ko, this message translates to:
+  /// **'{account} · 아직 동기화 전'**
+  String cloudSyncOnNever(String account);
+
+  /// No description provided for @cloudSyncOnLast.
+  ///
+  /// In ko, this message translates to:
+  /// **'{account} · 마지막 {time}'**
+  String cloudSyncOnLast(String account, String time);
+
+  /// No description provided for @cloudSyncAccountTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'계정'**
+  String get cloudSyncAccountTitle;
+
+  /// No description provided for @cloudSyncLastTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'마지막 동기화'**
+  String get cloudSyncLastTitle;
+
+  /// No description provided for @cloudSyncNever.
+  ///
+  /// In ko, this message translates to:
+  /// **'아직 없음'**
+  String get cloudSyncNever;
+
+  /// No description provided for @cloudSyncConnect.
+  ///
+  /// In ko, this message translates to:
+  /// **'구글 계정 연결'**
+  String get cloudSyncConnect;
+
+  /// No description provided for @cloudSyncNow.
+  ///
+  /// In ko, this message translates to:
+  /// **'지금 동기화'**
+  String get cloudSyncNow;
+
+  /// No description provided for @cloudSyncDisconnect.
+  ///
+  /// In ko, this message translates to:
+  /// **'연결 끊기'**
+  String get cloudSyncDisconnect;
+
+  /// No description provided for @cloudSyncDisconnectDeleteTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'Drive 에 저장된 장소도 지울까요?'**
+  String get cloudSyncDisconnectDeleteTitle;
+
+  /// No description provided for @cloudSyncDisconnectKeep.
+  ///
+  /// In ko, this message translates to:
+  /// **'남겨 두기'**
+  String get cloudSyncDisconnectKeep;
+
+  /// No description provided for @cloudSyncDisconnectDelete.
+  ///
+  /// In ko, this message translates to:
+  /// **'지우기'**
+  String get cloudSyncDisconnectDelete;
+
+  /// No description provided for @cloudSyncDone.
+  ///
+  /// In ko, this message translates to:
+  /// **'동기화했어요'**
+  String get cloudSyncDone;
+
+  /// No description provided for @cloudSyncFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'동기화하지 못했어요. 인터넷 연결을 확인해 주세요'**
+  String get cloudSyncFailed;
+
+  /// No description provided for @cloudSyncConnectFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'구글 계정을 연결하지 못했어요'**
+  String get cloudSyncConnectFailed;
+
+  /// No description provided for @cloudSyncNewerVersion.
+  ///
+  /// In ko, this message translates to:
+  /// **'앱을 업데이트하면 동기화할 수 있어요'**
+  String get cloudSyncNewerVersion;
+
+  /// No description provided for @cloudSyncImportTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'장소를 가져올까요?'**
+  String get cloudSyncImportTitle;
+
+  /// No description provided for @cloudSyncImportMessage.
+  ///
+  /// In ko, this message translates to:
+  /// **'Drive 에 장소 {count}개가 있어요 ({device}, {date} 저장)'**
+  String cloudSyncImportMessage(int count, String device, String date);
+
+  /// No description provided for @cloudSyncImportConfirm.
+  ///
+  /// In ko, this message translates to:
+  /// **'가져오기'**
+  String get cloudSyncImportConfirm;
+
+  /// No description provided for @cloudSyncImportLater.
+  ///
+  /// In ko, this message translates to:
+  /// **'나중에'**
+  String get cloudSyncImportLater;
 }
 
 class _AppLocalizationsDelegate

@@ -1479,6 +1479,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'Purchased with this device\'s Apple Account. On a new phone, the same Apple Account can bring it back with \"Restore purchase\".';
 
   @override
+  String get proInfoBenefitsTitle => 'Pro benefits';
+
+  @override
   String get proInfoRestore => 'Restore purchase';
 
   @override
@@ -1682,6 +1685,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Writes a fresh backup file to the folder you pick whenever your places change. Pick a place like iCloud Drive and it stays even if you delete the app.';
 
   @override
+  String get autoBackupDescriptionAndroid =>
+      'Creates an EarLocAlert folder inside the folder you pick and rewrites the backup file there whenever your places change. We recommend the Documents folder. It stays even if you delete the app.';
+
+  @override
   String get autoBackupOff => 'Off · Pick a folder to turn it on';
 
   @override
@@ -1855,4 +1862,83 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsCoachMarkSubtitle => 'Show the home screen tips again';
+
+  @override
+  String get cloudSyncTitle => 'Google Drive sync';
+
+  @override
+  String get cloudSyncDescription =>
+      'Saves your places to your Google account. Reinstall the app or connect the same account on another phone, including iPhone, and your places come back.';
+
+  @override
+  String get cloudSyncPrivacyNote =>
+      'Stored only in this app\'s private space in your Drive. We don\'t see your other files.';
+
+  @override
+  String get cloudSyncOff => 'Off · Connect a Google account to turn on';
+
+  @override
+  String cloudSyncOnNever(String account) {
+    return '$account · Not synced yet';
+  }
+
+  @override
+  String cloudSyncOnLast(String account, String time) {
+    return '$account · Last $time';
+  }
+
+  @override
+  String get cloudSyncAccountTitle => 'Account';
+
+  @override
+  String get cloudSyncLastTitle => 'Last sync';
+
+  @override
+  String get cloudSyncNever => 'Not yet';
+
+  @override
+  String get cloudSyncConnect => 'Connect Google account';
+
+  @override
+  String get cloudSyncNow => 'Sync now';
+
+  @override
+  String get cloudSyncDisconnect => 'Disconnect';
+
+  @override
+  String get cloudSyncDisconnectDeleteTitle =>
+      'Also delete the places saved in Drive?';
+
+  @override
+  String get cloudSyncDisconnectKeep => 'Keep them';
+
+  @override
+  String get cloudSyncDisconnectDelete => 'Delete';
+
+  @override
+  String get cloudSyncDone => 'Synced';
+
+  @override
+  String get cloudSyncFailed =>
+      'Couldn\'t sync. Check your internet connection';
+
+  @override
+  String get cloudSyncConnectFailed => 'Couldn\'t connect your Google account';
+
+  @override
+  String get cloudSyncNewerVersion => 'Update the app to sync';
+
+  @override
+  String get cloudSyncImportTitle => 'Bring back your places?';
+
+  @override
+  String cloudSyncImportMessage(int count, String device, String date) {
+    return 'Drive has $count places (saved on $device, $date)';
+  }
+
+  @override
+  String get cloudSyncImportConfirm => 'Bring back';
+
+  @override
+  String get cloudSyncImportLater => 'Later';
 }
