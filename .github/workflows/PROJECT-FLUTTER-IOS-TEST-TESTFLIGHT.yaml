@@ -235,12 +235,37 @@ jobs:
           fi
 
       # 테스트 빌드 버전 설정 (version.yml에서 동적 읽기)
+      # 사전 점검용 App Store Connect 키 (#359). 없거나 깨져도 막지 않고 version.yml 버전으로 진행
+      - name: Setup App Store Connect API Key (precheck)
+        env:
+          API_KEY_BASE64: ${{ secrets.APP_STORE_CONNECT_API_KEY_BASE64 }}
+          API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+        run: |
+          if [ -n "$API_KEY_BASE64" ] && [ -n "$API_KEY_ID" ]; then
+            KEY_PATH="$HOME/.appstoreconnect/private_keys/AuthKey_${API_KEY_ID}.p8"
+            mkdir -p "$(dirname "$KEY_PATH")"
+            if echo "$API_KEY_BASE64" | base64 --decode > "$KEY_PATH"; then
+              echo "ASC_KEY_PATH=$KEY_PATH" >> "$GITHUB_ENV"
+            else
+              echo "::warning::App Store Connect 키를 해석하지 못해 version.yml 버전으로 진행합니다"
+            fi
+          else
+            echo "ℹ️ App Store Connect 키 시크릿이 없어 version.yml 버전으로 진행합니다"
+          fi
+
       - name: 테스트 빌드 버전 설정
         id: test_version
+        env:
+          ASC_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_IDENTIFIER: ${{ secrets.IOS_BUNDLE_ID || vars.IOS_BUNDLE_ID }}
         run: |
           # version_manager.py로 버전 가져오기 (프로덕션 워크플로우와 동일한 방식)
           VERSION=$(python3 .github/scripts/version_manager.py get | tail -n 1)
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          # 출시되어 닫힌 버전이면 다음 패치 버전으로 (version 출력은 이 스크립트가 씀, #359)
+          # 예: App Store 1.49.0 출시 후 version.yml 1.49.0 > 테스트 빌드 1.49.1
+          python3 .github/scripts/ios_release.py precheck-version --mode test \
+            --version "$VERSION" --bundle-id "$APP_IDENTIFIER"
 
           # repository_dispatch 이벤트인 경우 PR 번호를 빌드 번호로 사용
           if [ "${{ github.event_name }}" == "repository_dispatch" ]; then
