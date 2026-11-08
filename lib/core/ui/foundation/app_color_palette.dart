@@ -21,6 +21,7 @@ class AppColorPalette extends ThemeExtension<AppColorPalette> {
     required this.warning,
     required this.onWarning,
     required this.danger,
+    required this.scrim,
   });
 
   /// 화면 바탕
@@ -51,6 +52,9 @@ class AppColorPalette extends ThemeExtension<AppColorPalette> {
   /// 삭제처럼 되돌리기 어려운 동작에만 (이슈 #205)
   final Color danger;
 
+  /// 안내·강조용 어두운 막 (코치마크 바깥). 라이트에서도 어둡게 깔아 대상만 떠 보이게
+  final Color scrim;
+
   /// iOS 다크 그룹 배경 층위를 기준으로, 민트·금색 정체성을 남겼다
   static const dark = AppColorPalette(
     background: Color(0xFF000000),
@@ -64,6 +68,7 @@ class AppColorPalette extends ThemeExtension<AppColorPalette> {
     warning: Color(0xFFF2B85B),
     onWarning: Color(0xFF000000),
     danger: Color(0xFFFF453A),
+    scrim: Color(0xCC000000),
   );
 
   /// iOS 라이트 그룹 배경 기준. 민트·금색은 글자로도 쓰여 흰·회색 바탕에서
@@ -80,6 +85,7 @@ class AppColorPalette extends ThemeExtension<AppColorPalette> {
     warning: Color(0xFF8F5C0E),
     onWarning: Color(0xFFFFFFFF),
     danger: Color(0xFFB3261E),
+    scrim: Color(0xB3000000),
   );
 
   @override
@@ -95,6 +101,7 @@ class AppColorPalette extends ThemeExtension<AppColorPalette> {
     Color? warning,
     Color? onWarning,
     Color? danger,
+    Color? scrim,
   }) {
     return AppColorPalette(
       background: background ?? this.background,
@@ -108,6 +115,7 @@ class AppColorPalette extends ThemeExtension<AppColorPalette> {
       warning: warning ?? this.warning,
       onWarning: onWarning ?? this.onWarning,
       danger: danger ?? this.danger,
+      scrim: scrim ?? this.scrim,
     );
   }
 
@@ -127,6 +135,7 @@ class AppColorPalette extends ThemeExtension<AppColorPalette> {
       warning: mix(warning, other.warning),
       onWarning: mix(onWarning, other.onWarning),
       danger: mix(danger, other.danger),
+      scrim: mix(scrim, other.scrim),
     );
   }
 }
