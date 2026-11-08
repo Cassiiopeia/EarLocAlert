@@ -45,3 +45,7 @@ Android 와 iOS 는 알림이 다르게 동작하므로 설명문을 나눈다.
 
 - 간단한 설명(Play) 80자: `ko-KR_short.txt`, 프로모션 텍스트(App Store) 170자: `ios-ko-KR_promo.txt`
 - 스크린샷은 `screenshots/ko-KR/` (Android 에뮬레이터). iOS 스크린샷은 iOS 시뮬레이터에서 따로 찍는다
+
+## 검색 노출과 전환 (이슈 #358)
+
+칸별 파일, 글자 제한, 순위 기준선, 쓰지 않는 문구는 `aso-strategy.md` 에 있다.
