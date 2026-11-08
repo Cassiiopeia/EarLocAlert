@@ -56,6 +56,9 @@ const Duration _stepDuration = Duration(milliseconds: 420);
 /// 테두리 링이 숨 쉬는 주기
 const Duration _pulseDuration = Duration(milliseconds: 1400);
 
+/// 말풍선 버튼 최소 크기 — 테마 기본값(가로 전체)은 Row 안에서 폭 계산이 깨져 버튼이 사라진다
+const Size _actionButtonMinimumSize = Size(96, 44);
+
 class _CoachMarkOverlay extends StatefulWidget {
   const _CoachMarkOverlay({required this.steps, required this.onFinished});
 
@@ -167,15 +170,15 @@ class _CoachMarkOverlayState extends State<_CoachMarkOverlay>
           final isBelow = rect.center.dy < screen.height / 2;
           return Stack(
             children: [
-              // 바깥 탭은 삼킨다 — 지도가 움직이면 비춘 자리가 어긋난다
+              // 바깥 탭 > 다음 단계 (지도로는 넘기지 않음 — 움직이면 비춘 자리가 어긋난다)
               Positioned.fill(
                 child: GestureDetector(
                   behavior: HitTestBehavior.opaque,
-                  onTap: () {},
+                  onTap: _advance,
                   child: CustomPaint(
                     painter: _SpotlightPainter(
                       hole: rect,
-                      scrim: colors.background.withValues(alpha: 0.86),
+                      scrim: colors.scrim,
                       ring: colors.accent,
                       pulse: _pulseController.value,
                     ),
@@ -243,9 +246,14 @@ class _CoachMarkOverlayState extends State<_CoachMarkOverlay>
           const SizedBox(height: AppSpacing.sm),
           Row(
             children: [
+              // 건너뛰기는 작은 회색 글자 — 주 버튼(다음)과 헷갈려 누르지 않게
               if (!_isLast)
                 TextButton(
                   onPressed: widget.onFinished,
+                  style: TextButton.styleFrom(
+                    foregroundColor: colors.textSecondary,
+                    textStyle: context.appTextStyles.caption,
+                  ),
                   child: Text(l10n.coachMarkSkip),
                 ),
               const Spacer(),
@@ -254,6 +262,7 @@ class _CoachMarkOverlayState extends State<_CoachMarkOverlay>
                 style: FilledButton.styleFrom(
                   backgroundColor: colors.accent,
                   foregroundColor: colors.onAccent,
+                  minimumSize: _actionButtonMinimumSize,
                 ),
                 child: Text(_isLast ? l10n.coachMarkDone : l10n.coachMarkNext),
               ),
