@@ -417,7 +417,10 @@ GitHub Actions:                         빌드·분석 검증
 - **Play 트랙(내부·비공개·정식)에는 넣을 수 없다** — 같은 AAB 를 승급하므로 내부 트랙에 넣으면 정식에도 나간다.
 - 테스트 빌드는 `DEV_FLAG` 와 무관하게 **항상 테스트 광고**다(`AdUnitIds._isTestBuild`). 테스트 APK 는 정식 `.env` 로 빌드되기 때문이다.
 - 테스트 APK 는 업로드 키로 서명되어 Play 에서 받은 앱과 서명이 다르다. 한 기기에 둘을 번갈아 깔려면 먼저 지운다.
-- Firebase 설정: 앱 ID·테스터 그룹은 워크플로 `env`(`FIREBASE_APP_ID`, `FIREBASE_TESTER_GROUP`), 서비스 계정은 시크릿 `FIREBASE_SERVICE_ACCOUNT_JSON_BASE64`(역할: Firebase App Distribution Admin 만). 시크릿이 없으면 업로드 단계를 조용히 건너뛴다.
+- Firebase 설정 (2026-11-08): 프로젝트 `earlocalert-84d44`(소유 계정 chancamera123, Drive OAuth 용 `earlocalert` 와 **별개** — Firebase 프로젝트를 지우면 붙은 Cloud 프로젝트도 지워지므로 분리), Android 앱 `kr.suhsaechan.ear_loc_alert`, 테스터 그룹 별칭 `testers`.
+  - 앱 ID·그룹은 워크플로 `env`(`FIREBASE_APP_ID`, `FIREBASE_TESTER_GROUP`). 바꿀 때는 `firebase-wizard.py setup --app-id ... --tester-group ...` 으로 치환한다.
+  - 서비스 계정 `github-app-distribution@earlocalert-84d44` (역할: Firebase 앱 배포 관리자 하나) 의 JSON 키를 base64 로 시크릿 `FIREBASE_SERVICE_ACCOUNT_JSON_BASE64` 에 넣었다. 키 파일은 로컬에 두지 않는다. 시크릿이 없으면 업로드 단계를 조용히 건너뛴다.
+  - 테스터를 늘리려면 Firebase 콘솔 > App Distribution > 테스터 및 그룹 > `testers` 에 메일을 넣는다.
 
 ## QA 브랜치로 스토어에 올리지 않는다 (2026-10-13, 이슈 #262)
 

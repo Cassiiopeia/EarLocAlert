@@ -62,8 +62,8 @@ env:
   FLUTTER_VERSION: "3.35.5"
   JAVA_VERSION: "17"
   ENV_FILE_PATH: ".env"
-  FIREBASE_APP_ID: "{FIREBASE_APP_ID}"
-  FIREBASE_TESTER_GROUP: "{TESTER_GROUP}"
+  FIREBASE_APP_ID: "1:701778493051:android:d5b4df40340bd5b0cf6cde"
+  FIREBASE_TESTER_GROUP: "testers"
 
 jobs:
   prepare-test-build:
