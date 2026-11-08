@@ -1449,7 +1449,7 @@ class AppLocalizationsZh extends AppLocalizations {
       '选择后会像真实提醒一样重复振动以便确认。选择其他项或关闭后会停止。振动强度设置也会一起生效。';
 
   @override
-  String get vibrationPatternIosNote => '屏幕关闭时只保留节奏，强度保持不变。';
+  String get vibrationPatternIosNote => '受 iOS 限制,应用不在前台时可能不会振动。';
 
   @override
   String get vibrationPatternFollowDefault => '跟随默认设置';
@@ -1730,6 +1730,44 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get proLockedRoutines => '用例程分组地点';
+
+  @override
+  String get coachMarkStatusTitle => '查看是否正在监测';
+
+  @override
+  String get coachMarkStatusBody => '开启地点后,这里会显示“监测中”,同时显示耳机是否已连接';
+
+  @override
+  String get coachMarkAddTitle => '添加地点';
+
+  @override
+  String get coachMarkAddBody => '在地图上选好位置,再设置半径和提醒时机(到达或离开)。提醒只会通过振动或耳机传达';
+
+  @override
+  String get coachMarkSheetTitle => '管理已添加的地点';
+
+  @override
+  String get coachMarkSheetBody => '用开关启用或关闭地点,点按即可编辑。向上拖动可查看完整列表';
+
+  @override
+  String get coachMarkNext => '下一步';
+
+  @override
+  String get coachMarkDone => '开始使用';
+
+  @override
+  String get coachMarkSkip => '跳过';
+
+  @override
+  String coachMarkStepCounter(int current, int total) {
+    return '$current / $total';
+  }
+
+  @override
+  String get settingsCoachMarkTitle => '重新查看使用指南';
+
+  @override
+  String get settingsCoachMarkSubtitle => '再次显示主页面的核心功能引导';
 
   @override
   String get cloudSyncTitle => 'Google 云端硬盘同步';

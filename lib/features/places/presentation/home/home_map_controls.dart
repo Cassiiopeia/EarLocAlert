@@ -24,11 +24,15 @@ class _MapControls extends StatelessWidget {
     required this.bottomFraction,
     required this.onMyLocation,
     required this.onAddPlace,
+    this.addButtonKey,
   });
 
   final double bottomFraction;
   final VoidCallback onMyLocation;
   final VoidCallback onAddPlace;
+
+  /// 코치마크가 비출 장소 추가 버튼의 키
+  final Key? addButtonKey;
 
   @override
   Widget build(BuildContext context) {
@@ -71,6 +75,7 @@ class _MapControls extends StatelessWidget {
                 slop: const EdgeInsets.fromLTRB(_slop, _slop, _slop, gapHalf),
               ),
               FloatingCircleButton(
+                key: addButtonKey,
                 icon: Icons.add_outlined,
                 onPressed: onAddPlace,
                 semanticLabel: context.l10n.placeHomeAddPlace,

@@ -192,6 +192,11 @@ class _SettingsRouteState extends ConsumerState<_SettingsRoute>
         ),
       ),
       onOpenDiagnostics: () => context.push(AppRoutes.diagnostics),
+      // 홈으로 돌아가 코치마크를 다시 보여 준다 (#326)
+      onReplayCoachMarks: () {
+        ref.read(homeCoachMarkRequestProvider.notifier).replay();
+        context.pop();
+      },
       // 도착 기록 (#313)
       onOpenArrivalHistory: () => context.push(AppRoutes.arrivalHistory),
       // 루틴 (#315)

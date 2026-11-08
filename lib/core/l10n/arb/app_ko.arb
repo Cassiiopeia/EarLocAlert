@@ -798,7 +798,7 @@
   "settingsVibrationPatternSubtitle": "진동만으로 장소를 구분할 수 있게 리듬을 골라요",
   "vibrationPatternTitle": "진동 패턴",
   "vibrationPatternDescription": "고르면 실제 알림처럼 반복해서 울려 확인할 수 있어요. 다른 걸 고르거나 닫으면 멈춰요. 진동 세기 설정이 함께 적용돼요.",
-  "vibrationPatternIosNote": "화면이 꺼져 있을 때는 리듬만 같고 세기는 일정해요.",
+  "vibrationPatternIosNote": "iOS 정책상 앱 화면이 앞에 없으면 진동이 울리지 않을 수 있어요.",
   "vibrationPatternFollowDefault": "기본 설정 따르기",
   "vibrationPatternFollowDefaultHint": "설정의 진동 패턴으로 울려요",
   "vibrationPatternStandard": "기본",
@@ -948,6 +948,28 @@
   "routineCancel": "취소",
   "proRowRoutines": "루틴 묶음",
   "proLockedRoutines": "루틴으로 장소 묶기",
+  "coachMarkStatusTitle": "지금 감시 중인지 보여요",
+  "coachMarkStatusBody": "켜 둔 장소가 있으면 여기에 '감시 중'이 떠요. 이어폰이 연결됐는지도 함께 알려 줘요",
+  "coachMarkAddTitle": "장소를 등록해요",
+  "coachMarkAddBody": "지도에서 위치를 고르고 반경과 알림 방향(도착·출발)을 정해요. 알림은 진동이나 이어폰으로만 와요",
+  "coachMarkSheetTitle": "등록한 장소를 관리해요",
+  "coachMarkSheetBody": "스위치로 켜고 끌 수 있고, 누르면 수정할 수 있어요. 위로 끌어 올리면 전체 목록이 보여요",
+  "coachMarkNext": "다음",
+  "coachMarkDone": "시작하기",
+  "coachMarkSkip": "건너뛰기",
+  "coachMarkStepCounter": "{current} / {total}",
+  "@coachMarkStepCounter": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsCoachMarkTitle": "사용법 다시 보기",
+  "settingsCoachMarkSubtitle": "홈 화면의 핵심 기능 안내를 다시 보여줘요",
   "cloudSyncTitle": "구글 드라이브 동기화",
   "cloudSyncDescription": "구글 계정에 장소를 저장해요. 앱을 다시 깔거나 다른 기기(iPhone 포함)에서 같은 계정으로 연결하면 장소가 그대로 돌아와요.",
   "cloudSyncPrivacyNote": "내 Drive 의 이 앱 전용 공간에만 저장돼요. 다른 파일은 보지 않아요.",
