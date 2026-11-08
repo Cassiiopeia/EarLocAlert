@@ -96,7 +96,11 @@ class VibrationServiceImpl implements VibrationService {
         'vibrator query failed result=none error=$error',
       );
     }
-    if (!hasVibrator && _system == null) return;
+    // 진동 수단 없음 > 이번 세션은 떨지 않는다 (에뮬레이터는 플러그인이 항상 없음으로 답함, #345)
+    if (!hasVibrator && _system == null) {
+      Diagnostics.log('alert', 'vibration skipped reason=no_vibrator');
+      return;
+    }
 
     // 진폭 제어가 없는 기기에서 amplitude 를 넘기면 무시되거나 오류가 된다.
     // 그 경우 길이만으로 세기를 표현한다 (이슈 #103)

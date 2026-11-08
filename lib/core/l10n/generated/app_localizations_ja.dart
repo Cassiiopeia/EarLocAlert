@@ -1416,6 +1416,9 @@ class AppLocalizationsJa extends AppLocalizations {
       'この端末の Apple アカウントで購入されました。機種変更しても同じ Apple アカウントなら「購入を復元」で再び使えます。';
 
   @override
+  String get proInfoBenefitsTitle => 'プロの特典';
+
+  @override
   String get proInfoRestore => '購入を復元';
 
   @override
@@ -1610,6 +1613,10 @@ class AppLocalizationsJa extends AppLocalizations {
       '場所を変えるたびに、選んだフォルダへバックアップファイルを書き直します。iCloud Drive などを選ぶとアプリを削除しても残ります。';
 
   @override
+  String get autoBackupDescriptionAndroid =>
+      '選んだフォルダの中にEarLocAlertフォルダを作り、場所を変えるたびにその中のバックアップファイルを書き直します。おすすめは「Documents」フォルダです。アプリを削除しても残ります。';
+
+  @override
   String get autoBackupOff => 'オフ · フォルダを選ぶとオンになります';
 
   @override
@@ -1737,4 +1744,80 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get proLockedRoutines => 'ルーティンで場所をまとめる';
+
+  @override
+  String get cloudSyncTitle => 'Googleドライブ同期';
+
+  @override
+  String get cloudSyncDescription =>
+      '場所をGoogleアカウントに保存します。アプリを入れ直したり、別の端末（iPhoneを含む）で同じアカウントにつなぐと場所が戻ります。';
+
+  @override
+  String get cloudSyncPrivacyNote => 'Driveのこのアプリ専用の領域にだけ保存されます。ほかのファイルは見ません。';
+
+  @override
+  String get cloudSyncOff => 'オフ・Googleアカウントをつなぐとオンになります';
+
+  @override
+  String cloudSyncOnNever(String account) {
+    return '$account・まだ同期していません';
+  }
+
+  @override
+  String cloudSyncOnLast(String account, String time) {
+    return '$account・最終 $time';
+  }
+
+  @override
+  String get cloudSyncAccountTitle => 'アカウント';
+
+  @override
+  String get cloudSyncLastTitle => '最終同期';
+
+  @override
+  String get cloudSyncNever => 'まだありません';
+
+  @override
+  String get cloudSyncConnect => 'Googleアカウントをつなぐ';
+
+  @override
+  String get cloudSyncNow => '今すぐ同期';
+
+  @override
+  String get cloudSyncDisconnect => '接続を解除';
+
+  @override
+  String get cloudSyncDisconnectDeleteTitle => 'Driveに保存した場所も削除しますか？';
+
+  @override
+  String get cloudSyncDisconnectKeep => '残す';
+
+  @override
+  String get cloudSyncDisconnectDelete => '削除';
+
+  @override
+  String get cloudSyncDone => '同期しました';
+
+  @override
+  String get cloudSyncFailed => '同期できませんでした。インターネット接続を確認してください';
+
+  @override
+  String get cloudSyncConnectFailed => 'Googleアカウントをつなげませんでした';
+
+  @override
+  String get cloudSyncNewerVersion => 'アプリを更新すると同期できます';
+
+  @override
+  String get cloudSyncImportTitle => '場所を取り込みますか？';
+
+  @override
+  String cloudSyncImportMessage(int count, String device, String date) {
+    return 'Driveに場所が$count件あります（$device、$dateに保存）';
+  }
+
+  @override
+  String get cloudSyncImportConfirm => '取り込む';
+
+  @override
+  String get cloudSyncImportLater => 'あとで';
 }

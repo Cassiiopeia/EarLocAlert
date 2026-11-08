@@ -1,0 +1,26 @@
+# e2e 장소 1곳 등록 (#345): 이름 > 좌표 직접 입력 > 등록
+# 화면이 바뀌면 깨질 수 있다 > 깨지면 agent 가 화면을 보고 고치거나 직접 등록한다
+# 좌표는 tool/e2e/arrival_alert.sh 의 PLACE_LAT·PLACE_LNG 와 같아야 한다
+appId: kr.suhsaechan.ear_loc_alert
+env:
+  PLACE_NAME: E2E Arrival
+  PLACE_LAT: "37.5665"
+  PLACE_LNG: "126.9780"
+---
+- launchApp
+- tapOn: "Add place"
+# 이름 칸 (접근성 이름이 없어 위치로 누름)
+- tapOn:
+    point: "50%,14%"
+- inputText: "${PLACE_NAME}"
+- tapOn: "Enter coordinates"
+- tapOn:
+    point: "27%,41%"
+- inputText: "${PLACE_LAT}"
+- tapOn:
+    point: "72%,41%"
+- inputText: "${PLACE_LNG}"
+- hideKeyboard
+- tapOn: "Add"
+# 등록되면 폼이 닫힌다 (홈 지도는 장소 이름을 접근성 텍스트로 드러내지 않음)
+- assertNotVisible: "Enter coordinates"

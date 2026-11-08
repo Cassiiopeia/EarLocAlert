@@ -194,6 +194,12 @@ play();
 
 ---
 
+## 앱 배포 전 e2e
+
+**앱 배포(스토어 심사로 이어지는 배포) 전에 `tool/e2e/arrival_alert.sh all` 을 Android 에뮬레이터에서 돌리고 결과 표를 배포 PR 에 댓글로 남긴다** (결정 085, #345). FAIL 이면 배포하지 않고 원인을 보고한다. 사용자가 건너뛰라고 하면 건너뛴다. 장소 등록은 `tool/e2e/flows/add_place.yaml` 이고, 화면이 바뀌어 깨지면 agent 가 고친다. 에뮬레이터는 앱 진동을 못 본다 (`vibration skipped reason=no_vibrator` 가 정상) → `tool/e2e/README.md`
+
+---
+
 ## 문서 유지
 
 **설계 판단을 바꿨으면 `docs/10-DECISIONS.md` 에 항목을 추가하고 해당 문서를 함께 고친다.**
