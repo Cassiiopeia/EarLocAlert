@@ -253,6 +253,14 @@ jobs:
           printf '%s\n' "$ENV_CONTENT" > .env
           echo "✅ .env 파일 생성됨 (크기: $(wc -c < .env) bytes)"
 
+      # 빌드 프로파일 (release) — 개발자 도구 플래그가 섞이면 여기서 빌드 중단 (#359)
+      # Play 내부·비공개·정식이 같은 AAB 라 이 빌드에는 개발 기능이 들어가면 안 됨
+      - name: 빌드 프로파일 검증 (release)
+        run: |
+          python3 .github/scripts/apply_build_profile.py \
+            release .env \
+            --config .github/config/build-profile.json
+
       # Release Keystore 설정
       - name: Setup Release Keystore
         run: |

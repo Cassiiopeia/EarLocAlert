@@ -68,8 +68,8 @@ env:
   FLUTTER_VERSION: "3.35.5"
   JAVA_VERSION: "17"
   ENV_FILE_PATH: ".env"
-  FIREBASE_APP_ID: "{FIREBASE_APP_ID}"
-  FIREBASE_TESTER_GROUP: "{TESTER_GROUP}"
+  FIREBASE_APP_ID: "1:701778493051:android:d5b4df40340bd5b0cf6cde"
+  FIREBASE_TESTER_GROUP: "testers"
 
 jobs:
   prepare-test-build:
@@ -323,6 +323,15 @@ jobs:
           printf '%s\n' "$ENV_CONTENT" > ${{ env.ENV_FILE_PATH }}
           echo "✅ ${{ env.ENV_FILE_PATH }} file created"
 
+      # 빌드 프로파일 (test) — 개발자 도구 컴파일 게이트 APP_FLAVOR=dev (#359)
+      # 설정: .github/config/build-profile.json. 플래그는 아래 Build APK 가 그대로 씀
+      - name: 빌드 프로파일 적용 (test)
+        id: build_profile
+        run: |
+          python3 .github/scripts/apply_build_profile.py \
+            test "${{ env.ENV_FILE_PATH }}" \
+            --config .github/config/build-profile.json
+
       - name: Setup Release Keystore
         env:
           KEYSTORE_BASE64: ${{ secrets.RELEASE_KEYSTORE_BASE64 }}
@@ -547,16 +556,13 @@ jobs:
 
       # APK 빌드 (Fastlane 또는 직접 빌드)
       - name: Build APK
+        env:
+          BUILD_FLAGS: ${{ steps.build_profile.outputs.build_flags }}
         run: |
-          # Fastlane Fastfile이 있으면 사용, 없으면 직접 빌드
-          if [ -f "android/fastlane/Fastfile" ]; then
-            echo "📦 Fastlane을 사용하여 빌드..."
-            cd android
-            bundle exec fastlane build --verbose || flutter build apk --release
-          else
-            echo "📦 Flutter 직접 빌드..."
-            flutter build apk --release
-          fi
+          # 🔴 dart-define 은 여기 직접 적지 않는다 — 빌드 프로파일 한 곳에서 정한다 (#359)
+          echo "📦 Flutter 직접 빌드... ${BUILD_FLAGS:+(플래그: $BUILD_FLAGS)}"
+          # shellcheck disable=SC2086
+          flutter build apk --release $BUILD_FLAGS
           ls -la ./build/app/outputs/flutter-apk/ || true
           echo "✅ APK built"
 

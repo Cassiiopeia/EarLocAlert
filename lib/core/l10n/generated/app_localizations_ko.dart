@@ -1463,7 +1463,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get vibrationPatternDescription =>
-      '고르면 한 번 울려 확인할 수 있어요. 진동 세기 설정이 함께 적용돼요.';
+      '고르면 실제 알림처럼 반복해서 울려 확인할 수 있어요. 다른 걸 고르거나 닫으면 멈춰요. 진동 세기 설정이 함께 적용돼요.';
 
   @override
   String get vibrationPatternIosNote =>
@@ -1866,4 +1866,153 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get cloudSyncImportLater => '나중에';
+
+  @override
+  String get devToolsTitle => '개발자 도구';
+
+  @override
+  String get devToolsDescription => '테스트 빌드 전용입니다. 강제값은 앱을 다시 켜면 꺼집니다';
+
+  @override
+  String get devToolsOpen => '개발자 도구 열기';
+
+  @override
+  String get devToolsTabPlan => '등급';
+
+  @override
+  String get devToolsTabSituation => '상황';
+
+  @override
+  String get devToolsTabDiagnostics => '진단';
+
+  @override
+  String get devToolsProSection => '등급 강제';
+
+  @override
+  String get devToolsProActual => '실제 값 따르기';
+
+  @override
+  String get devToolsProForceFree => '무료로 보기';
+
+  @override
+  String get devToolsProForcePro => '프로로 보기';
+
+  @override
+  String get devToolsProStored => '저장된 등급';
+
+  @override
+  String get devToolsProShown => '지금 화면 등급';
+
+  @override
+  String get devToolsProFree => '무료';
+
+  @override
+  String get devToolsProPro => '프로';
+
+  @override
+  String get devToolsPlaceLimit => '장소 한도';
+
+  @override
+  String get devToolsPurchaseOrder => '구매 주문 번호';
+
+  @override
+  String get devToolsNone => '없음';
+
+  @override
+  String get devToolsAlertSection => '알림 시험';
+
+  @override
+  String get devToolsAlertArrive => '도착 알림 바로 울리기';
+
+  @override
+  String get devToolsAlertLeave => '출발 알림 바로 울리기';
+
+  @override
+  String get devToolsAlertSubtitle => '첫 장소로 실제 알림 경로를 탑니다';
+
+  @override
+  String get devToolsAlertQueued => '3초 안에 알림이 울립니다';
+
+  @override
+  String get devToolsAlertNoPlace => '장소를 먼저 등록하세요';
+
+  @override
+  String get devToolsAdSection => '광고';
+
+  @override
+  String get devToolsAdShowNow => '전면광고 바로 보기';
+
+  @override
+  String get devToolsAdNotReady => '광고를 아직 불러오지 못했습니다';
+
+  @override
+  String get devToolsAdReset => '광고 빈도 기록 초기화';
+
+  @override
+  String get devToolsReviewSection => '후기 요청';
+
+  @override
+  String get devToolsReviewReset => '후기 요청 조건 초기화';
+
+  @override
+  String get devToolsReviewRequest => '후기 창 바로 요청';
+
+  @override
+  String get devToolsReviewRequestFailed =>
+      '후기 창을 띄우지 못했습니다. 스토어에서 설치한 앱에서만 뜰 수 있습니다';
+
+  @override
+  String get devToolsOnboardingSection => '처음 상태';
+
+  @override
+  String get devToolsOnboardingReplay => '온보딩 다시 보기';
+
+  @override
+  String get devToolsDone => '완료했습니다';
+
+  @override
+  String get devToolsBuildSection => '빌드';
+
+  @override
+  String get devToolsBuildFlavor => '빌드 종류';
+
+  @override
+  String get devToolsBuildVersion => '버전';
+
+  @override
+  String get devToolsAdUnit => '광고 단위';
+
+  @override
+  String get devToolsAdUnitTest => '테스트';
+
+  @override
+  String get devToolsAdUnitLive => '실제';
+
+  @override
+  String get devToolsWatchSection => '감시·동기화';
+
+  @override
+  String get devToolsGeofenceResync => '지오펜스 다시 등록';
+
+  @override
+  String get devToolsCloudSyncNow => '드라이브 지금 동기화';
+
+  @override
+  String devToolsCloudSyncResult(String outcome) {
+    return '동기화 결과: $outcome';
+  }
+
+  @override
+  String get devToolsCopyState => '상태 전체 복사';
+
+  @override
+  String get devToolsCopied => '복사했습니다';
+
+  @override
+  String get devToolsOpenDiagnostics => '진단 기록 열기';
+
+  @override
+  String devToolsFailed(String error) {
+    return '실패했습니다: $error';
+  }
 }

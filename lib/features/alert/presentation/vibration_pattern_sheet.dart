@@ -91,6 +91,12 @@ class _VibrationPatternSheetState
   /// dispose 에서 ref 를 쓸 수 없어 미리 잡아 둠 (#122)
   late final VibrationService _vibration;
 
+  /// 미리보기 반복 간격: 실제 알림과 같은 3초 (AlertController 기본값)
+  static const Duration _previewRepeatInterval = Duration(seconds: 3);
+
+  /// 미리보기 최대 시간: 계속 떨리는 것 방지
+  static const Duration _previewMaxDuration = Duration(seconds: 20);
+
   /// 미리 느껴 보기 번호: 빠르게 여러 개 누를 때 앞 미리보기의 멈춤이 뒤를 끊지 않게
   int _previewToken = 0;
 
@@ -107,7 +113,7 @@ class _VibrationPatternSheetState
     super.dispose();
   }
 
-  /// 고르기 > 한 번 느껴 보기 (기본 따르기는 지금 기본 패턴으로)
+  /// 고르기 > 반복해서 느껴 보기 (기본 따르기는 지금 기본 패턴으로)
   Future<void> _select(_PatternOption option) async {
     setState(() => _selected = option);
     final token = ++_previewToken;
@@ -120,13 +126,12 @@ class _VibrationPatternSheetState
           await ref.read(vibrationPatternStoreProvider).pattern();
       final waveform = VibrationWaveform.build(pattern, intensity);
       await _vibration.startRepeating(
-        // 한 번만 느끼면 됨: 반복 주기를 길게 주고 파형이 끝나면 멈춤
-        interval: const Duration(days: 1),
+        interval: _previewRepeatInterval,
         intensity: intensity,
         waveform: waveform,
       );
-      final previewMs = waveform?.totalMs ?? intensity.pulseMs + 120;
-      await Future<void>.delayed(Duration(milliseconds: previewMs));
+      // 다른 패턴을 고르거나 시트를 닫으면 멈추고, 아니면 제한 시간 뒤 멈춤
+      await Future<void>.delayed(_previewMaxDuration);
       if (token == _previewToken) await _vibration.stop();
     } on Object catch (error) {
       // 미리보기 실패는 고르기를 막지 않음

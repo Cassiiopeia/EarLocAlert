@@ -44,19 +44,19 @@
         "zh": "到站提醒"
       },
       "headline": {
-        "ko": "내릴 곳,<br><em>놓치지 않게</em>",
+        "ko": "또 지나쳤어요?<br><em>이제 진동이 깨워요</em>",
         "en": "Never miss<br><em>your stop</em>",
         "ja": "降りる場所を、<br><em>見逃さない</em>",
         "zh": "再也<br><em>不会坐过站</em>"
       },
       "sub": {
-        "ko": "버스에서 졸아도 도착하면 진동으로 깨워 드려요",
+        "ko": "졸다 종점에서 눈 뜨기 전에, 내릴 곳에서 진동으로 깨워요",
         "en": "Doze off on the bus — your phone buzzes when you arrive",
         "ja": "バスで居眠りしても、到着したら振動で起こします",
         "zh": "在公交上打瞌睡也没关系，到站就振动叫醒你"
       },
       "sub_ios": {
-        "ko": "버스에서 졸아도 도착하면 알림과 진동으로 깨워 드려요",
+        "ko": "졸다 종점에서 눈 뜨기 전에, 내릴 곳에서 알림과 진동으로 깨워요",
         "en": "Doze off on the bus — a notification and vibration wake you on arrival",
         "ja": "バスで居眠りしても、到着したら通知と振動で起こします",
         "zh": "在公交上打瞌睡也没关系，到站就用通知和振动叫醒你"

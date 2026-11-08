@@ -48,4 +48,12 @@ class ReviewPromptStore {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt(_lastRequestedAtKey, at.millisecondsSinceEpoch);
   }
+
+  /// 판단 기록 3개 전부 삭제 (개발자 도구 전용, #359) — 다음 판정은 첫 사용부터 다시 셈
+  Future<void> resetAll() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_dismissCountKey);
+    await prefs.remove(_firstUsedAtKey);
+    await prefs.remove(_lastRequestedAtKey);
+  }
 }

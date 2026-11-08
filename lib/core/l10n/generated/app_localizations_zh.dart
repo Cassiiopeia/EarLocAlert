@@ -1445,7 +1445,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get vibrationPatternTitle => '振动模式';
 
   @override
-  String get vibrationPatternDescription => '选择后会振动一次以便确认。振动强度设置也会一起生效。';
+  String get vibrationPatternDescription =>
+      '选择后会像真实提醒一样重复振动以便确认。选择其他项或关闭后会停止。振动强度设置也会一起生效。';
 
   @override
   String get vibrationPatternIosNote => '受 iOS 限制,应用不在前台时可能不会振动。';
@@ -1843,4 +1844,152 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get cloudSyncImportLater => '稍后';
+
+  @override
+  String get devToolsTitle => '开发者工具';
+
+  @override
+  String get devToolsDescription => '仅限测试版本。强制值会在重启应用后关闭';
+
+  @override
+  String get devToolsOpen => '打开开发者工具';
+
+  @override
+  String get devToolsTabPlan => '等级';
+
+  @override
+  String get devToolsTabSituation => '场景';
+
+  @override
+  String get devToolsTabDiagnostics => '诊断';
+
+  @override
+  String get devToolsProSection => '强制等级';
+
+  @override
+  String get devToolsProActual => '跟随实际值';
+
+  @override
+  String get devToolsProForceFree => '以免费版查看';
+
+  @override
+  String get devToolsProForcePro => '以Pro版查看';
+
+  @override
+  String get devToolsProStored => '已保存的等级';
+
+  @override
+  String get devToolsProShown => '当前画面等级';
+
+  @override
+  String get devToolsProFree => '免费';
+
+  @override
+  String get devToolsProPro => 'Pro';
+
+  @override
+  String get devToolsPlaceLimit => '地点上限';
+
+  @override
+  String get devToolsPurchaseOrder => '购买订单号';
+
+  @override
+  String get devToolsNone => '无';
+
+  @override
+  String get devToolsAlertSection => '提醒测试';
+
+  @override
+  String get devToolsAlertArrive => '立即响起到达提醒';
+
+  @override
+  String get devToolsAlertLeave => '立即响起离开提醒';
+
+  @override
+  String get devToolsAlertSubtitle => '使用第一个地点走真实提醒流程';
+
+  @override
+  String get devToolsAlertQueued => '提醒将在3秒内响起';
+
+  @override
+  String get devToolsAlertNoPlace => '请先添加地点';
+
+  @override
+  String get devToolsAdSection => '广告';
+
+  @override
+  String get devToolsAdShowNow => '立即显示插页广告';
+
+  @override
+  String get devToolsAdNotReady => '广告尚未加载';
+
+  @override
+  String get devToolsAdReset => '重置广告频率记录';
+
+  @override
+  String get devToolsReviewSection => '评价请求';
+
+  @override
+  String get devToolsReviewReset => '重置评价请求条件';
+
+  @override
+  String get devToolsReviewRequest => '立即请求评价窗口';
+
+  @override
+  String get devToolsReviewRequestFailed => '无法显示评价窗口。可能仅在从商店安装的应用中显示';
+
+  @override
+  String get devToolsOnboardingSection => '初始状态';
+
+  @override
+  String get devToolsOnboardingReplay => '重新查看引导';
+
+  @override
+  String get devToolsDone => '已完成';
+
+  @override
+  String get devToolsBuildSection => '构建';
+
+  @override
+  String get devToolsBuildFlavor => '构建类型';
+
+  @override
+  String get devToolsBuildVersion => '版本';
+
+  @override
+  String get devToolsAdUnit => '广告单元';
+
+  @override
+  String get devToolsAdUnitTest => '测试';
+
+  @override
+  String get devToolsAdUnitLive => '正式';
+
+  @override
+  String get devToolsWatchSection => '监控·同步';
+
+  @override
+  String get devToolsGeofenceResync => '重新注册地理围栏';
+
+  @override
+  String get devToolsCloudSyncNow => '立即同步云端硬盘';
+
+  @override
+  String devToolsCloudSyncResult(String outcome) {
+    return '同步结果: $outcome';
+  }
+
+  @override
+  String get devToolsCopyState => '复制全部状态';
+
+  @override
+  String get devToolsCopied => '已复制';
+
+  @override
+  String get devToolsOpenDiagnostics => '打开诊断记录';
+
+  @override
+  String devToolsFailed(String error) {
+    return '失败: $error';
+  }
 }

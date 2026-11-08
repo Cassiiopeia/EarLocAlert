@@ -1460,7 +1460,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get vibrationPatternDescription =>
-      '選ぶと一度振動して確認できます。バイブレーションの強さも反映されます。';
+      '選ぶと実際の通知のように繰り返し振動して確認できます。別のものを選ぶか閉じると止まります。バイブレーションの強さも反映されます。';
 
   @override
   String get vibrationPatternIosNote => 'iOSの仕様上、アプリが画面に表示されていないと振動しないことがあります。';
@@ -1860,4 +1860,153 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get cloudSyncImportLater => 'あとで';
+
+  @override
+  String get devToolsTitle => '開発者ツール';
+
+  @override
+  String get devToolsDescription => 'テストビルド専用です。強制値はアプリを再起動するとオフになります';
+
+  @override
+  String get devToolsOpen => '開発者ツールを開く';
+
+  @override
+  String get devToolsTabPlan => 'プラン';
+
+  @override
+  String get devToolsTabSituation => '状況';
+
+  @override
+  String get devToolsTabDiagnostics => '診断';
+
+  @override
+  String get devToolsProSection => 'プランを強制';
+
+  @override
+  String get devToolsProActual => '実際の値に従う';
+
+  @override
+  String get devToolsProForceFree => '無料として表示';
+
+  @override
+  String get devToolsProForcePro => 'Proとして表示';
+
+  @override
+  String get devToolsProStored => '保存されたプラン';
+
+  @override
+  String get devToolsProShown => '現在の画面のプラン';
+
+  @override
+  String get devToolsProFree => '無料';
+
+  @override
+  String get devToolsProPro => 'Pro';
+
+  @override
+  String get devToolsPlaceLimit => '場所の上限';
+
+  @override
+  String get devToolsPurchaseOrder => '購入注文番号';
+
+  @override
+  String get devToolsNone => 'なし';
+
+  @override
+  String get devToolsAlertSection => '通知テスト';
+
+  @override
+  String get devToolsAlertArrive => '到着通知を今すぐ鳴らす';
+
+  @override
+  String get devToolsAlertLeave => '出発通知を今すぐ鳴らす';
+
+  @override
+  String get devToolsAlertSubtitle => '最初の場所で実際の通知経路を通ります';
+
+  @override
+  String get devToolsAlertQueued => '3秒以内に通知が鳴ります';
+
+  @override
+  String get devToolsAlertNoPlace => '先に場所を登録してください';
+
+  @override
+  String get devToolsAdSection => '広告';
+
+  @override
+  String get devToolsAdShowNow => 'インタースティシャル広告を今すぐ表示';
+
+  @override
+  String get devToolsAdNotReady => '広告をまだ読み込めていません';
+
+  @override
+  String get devToolsAdReset => '広告の頻度記録をリセット';
+
+  @override
+  String get devToolsReviewSection => 'レビュー依頼';
+
+  @override
+  String get devToolsReviewReset => 'レビュー依頼の条件をリセット';
+
+  @override
+  String get devToolsReviewRequest => 'レビュー画面を今すぐ依頼';
+
+  @override
+  String get devToolsReviewRequestFailed =>
+      'レビュー画面を表示できませんでした。ストアからインストールしたアプリでのみ表示される場合があります';
+
+  @override
+  String get devToolsOnboardingSection => '初回状態';
+
+  @override
+  String get devToolsOnboardingReplay => 'オンボーディングをもう一度見る';
+
+  @override
+  String get devToolsDone => '完了しました';
+
+  @override
+  String get devToolsBuildSection => 'ビルド';
+
+  @override
+  String get devToolsBuildFlavor => 'ビルドの種類';
+
+  @override
+  String get devToolsBuildVersion => 'バージョン';
+
+  @override
+  String get devToolsAdUnit => '広告ユニット';
+
+  @override
+  String get devToolsAdUnitTest => 'テスト';
+
+  @override
+  String get devToolsAdUnitLive => '本番';
+
+  @override
+  String get devToolsWatchSection => '監視・同期';
+
+  @override
+  String get devToolsGeofenceResync => 'ジオフェンスを再登録';
+
+  @override
+  String get devToolsCloudSyncNow => 'ドライブを今すぐ同期';
+
+  @override
+  String devToolsCloudSyncResult(String outcome) {
+    return '同期結果: $outcome';
+  }
+
+  @override
+  String get devToolsCopyState => '状態をすべてコピー';
+
+  @override
+  String get devToolsCopied => 'コピーしました';
+
+  @override
+  String get devToolsOpenDiagnostics => '診断記録を開く';
+
+  @override
+  String devToolsFailed(String error) {
+    return '失敗しました: $error';
+  }
 }
