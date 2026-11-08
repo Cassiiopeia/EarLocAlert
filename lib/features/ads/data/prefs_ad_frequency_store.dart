@@ -54,6 +54,13 @@ class PrefsAdFrequencyStore implements AdFrequencyStore {
     await _prefs.setBool(_keyLaunched, true);
   }
 
+  @override
+  Future<void> resetShownHistory() async {
+    await _prefs.remove(_keyLastShown);
+    await _prefs.remove(_keyShownToday);
+    await _prefs.remove(_keyShownDate);
+  }
+
   /// 일자 경계는 **사용자 로컬 기준**이다 — "오늘 몇 번 봤나"는
   /// 사용자가 체감하는 하루를 따라야 한다 (저장 값 자체는 UTC).
   String _dateKey(DateTime time) {

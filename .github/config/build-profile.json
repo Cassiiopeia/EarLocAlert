@@ -1,0 +1,17 @@
+{
+  "_설명": "빌드 프로파일 (#359). test 는 Firebase 테스트 APK·iOS 테스트 TestFlight, release 는 Play·iOS 정식 빌드. 개발자 도구 게이트는 컴파일 상수 APP_FLAVOR=dev 하나 (lib/core/config/app_build_flavor.dart)",
+  "dev_keys": [],
+  "secret_keys": [],
+  "profiles": {
+    "test": {
+      "env": {},
+      "dart_define": {
+        "APP_FLAVOR": "dev"
+      }
+    },
+    "release": {
+      "env": {},
+      "dart_define": {}
+    }
+  }
+}

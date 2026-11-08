@@ -39,6 +39,7 @@ import 'pending_alert_resumer.dart';
 import 'pro_access_coordinator.dart';
 import 'auto_backup_coordinator.dart';
 import 'cloud_sync_coordinator.dart';
+import 'dev_tools/dev_tools_overlay.dart';
 import 'review_prompt_coordinator.dart';
 import '../core/entitlement/feature_access_controller.dart';
 import 'router.dart';
@@ -527,8 +528,14 @@ class _EarLocAlertAppState extends ConsumerState<EarLocAlertApp>
       // 네이티브 스플래시가 걷히는 순간을 잇는다 (이슈 #150).
       // `builder` 에 두는 것은 라우터보다 위에 깔려야 화면 전환과
       // 무관하게 한 장으로 걷히기 때문이다.
-      builder: (context, child) =>
-          SplashOverlay(child: child ?? const SizedBox.shrink()),
+      //
+      // 개발자 도구 버튼은 개발 빌드에만 감싼다 (#359) — 스플래시 아래라 걷힌 뒤에 보인다
+      builder: (context, child) => SplashOverlay(
+        child: DevToolsOverlay.wrap(
+          router: _router,
+          child: child ?? const SizedBox.shrink(),
+        ),
+      ),
     );
   }
 }

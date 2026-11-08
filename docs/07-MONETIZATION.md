@@ -71,6 +71,7 @@
 | 상황 | 광고 |
 |---|---|
 | 디버그 빌드 | 테스트 |
+| 개발 빌드 (`APP_FLAVOR=dev`, Firebase 테스트 APK·iOS 테스트 TestFlight, #359) | 테스트 |
 | 검증 빌드 (`.env` 의 `DEV_FLAG=true`) | 테스트 |
 | **빌드 성격을 읽지 못함** | **테스트** |
 | 배포 빌드 (`DEV_FLAG` 없음) | 실제 |

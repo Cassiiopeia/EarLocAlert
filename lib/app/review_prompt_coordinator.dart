@@ -63,6 +63,21 @@ class ReviewPromptCoordinator {
       Diagnostics.log('review', 'check failed error=$error');
     }
   }
+
+  /// 판단 기록 삭제 + 이번 실행 판정 다시 허용 (개발자 도구 전용, #359)
+  Future<void> resetForDevTools() async {
+    await _store.resetAll();
+    _hasCheckedThisRun = false;
+    Diagnostics.log('devtools', 'review records reset');
+  }
+
+  /// 조건과 무관하게 스토어 후기 창 요청 (개발자 도구 전용, #359). 요청 시각은 기록하지 않음
+  /// 스토어 정식 설치가 아니면 OS 가 창을 띄우지 않을 수 있음
+  Future<bool> requestNowForDevTools() async {
+    final isRequested = await _service.request();
+    Diagnostics.log('devtools', 'review requested result=$isRequested');
+    return isRequested;
+  }
 }
 
 @Riverpod(keepAlive: true)
