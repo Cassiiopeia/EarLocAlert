@@ -33,8 +33,9 @@ class DevToolsOverlay extends ConsumerStatefulWidget {
 }
 
 class _DevToolsOverlayState extends ConsumerState<DevToolsOverlay> {
-  // 버튼 기본 위치: 오른쪽 끝, 화면 높이 60% (화면 비율 0~1)
-  static const _defaultPositionRatio = Offset(1, 0.6);
+  // 버튼 기본 위치: 왼쪽 끝, 화면 높이 45% (화면 비율 0~1)
+  // 오른쪽 아래는 홈의 장소 추가 버튼·내 위치 버튼 자리라 피함
+  static const _defaultPositionRatio = Offset(0, 0.45);
 
   /// 끌어 옮긴 위치 (화면 비율 0~1)
   Offset _positionRatio = _defaultPositionRatio;
