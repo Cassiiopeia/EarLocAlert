@@ -1,14 +1,41 @@
 {
   "metadata": {
-    "lastUpdated": "2026-11-08T05:14:03Z",
-    "currentVersion": "1.50.0",
+    "lastUpdated": "2026-11-08T08:30:53Z",
+    "currentVersion": "1.50.1",
     "projectType": "flutter",
-    "totalReleases": 125,
+    "totalReleases": 126,
     "projectTypes": [
       "flutter"
     ]
   },
   "releases": [
+    {
+      "version": "1.50.1",
+      "project_type": "flutter",
+      "project_types": [
+        "flutter"
+      ],
+      "date": "2026-11-08",
+      "pr_number": 364,
+      "raw_summary": "## Summary by CodeRabbit\n\n## 릴리스 노트\n\n* **버그 수정**\n  * 사용법 안내에서 다음 버튼이 보이지 않던 문제 수정\n\n* **개선**\n  * 사용법 안내 중 강조된 곳 바깥을 어둡게 가려 잘 보이게\n  * 안내 화면 아무 곳이나 눌러도 다음 단계로 넘어가게\n  * 건너뛰기를 작게 바꿔 실수로 누르지 않게",
+      "parsed_changes": {
+        "버그_수정": {
+          "title": "버그 수정",
+          "items": [
+            "사용법 안내에서 다음 버튼이 보이지 않던 문제 수정"
+          ]
+        },
+        "개선": {
+          "title": "개선",
+          "items": [
+            "사용법 안내 중 강조된 곳 바깥을 어둡게 가려 잘 보이게",
+            "안내 화면 아무 곳이나 눌러도 다음 단계로 넘어가게",
+            "건너뛰기를 작게 바꿔 실수로 누르지 않게"
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "1.50.0",
       "project_type": "flutter",
