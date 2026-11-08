@@ -1445,7 +1445,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get vibrationPatternTitle => '振动模式';
 
   @override
-  String get vibrationPatternDescription => '选择后会振动一次以便确认。振动强度设置也会一起生效。';
+  String get vibrationPatternDescription =>
+      '选择后会像真实提醒一样重复振动以便确认。选择其他项或关闭后会停止。振动强度设置也会一起生效。';
 
   @override
   String get vibrationPatternIosNote => '屏幕关闭时只保留节奏，强度保持不变。';

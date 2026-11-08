@@ -1463,7 +1463,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get vibrationPatternDescription =>
-      '고르면 한 번 울려 확인할 수 있어요. 진동 세기 설정이 함께 적용돼요.';
+      '고르면 실제 알림처럼 반복해서 울려 확인할 수 있어요. 다른 걸 고르거나 닫으면 멈춰요. 진동 세기 설정이 함께 적용돼요.';
 
   @override
   String get vibrationPatternIosNote => '화면이 꺼져 있을 때는 리듬만 같고 세기는 일정해요.';

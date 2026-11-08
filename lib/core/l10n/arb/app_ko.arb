@@ -797,7 +797,7 @@
   "settingsVibrationPatternTitle": "진동 패턴",
   "settingsVibrationPatternSubtitle": "진동만으로 장소를 구분할 수 있게 리듬을 골라요",
   "vibrationPatternTitle": "진동 패턴",
-  "vibrationPatternDescription": "고르면 한 번 울려 확인할 수 있어요. 진동 세기 설정이 함께 적용돼요.",
+  "vibrationPatternDescription": "고르면 실제 알림처럼 반복해서 울려 확인할 수 있어요. 다른 걸 고르거나 닫으면 멈춰요. 진동 세기 설정이 함께 적용돼요.",
   "vibrationPatternIosNote": "화면이 꺼져 있을 때는 리듬만 같고 세기는 일정해요.",
   "vibrationPatternFollowDefault": "기본 설정 따르기",
   "vibrationPatternFollowDefaultHint": "설정의 진동 패턴으로 울려요",

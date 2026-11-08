@@ -1528,7 +1528,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get vibrationPatternDescription =>
-      'Pick one to feel it once. Your vibration strength applies too.';
+      'Pick one to feel it repeat like a real alert. It stops when you pick another or close this. Your vibration strength applies too.';
 
   @override
   String get vibrationPatternIosNote =>
