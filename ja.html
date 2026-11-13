@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>イヤホン位置通知 — バス・電車の降りる駅を到着通知、振動とイヤホンだけで</title>
-<meta name="description" content="バスで居眠りしても降りる停留所を逃さない。地図に場所を登録すると、到着したときに振動で、イヤホン接続中だけ音で知らせる無料の位置通知アプリです。スピーカーからは鳴らず、位置情報は端末の外に出ません。">
-<meta name="keywords" content="到着通知, 降りる駅 通知, バス停 アラーム, 電車 寝過ごし防止, 位置情報 アラーム, ジオフェンス, イヤホン アラーム, 振動 アラーム">
+<title>イヤホン位置通知 — バス・シャトル・電車の降車アラーム、振動とイヤホンだけで</title>
+<meta name="description" content="バスやシャトル、電車で居眠りしても降りる場所を逃さない。地図に場所を登録すると、到着したときに振動で、イヤホン接続中だけ音で知らせる位置通知アプリです。スピーカーからは鳴らず、移動した位置をサーバーに送りません。">
+<meta name="keywords" content="降車アラーム, 乗り過ごし防止, 到着通知, 降りる駅 通知, バス停 アラーム, シャトルバス 通知, 通勤バス, 電車 寝過ごし防止, 位置情報 アラーム, 場所 通知, イヤホン アラーム, 振動 アラーム, ジオフェンス">
 <link rel="canonical" href="https://cassiiopeia.github.io/EarLocAlert/ja.html">
 <link rel="alternate" hreflang="ko" href="https://cassiiopeia.github.io/EarLocAlert/">
 <link rel="alternate" hreflang="en" href="https://cassiiopeia.github.io/EarLocAlert/en.html">
@@ -18,7 +18,7 @@
 <meta property="og:locale:alternate" content="en_US">
 <meta property="og:locale:alternate" content="zh_CN">
 <meta property="og:title" content="イヤホン位置通知 — 降りる場所を、見逃さない">
-<meta property="og:description" content="到着したら振動で。音はイヤホンだけで。バス・電車の降りる場所の通知アプリ。">
+<meta property="og:description" content="到着したら振動で。音はイヤホンだけで。バス・シャトル・電車の降車アラームアプリ。">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://cassiiopeia.github.io/EarLocAlert/icon/og-ja.png">
 <meta property="og:image:width" content="1200">
@@ -26,7 +26,7 @@
 <meta property="og:url" content="https://cassiiopeia.github.io/EarLocAlert/ja.html">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="イヤホン位置通知 — 降りる場所を、見逃さない">
-<meta name="twitter:description" content="到着したら振動で。音はイヤホンだけで。バス・電車の降りる場所の通知アプリ。">
+<meta name="twitter:description" content="到着したら振動で。音はイヤホンだけで。バス・シャトル・電車の降車アラームアプリ。">
 <meta name="twitter:image" content="https://cassiiopeia.github.io/EarLocAlert/icon/og-ja.png">
 <meta name="apple-itunes-app" content="app-id=6755805664">
 <meta name="theme-color" content="#0b0d0c">
@@ -42,7 +42,7 @@
   ],
   "operatingSystem": "iOS, Android",
   "applicationCategory": "TravelApplication",
-  "description": "バス停や駅など登録した場所に到着すると振動で知らせ、イヤホン接続中だけ音を鳴らす位置通知アプリ。",
+  "description": "バス停やシャトル乗り場、駅など登録した場所に到着すると振動で知らせ、イヤホン接続中だけ音を鳴らす位置通知・降車アラームアプリ。",
   "offers": {
    "@type": "Offer",
    "price": "0",
@@ -70,6 +70,14 @@
    },
    {
     "@type": "Question",
+    "name": "シャトルバスや通勤バス、電車でも使えますか？",
+    "acceptedAnswer": {
+     "@type": "Answer",
+     "text": "使えます。バス・シャトルバス・通勤バス・地下鉄・電車・高速バスなど、降りる場所が決まっている移動ならどこでも使えます。降りる停留所や駅を地図で登録し、半径を広めにしてください。"
+    }
+   },
+   {
+    "@type": "Question",
     "name": "イヤホンがないと音が鳴りますか？",
     "acceptedAnswer": {
      "@type": "Answer",
@@ -89,7 +97,7 @@
     "name": "位置情報はサーバーに送られますか？",
     "acceptedAnswer": {
      "@type": "Answer",
-     "text": "送られません。到着の判定はすべて端末の中で行い、登録した場所や記録も端末にだけ保存されます。会員登録もありません。"
+     "text": "送られません。到着の判定はすべて端末の中で行い、移動した位置をサーバーに送りません。会員登録もありません。プロで Google ドライブ同期をオンにすると、登録した場所の一覧だけがご自身の Google ドライブのアプリ専用領域に保存されます。"
     }
    },
    {
@@ -105,7 +113,7 @@
     "name": "無料ですか？",
     "acceptedAnswer": {
      "@type": "Answer",
-     "text": "無料です。広告が含まれますが、通知が鳴っている画面には広告を表示しません。"
+     "text": "ダウンロードと基本機能は無料です。場所1件と基本の通知が使え、広告があります。一度の購入でプロにすると場所を増やし広告をなくせます。通知が鳴っている画面には広告を表示しません。"
     }
    }
   ]
@@ -279,6 +287,10 @@
         <p>はい。降りる停留所や駅を地図で登録しておけば、その半径に入った瞬間に振動で起こします。アプリを開いていなくても、画面が消えていても動作します。</p>
       </details>
       <details class="faq-item">
+        <summary>シャトルバスや通勤バス、電車でも使えますか？</summary>
+        <p>使えます。バス・シャトルバス・通勤バス・地下鉄・電車・高速バスなど、降りる場所が決まっている移動ならどこでも使えます。降りる停留所や駅を地図で登録し、半径を広めにしてください。</p>
+      </details>
+      <details class="faq-item">
         <summary>イヤホンがないと音が鳴りますか？</summary>
         <p>いいえ。有線・USB-C・Bluetooth イヤホンの接続を確認してから音を鳴らします。接続されていなければ振動だけで、スピーカーからは鳴りません。</p>
       </details>
@@ -288,7 +300,7 @@
       </details>
       <details class="faq-item">
         <summary>位置情報はサーバーに送られますか？</summary>
-        <p>送られません。到着の判定はすべて端末の中で行い、登録した場所や記録も端末にだけ保存されます。会員登録もありません。</p>
+        <p>送られません。到着の判定はすべて端末の中で行い、移動した位置をサーバーに送りません。会員登録もありません。プロで Google ドライブ同期をオンにすると、登録した場所の一覧だけがご自身の Google ドライブのアプリ専用領域に保存されます。</p>
       </details>
       <details class="faq-item">
         <summary>スマートウォッチでも通知を受け取れますか？</summary>
@@ -296,7 +308,7 @@
       </details>
       <details class="faq-item">
         <summary>無料ですか？</summary>
-        <p>無料です。広告が含まれますが、通知が鳴っている画面には広告を表示しません。</p>
+        <p>ダウンロードと基本機能は無料です。場所1件と基本の通知が使え、広告があります。一度の購入でプロにすると場所を増やし広告をなくせます。通知が鳴っている画面には広告を表示しません。</p>
       </details>
   </div>
 </section>

@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>이어폰위치알림 — 버스·지하철 내릴 곳 도착 알림, 진동과 이어폰으로만</title>
-<meta name="description" content="버스에서 졸아도 내릴 정류장을 놓치지 않게. 지도에 장소를 등록하면 도착할 때 진동으로, 이어폰이 연결돼 있을 때만 소리로 알려 주는 무료 위치 알림 앱입니다. 스피커로는 소리가 나지 않고 위치 정보는 기기 밖으로 나가지 않습니다.">
-<meta name="keywords" content="도착 알림, 내릴 곳 알림, 버스 정류장 알림, 지하철 도착 알림, 위치 알람, 지오펜스 알림, 이어폰 알람, 진동 알람, 졸음 방지">
+<title>이어폰 위치 알림 — 버스·셔틀·지하철 하차 알림, 진동과 이어폰으로만</title>
+<meta name="description" content="버스·셔틀·지하철에서 졸아도 내릴 곳을 놓치지 않게. 지도에 장소를 등록하면 도착할 때 진동으로, 이어폰이 연결돼 있을 때만 소리로 알려 주는 위치 알림·하차 알림 앱입니다. 스피커로는 소리가 나지 않고 이동 위치는 서버로 보내지 않습니다.">
+<meta name="keywords" content="이어폰 위치 알림, 이어폰 장소 알람, 이어폰 알림, 하차 알림, 버스 하차 알림, 셔틀버스 하차 알림, 통근버스 알림, 지하철 하차 알람, 기차 도착 알림, 도착 알림, 위치 알람, 장소 알림, 내릴 곳 알림, 졸음 방지, 진동 알람, 지오펜스 알림">
 <link rel="canonical" href="https://cassiiopeia.github.io/EarLocAlert/">
 <link rel="alternate" hreflang="ko" href="https://cassiiopeia.github.io/EarLocAlert/">
 <link rel="alternate" hreflang="en" href="https://cassiiopeia.github.io/EarLocAlert/en.html">
@@ -17,17 +17,17 @@
 <meta property="og:locale:alternate" content="en_US">
 <meta property="og:locale:alternate" content="ja_JP">
 <meta property="og:locale:alternate" content="zh_CN">
-<meta property="og:title" content="이어폰위치알림 — 내릴 곳, 놓치지 않게">
-<meta property="og:description" content="도착하면 진동으로, 이어폰으로만 조용히. 버스·지하철 내릴 곳 알림 앱.">
+<meta property="og:title" content="이어폰 위치 알림 — 내릴 곳, 놓치지 않게">
+<meta property="og:description" content="도착하면 진동으로, 이어폰으로만 조용히. 버스·셔틀·지하철 하차 알림 앱.">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://cassiiopeia.github.io/EarLocAlert/icon/og-ko.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="이어폰위치알림 — 내릴 곳, 놓치지 않게">
+<meta property="og:image:alt" content="이어폰 위치 알림 — 내릴 곳, 놓치지 않게">
 <meta property="og:url" content="https://cassiiopeia.github.io/EarLocAlert/">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="이어폰위치알림 — 내릴 곳, 놓치지 않게">
-<meta name="twitter:description" content="도착하면 진동으로, 이어폰으로만 조용히. 버스·지하철 내릴 곳 알림 앱.">
+<meta name="twitter:title" content="이어폰 위치 알림 — 내릴 곳, 놓치지 않게">
+<meta name="twitter:description" content="도착하면 진동으로, 이어폰으로만 조용히. 버스·셔틀·지하철 하차 알림 앱.">
 <meta name="twitter:image" content="https://cassiiopeia.github.io/EarLocAlert/icon/og-ko.png">
 <meta name="apple-itunes-app" content="app-id=6755805664">
 <meta name="theme-color" content="#0b0d0c">
@@ -42,7 +42,7 @@
   ],
   "operatingSystem": "iOS, Android",
   "applicationCategory": "TravelApplication",
-  "description": "등록한 장소(버스 정류장·지하철역 등)에 도착하면 진동으로, 이어폰이 연결돼 있을 때만 소리로 알리는 위치 알림 앱.",
+  "description": "등록한 장소(버스 정류장·셔틀 정류장·지하철역 등)에 도착하면 진동으로, 이어폰이 연결돼 있을 때만 소리로 알리는 위치 알림·하차 알림 앱.",
   "offers": {
    "@type": "Offer",
    "price": "0",
@@ -68,6 +68,14 @@
      "text": "네. 지도에서 내릴 정류장이나 역을 등록해 두면, 그 반경 안에 들어서는 순간 진동으로 깨워 드립니다. 앱을 열어 두지 않아도, 화면이 꺼져 있어도 동작합니다."
     }
    },
+  {
+    "@type": "Question",
+    "name": "셔틀버스·통근버스·기차에서도 쓸 수 있나요?",
+    "acceptedAnswer": {
+     "@type": "Answer",
+     "text": "네. 버스·셔틀·통근버스·지하철·기차·고속버스처럼 내릴 곳이 정해진 이동이면 어디서나 씁니다. 내릴 정류장이나 역을 지도에서 등록하고 반경을 넉넉하게 잡아 두세요."
+    }
+   },
    {
     "@type": "Question",
     "name": "이어폰이 없으면 소리가 나나요?",
@@ -89,7 +97,7 @@
     "name": "위치 정보가 서버로 전송되나요?",
     "acceptedAnswer": {
      "@type": "Answer",
-     "text": "전송되지 않습니다. 도착 판정은 전부 휴대전화 안에서 이루어지고, 등록한 장소와 기록은 기기에만 저장됩니다. 회원가입도 없습니다."
+     "text": "보내지 않습니다. 도착 판정은 전부 휴대전화 안에서 이루어지고, 이동 위치는 서버로 보내지 않습니다. 회원가입도 없습니다. 프로에서 구글 드라이브 동기화를 켜면 등록한 장소 목록만 내 구글 드라이브의 앱 전용 공간에 저장됩니다."
     }
    },
    {
@@ -105,7 +113,7 @@
     "name": "무료인가요?",
     "acceptedAnswer": {
      "@type": "Answer",
-     "text": "무료입니다. 광고가 포함되어 있으며, 알림이 울리는 화면에는 광고를 두지 않습니다."
+     "text": "내려받기와 기본 기능은 무료입니다. 장소 1개와 기본 알림을 쓸 수 있고 광고가 있습니다. 한 번 결제하는 프로로 장소를 늘리고 광고를 없앨 수 있습니다. 알림이 울리는 화면에는 광고를 두지 않습니다."
     }
    }
   ]
@@ -253,7 +261,7 @@
     <p class="sec-lead">어두운 곳에서 눈이 부시지 않게, 급할 때 헷갈리지 않게 만들었습니다.</p>
     <div class="shots">
       <figure class="shot" style="margin:0">
-        <img class="promo" loading="lazy" src="shots/ko/01.jpg" width="540" height="960" alt="내릴 곳, 놓치지 않게 — 버스에서 졸아도 도착하면 진동으로 깨워 드려요">
+        <img class="promo" loading="lazy" src="shots/ko/01.jpg" width="540" height="960" alt="또 지나쳤어요? 이제 진동이 깨워요 — 졸다 종점에서 눈 뜨기 전에, 내릴 곳에서 진동으로 깨워요">
       </figure>
       <figure class="shot" style="margin:0">
         <img class="promo" loading="lazy" src="shots/ko/02.jpg" width="540" height="960" alt="이어폰으로만 울려요 — 이어폰이 없으면 진동만. 스피커로는 절대 소리가 나지 않아요">
@@ -282,6 +290,10 @@
         <p>네. 지도에서 내릴 정류장이나 역을 등록해 두면, 그 반경 안에 들어서는 순간 진동으로 깨워 드립니다. 앱을 열어 두지 않아도, 화면이 꺼져 있어도 동작합니다.</p>
       </details>
       <details class="faq-item">
+        <summary>셔틀버스·통근버스·기차에서도 쓸 수 있나요?</summary>
+        <p>네. 버스·셔틀·통근버스·지하철·기차·고속버스처럼 내릴 곳이 정해진 이동이면 어디서나 씁니다. 내릴 정류장이나 역을 지도에서 등록하고 반경을 넉넉하게 잡아 두세요.</p>
+      </details>
+      <details class="faq-item">
         <summary>이어폰이 없으면 소리가 나나요?</summary>
         <p>아니요. 이어폰(줄이어폰·USB-C·블루투스)이 연결된 것을 확인한 뒤에만 소리를 냅니다. 연결되지 않았으면 진동만 울리고, 스피커로는 절대 소리가 나지 않습니다.</p>
       </details>
@@ -291,7 +303,7 @@
       </details>
       <details class="faq-item">
         <summary>위치 정보가 서버로 전송되나요?</summary>
-        <p>전송되지 않습니다. 도착 판정은 전부 휴대전화 안에서 이루어지고, 등록한 장소와 기록은 기기에만 저장됩니다. 회원가입도 없습니다.</p>
+        <p>보내지 않습니다. 도착 판정은 전부 휴대전화 안에서 이루어지고, 이동 위치는 서버로 보내지 않습니다. 회원가입도 없습니다. 프로에서 구글 드라이브 동기화를 켜면 등록한 장소 목록만 내 구글 드라이브의 앱 전용 공간에 저장됩니다.</p>
       </details>
       <details class="faq-item">
         <summary>스마트워치로도 알림을 받을 수 있나요?</summary>
@@ -299,7 +311,7 @@
       </details>
       <details class="faq-item">
         <summary>무료인가요?</summary>
-        <p>무료입니다. 광고가 포함되어 있으며, 알림이 울리는 화면에는 광고를 두지 않습니다.</p>
+        <p>내려받기와 기본 기능은 무료입니다. 장소 1개와 기본 알림을 쓸 수 있고 광고가 있습니다. 한 번 결제하는 프로로 장소를 늘리고 광고를 없앨 수 있습니다. 알림이 울리는 화면에는 광고를 두지 않습니다.</p>
       </details>
   </div>
 </section>
