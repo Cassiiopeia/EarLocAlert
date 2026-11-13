@@ -34,7 +34,12 @@
     "band_body": "Pin it on the map once and your phone buzzes when you arrive. Free to start, no account.",
     "not_found_title": "Page not found",
     "not_found_body": "The address changed or the page doesn’t exist.",
-    "not_found_cta": "Back to home"
+    "not_found_cta": "Back to home",
+    "footer_business_name": "Company",
+    "footer_business_representative": "Representative",
+    "footer_business_registration": "Business Registration No.",
+    "footer_mail_order_registration": "Mail-order Business Report No.",
+    "footer_business_contact": "Contact"
   },
   "hero": {
     "eyebrow": "Bus · Subway · Shuttle arrival alerts",

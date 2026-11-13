@@ -10,7 +10,7 @@ import site_content as content
 from site_icons import APPLE_LOGO, PLAY_LOGO, render_icon
 
 # 정적 자원 캐시 무효화 버전 (style.css·site.js 를 바꾸면 올림)
-ASSET_VERSION = "20261113"
+ASSET_VERSION = "20261113b"
 # 웹폰트: 한·영 Pretendard, 일본어 Pretendard JP (중국어는 시스템 글꼴 > 글꼴 파일 수 MB 회피)
 FONT_STYLESHEET_URLS = {
     "default": "https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css",
@@ -159,11 +159,25 @@ def render_footer(language_code, root):
       <a href="mailto:{content.CONTACT_EMAIL}">{escape(ui['contact'])}</a>
     </nav>
   </div>
-  <div class="wrap footer-bottom"><span>© {year} {escape(content.DEVELOPER_NAME)}</span>{render_language_menu(language_code, root, {})}</div>
+  <p class="wrap footer-business">{render_business_info(ui)}</p>
+  <div class="wrap footer-bottom"><span>© {year} {escape(content.BUSINESS_NAME)}</span>{render_language_menu(language_code, root, {})}</div>
 </footer>
 </body>
 </html>
 """
+
+
+def render_business_info(ui):
+    """사업자 정보 한 줄: 상호 · 대표자 · 사업자등록번호 · 통신판매업 신고번호 · 문의 (라벨만 언어별)"""
+    items = [
+        (ui["footer_business_name"], escape(content.BUSINESS_NAME)),
+        (ui["footer_business_representative"], escape(content.BUSINESS_REPRESENTATIVE)),
+        (ui["footer_business_registration"], escape(content.BUSINESS_REGISTRATION_NUMBER)),
+        (ui["footer_mail_order_registration"], escape(content.MAIL_ORDER_REGISTRATION_NUMBER)),
+        (ui["footer_business_contact"],
+         f'<a href="mailto:{content.BUSINESS_CONTACT_EMAIL}">{escape(content.BUSINESS_CONTACT_EMAIL)}</a>'),
+    ]
+    return "".join(f"<span>{escape(label)} {value}</span>" for label, value in items)
 
 
 def guide_titles(language_code):

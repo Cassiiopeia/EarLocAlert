@@ -275,6 +275,9 @@ h2 { font-size: clamp(32px, 4.8vw, 60px); letter-spacing: -.04em; line-height: 1
 .footer-links { display: grid; gap: 10px; align-content: start; }
 .footer-links strong { color: #fff; font-size: 13px; }
 .footer-links a:hover { color: #fff; }
+/* 사업자 정보 한 줄 — 좁은 화면에서는 항목 단위로 줄바꿈 */
+.footer-business { display: flex; flex-wrap: wrap; gap: 4px 16px; margin-top: 32px; font-size: 12px; color: #8e8e93; }
+.footer-business a { color: inherit; text-decoration: underline; }
 .footer-bottom { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-top: 40px; padding-top: 24px; border-top: 1px solid #2c2c2e; font-size: 13px; }
 .footer .lang-menu summary { background: transparent; border-color: #3a3a3c; color: #c7c7cc; }
 .footer .lang-options { background: var(--night-surface); border-color: #3a3a3c; }

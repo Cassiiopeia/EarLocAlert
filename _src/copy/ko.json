@@ -34,7 +34,12 @@
     "band_body": "지도에 한 번 찍어 두면 도착할 때 진동으로 깨워요. 무료로 시작, 회원가입 없음.",
     "not_found_title": "페이지를 찾을 수 없어요",
     "not_found_body": "주소가 바뀌었거나 없는 페이지예요.",
-    "not_found_cta": "첫 화면으로"
+    "not_found_cta": "첫 화면으로",
+    "footer_business_name": "상호",
+    "footer_business_representative": "대표자",
+    "footer_business_registration": "사업자등록번호",
+    "footer_mail_order_registration": "통신판매업 신고번호",
+    "footer_business_contact": "문의"
   },
   "hero": {
     "eyebrow": "버스 · 지하철 · 셔틀 도착 알림",

@@ -32,6 +32,12 @@ APP_STORE_APP_ID = "6755805664"
 PLAY_PACKAGE_NAME = "kr.suhsaechan.ear_loc_alert"
 CONTACT_EMAIL = "chan4760@gmail.com"
 DEVELOPER_NAME = "서새찬"
+# 사업자 정보 (바닥글, 이룸·passQL 사이트와 같은 값) — 전자상거래법 표시 사항
+BUSINESS_NAME = "콜리랩(KOLLYLAB)"
+BUSINESS_REPRESENTATIVE = "서새찬"
+BUSINESS_REGISTRATION_NUMBER = "331-37-01670"
+MAIL_ORDER_REGISTRATION_NUMBER = "제2026-서울강남-06142호"
+BUSINESS_CONTACT_EMAIL = "chan4760@naver.com"
 # AdMob 앱 인증: 개발자 웹사이트 도메인 루트에서 읽음 (docs/10-DECISIONS.md app-ads.txt 호스팅)
 APP_ADS_TEXT = "google.com, pub-2025665624324395, DIRECT, f08c47fec0942fa0\n"
 

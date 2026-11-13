@@ -34,7 +34,12 @@
     "band_body": "地図で一度登録すれば、到着したときに振動で起こします。無料で始められて、会員登録なし。",
     "not_found_title": "ページが見つかりません",
     "not_found_body": "アドレスが変わったか、存在しないページです。",
-    "not_found_cta": "トップへ戻る"
+    "not_found_cta": "トップへ戻る",
+    "footer_business_name": "商号",
+    "footer_business_representative": "代表者",
+    "footer_business_registration": "事業者登録番号",
+    "footer_mail_order_registration": "通信販売業申告番号",
+    "footer_business_contact": "お問い合わせ"
   },
   "hero": {
     "eyebrow": "バス · 電車 · 送迎バスの到着通知",

@@ -34,7 +34,12 @@
     "band_body": "在地图上标记一次，到达时振动叫醒你。免费开始使用，无需注册。",
     "not_found_title": "找不到页面",
     "not_found_body": "地址已更改，或页面不存在。",
-    "not_found_cta": "返回首页"
+    "not_found_cta": "返回首页",
+    "footer_business_name": "商号",
+    "footer_business_representative": "代表人",
+    "footer_business_registration": "营业执照号",
+    "footer_mail_order_registration": "通信销售业申报号",
+    "footer_business_contact": "联系方式"
   },
   "hero": {
     "eyebrow": "公交 · 地铁 · 班车到站提醒",
