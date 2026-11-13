@@ -109,7 +109,7 @@ URL 이 필요하다. GitHub Pages 로 충분하다. 앱 안에서도 열 수 �
 
 | 항목 | 내용 | 상태 |
 |---|---|---|
-| 개인정보 처리방침 URL | https://cassiiopeia.github.io/EarLocAlert/privacy.html | **완료** (이슈 #148) |
+| 개인정보 처리방침 URL | https://earlocalert.suhsaechan.kr/privacy.html (옛 github.io 주소는 이동, #365) | **완료** (이슈 #148) |
 | 데이터 보안 양식 | 아래 참조 | **완료** (2026-08-20 선언) |
 | 백그라운드 위치 권한 선언 | 사유 + 시연 영상 | 사유 확정 · **영상 미제작** |
 | `AD_ID` 권한 선언 | 광고 ID 사용 신고 | **완료** (2026-08-21 선언) |
