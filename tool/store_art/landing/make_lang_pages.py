@@ -10,6 +10,7 @@
 import json
 import re
 import sys
+from datetime import date
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -164,12 +165,15 @@ def build_language_page(korean_page, lang, texts, korean_faq_questions):
 
 
 def write_sitemap():
+    # 마지막 수정일 (생성한 날) — 검색엔진이 다시 읽을 때를 정하는 신호 (#369)
+    last_modified = date.today().isoformat()
     lines = ['<?xml version="1.0" encoding="UTF-8"?>',
              '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">']
     for lang, page in PAGE_BY_LANG.items():
         lines.append("  <url>")
         lines.append(f"    <loc>{SITE}{page}</loc>")
         lines += [f'    <xhtml:link rel="alternate" hreflang="{other}" href="{SITE}{other_page}"/>' for other, other_page in PAGE_BY_LANG.items()]
+        lines.append(f"    <lastmod>{last_modified}</lastmod>")
         lines.append(f"    <changefreq>weekly</changefreq><priority>{'1.0' if lang == 'ko' else '0.9'}</priority>")
         lines.append("  </url>")
     lines += [f"  <url><loc>{SITE}{doc}</loc><priority>0.3</priority></url>" for doc in

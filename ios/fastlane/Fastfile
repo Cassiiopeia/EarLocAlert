@@ -137,7 +137,7 @@ platform :ios do
       UI.message("📝 whatsNew 출처: #{notes_source}")
 
       # whatsNew 메타를 절대경로로 생성 (상대경로는 fastlane CWD와 어긋나 공란 → 제출 거부).
-      # release_notes.txt만 만들고 다른 메타는 안 만듦 → ASC 기존 메타(설명/키워드 등) 보존.
+      # 이름·부제·키워드·홍보 문구·설명은 아래 등록정보 단계가 docs/store/descriptions 에서 채움 (#369).
       workspace = ENV["GITHUB_WORKSPACE"] || Dir.pwd
       metadata_path = File.join(workspace, "ios", "fastlane", "metadata")
       require "fileutils"
@@ -175,6 +175,14 @@ platform :ios do
       else
         FileUtils.rm_f(File.join(review_dir, "notes.txt"))
         UI.message("⏭️  review_notes.txt 없음 — 심사 Notes는 ASC 기존값 유지")
+      end
+
+      # 등록정보 원본 > 메타 폴더 (#369). release_notes.txt 있는 언어만 씀, 글자 수 초과면 중단
+      listing_script = File.join(workspace, "tool", "store_listing", "stage_store_listing.py")
+      if File.exist?(listing_script)
+        sh("python3", "-I", listing_script, "ios", workspace, metadata_path)
+      else
+        UI.message("⏭️  등록정보 스크립트 없음 — 이름·키워드 등은 ASC 기존값 유지")
       end
 
       UI.message("📂 metadata_path=#{metadata_path}")

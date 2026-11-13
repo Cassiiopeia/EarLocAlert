@@ -774,6 +774,10 @@ jobs:
           echo "🎯 버전: $VERSION_NAME (코드: $VERSION_CODE)"
           echo "=========================================="
           
+          # 스토어 등록정보(제목·짧은 설명·설명) 원본 > fastlane 메타 폴더 (#369). 글자 수 초과면 배포 중단
+          python3 -I "$GITHUB_WORKSPACE/tool/store_listing/stage_store_listing.py" android \
+            "$GITHUB_WORKSPACE" "$GITHUB_WORKSPACE/android/fastlane/metadata/android"
+
           cd android
           bundle exec fastlane deploy_internal
 
