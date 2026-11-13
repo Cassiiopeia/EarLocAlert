@@ -65,6 +65,7 @@ class PlaceMapHomeScreen extends ConsumerStatefulWidget {
     this.planBadge,
     this.isPlaceAddLocked = false,
     this.onUnlockPro,
+    this.unlockNudgeAlertCount,
     this.onManageRoutines,
     required this.locationService,
     super.key,
@@ -132,6 +133,9 @@ class PlaceMapHomeScreen extends ConsumerStatefulWidget {
 
   /// 잠긴 기능을 눌렀을 때 — 프로 안내
   final VoidCallback? onUnlockPro;
+
+  /// 잠금 안내를 "벌써 N번 울렸어요"로 바꿀 알림 횟수 (#366). null = 기본 문구
+  final int? unlockNudgeAlertCount;
 
   /// 루틴 관리 화면 (#315). 루틴 칩 줄 끝의 관리 칩
   final VoidCallback? onManageRoutines;
@@ -372,6 +376,7 @@ class _PlaceMapHomeScreenState extends ConsumerState<PlaceMapHomeScreen>
                   onUnlockPro: widget.isPlaceAddLocked
                       ? widget.onUnlockPro
                       : null,
+                  unlockNudgeAlertCount: widget.unlockNudgeAlertCount,
                   onManageRoutines: widget.onManageRoutines,
                 ),
               ),

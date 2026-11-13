@@ -1263,9 +1263,6 @@ class AppLocalizationsJa extends AppLocalizations {
   String get proSheetTitle => '永久パス';
 
   @override
-  String get proSheetSubtitle => 'サブスクではありません · 機種変更しても同じアカウントなら引き継ぎ';
-
-  @override
   String proSheetBuy(String price) {
     return '永久パス $price';
   }
@@ -1283,28 +1280,16 @@ class AppLocalizationsJa extends AppLocalizations {
   String get proRowPlaces => '場所';
 
   @override
-  String get proRowDirections => '到着・出発の通知';
-
-  @override
-  String get proRowSchedules => '通知の時間帯';
-
-  @override
-  String get proRowVibration => '振動の強さ';
-
-  @override
   String get proRowSound => 'イヤホン通知音';
 
   @override
   String get proRowBackup => '場所のバックアップ';
 
   @override
-  String get proRowAds => '広告';
+  String get proRowAds => '通知を止めた後の広告';
 
   @override
   String get proValueOnePlace => '1件';
-
-  @override
-  String get proValueUnlimited => '無制限';
 
   @override
   String get proValueDefaultSound => '標準1つ';
@@ -1319,13 +1304,10 @@ class AppLocalizationsJa extends AppLocalizations {
   String get proValueAdsOff => 'なし';
 
   @override
-  String get proUnlockAction => '永久パスで解除';
+  String get proUnlockAction => 'プロで解除';
 
   @override
   String get proLockedSounds => 'すべての通知音 · マイ音源';
-
-  @override
-  String get proLockedPlaces => '場所をもっと登録するには';
 
   @override
   String get proLockedBackup => '場所のバックアップ · 読み込み';
@@ -1337,10 +1319,10 @@ class AppLocalizationsJa extends AppLocalizations {
   String get proLockedExamplePlaceStation => '駅';
 
   @override
-  String get proCardTitle => '場所を無制限に登録しましょう';
+  String get proCardTitle => '場所はもっと、広告はなしで';
 
   @override
-  String get proCardSubtitle => 'すべての通知音 · バックアップ · 広告なし';
+  String get proCardSubtitle => '通知音、振動パターン、ルーティン、記録、バックアップまで全部';
 
   @override
   String proCardUsage(int count, int limit) {
@@ -1354,7 +1336,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get proOwnedSubtitle => 'すべての機能が使えます';
 
   @override
-  String get proDeviceLimitReached => '端末の上限に達しました';
+  String proDeviceLimitReached(int max) {
+    return '場所は最大 $max 件まで登録できます';
+  }
 
   @override
   String get proPriceLoading => '価格を確認中…';
@@ -1366,7 +1350,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get proPurchasePending => '支払いが確認されると解除されます';
 
   @override
-  String get proPurchaseDone => '永久パスが有効になりました';
+  String get proPurchaseDone => 'プロが有効になりました';
 
   @override
   String get proPurchaseFailed => '支払いを完了できませんでした';
@@ -1423,6 +1407,51 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get proSheetRedeem => 'プロモーションコードを使う';
+
+  @override
+  String get proSheetSubtitleGoogle =>
+      'サブスクではありません。一度の支払いで、同じ Google アカウントならずっと使えます';
+
+  @override
+  String get proSheetSubtitleApple =>
+      'サブスクではありません。一度の支払いで、同じ Apple アカウントならずっと使えます';
+
+  @override
+  String proValueMaxPlaces(int count) {
+    return '最大 $count 件';
+  }
+
+  @override
+  String get proRowBasics => '基本の通知';
+
+  @override
+  String proLockedPlacesAfterAlerts(int count) {
+    return 'もう $count 回鳴りました。場所を追加してみましょう';
+  }
+
+  @override
+  String get proSheetRedeemAppStore => 'オファーコードを使う';
+
+  @override
+  String get proHeadlineGeneral => '一度の支払いですべて解除';
+
+  @override
+  String get proHeadlinePlaces => '自宅と会社、両方で通知を受け取る';
+
+  @override
+  String get proHeadlineSounds => '好きな音で通知を受け取る';
+
+  @override
+  String get proHeadlineVibrationPatterns => '場所ごとに違う振動で区別する';
+
+  @override
+  String get proHeadlineHistory => '過去の通知をひと目で見る';
+
+  @override
+  String get proHeadlineRoutines => '通勤の場所をまとめてオン・オフ';
+
+  @override
+  String get proHeadlineBackup => '機種変更しても場所はそのまま';
 
   @override
   String get homeStatusSheetTitle => '現在の状態';

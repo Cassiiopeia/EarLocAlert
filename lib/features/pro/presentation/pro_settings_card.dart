@@ -8,6 +8,7 @@ import '../../../core/ui/components/grouped_list_row.dart';
 import '../../../core/ui/components/grouped_list_section.dart';
 import '../../../core/ui/foundation/app_color_palette.dart';
 import '../../../core/ui/foundation/app_spacing.dart';
+import '../domain/pro_offer_entry.dart';
 import 'plan_badge_chip.dart';
 import 'pro_info_sheet.dart';
 import 'pro_offer_sheet.dart';
@@ -48,7 +49,8 @@ class _FreeUpgradeCard extends ConsumerWidget {
     final l10n = context.l10n;
     final colors = context.appColors;
     final price = ref.watch(proPriceProvider).valueOrNull;
-    void openOffer() => showProOfferSheet(context, entryPoint: 'settings_card');
+    void openOffer() =>
+        showProOfferSheet(context, entry: ProOfferEntry.settingsCard);
 
     return Material(
       color: Colors.transparent,

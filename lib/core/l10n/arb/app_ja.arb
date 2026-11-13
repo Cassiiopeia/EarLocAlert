@@ -440,40 +440,34 @@
   "backupImportNewer": "新しいバージョンのアプリで作成されたファイルです。アプリを更新してからもう一度お試しください",
   "backupImportReadFailed": "ファイルを読み込めませんでした",
   "proSheetTitle": "永久パス",
-  "proSheetSubtitle": "サブスクではありません · 機種変更しても同じアカウントなら引き継ぎ",
   "proSheetBuy": "永久パス {price}",
   "proSheetRestore": "購入済みですか？復元する",
   "proSheetColumnFree": "無料",
   "proSheetColumnPro": "プロ",
   "proRowPlaces": "場所",
-  "proRowDirections": "到着・出発の通知",
-  "proRowSchedules": "通知の時間帯",
-  "proRowVibration": "振動の強さ",
   "proRowSound": "イヤホン通知音",
   "proRowBackup": "場所のバックアップ",
-  "proRowAds": "広告",
+  "proRowAds": "通知を止めた後の広告",
   "proValueOnePlace": "1件",
-  "proValueUnlimited": "無制限",
   "proValueDefaultSound": "標準1つ",
   "proValueAllSounds": "すべて + マイ音源",
   "proValueAdsOn": "あり",
   "proValueAdsOff": "なし",
-  "proUnlockAction": "永久パスで解除",
+  "proUnlockAction": "プロで解除",
   "proLockedSounds": "すべての通知音 · マイ音源",
-  "proLockedPlaces": "場所をもっと登録するには",
   "proLockedBackup": "場所のバックアップ · 読み込み",
   "proLockedExamplePlaceHome": "自宅",
   "proLockedExamplePlaceStation": "駅",
-  "proCardTitle": "場所を無制限に登録しましょう",
-  "proCardSubtitle": "すべての通知音 · バックアップ · 広告なし",
+  "proCardTitle": "場所はもっと、広告はなしで",
+  "proCardSubtitle": "通知音、振動パターン、ルーティン、記録、バックアップまで全部",
   "proCardUsage": "場所 {count}/{limit} 使用中",
   "proRowLifetime": "永久パス",
   "proOwnedSubtitle": "すべての機能が使えます",
-  "proDeviceLimitReached": "端末の上限に達しました",
+  "proDeviceLimitReached": "場所は最大 {max} 件まで登録できます",
   "proPriceLoading": "価格を確認中…",
   "proProductUnavailable": "現在購入できません。しばらくしてからもう一度お試しください",
   "proPurchasePending": "支払いが確認されると解除されます",
-  "proPurchaseDone": "永久パスが有効になりました",
+  "proPurchaseDone": "プロが有効になりました",
   "proPurchaseFailed": "支払いを完了できませんでした",
   "proRestoreNone": "復元できる購入はありません",
   "proRestoreDone": "購入を復元しました",
@@ -492,6 +486,19 @@
   "proInfoBenefitsTitle": "プロの特典",
   "proInfoRestore": "購入を復元",
   "proSheetRedeem": "プロモーションコードを使う",
+  "proSheetSubtitleGoogle": "サブスクではありません。一度の支払いで、同じ Google アカウントならずっと使えます",
+  "proSheetSubtitleApple": "サブスクではありません。一度の支払いで、同じ Apple アカウントならずっと使えます",
+  "proValueMaxPlaces": "最大 {count} 件",
+  "proRowBasics": "基本の通知",
+  "proLockedPlacesAfterAlerts": "もう {count} 回鳴りました。場所を追加してみましょう",
+  "proSheetRedeemAppStore": "オファーコードを使う",
+  "proHeadlineGeneral": "一度の支払いですべて解除",
+  "proHeadlinePlaces": "自宅と会社、両方で通知を受け取る",
+  "proHeadlineSounds": "好きな音で通知を受け取る",
+  "proHeadlineVibrationPatterns": "場所ごとに違う振動で区別する",
+  "proHeadlineHistory": "過去の通知をひと目で見る",
+  "proHeadlineRoutines": "通勤の場所をまとめてオン・オフ",
+  "proHeadlineBackup": "機種変更しても場所はそのまま",
   "homeStatusSheetTitle": "現在の状態",
   "homeStatusWatchingDescription": "オンにした場所に到着または出発すると知らせます",
   "homeStatusOffDescription": "オンの場所があるのに監視が止まっています。位置情報の権限を確認してください",
@@ -681,10 +688,22 @@
   "devToolsGeofenceResync": "ジオフェンスを再登録",
   "devToolsCloudSyncNow": "ドライブを今すぐ同期",
   "devToolsCloudSyncResult": "同期結果: {outcome}",
-  "@devToolsCloudSyncResult": {"placeholders": {"outcome": {"type": "String"}}},
+  "@devToolsCloudSyncResult": {
+    "placeholders": {
+      "outcome": {
+        "type": "String"
+      }
+    }
+  },
   "devToolsCopyState": "状態をすべてコピー",
   "devToolsCopied": "コピーしました",
   "devToolsOpenDiagnostics": "診断記録を開く",
   "devToolsFailed": "失敗しました: {error}",
-  "@devToolsFailed": {"placeholders": {"error": {"type": "String"}}}
+  "@devToolsFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  }
 }

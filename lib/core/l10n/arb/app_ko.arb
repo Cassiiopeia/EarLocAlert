@@ -717,7 +717,6 @@
   "backupImportNewer": "더 새로운 버전의 앱에서 만든 파일입니다. 앱을 업데이트한 뒤 다시 불러오세요",
   "backupImportReadFailed": "파일을 읽지 못했습니다",
   "proSheetTitle": "평생 이용권",
-  "proSheetSubtitle": "구독 아님 · 기기 바꿔도 같은 계정이면 유지",
   "proSheetBuy": "평생 이용권 {price}",
   "@proSheetBuy": {
     "placeholders": {
@@ -730,26 +729,21 @@
   "proSheetColumnFree": "무료",
   "proSheetColumnPro": "프로",
   "proRowPlaces": "장소",
-  "proRowDirections": "도착·출발 알림",
-  "proRowSchedules": "알림 시간대",
-  "proRowVibration": "진동 세기",
   "proRowSound": "이어폰 알림음",
   "proRowBackup": "장소 백업",
-  "proRowAds": "광고",
+  "proRowAds": "알림 끈 뒤 광고",
   "proValueOnePlace": "1개",
-  "proValueUnlimited": "제한 없음",
   "proValueDefaultSound": "기본 1개",
   "proValueAllSounds": "전체 + 내 음원",
   "proValueAdsOn": "있음",
   "proValueAdsOff": "없음",
-  "proUnlockAction": "평생 이용권으로 열기",
+  "proUnlockAction": "프로로 열기",
   "proLockedSounds": "알림음 전체 · 내 음원",
-  "proLockedPlaces": "장소를 더 등록하려면",
   "proLockedBackup": "장소 백업 · 가져오기",
   "proLockedExamplePlaceHome": "집",
   "proLockedExamplePlaceStation": "역",
-  "proCardTitle": "장소를 제한 없이 등록하세요",
-  "proCardSubtitle": "알림음 전체 · 장소 백업 · 광고 없음",
+  "proCardTitle": "장소는 더 많이, 광고는 없이",
+  "proCardSubtitle": "알림음, 진동 패턴, 루틴, 도착 기록, 백업까지 전부",
   "proCardUsage": "장소 {count}/{limit} 사용 중",
   "@proCardUsage": {
     "placeholders": {
@@ -763,11 +757,18 @@
   },
   "proRowLifetime": "평생 이용권",
   "proOwnedSubtitle": "모든 기능이 열려 있어요",
-  "proDeviceLimitReached": "기기 한도에 도달했어요",
+  "proDeviceLimitReached": "장소는 최대 {max}개까지 등록할 수 있어요",
+  "@proDeviceLimitReached": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
   "proPriceLoading": "가격 확인 중…",
   "proProductUnavailable": "지금은 구매할 수 없어요. 잠시 뒤 다시 시도해 주세요",
   "proPurchasePending": "결제가 확인되면 열려요",
-  "proPurchaseDone": "평생 이용권이 열렸어요",
+  "proPurchaseDone": "프로가 열렸어요",
   "proPurchaseFailed": "결제를 마치지 못했어요",
   "proRestoreNone": "복원할 구매가 없어요",
   "proRestoreDone": "구매를 복원했어요",
@@ -786,6 +787,33 @@
   "proInfoBenefitsTitle": "프로 혜택",
   "proInfoRestore": "구매 복원",
   "proSheetRedeem": "프로모션 코드 사용",
+  "proSheetSubtitleGoogle": "구독 아니에요. 한 번 결제하면 같은 Google 계정에서 계속 쓸 수 있어요",
+  "proSheetSubtitleApple": "구독 아니에요. 한 번 결제하면 같은 Apple 계정에서 계속 쓸 수 있어요",
+  "proValueMaxPlaces": "최대 {count}개",
+  "@proValueMaxPlaces": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "proRowBasics": "기본 알림 기능",
+  "proLockedPlacesAfterAlerts": "벌써 {count}번 울렸어요. 장소를 더 추가해 보세요",
+  "@proLockedPlacesAfterAlerts": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "proSheetRedeemAppStore": "오퍼 코드 사용",
+  "proHeadlineGeneral": "한 번 결제로 전부 열기",
+  "proHeadlinePlaces": "집과 회사, 둘 다 알림 받기",
+  "proHeadlineSounds": "좋아하는 소리로 알림 받기",
+  "proHeadlineVibrationPatterns": "장소마다 다른 진동으로 구분하기",
+  "proHeadlineHistory": "지난 알림을 한눈에 보기",
+  "proHeadlineRoutines": "출근길 장소를 한 번에 켜고 끄기",
+  "proHeadlineBackup": "기기를 바꿔도 장소 그대로",
   "homeStatusSheetTitle": "지금 상태",
   "homeStatusWatchingDescription": "켜 둔 장소에 도착하거나 출발하면 알려요",
   "homeStatusOffDescription": "켜진 장소가 있는데 감시가 멈춰 있어요. 위치 권한을 확인해 주세요",
@@ -975,9 +1003,24 @@
   "cloudSyncPrivacyNote": "내 Drive 의 이 앱 전용 공간에만 저장돼요. 다른 파일은 보지 않아요.",
   "cloudSyncOff": "꺼짐 · 구글 계정을 연결하면 켜져요",
   "cloudSyncOnNever": "{account} · 아직 동기화 전",
-  "@cloudSyncOnNever": {"placeholders": {"account": {"type": "String"}}},
+  "@cloudSyncOnNever": {
+    "placeholders": {
+      "account": {
+        "type": "String"
+      }
+    }
+  },
   "cloudSyncOnLast": "{account} · 마지막 {time}",
-  "@cloudSyncOnLast": {"placeholders": {"account": {"type": "String"}, "time": {"type": "String"}}},
+  "@cloudSyncOnLast": {
+    "placeholders": {
+      "account": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
   "cloudSyncAccountTitle": "계정",
   "cloudSyncLastTitle": "마지막 동기화",
   "cloudSyncNever": "아직 없음",
@@ -993,7 +1036,19 @@
   "cloudSyncNewerVersion": "앱을 업데이트하면 동기화할 수 있어요",
   "cloudSyncImportTitle": "장소를 가져올까요?",
   "cloudSyncImportMessage": "Drive 에 장소 {count}개가 있어요 ({device}, {date} 저장)",
-  "@cloudSyncImportMessage": {"placeholders": {"count": {"type": "int"}, "device": {"type": "String"}, "date": {"type": "String"}}},
+  "@cloudSyncImportMessage": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "device": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "cloudSyncImportConfirm": "가져오기",
   "cloudSyncImportLater": "나중에",
   "devToolsTitle": "개발자 도구",
@@ -1040,10 +1095,22 @@
   "devToolsGeofenceResync": "지오펜스 다시 등록",
   "devToolsCloudSyncNow": "드라이브 지금 동기화",
   "devToolsCloudSyncResult": "동기화 결과: {outcome}",
-  "@devToolsCloudSyncResult": {"placeholders": {"outcome": {"type": "String"}}},
+  "@devToolsCloudSyncResult": {
+    "placeholders": {
+      "outcome": {
+        "type": "String"
+      }
+    }
+  },
   "devToolsCopyState": "상태 전체 복사",
   "devToolsCopied": "복사했습니다",
   "devToolsOpenDiagnostics": "진단 기록 열기",
   "devToolsFailed": "실패했습니다: {error}",
-  "@devToolsFailed": {"placeholders": {"error": {"type": "String"}}}
+  "@devToolsFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  }
 }

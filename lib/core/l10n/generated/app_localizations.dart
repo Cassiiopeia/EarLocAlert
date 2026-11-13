@@ -2412,12 +2412,6 @@ abstract class AppLocalizations {
   /// **'평생 이용권'**
   String get proSheetTitle;
 
-  /// No description provided for @proSheetSubtitle.
-  ///
-  /// In ko, this message translates to:
-  /// **'구독 아님 · 기기 바꿔도 같은 계정이면 유지'**
-  String get proSheetSubtitle;
-
   /// No description provided for @proSheetBuy.
   ///
   /// In ko, this message translates to:
@@ -2448,24 +2442,6 @@ abstract class AppLocalizations {
   /// **'장소'**
   String get proRowPlaces;
 
-  /// No description provided for @proRowDirections.
-  ///
-  /// In ko, this message translates to:
-  /// **'도착·출발 알림'**
-  String get proRowDirections;
-
-  /// No description provided for @proRowSchedules.
-  ///
-  /// In ko, this message translates to:
-  /// **'알림 시간대'**
-  String get proRowSchedules;
-
-  /// No description provided for @proRowVibration.
-  ///
-  /// In ko, this message translates to:
-  /// **'진동 세기'**
-  String get proRowVibration;
-
   /// No description provided for @proRowSound.
   ///
   /// In ko, this message translates to:
@@ -2481,7 +2457,7 @@ abstract class AppLocalizations {
   /// No description provided for @proRowAds.
   ///
   /// In ko, this message translates to:
-  /// **'광고'**
+  /// **'알림 끈 뒤 광고'**
   String get proRowAds;
 
   /// No description provided for @proValueOnePlace.
@@ -2489,12 +2465,6 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'1개'**
   String get proValueOnePlace;
-
-  /// No description provided for @proValueUnlimited.
-  ///
-  /// In ko, this message translates to:
-  /// **'제한 없음'**
-  String get proValueUnlimited;
 
   /// No description provided for @proValueDefaultSound.
   ///
@@ -2523,7 +2493,7 @@ abstract class AppLocalizations {
   /// No description provided for @proUnlockAction.
   ///
   /// In ko, this message translates to:
-  /// **'평생 이용권으로 열기'**
+  /// **'프로로 열기'**
   String get proUnlockAction;
 
   /// No description provided for @proLockedSounds.
@@ -2531,12 +2501,6 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'알림음 전체 · 내 음원'**
   String get proLockedSounds;
-
-  /// No description provided for @proLockedPlaces.
-  ///
-  /// In ko, this message translates to:
-  /// **'장소를 더 등록하려면'**
-  String get proLockedPlaces;
 
   /// No description provided for @proLockedBackup.
   ///
@@ -2559,13 +2523,13 @@ abstract class AppLocalizations {
   /// No description provided for @proCardTitle.
   ///
   /// In ko, this message translates to:
-  /// **'장소를 제한 없이 등록하세요'**
+  /// **'장소는 더 많이, 광고는 없이'**
   String get proCardTitle;
 
   /// No description provided for @proCardSubtitle.
   ///
   /// In ko, this message translates to:
-  /// **'알림음 전체 · 장소 백업 · 광고 없음'**
+  /// **'알림음, 진동 패턴, 루틴, 도착 기록, 백업까지 전부'**
   String get proCardSubtitle;
 
   /// No description provided for @proCardUsage.
@@ -2589,8 +2553,8 @@ abstract class AppLocalizations {
   /// No description provided for @proDeviceLimitReached.
   ///
   /// In ko, this message translates to:
-  /// **'기기 한도에 도달했어요'**
-  String get proDeviceLimitReached;
+  /// **'장소는 최대 {max}개까지 등록할 수 있어요'**
+  String proDeviceLimitReached(int max);
 
   /// No description provided for @proPriceLoading.
   ///
@@ -2613,7 +2577,7 @@ abstract class AppLocalizations {
   /// No description provided for @proPurchaseDone.
   ///
   /// In ko, this message translates to:
-  /// **'평생 이용권이 열렸어요'**
+  /// **'프로가 열렸어요'**
   String get proPurchaseDone;
 
   /// No description provided for @proPurchaseFailed.
@@ -2723,6 +2687,84 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'프로모션 코드 사용'**
   String get proSheetRedeem;
+
+  /// No description provided for @proSheetSubtitleGoogle.
+  ///
+  /// In ko, this message translates to:
+  /// **'구독 아니에요. 한 번 결제하면 같은 Google 계정에서 계속 쓸 수 있어요'**
+  String get proSheetSubtitleGoogle;
+
+  /// No description provided for @proSheetSubtitleApple.
+  ///
+  /// In ko, this message translates to:
+  /// **'구독 아니에요. 한 번 결제하면 같은 Apple 계정에서 계속 쓸 수 있어요'**
+  String get proSheetSubtitleApple;
+
+  /// No description provided for @proValueMaxPlaces.
+  ///
+  /// In ko, this message translates to:
+  /// **'최대 {count}개'**
+  String proValueMaxPlaces(int count);
+
+  /// No description provided for @proRowBasics.
+  ///
+  /// In ko, this message translates to:
+  /// **'기본 알림 기능'**
+  String get proRowBasics;
+
+  /// No description provided for @proLockedPlacesAfterAlerts.
+  ///
+  /// In ko, this message translates to:
+  /// **'벌써 {count}번 울렸어요. 장소를 더 추가해 보세요'**
+  String proLockedPlacesAfterAlerts(int count);
+
+  /// No description provided for @proSheetRedeemAppStore.
+  ///
+  /// In ko, this message translates to:
+  /// **'오퍼 코드 사용'**
+  String get proSheetRedeemAppStore;
+
+  /// No description provided for @proHeadlineGeneral.
+  ///
+  /// In ko, this message translates to:
+  /// **'한 번 결제로 전부 열기'**
+  String get proHeadlineGeneral;
+
+  /// No description provided for @proHeadlinePlaces.
+  ///
+  /// In ko, this message translates to:
+  /// **'집과 회사, 둘 다 알림 받기'**
+  String get proHeadlinePlaces;
+
+  /// No description provided for @proHeadlineSounds.
+  ///
+  /// In ko, this message translates to:
+  /// **'좋아하는 소리로 알림 받기'**
+  String get proHeadlineSounds;
+
+  /// No description provided for @proHeadlineVibrationPatterns.
+  ///
+  /// In ko, this message translates to:
+  /// **'장소마다 다른 진동으로 구분하기'**
+  String get proHeadlineVibrationPatterns;
+
+  /// No description provided for @proHeadlineHistory.
+  ///
+  /// In ko, this message translates to:
+  /// **'지난 알림을 한눈에 보기'**
+  String get proHeadlineHistory;
+
+  /// No description provided for @proHeadlineRoutines.
+  ///
+  /// In ko, this message translates to:
+  /// **'출근길 장소를 한 번에 켜고 끄기'**
+  String get proHeadlineRoutines;
+
+  /// No description provided for @proHeadlineBackup.
+  ///
+  /// In ko, this message translates to:
+  /// **'기기를 바꿔도 장소 그대로'**
+  String get proHeadlineBackup;
 
   /// No description provided for @homeStatusSheetTitle.
   ///

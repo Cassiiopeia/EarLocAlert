@@ -1323,10 +1323,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get proSheetTitle => 'Lifetime pass';
 
   @override
-  String get proSheetSubtitle =>
-      'Not a subscription · Stays with your account on a new phone';
-
-  @override
   String proSheetBuy(String price) {
     return 'Lifetime pass $price';
   }
@@ -1344,28 +1340,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get proRowPlaces => 'Places';
 
   @override
-  String get proRowDirections => 'Arrival & departure alerts';
-
-  @override
-  String get proRowSchedules => 'Alert hours';
-
-  @override
-  String get proRowVibration => 'Vibration strength';
-
-  @override
   String get proRowSound => 'Earphone sounds';
 
   @override
   String get proRowBackup => 'Place backup';
 
   @override
-  String get proRowAds => 'Ads';
+  String get proRowAds => 'Ads after an alert';
 
   @override
   String get proValueOnePlace => '1';
-
-  @override
-  String get proValueUnlimited => 'Unlimited';
 
   @override
   String get proValueDefaultSound => 'Default only';
@@ -1380,13 +1364,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get proValueAdsOff => 'None';
 
   @override
-  String get proUnlockAction => 'Unlock with lifetime pass';
+  String get proUnlockAction => 'Unlock with Pro';
 
   @override
   String get proLockedSounds => 'All sounds · Your own sounds';
-
-  @override
-  String get proLockedPlaces => 'To add more places';
 
   @override
   String get proLockedBackup => 'Back up · Import places';
@@ -1398,10 +1379,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get proLockedExamplePlaceStation => 'Station';
 
   @override
-  String get proCardTitle => 'Add as many places as you need';
+  String get proCardTitle => 'More places, no ads';
 
   @override
-  String get proCardSubtitle => 'All sounds · Place backup · No ads';
+  String get proCardSubtitle =>
+      'Sounds, vibration patterns, routines, history, backup and more';
 
   @override
   String proCardUsage(int count, int limit) {
@@ -1415,7 +1397,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get proOwnedSubtitle => 'Every feature is unlocked';
 
   @override
-  String get proDeviceLimitReached => 'You have reached the device limit';
+  String proDeviceLimitReached(int max) {
+    return 'You can add up to $max places';
+  }
 
   @override
   String get proPriceLoading => 'Checking price…';
@@ -1429,7 +1413,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'It will unlock once the payment is confirmed';
 
   @override
-  String get proPurchaseDone => 'Lifetime pass unlocked';
+  String get proPurchaseDone => 'Pro unlocked';
 
   @override
   String get proPurchaseFailed => 'The payment could not be completed';
@@ -1486,6 +1470,52 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get proSheetRedeem => 'Redeem promo code';
+
+  @override
+  String get proSheetSubtitleGoogle =>
+      'Not a subscription. Pay once and keep it on the same Google account';
+
+  @override
+  String get proSheetSubtitleApple =>
+      'Not a subscription. Pay once and keep it on the same Apple Account';
+
+  @override
+  String proValueMaxPlaces(int count) {
+    return 'Up to $count';
+  }
+
+  @override
+  String get proRowBasics => 'Basic alerts';
+
+  @override
+  String proLockedPlacesAfterAlerts(int count) {
+    return 'Rang $count times already. Add more places';
+  }
+
+  @override
+  String get proSheetRedeemAppStore => 'Redeem offer code';
+
+  @override
+  String get proHeadlineGeneral => 'Unlock everything with one payment';
+
+  @override
+  String get proHeadlinePlaces => 'Get alerts for both home and work';
+
+  @override
+  String get proHeadlineSounds => 'Get alerts with sounds you like';
+
+  @override
+  String get proHeadlineVibrationPatterns => 'Tell places apart by vibration';
+
+  @override
+  String get proHeadlineHistory => 'See past alerts at a glance';
+
+  @override
+  String get proHeadlineRoutines =>
+      'Turn your commute places on and off at once';
+
+  @override
+  String get proHeadlineBackup => 'Keep your places on a new phone';
 
   @override
   String get homeStatusSheetTitle => 'Current status';

@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/diagnostics/diagnostics.dart';
-import '../../../core/domain/vibration_pattern.dart';
 import '../../../core/entitlement/feature_access_controller.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/text/keep_all.dart';
@@ -14,39 +13,50 @@ import '../../../core/ui/feedback/app_feedback.dart';
 import '../../../core/ui/foundation/app_color_palette.dart';
 import '../../../core/ui/foundation/app_spacing.dart';
 import '../data/pro_purchase_providers.dart';
+import '../domain/pro_offer_entry.dart';
 import '../domain/pro_purchase_service.dart';
 import 'plan_badge_chip.dart';
+import 'pro_comparison_table.dart';
 import 'pro_price_provider.dart';
 import 'pro_restore_action.dart';
 
-/// 프로 안내 시트 열기 (#294). 결제가 없는 플랫폼에서는 아무것도 하지 않음
-/// entryPoint: 로그용 진입점 (place_add · sound_picker · backup · settings_card · home_chip)
-Future<void> showProOfferSheet(
+/// 프로 안내 시트 열기 (#294, #366): 들어온 자리에 맞춘 제목·강조 > 닫힌 뒤 프로가 됐으면 true
+/// 결제 없는 플랫폼·이미 프로·이미 열림 > 열지 않고 false
+Future<bool> showProOfferSheet(
   BuildContext context, {
-  required String entryPoint,
+  required ProOfferEntry entry,
 }) async {
   final container = ProviderScope.containerOf(context, listen: false);
   final access = container.read(featureAccessControllerProvider);
-  // 결제 없는 플랫폼·이미 프로·이미 열림(빠른 두 번 탭) > 열지 않음
-  if (!access.isPaywallEnabled || access.isPro || _isOfferSheetOpen) return;
-  Diagnostics.log('pro', 'offer shown entry=$entryPoint');
+  if (!access.isPaywallEnabled || access.isPro || _isOfferSheetOpen) {
+    return false;
+  }
+  Diagnostics.log('pro', 'offer shown entry=${entry.logName}');
   _isOfferSheetOpen = true;
   try {
     await showAppBottomSheet<void>(
       context,
-      builder: (context) => const _ProOfferSheet(),
+      builder: (context) => _ProOfferSheet(highlight: entry.highlight),
     );
   } finally {
     _isOfferSheetOpen = false;
   }
+  final isProNow = container.read(featureAccessControllerProvider).isPro;
+  Diagnostics.log(
+    'pro',
+    'offer closed entry=${entry.logName} unlocked=$isProNow',
+  );
+  return isProNow;
 }
 
 /// 프로 안내 시트가 떠 있는가 — 한 번에 한 장만
 bool _isOfferSheetOpen = false;
 
-/// 평생 이용권 시트: 배지 > 제목 > 무료·프로 비교표 > 구매 버튼 > 복원
+/// 평생 이용권 시트: 들어온 자리 제목 > 결제 방식 한 줄 > 비교표 > 구매 버튼 > 복원·코드
 class _ProOfferSheet extends ConsumerStatefulWidget {
-  const _ProOfferSheet();
+  const _ProOfferSheet({required this.highlight});
+
+  final ProOfferHighlight highlight;
 
   @override
   ConsumerState<_ProOfferSheet> createState() => _ProOfferSheetState();
@@ -139,17 +149,21 @@ class _ProOfferSheetState extends ConsumerState<_ProOfferSheet> {
     });
     final price = ref.watch(proPriceProvider);
     // 코드 입력은 무료일 때만 (#305) — Play·App Store 둘 다. 결제 없는 플랫폼은 숨김
+    final store = ref.watch(proPurchaseServiceProvider).store;
     final canRedeemPromoCode =
-        ref.watch(proPurchaseServiceProvider).store != ProPurchaseStore.none &&
+        store != ProPurchaseStore.none &&
         !ref.watch(featureAccessControllerProvider).isPro;
     final l10n = context.l10n;
     final colors = context.appColors;
 
     return BottomSheetWithHeaderLayout(
-      title: l10n.proSheetTitle,
+      title: _headlineOf(l10n, widget.highlight),
       headerTrailing: const PlanLabel(isPro: true),
-      description: l10n.proSheetSubtitle,
-      body: const _PlanComparisonTable(),
+      // 구매 계정은 스토어마다 다름 (Play > Google, App Store > Apple)
+      description: store == ProPurchaseStore.appStore
+          ? l10n.proSheetSubtitleApple
+          : l10n.proSheetSubtitleGoogle,
+      body: ProComparisonTable(highlight: widget.highlight),
       primaryAction: _BuyButton(price: price, isBusy: _isBusy, onPressed: _buy),
       // 구매 버튼 아래: 복원 > 프로모션 코드 (프로면 시트 자체가 안 열려 둘 다 안 보임)
       secondaryAction: Column(
@@ -166,7 +180,12 @@ class _ProOfferSheetState extends ConsumerState<_ProOfferSheet> {
               style: TextButton.styleFrom(
                 foregroundColor: colors.textSecondary,
               ),
-              child: Text(l10n.proSheetRedeem),
+              // 같은 기능의 스토어 용어: Play 프로모션 코드 / App Store 오퍼 코드
+              child: Text(
+                store == ProPurchaseStore.appStore
+                    ? l10n.proSheetRedeemAppStore
+                    : l10n.proSheetRedeem,
+              ),
             ),
         ],
       ),
@@ -233,133 +252,14 @@ class _BuyButton extends StatelessWidget {
   }
 }
 
-/// 무료·프로 비교표 (시안 B): 행 7개, 프로 열은 민트 강조
-class _PlanComparisonTable extends StatelessWidget {
-  const _PlanComparisonTable();
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    final colors = context.appColors;
-    // 행: (항목, 무료 값, 프로 값). 값 null = 체크 표시, '' = 불가 표시
-    final rows = <(String, String?, String?)>[
-      (l10n.proRowPlaces, l10n.proValueOnePlace, l10n.proValueUnlimited),
-      (l10n.proRowDirections, null, null),
-      (l10n.proRowSchedules, null, null),
-      (l10n.proRowVibration, null, null),
-      (
-        l10n.proRowVibrationPattern,
-        l10n.proValueDefaultPattern,
-        l10n.proValueAllPatterns(VibrationPattern.values.length),
-      ),
-      (l10n.proRowSound, l10n.proValueDefaultSound, l10n.proValueAllSounds),
-      (
-        l10n.proRowHistory,
-        l10n.proValueRecentHistory,
-        l10n.proValueFullHistory,
-      ),
-      (l10n.proRowRoutines, '', null),
-      (l10n.proRowBackup, '', null),
-      (l10n.cloudSyncTitle, '', null),
-      (l10n.proRowAds, l10n.proValueAdsOn, l10n.proValueAdsOff),
-    ];
-
-    return Container(
-      margin: const EdgeInsets.only(top: AppSpacing.xs),
-      decoration: BoxDecoration(
-        color: colors.surface,
-        borderRadius: BorderRadius.circular(AppRadius.small),
-        border: Border.all(color: colors.separator),
-      ),
-      child: Column(
-        children: [
-          _ComparisonRow(
-            label: '',
-            free: Text(
-              l10n.proSheetColumnFree,
-              style: context.appTextStyles.caption,
-              textAlign: TextAlign.center,
-            ),
-            pro: Text(
-              l10n.proSheetColumnPro,
-              style: context.appTextStyles.caption.copyWith(
-                color: colors.accent,
-                fontWeight: FontWeight.w700,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ),
-          for (final (label, free, pro) in rows) ...[
-            Divider(height: 1, thickness: 1, color: colors.separator),
-            _ComparisonRow(
-              label: label,
-              free: _ComparisonValue(value: free, isPro: false),
-              pro: _ComparisonValue(value: pro, isPro: true),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-}
-
-class _ComparisonRow extends StatelessWidget {
-  const _ComparisonRow({
-    required this.label,
-    required this.free,
-    required this.pro,
-  });
-
-  final String label;
-  final Widget free;
-  final Widget pro;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.sm,
-        vertical: AppSpacing.xs + AppSpacing.xs / 4,
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            flex: 5,
-            child: Text(
-              context.keepAllText(label),
-              style: context.appTextStyles.body,
-            ),
-          ),
-          Expanded(flex: 3, child: free),
-          Expanded(flex: 4, child: pro),
-        ],
-      ),
-    );
-  }
-}
-
-/// 표 칸 값: null 체크 아이콘 / '' 불가(—) / 글자
-class _ComparisonValue extends StatelessWidget {
-  const _ComparisonValue({required this.value, required this.isPro});
-
-  final String? value;
-  final bool isPro;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.appColors;
-    final color = isPro ? colors.accent : colors.textSecondary;
-    final text = value;
-    if (text == null) {
-      return Icon(Icons.check_rounded, size: AppIconSize.inline, color: color);
-    }
-    return Text(
-      text.isEmpty ? '—' : context.keepAllText(text),
-      style: context.appTextStyles.caption.copyWith(
-        color: color,
-        fontWeight: isPro ? FontWeight.w700 : FontWeight.w400,
-      ),
-      textAlign: TextAlign.center,
-    );
-  }
-}
+/// 강조 혜택 > 시트 제목 (얻는 것을 먼저)
+String _headlineOf(AppLocalizations l10n, ProOfferHighlight highlight) =>
+    switch (highlight) {
+      ProOfferHighlight.general => l10n.proHeadlineGeneral,
+      ProOfferHighlight.places => l10n.proHeadlinePlaces,
+      ProOfferHighlight.sounds => l10n.proHeadlineSounds,
+      ProOfferHighlight.vibrationPatterns => l10n.proHeadlineVibrationPatterns,
+      ProOfferHighlight.history => l10n.proHeadlineHistory,
+      ProOfferHighlight.routines => l10n.proHeadlineRoutines,
+      ProOfferHighlight.backup => l10n.proHeadlineBackup,
+    };

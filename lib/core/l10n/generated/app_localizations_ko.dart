@@ -1266,9 +1266,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get proSheetTitle => '평생 이용권';
 
   @override
-  String get proSheetSubtitle => '구독 아님 · 기기 바꿔도 같은 계정이면 유지';
-
-  @override
   String proSheetBuy(String price) {
     return '평생 이용권 $price';
   }
@@ -1286,28 +1283,16 @@ class AppLocalizationsKo extends AppLocalizations {
   String get proRowPlaces => '장소';
 
   @override
-  String get proRowDirections => '도착·출발 알림';
-
-  @override
-  String get proRowSchedules => '알림 시간대';
-
-  @override
-  String get proRowVibration => '진동 세기';
-
-  @override
   String get proRowSound => '이어폰 알림음';
 
   @override
   String get proRowBackup => '장소 백업';
 
   @override
-  String get proRowAds => '광고';
+  String get proRowAds => '알림 끈 뒤 광고';
 
   @override
   String get proValueOnePlace => '1개';
-
-  @override
-  String get proValueUnlimited => '제한 없음';
 
   @override
   String get proValueDefaultSound => '기본 1개';
@@ -1322,13 +1307,10 @@ class AppLocalizationsKo extends AppLocalizations {
   String get proValueAdsOff => '없음';
 
   @override
-  String get proUnlockAction => '평생 이용권으로 열기';
+  String get proUnlockAction => '프로로 열기';
 
   @override
   String get proLockedSounds => '알림음 전체 · 내 음원';
-
-  @override
-  String get proLockedPlaces => '장소를 더 등록하려면';
 
   @override
   String get proLockedBackup => '장소 백업 · 가져오기';
@@ -1340,10 +1322,10 @@ class AppLocalizationsKo extends AppLocalizations {
   String get proLockedExamplePlaceStation => '역';
 
   @override
-  String get proCardTitle => '장소를 제한 없이 등록하세요';
+  String get proCardTitle => '장소는 더 많이, 광고는 없이';
 
   @override
-  String get proCardSubtitle => '알림음 전체 · 장소 백업 · 광고 없음';
+  String get proCardSubtitle => '알림음, 진동 패턴, 루틴, 도착 기록, 백업까지 전부';
 
   @override
   String proCardUsage(int count, int limit) {
@@ -1357,7 +1339,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get proOwnedSubtitle => '모든 기능이 열려 있어요';
 
   @override
-  String get proDeviceLimitReached => '기기 한도에 도달했어요';
+  String proDeviceLimitReached(int max) {
+    return '장소는 최대 $max개까지 등록할 수 있어요';
+  }
 
   @override
   String get proPriceLoading => '가격 확인 중…';
@@ -1369,7 +1353,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get proPurchasePending => '결제가 확인되면 열려요';
 
   @override
-  String get proPurchaseDone => '평생 이용권이 열렸어요';
+  String get proPurchaseDone => '프로가 열렸어요';
 
   @override
   String get proPurchaseFailed => '결제를 마치지 못했어요';
@@ -1426,6 +1410,51 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get proSheetRedeem => '프로모션 코드 사용';
+
+  @override
+  String get proSheetSubtitleGoogle =>
+      '구독 아니에요. 한 번 결제하면 같은 Google 계정에서 계속 쓸 수 있어요';
+
+  @override
+  String get proSheetSubtitleApple =>
+      '구독 아니에요. 한 번 결제하면 같은 Apple 계정에서 계속 쓸 수 있어요';
+
+  @override
+  String proValueMaxPlaces(int count) {
+    return '최대 $count개';
+  }
+
+  @override
+  String get proRowBasics => '기본 알림 기능';
+
+  @override
+  String proLockedPlacesAfterAlerts(int count) {
+    return '벌써 $count번 울렸어요. 장소를 더 추가해 보세요';
+  }
+
+  @override
+  String get proSheetRedeemAppStore => '오퍼 코드 사용';
+
+  @override
+  String get proHeadlineGeneral => '한 번 결제로 전부 열기';
+
+  @override
+  String get proHeadlinePlaces => '집과 회사, 둘 다 알림 받기';
+
+  @override
+  String get proHeadlineSounds => '좋아하는 소리로 알림 받기';
+
+  @override
+  String get proHeadlineVibrationPatterns => '장소마다 다른 진동으로 구분하기';
+
+  @override
+  String get proHeadlineHistory => '지난 알림을 한눈에 보기';
+
+  @override
+  String get proHeadlineRoutines => '출근길 장소를 한 번에 켜고 끄기';
+
+  @override
+  String get proHeadlineBackup => '기기를 바꿔도 장소 그대로';
 
   @override
   String get homeStatusSheetTitle => '지금 상태';

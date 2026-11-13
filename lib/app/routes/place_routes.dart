@@ -41,15 +41,16 @@ class _PlaceFormRoute extends ConsumerWidget {
       existing: existing,
       // 저장 뒤 바로 나간다 — 워치 안내는 설정에서만 연다 (이슈 #304)
       onSaved: () => _leaveForm(context),
-      onPlaceLimitReached: () => _onPlaceLimitReached(context, ref),
+      onPlaceLimitReached: () => _offerProOnPlaceLimit(context, ref),
       onDeleted: () => _leaveForm(context),
       onPickOnMap: (args) => _pickOnMap(context, args),
       // 무료는 기본음 외 잠금 (#294) — 기존에 고른 음은 그대로 유지
       onPickSound: (current) => showSoundPickerSheet(
         context,
         current: current,
-        onUnlockPro: () =>
-            unawaited(showProOfferSheet(context, entryPoint: 'sound_picker')),
+        onUnlockPro: () => unawaited(
+          showProOfferSheet(context, entry: ProOfferEntry.soundPicker),
+        ),
       ),
       onDescribeSound: (sound) => _describeSound(ref, sound, context.l10n),
       // 장소별 진동 패턴 (#311) — 무료는 기본만, 이미 고른 패턴은 그대로 유지
@@ -59,7 +60,7 @@ class _PlaceFormRoute extends ConsumerWidget {
           current: current,
           allowFollowDefault: true,
           onUnlockPro: () => unawaited(
-            showProOfferSheet(context, entryPoint: 'vibration_pattern'),
+            showProOfferSheet(context, entry: ProOfferEntry.vibrationPattern),
           ),
         );
         return choice == null ? null : (pattern: choice.pattern);

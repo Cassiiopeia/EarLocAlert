@@ -62,7 +62,8 @@ class PlaceFormScreen extends ConsumerStatefulWidget {
   final VoidCallback? onSaved;
 
   /// 등록 상한에 걸려 저장이 거절됐을 때 (#294). 무료면 결제 안내, 프로면 기기 한도 안내를 라우터가 정한다
-  final VoidCallback? onPlaceLimitReached;
+  /// true = 그 자리에서 프로가 됨 > 저장 재시도 (#366)
+  final Future<bool> Function()? onPlaceLimitReached;
 
   /// 삭제가 끝났을 때 (이슈 #205). 화면 전환은 라우터가 한다 — `onSaved` 와
   /// 같은 방식이다.
@@ -750,7 +751,12 @@ class _PlaceFormScreenState extends ConsumerState<PlaceFormScreen> {
     final onPlaceLimitReached = widget.onPlaceLimitReached;
     if (errors.contains(PlaceValidationError.limitReached) &&
         onPlaceLimitReached != null) {
-      onPlaceLimitReached();
+      final isUnlocked = await onPlaceLimitReached();
+      // 결제로 상한이 풀림 > 다시 누르지 않아도 저장 이어감
+      if (isUnlocked && mounted) {
+        Diagnostics.log('place', 'place save retried after pro unlock');
+        await _save();
+      }
       return;
     }
 

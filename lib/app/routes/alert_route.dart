@@ -57,10 +57,14 @@ class _AlertRoute extends ConsumerWidget {
                   }),
               tryShowAd: () => _tryShowAd(container),
               // 후기 창 조건용 해제 횟수 (#296) — 요청은 다음에 앱을 열 때
+              // 홈 잠금 안내 횟수도 같은 기록이라 저장 뒤 다시 읽힘 (#366)
               recordDismissed: () => unawaited(
                 container
                     .read(reviewPromptCoordinatorProvider)
-                    .recordAlertDismissed(),
+                    .recordAlertDismissed()
+                    .whenComplete(
+                      () => container.invalidate(alertDismissCountProvider),
+                    ),
               ),
             ).run(),
           );

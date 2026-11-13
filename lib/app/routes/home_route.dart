@@ -45,8 +45,11 @@ class _HomeRoute extends ConsumerWidget {
       onAddPlace: () => unawaited(_addPlaceOrOfferPro(context, ref)),
       planBadge: const PlanBadgeChip(),
       isPlaceAddLocked: access.isPlaceAddLocked(placeCount),
-      onUnlockPro: () =>
-          unawaited(showProOfferSheet(context, entryPoint: 'place_list')),
+      // 결제하면 바로 등록 화면으로 이어감 (#366)
+      onUnlockPro: () => unawaited(
+        _addPlaceOrOfferPro(context, ref, entry: ProOfferEntry.placeList),
+      ),
+      unlockNudgeAlertCount: _proNudgeDismissCount(ref),
       onEditPlace: (place) => context.push(AppRoutes.placeEdit, extra: place),
       // 감시가 꺼져 있으면 권한 화면이 유일한 해결 경로다
       onFixMonitoring: () => context.go(AppRoutes.onboarding),
