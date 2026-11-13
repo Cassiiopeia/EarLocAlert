@@ -1,14 +1,33 @@
 {
   "metadata": {
-    "lastUpdated": "2026-11-13T13:19:45Z",
-    "currentVersion": "1.52.0",
+    "lastUpdated": "2026-11-13T14:38:23Z",
+    "currentVersion": "1.53.0",
     "projectType": "flutter",
-    "totalReleases": 128,
+    "totalReleases": 129,
     "projectTypes": [
       "flutter"
     ]
   },
   "releases": [
+    {
+      "version": "1.53.0",
+      "project_type": "flutter",
+      "project_types": [
+        "flutter"
+      ],
+      "date": "2026-11-13",
+      "pr_number": 375,
+      "raw_summary": "## Summary by CodeRabbit\n\n## 릴리스 노트\n\n* **개선**\n  * 이용약관과 개인정보처리방침이 새 소개 사이트 주소로 열려요",
+      "parsed_changes": {
+        "개선": {
+          "title": "개선",
+          "items": [
+            "이용약관과 개인정보처리방침이 새 소개 사이트 주소로 열려요"
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "1.52.0",
       "project_type": "flutter",
