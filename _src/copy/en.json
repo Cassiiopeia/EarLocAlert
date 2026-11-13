@@ -1,13 +1,13 @@
 {
   "meta": {
-    "title": "EarLocAlert — Bus, subway & shuttle stop alarm, vibration and earphones only",
-    "description": "Never miss your stop, even if you doze off. Pin a place on the map and EarLocAlert vibrates when you arrive, or plays a sound only through connected earphones — never the speaker. Works on shuttles with no announcements. Free on iPhone and Android.",
-    "keywords": "stop alarm, wake me up at my stop, bus stop alarm, subway stop alarm, shuttle bus alert, location alarm, arrival alert, geofence alarm, earphone alarm, vibration alarm",
-    "og_title": "EarLocAlert — Wakes you quietly at your stop",
-    "og_description": "Vibration on arrival, sound only through earphones. A quiet location alarm for buses, subways and shuttles.",
+    "title": "EarLocAlert — Bus, shuttle and subway stop alarm, vibration and earphones only",
+    "description": "Never miss your stop on the bus, shuttle, subway or train. Pin a place on the map and EarLocAlert vibrates when you arrive, or plays a sound only through connected earphones, never the speaker. Your trips are not sent to any server.",
+    "keywords": "stop alarm, arrival alert, bus stop alarm, shuttle bus alert, subway stop alarm, train arrival alarm, location alarm, location reminder, wake me up at my stop, earphone alarm, vibration alarm, geofence alarm",
+    "og_title": "EarLocAlert — Never miss your stop",
+    "og_description": "Vibration on arrival, sound only through earphones. A quiet stop alarm for buses, shuttles, subways and trains.",
     "app_name": "EarLocAlert",
     "currency": "USD",
-    "ld_description": "A location alarm that vibrates when you arrive at a saved place such as a bus stop, subway station or shuttle drop-off, and plays sound only through connected earphones."
+    "ld_description": "A location and stop alarm that vibrates when you arrive at a saved place such as a bus stop, shuttle stop or subway station, and plays sound only through connected earphones."
   },
   "ui": {
     "brand": "EarLocAlert",
@@ -26,12 +26,12 @@
     "privacy": "Privacy Policy",
     "terms": "Terms of Service",
     "contact": "Contact",
-    "footer_note": "Free on iPhone · Android · No account",
+    "footer_note": "Free to start on iPhone · Android · No account",
     "read_more": "Read",
     "related": "Keep reading",
     "updated": "Updated",
     "band_title": "Let the app remember your stop",
-    "band_body": "Pin it on the map once and your phone buzzes when you arrive. Free, no account.",
+    "band_body": "Pin it on the map once and your phone buzzes when you arrive. Free to start, no account.",
     "not_found_title": "Page not found",
     "not_found_body": "The address changed or the page doesn’t exist.",
     "not_found_cta": "Back to home"
@@ -41,18 +41,40 @@
     "headline_before": "Wakes you",
     "headline_accent": "quietly",
     "headline_after": "at your stop.",
-    "lead": ["A buzz when you arrive. Sound only through your earphones.", "A location alarm that never uses the speaker."],
+    "lead": [
+      "A buzz when you arrive. Sound only through your earphones.",
+      "A location alarm that never uses the speaker."
+    ],
     "phone_alt": "Arrival alert screen for Pangyo Station with the arrival time, a map of the area and a large Dismiss button",
     "chips": [
-      ["vibrate", "Vibration only", "No earphones · speaker blocked"],
-      ["radius", "Entered 100 m radius", "Pangyo Station · 8:59 AM"],
-      ["earphone", "Earphones connected", "Sound + vibration"],
-      ["shuttle", "Work shuttle · main gate", "No announcements needed"]
+      [
+        "vibrate",
+        "Vibration only",
+        "No earphones · speaker blocked"
+      ],
+      [
+        "radius",
+        "Entered 100 m radius",
+        "Pangyo Station · 8:59 AM"
+      ],
+      [
+        "earphone",
+        "Earphones connected",
+        "Sound + vibration"
+      ],
+      [
+        "shuttle",
+        "Work shuttle · main gate",
+        "No announcements needed"
+      ]
     ]
   },
   "arrive": {
     "kicker": "The moment you arrive",
-    "title": ["Screen off, app closed —", "your pocket knows first."],
+    "title": [
+      "Screen off, app closed —",
+      "your pocket knows first."
+    ],
     "body": "Step inside the radius and your phone vibrates right away. It watches in the background, so you never have to keep the app open.",
     "status_moving": "Heading to Pangyo Station",
     "status_arrived": "Arrived · vibrating",
@@ -64,31 +86,90 @@
   },
   "shuttle": {
     "kicker": "Shuttle buses",
-    "title": ["No announcements on the shuttle?", "It still knows your stop."],
+    "title": [
+      "No announcements on the shuttle?",
+      "It still knows your stop."
+    ],
     "body": "Work and campus shuttles rarely name their stops or announce them, so it’s easy to ride right past while you look out the window. Pin the office gate, your dorm or the airport drop-off once.",
     "route_title": "Work shuttle, bus 2",
     "route_badge": "No announcements",
     "stops": [
-      ["Downtown pickup", "Boarding"],
-      ["Near the highway exit", "Unnamed stop"],
-      ["Past the interchange", "Unnamed stop"],
-      ["Office main gate", "150 m radius · arrival alert"]
+      [
+        "Downtown pickup",
+        "Boarding"
+      ],
+      [
+        "Near the highway exit",
+        "Unnamed stop"
+      ],
+      [
+        "Past the interchange",
+        "Unnamed stop"
+      ],
+      [
+        "Office main gate",
+        "150 m radius · arrival alert"
+      ]
     ],
     "alert": "Arrived at the main gate",
     "uses": [
-      ["office", "Work shuttles", "Miss the gate while dozing and the next stop is a long way off."],
-      ["school", "Campus & dorm shuttles", "Even stops inside the campus — just pin them on the map."],
-      ["plane", "Airport & resort shuttles", "First time on the route and not sure where to get off."]
+      [
+        "office",
+        "Work shuttles",
+        "Miss the gate while dozing and the next stop is a long way off."
+      ],
+      [
+        "school",
+        "Campus & dorm shuttles",
+        "Even stops inside the campus — just pin them on the map."
+      ],
+      [
+        "plane",
+        "Airport & resort shuttles",
+        "First time on the route and not sure where to get off."
+      ]
     ]
   },
   "how": {
     "kicker": "How it works",
     "title": "Four steps. That’s it.",
     "steps": [
-      {"shot": "form", "title": ["Pin it on the map,", "set the radius."], "body": "A stop, a station, your office — anywhere. Choose from 50 m to 2 km while you see the circle.", "alt": "Edit place screen with a radius circle on the map and a radius slider"},
-      {"shot": "schedule", "title": ["On arrival, on leaving,", "only on weekday mornings."], "body": "Pick when each place alerts you. Set days and hours, and it alerts only then.", "alt": "Alert hours screen with weekdays selected and start and end times"},
-      {"shot": "sound", "title": ["Sound only when", "earphones are in."], "body": "Wired, USB-C or Bluetooth. Sound only when a connection is confirmed — otherwise, vibration only.", "alt": "Alert sound screen noting that sounds play only through earphones"},
-      {"shot": "alert", "title": ["When you arrive,", "one big button to stop."], "body": "Big enough to press with your thumb on a moving bus, without looking.", "alt": "Arrival alert screen with a large Dismiss button"}
+      {
+        "shot": "form",
+        "title": [
+          "Pin it on the map,",
+          "set the radius."
+        ],
+        "body": "A stop, a station, your office — anywhere. Choose from 50 m to 2 km while you see the circle.",
+        "alt": "Edit place screen with a radius circle on the map and a radius slider"
+      },
+      {
+        "shot": "schedule",
+        "title": [
+          "On arrival, on leaving,",
+          "only on weekday mornings."
+        ],
+        "body": "Pick when each place alerts you. Set days and hours, and it alerts only then.",
+        "alt": "Alert hours screen with weekdays selected and start and end times"
+      },
+      {
+        "shot": "sound",
+        "title": [
+          "Sound only when",
+          "earphones are in."
+        ],
+        "body": "Wired, USB-C or Bluetooth. Sound only when a connection is confirmed — otherwise, vibration only.",
+        "alt": "Alert sound screen noting that sounds play only through earphones"
+      },
+      {
+        "shot": "alert",
+        "title": [
+          "When you arrive,",
+          "one big button to stop."
+        ],
+        "body": "Big enough to press with your thumb on a moving bus, without looking.",
+        "alt": "Arrival alert screen with a large Dismiss button"
+      }
     ]
   },
   "features": {
@@ -96,21 +177,46 @@
     "title_before": "Everything you need,",
     "title_accent": "no stray sound",
     "title_after": ".",
-    "big_title": ["Screen off.", "App closed. Still on watch."],
-    "big_body": "Save a place and it watches in the background. Your location never leaves the device.",
+    "big_title": [
+      "Screen off.",
+      "App closed. Still on watch."
+    ],
+    "big_body": "Save a place and it watches in the background. Your movements are never sent to a server.",
     "big_alt": "Home screen with a map and the list of saved places",
     "vibration_title": "Choose the vibration strength",
     "vibration_body": "Light · Medium · Strong",
     "radius_title": "See the radius as a circle",
     "radius_body": "From 50 m to 2 km",
-    "radius_steps": ["50 m", "100 m", "300 m", "500 m", "1 km", "2 km"],
+    "radius_steps": [
+      "50 m",
+      "100 m",
+      "300 m",
+      "500 m",
+      "1 km",
+      "2 km"
+    ],
     "earphone_title": "Sound through earphones only",
     "earphone_body": "Connected devices are checked against an allow list.",
-    "allowed_devices": ["Wired", "USB-C", "Bluetooth"],
-    "blocked_devices": ["Speaker", "Car audio"],
+    "allowed_devices": [
+      "Wired",
+      "USB-C",
+      "Bluetooth"
+    ],
+    "blocked_devices": [
+      "Speaker",
+      "Car audio"
+    ],
     "schedule_title": "Only on weekday mornings",
     "schedule_body": "Set days and hours and it alerts only then.",
-    "weekdays": ["M", "T", "W", "T", "F", "S", "S"]
+    "weekdays": [
+      "M",
+      "T",
+      "W",
+      "T",
+      "F",
+      "S",
+      "S"
+    ]
   },
   "guides": {
     "kicker": "Guides",
@@ -120,12 +226,34 @@
     "kicker": "FAQ",
     "title": "Questions",
     "items": [
-      ["Can it wake me up before my bus or subway stop?", "Yes. Save your stop or station on the map and your phone vibrates the moment you enter that radius — even with the app closed and the screen off."],
-      ["Does it make a sound without earphones?", "No. It plays a sound only after confirming wired, USB-C or Bluetooth earphones are connected. Otherwise it only vibrates and never uses the speaker."],
-      ["Does it drain the battery?", "It does not keep GPS on. Far from your places it relies on the system’s geofencing, and only checks precisely when you get close."],
-      ["Is my location sent to a server?", "No. Arrival is detected on your phone, and your places and history stay on the device. There is no account."],
-      ["Can I get alerts on my smartwatch?", "Yes. If your Galaxy Watch or Apple Watch mirrors phone notifications, arrival alerts reach your wrist. Settings › Get alerts on your watch shows how."],
-      ["Is it free?", "Yes. It includes ads, but never on the screen that is alerting you."]
+      [
+        "Can it wake me up before my bus or subway stop?",
+        "Yes. Save your stop or station on the map and your phone vibrates the moment you enter that radius — even with the app closed and the screen off."
+      ],
+      [
+        "Does it work on shuttles, commuter buses and trains?",
+        "Yes. It works on any trip with a place to get off: buses, shuttles, commuter buses, subways, trains and intercity buses. Save the stop or station on the map and give it a generous radius."
+      ],
+      [
+        "Does it make a sound without earphones?",
+        "No. It plays a sound only after confirming wired, USB-C or Bluetooth earphones are connected. Otherwise it only vibrates and never uses the speaker."
+      ],
+      [
+        "Does it drain the battery?",
+        "It does not keep GPS on. Far from your places it relies on the system’s geofencing, and only checks precisely when you get close."
+      ],
+      [
+        "Is my location sent to a server?",
+        "No. Arrival is detected on your phone and your trips are never sent to a server. There is no account. If you turn on Google Drive sync in Pro, only your list of places is saved to the app's private folder in your own Google Drive."
+      ],
+      [
+        "Can I get alerts on my smartwatch?",
+        "Yes. If your Galaxy Watch or Apple Watch mirrors phone notifications, arrival alerts reach your wrist. Settings › Get alerts on your watch shows how."
+      ],
+      [
+        "Is it free?",
+        "Downloading and the basics are free: one place, the default alerts, and ads. A one-time Pro purchase adds more places and removes ads. Ads never appear on the screen that is alerting you."
+      ]
     ]
   },
   "final": {

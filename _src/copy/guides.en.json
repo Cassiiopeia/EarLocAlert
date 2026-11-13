@@ -19,7 +19,9 @@
       "sections": [
         {
           "heading": "What you can try without an app",
-          "paragraphs": ["Each of these works to a degree, with clear trade-offs."],
+          "paragraphs": [
+            "Each of these works to a degree, with clear trade-offs."
+          ],
           "items": [
             "**A time alarm** — set it for your usual travel time. Simple, but traffic or a late bus makes it ring too early or too late, and a ringing phone isn’t great on a quiet bus.",
             "**Announcements and stop displays** — fine when you’re awake, easy to miss when you’re asleep or listening to music.",
@@ -37,7 +39,9 @@
       ],
       "app": {
         "heading": "Setting it up in EarLocAlert",
-        "paragraphs": ["You only set it up once. After that, you never need to open the app."],
+        "paragraphs": [
+          "You only set it up once. After that, you never need to open the app."
+        ],
         "items": [
           "Pin your stop on the map and save it as an **arrival alert**.",
           "Choose the radius while you see the circle. Buses move fast, so give yourself **a little extra distance** to get ready to get off — smaller in the city where stops are close together, larger on express routes.",
@@ -47,8 +51,14 @@
         ]
       },
       "faq": [
-        ["What radius should I use?", "There’s no single right answer. Think about how fast the bus travels between stops and how long you need to get ready, start generous and shrink it after a ride or two. You can choose anything from 50 m to 2 km."],
-        ["Do I need to keep the app open?", "No. Once a place is saved, it watches in the background and alerts you even with the app closed and the screen off."]
+        [
+          "What radius should I use?",
+          "There’s no single right answer. Think about how fast the bus travels between stops and how long you need to get ready, start generous and shrink it after a ride or two. You can choose anything from 50 m to 2 km."
+        ],
+        [
+          "Do I need to keep the app open?",
+          "No. Once a place is saved, it watches in the background and alerts you even with the app closed and the screen off."
+        ]
       ]
     },
     "shuttle-bus-stop-alert": {
@@ -91,8 +101,14 @@
         ]
       },
       "faq": [
-        ["Does it work for shuttles that aren’t in any transit app?", "Yes. It doesn’t use route data at all — only the point you pinned on the map. Unnamed stops are fine."],
-        ["Do I have to turn it on and off every day?", "No. Set days and hours once and it only alerts during that time."]
+        [
+          "Does it work for shuttles that aren’t in any transit app?",
+          "Yes. It doesn’t use route data at all — only the point you pinned on the map. Unnamed stops are fine."
+        ],
+        [
+          "Do I have to turn it on and off every day?",
+          "No. Set days and hours once and it only alerts during that time."
+        ]
       ]
     },
     "subway-station-alarm": {
@@ -133,8 +149,14 @@
         ]
       },
       "faq": [
-        ["Does it not work underground at all?", "It does work, but deep underground the phone may find your location later, so the alert can come later. A generous radius or also saving the previous station makes a miss much less likely."],
-        ["Is my location sent anywhere?", "No. Arrival is detected on your phone, and your places and history stay on the device."]
+        [
+          "Does it not work underground at all?",
+          "It does work, but deep underground the phone may find your location later, so the alert can come later. A generous radius or also saving the previous station makes a miss much less likely."
+        ],
+        [
+          "Is my location sent anywhere?",
+          "No. Arrival is detected on your phone and your trips are never sent to a server. There is no account. If you turn on Google Drive sync in Pro, only your list of places is saved to the app's private folder in your own Google Drive."
+        ]
       ]
     },
     "silent-alarm-library": {
@@ -175,8 +197,14 @@
         ]
       },
       "faq": [
-        ["What if my earphones disconnect?", "If earphones can’t be confirmed at the moment of the alert, it only vibrates. It never switches to the speaker."],
-        ["Is it free?", "Yes. It includes ads, but never on the screen that is alerting you."]
+        [
+          "What if my earphones disconnect?",
+          "If earphones can’t be confirmed at the moment of the alert, it only vibrates. It never switches to the speaker."
+        ],
+        [
+          "Is it free?",
+          "Downloading and the basics are free: one place, the default alerts, and ads. A one-time Pro purchase adds more places and removes ads. Ads never appear on the screen that is alerting you."
+        ]
       ]
     }
   }
