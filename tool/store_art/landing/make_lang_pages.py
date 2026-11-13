@@ -1,4 +1,7 @@
-"""소개 페이지 다국어 생성: 한국어 원본(index.html) > en·ja·zh 페이지 + sitemap (#281)
+"""[사용 중지 #365, 결정 090] 소개 사이트는 gh-pages 의 _src 생성기가 만든다 > 이 스크립트는 실행 즉시 멈춤
+(gh-pages 루트는 옛 github.io 주소 이동 페이지라 이 스크립트로 덮으면 새 주소 이동이 깨짐)
+
+소개 페이지 다국어 생성: 한국어 원본(index.html) > en·ja·zh 페이지 + sitemap (#281)
 
     python3 -I tool/store_art/landing/make_lang_pages.py <gh-pages 폴더>
 
@@ -10,6 +13,9 @@
 import json
 import re
 import sys
+
+# 사용 중지 안내 후 종료 (SITE_DIR 읽기 전, #365)
+sys.exit("[landing] retired: build the site with _src/build_site.py on the gh-pages branch (#365)")
 from datetime import date
 from pathlib import Path
 
