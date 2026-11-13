@@ -1,126 +1,15 @@
-<!DOCTYPE html>
-<html lang="zh-Hans">
+<!doctype html>
+<html lang="ko">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>没有报站的通勤班车，怎么设置下车提醒 · 耳机位置提醒</title>
-<meta name="description" content="公司通勤班车、校车大多没有站名也没有报站，公交 App 里也查不到线路。整理了在班车上不错过下车地点的方法。">
-<meta name="keywords" content="班车下车提醒, 通勤班车 坐过站, 公司班车 睡着, 校车下车提醒, 接驳车提醒, 班车到站提醒">
-<link rel="canonical" href="https://cassiiopeia.github.io/EarLocAlert/zh/guide/shuttle-bus-stop-alert/">
-<link rel="alternate" hreflang="ko" href="https://cassiiopeia.github.io/EarLocAlert/guide/shuttle-bus-stop-alert/">
-<link rel="alternate" hreflang="en" href="https://cassiiopeia.github.io/EarLocAlert/en/guide/shuttle-bus-stop-alert/">
-<link rel="alternate" hreflang="ja" href="https://cassiiopeia.github.io/EarLocAlert/ja/guide/shuttle-bus-stop-alert/">
-<link rel="alternate" hreflang="zh-Hans" href="https://cassiiopeia.github.io/EarLocAlert/zh/guide/shuttle-bus-stop-alert/">
-<link rel="alternate" hreflang="x-default" href="https://cassiiopeia.github.io/EarLocAlert/guide/shuttle-bus-stop-alert/">
-<meta property="og:site_name" content="耳机位置提醒">
-<meta property="og:locale" content="zh_CN">
-<meta property="og:type" content="article">
-<meta property="og:title" content="没有报站的通勤班车，怎么设置下车提醒 · 耳机位置提醒">
-<meta property="og:description" content="公司通勤班车、校车大多没有站名也没有报站，公交 App 里也查不到线路。整理了在班车上不错过下车地点的方法。">
-<meta property="og:url" content="https://cassiiopeia.github.io/EarLocAlert/zh/guide/shuttle-bus-stop-alert/">
-<meta property="og:image" content="https://cassiiopeia.github.io/EarLocAlert/icon/og-zh.png">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="apple-itunes-app" content="app-id=6755805664">
-<meta name="theme-color" content="#fbfbfd">
-<link rel="icon" type="image/png" sizes="32x32" href="../../../icon/favicon-32.png">
-<link rel="apple-touch-icon" sizes="180x180" href="../../../icon/favicon-180.png">
-<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" crossorigin>
-<link rel="stylesheet" href="../../../style.css?v=20261113">
-<script src="../../../site.js?v=20261113" defer></script>
-<script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "没有报站的通勤班车，怎么设置下车提醒", "description": "公司通勤班车、校车大多没有站名也没有报站，公交 App 里也查不到线路。整理了在班车上不错过下车地点的方法。", "inLanguage": "zh-Hans", "mainEntityOfPage": "https://cassiiopeia.github.io/EarLocAlert/zh/guide/shuttle-bus-stop-alert/", "image": "https://cassiiopeia.github.io/EarLocAlert/shots/zh/alert.jpg", "datePublished": "2026-11-13", "dateModified": "2026-11-13", "author": {"@type": "Person", "name": "서새찬", "email": "mailto:chan4760@gmail.com"}, "publisher": {"@type": "Person", "name": "서새찬", "email": "mailto:chan4760@gmail.com"}}</script>
-<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "公交 App 里查不到的班车也能用吗？", "acceptedAnswer": {"@type": "Answer", "text": "能。它不使用线路数据，只根据你在地图上标记的地点判断。没有站名也没关系。"}}, {"@type": "Question", "name": "需要每天手动开关吗？", "acceptedAnswer": {"@type": "Answer", "text": "不需要。设定一次星期和时间段，只在那段时间提醒，其余时间自动保持安静。"}}]}</script>
-<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "耳机位置提醒", "item": "https://cassiiopeia.github.io/EarLocAlert/zh.html"}, {"@type": "ListItem", "position": 2, "name": "指南", "item": "https://cassiiopeia.github.io/EarLocAlert/zh/guide/"}, {"@type": "ListItem", "position": 3, "name": "没有报站的通勤班车，怎么设置下车提醒", "item": "https://cassiiopeia.github.io/EarLocAlert/zh/guide/shuttle-bus-stop-alert/"}]}</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>이어폰위치알림 · EarLocAlert</title>
+<link rel="canonical" href="https://earlocalert.suhsaechan.kr/zh/guide/shuttle-bus-stop-alert/">
+<meta http-equiv="refresh" content="0; url=https://earlocalert.suhsaechan.kr/zh/guide/shuttle-bus-stop-alert/">
+<script>location.replace('https://earlocalert.suhsaechan.kr/zh/guide/shuttle-bus-stop-alert/' + location.hash);</script>
 </head>
-<body class="lang-zh">
-<a class="skip-link" href="#main">跳到正文</a>
-<header class="nav" id="nav">
-  <div class="wrap nav-in">
-    <a class="brand" href="../../../zh.html"><img src="../../../icon/pin.png" width="14" height="20" alt="">耳机位置提醒</a>
-    <nav class="nav-links" aria-label="耳机位置提醒"><a href="../../../zh.html#arrive">到站提醒</a><a href="../../../zh.html#shuttle">班车</a><a href="../../../zh.html#features">功能</a><a href="../../../zh.html#faq">常见问题</a><a href="../../../zh/guide/">指南</a></nav>
-    <div class="nav-actions">
-      <details class="lang-menu">
-        <summary aria-label="语言"><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg><span>中文</span><svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
-        <div class="lang-options"><a href="../../../guide/shuttle-bus-stop-alert/" hreflang="ko" lang="ko">한국어</a><a href="../../../en/guide/shuttle-bus-stop-alert/" hreflang="en" lang="en">English</a><a href="../../../ja/guide/shuttle-bus-stop-alert/" hreflang="ja" lang="ja">日本語</a><a href="../../../zh/guide/shuttle-bus-stop-alert/" hreflang="zh-Hans" lang="zh-Hans" aria-current="true">中文</a></div>
-      </details>
-      <a class="nav-cta" href="#download">免费下载</a>
-    </div>
-  </div>
-</header>
-<main id="main">
-<header class="article-hero">
-  <div class="wrap narrow">
-    <nav class="breadcrumb" aria-label="breadcrumb"><ol><li><a href="../../../zh.html">耳机位置提醒</a></li><li><a href="../../../zh/guide/">指南</a></li><li aria-current="page">没有报站的通勤班车，怎么设置下车提醒</li></ol></nav>
-    <span class="guide-tag">班车</span>
-    <h1>没有报站的通勤班车，怎么设置下车提醒</h1>
-    <p class="article-lead">公司通勤班车、校车大多没有站名也没有报站，公交 App 里也查不到线路。整理了在班车上不错过下车地点的方法。</p>
-    <p class="article-meta"><svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg> 更新 <time datetime="2026-11-13">2026-11-13</time></p>
-  </div>
-</header>
-<article class="article wrap narrow">
-  <div class="article-intro"><p>在通勤班车上睡着再正常不过：一大早、安静的车厢、每天一样的路。问题是，班车<b>不报站</b>。</p><p>很多站点根本没有站名，公交 App 里也查不到这条线路。最后只能靠看窗外的风景来判断在哪下车。</p></div>
-  <h2>不用 App 也能试的办法</h2><ul><li><b>拜托同事叫你</b> — 靠谱，但天天麻烦别人也不好意思。</li><li><b>记住地标</b> — 记住下车前的某栋楼或路口。可一睡着就没用了。</li><li><b>定时闹钟</b> — 班车发车时间固定，比公交准一些，但遇上堵车还是会错开。</li></ul>
-  <h2>班车适合“不需要站点数据”的办法</h2><p>大多数公交、地铁到站提醒都需要线路和站点数据才能用。班车没有这些数据，自然用不了。</p><p>而位置提醒以<b>你自己在地图上标记的点</b>为准。公司正门、宿舍楼下、机场下车点这样没有名字的地方，也能直接登记。</p>
-  <aside class="download-band">
-  <img class="band-icon" src="../../../icon/icon-512.png" width="64" height="64" alt="" loading="lazy">
-  <div class="band-copy"><strong>下车地点，交给 App 记住</strong><p>在地图上标记一次，到达时振动叫醒你。免费，无需注册。</p></div>
-  <div class="store-buttons store-light">
-  <a class="store-button store-primary" href="https://apps.apple.com/cn/app/id6755805664" rel="noopener"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.4 12.6c0-2.5 2.1-3.7 2.2-3.8-1.2-1.7-3-2-3.7-2-1.6-.2-3.1.9-3.9.9-.8 0-2-.9-3.4-.9-1.7 0-3.3 1-4.2 2.6-1.8 3.1-.5 7.7 1.3 10.2.9 1.2 1.9 2.6 3.2 2.6 1.3-.1 1.8-.8 3.3-.8s2 .8 3.4.8 2.2-1.3 3.1-2.5c1-1.4 1.4-2.8 1.4-2.9 0 0-2.7-1-2.7-4.2zM13.9 5.2c.7-.9 1.2-2 1-3.2-1 0-2.3.7-3 1.6-.7.8-1.2 2-1.1 3.1 1.2.1 2.3-.6 3.1-1.5z"/></svg><span><small>免费下载</small>App Store</span></a>
-  <a class="store-button store-secondary" href="https://play.google.com/store/apps/details?id=kr.suhsaechan.ear_loc_alert&hl=zh" rel="noopener"><svg width="18" height="20" viewBox="0 0 24 26" fill="currentColor" aria-hidden="true"><path d="M1 1.5v23l12-11.5zM14.5 14.4l3 2.9-13 7.4zM14.5 11.6l-10-10.3 13 7.4zM19 10l3.4 2c.8.5.8 1.5 0 2L19 16l-3.3-3z"/></svg><span><small>免费下载</small>Google Play</span></a>
-</div>
-</aside>
-  <section class="app-box">
-    <div class="app-box-copy"><h2>用耳机位置提醒这样设置</h2><ul><li>在地图上标记公司正门、宿舍楼下等<b>实际下车的地点</b>。</li><li>设定范围，让你在班车停下前一点点醒来。可以看着圆圈选择。</li><li>设定星期和时间段，让它<b>只在工作日上班时间</b>响，周末和下班路上都安安静静。</li><li>下车地点不止一个？每个地点分别登记，可以单独开关。</li></ul></div>
-    <div class="phone app-box-phone"><img src="../../../shots/zh/alert.jpg" width="486" height="1054" alt="板桥站到站提醒界面，显示到达时间、周边地图和大的关闭提醒按钮" loading="lazy"></div>
-  </section>
-  <section class="article-faq"><h2>常见问题</h2><div class="faq-list"><details class="faq-item"><summary>公交 App 里查不到的班车也能用吗？<svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></summary><p>能。它不使用线路数据，只根据你在地图上标记的地点判断。没有站名也没关系。</p></details><details class="faq-item"><summary>需要每天手动开关吗？<svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></summary><p>不需要。设定一次星期和时间段，只在那段时间提醒，其余时间自动保持安静。</p></details></div></section>
-  <aside class="download-band">
-  <img class="band-icon" src="../../../icon/icon-512.png" width="64" height="64" alt="" loading="lazy">
-  <div class="band-copy"><strong>下车地点，交给 App 记住</strong><p>在地图上标记一次，到达时振动叫醒你。免费，无需注册。</p></div>
-  <div class="store-buttons store-light" id="download">
-  <a class="store-button store-primary" href="https://apps.apple.com/cn/app/id6755805664" rel="noopener"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.4 12.6c0-2.5 2.1-3.7 2.2-3.8-1.2-1.7-3-2-3.7-2-1.6-.2-3.1.9-3.9.9-.8 0-2-.9-3.4-.9-1.7 0-3.3 1-4.2 2.6-1.8 3.1-.5 7.7 1.3 10.2.9 1.2 1.9 2.6 3.2 2.6 1.3-.1 1.8-.8 3.3-.8s2 .8 3.4.8 2.2-1.3 3.1-2.5c1-1.4 1.4-2.8 1.4-2.9 0 0-2.7-1-2.7-4.2zM13.9 5.2c.7-.9 1.2-2 1-3.2-1 0-2.3.7-3 1.6-.7.8-1.2 2-1.1 3.1 1.2.1 2.3-.6 3.1-1.5z"/></svg><span><small>免费下载</small>App Store</span></a>
-  <a class="store-button store-secondary" href="https://play.google.com/store/apps/details?id=kr.suhsaechan.ear_loc_alert&hl=zh" rel="noopener"><svg width="18" height="20" viewBox="0 0 24 26" fill="currentColor" aria-hidden="true"><path d="M1 1.5v23l12-11.5zM14.5 14.4l3 2.9-13 7.4zM14.5 11.6l-10-10.3 13 7.4zM19 10l3.4 2c.8.5.8 1.5 0 2L19 16l-3.3-3z"/></svg><span><small>免费下载</small>Google Play</span></a>
-</div>
-</aside>
-</article>
-<section class="related">
-  <div class="wrap"><h2>相关阅读</h2><div class="guide-grid guide-grid-three"><a class="guide-card reveal" href="../../../zh/guide/bus-stop-alarm/">
-          <span class="guide-tag">公交</span>
-          <h3>公交上睡着坐过站？下次这样避免</h3>
-          <p>定时闹钟、报站、地图 App 的局限，以及位置提醒的设置方法。</p>
-          <span class="guide-more">阅读 <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
-        </a><a class="guide-card reveal" href="../../../zh/guide/subway-station-alarm/">
-          <span class="guide-tag">地铁</span>
-          <h3>地铁坐过站提醒，在地下也能用吗？</h3>
-          <p>地下定位为什么会慢，以及怎样设定范围才不会坐过站。</p>
-          <span class="guide-more">阅读 <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
-        </a><a class="guide-card reveal" href="../../../zh/guide/silent-alarm-library/">
-          <span class="guide-tag">安静场所</span>
-          <h3>在图书馆、办公室里，不出声地接收提醒</h3>
-          <p>只用振动和耳机接收提醒，绝不从扬声器外放。</p>
-          <span class="guide-more">阅读 <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
-        </a></div></div>
-</section>
-</main>
-<footer class="footer">
-  <div class="wrap footer-in">
-    <div class="footer-brand">
-      <a class="brand" href="../../../zh.html"><img src="../../../icon/pin.png" width="14" height="20" alt="">耳机位置提醒</a>
-      <p>iPhone · Android 免费 · 无需注册</p>
-    </div>
-    <nav class="footer-links" aria-label="指南"><strong>指南</strong><a href="../../../zh/guide/bus-stop-alarm/">公交</a><a href="../../../zh/guide/shuttle-bus-stop-alert/">班车</a><a href="../../../zh/guide/subway-station-alarm/">地铁</a><a href="../../../zh/guide/silent-alarm-library/">安静场所</a></nav>
-    <nav class="footer-links" aria-label="首页"><strong>耳机位置提醒</strong>
-      <a href="../../../privacy-en.html">隐私政策（英文）</a>
-      <a href="../../../terms-en.html">服务条款（英文）</a>
-      <a href="mailto:chan4760@gmail.com">联系我们</a>
-    </nav>
-  </div>
-  <div class="wrap footer-bottom"><span>© 2026 서새찬</span><details class="lang-menu">
-        <summary aria-label="语言"><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg><span>中文</span><svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
-        <div class="lang-options"><a href="../../../" hreflang="ko" lang="ko">한국어</a><a href="../../../en.html" hreflang="en" lang="en">English</a><a href="../../../ja.html" hreflang="ja" lang="ja">日本語</a><a href="../../../zh.html" hreflang="zh-Hans" lang="zh-Hans" aria-current="true">中文</a></div>
-      </details></div>
-</footer>
+<body>
+<p>소개 사이트가 새 주소로 옮겼어요. 잠시 후 자동으로 이동합니다.</p><p>This site has moved to a new address. Redirecting…</p>
+<p><a href="https://earlocalert.suhsaechan.kr/zh/guide/shuttle-bus-stop-alert/">https://earlocalert.suhsaechan.kr/zh/guide/shuttle-bus-stop-alert/</a></p>
 </body>
 </html>
