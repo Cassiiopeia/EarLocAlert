@@ -1,0 +1,61 @@
+# Play 스토어 등록정보만 올리기 (#369): 제목·간단한 설명·자세한 설명, 앱 바이너리 없이
+# 원본: docs/store/descriptions/{ko-KR,en-US,ja-JP,zh-CN}_{title,short,full}.txt
+# Android 앱 배포는 수동이라(결정 071) 문구가 앱 배포를 기다리지 않게 따로 둔다
+# iOS 이름·키워드는 버전이 있어야 고칠 수 있어 앱 배포(Fastfile deploy) 때 함께 올라간다
+# 시크릿: GOOGLE_PLAY_SERVICE_ACCOUNT_JSON_BASE64 (Play 배포 워크플로와 같은 값)
+name: STORE-LISTING-PLAY-SYNC
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "docs/store/descriptions/*_title.txt"
+      - "docs/store/descriptions/*_short.txt"
+      - "docs/store/descriptions/*_full.txt"
+  workflow_dispatch:
+
+concurrency:
+  group: store-listing-play-sync
+  cancel-in-progress: false
+
+jobs:
+  upload-play-listing:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # 원본 > fastlane 메타 폴더 (글자 수 초과면 여기서 중단)
+      - name: Stage Play listing
+        run: |
+          python3 -I tool/store_listing/stage_store_listing.py android \
+            "$GITHUB_WORKSPACE" "$RUNNER_TEMP/play-metadata"
+
+      - name: Write service account key
+        run: |
+          mkdir -p "$RUNNER_TEMP/gcloud"
+          echo "${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON_BASE64 }}" | base64 --decode > "$RUNNER_TEMP/gcloud/service-account.json"
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.4.1"
+
+      - name: Install fastlane
+        run: gem install fastlane --no-document
+
+      # 등록정보만: 바이너리·출시 노트·그래픽은 건드리지 않음 (파일이 있는 칸만 덮어씀)
+      - name: Upload Play listing
+        run: |
+          fastlane run upload_to_play_store \
+            package_name:"kr.suhsaechan.ear_loc_alert" \
+            json_key:"$RUNNER_TEMP/gcloud/service-account.json" \
+            metadata_path:"$RUNNER_TEMP/play-metadata" \
+            skip_upload_apk:true \
+            skip_upload_aab:true \
+            skip_upload_changelogs:true \
+            skip_upload_images:true \
+            skip_upload_screenshots:true \
+            skip_upload_metadata:false
+
+      - name: Remove service account key
+        if: always()
+        run: rm -f "$RUNNER_TEMP/gcloud/service-account.json"

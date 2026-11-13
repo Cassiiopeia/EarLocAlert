@@ -64,7 +64,7 @@ Play Console 최근 28일: 방문자 62명, 설치 클릭 16회, 기본 등록�
 
 이 파일들이 스토어 문구의 단일 원본이다. **콘솔에서 고치지 말고 파일을 고친다.** 콘솔에서 고친 값은 다음 배포에 덮인다.
 
-- Android: 배포 워크플로가 `tool/store_listing/stage_store_listing.py android` 로 제목·간단한 설명·자세한 설명을 fastlane 메타 폴더에 옮기고, `upload_to_play_store` 가 함께 올린다. 같은 버전 코드가 이미 내부 트랙에 있어 업로드를 건너뛰면 문구도 올라가지 않는다.
+- Android: main 에 이 파일(`*_title`·`*_short`·`*_full`)이 바뀌어 들어가면 `STORE-LISTING-PLAY-SYNC` 워크플로가 앱 없이 등록정보만 올린다(Actions 에서 수동 실행도 된다). 앱 배포 워크플로도 업로드할 때 같은 문구를 함께 올린다. Play 등록정보 변경은 Google 검토를 거친다.
 - iOS: 버전 준비(store_prepare·store_submit) 때 같은 스크립트가 이름·부제목·키워드·프로모션 텍스트·설명을 `deliver` 메타 폴더에 옮긴다. '새 기능' 문구가 있는 언어(ko·en-US·ja·zh-Hans)에만 쓴다.
 - 글자 수 제한을 넘으면 스크립트가 1로 끝나 배포가 멈춘다. 고치기 전에 `python3 -I tool/store_listing/stage_store_listing.py check .` 로 확인한다.
 - App Store 키워드는 쉼표로만 구분하고 띄어 쓰지 않는다. 이름·부제목에 있는 낱말은 되풀이하지 않는다.
