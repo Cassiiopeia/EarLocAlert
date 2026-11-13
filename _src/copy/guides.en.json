@@ -1,0 +1,183 @@
+{
+  "index": {
+    "title": "Guides — How to never miss your bus, subway or shuttle stop · EarLocAlert",
+    "description": "Fell asleep on the bus and missed your stop? Shuttles with no announcements, subway stop alarms underground, silent alerts in the library — practical ways to never miss your stop.",
+    "heading": "How to never miss your stop",
+    "lead": "Tricks you can use right now, with or without an app — and how to get woken up by location instead of time."
+  },
+  "articles": {
+    "bus-stop-alarm": {
+      "tag": "Bus",
+      "title": "Fell asleep on the bus and missed your stop? Here’s how to stop it happening",
+      "description": "Dozed off on the bus and woke up past your stop? Why time alarms, announcements and map apps fall short, and how to set up a location-based bus stop alarm that wakes you on arrival.",
+      "keywords": "bus stop alarm, wake me up at my stop, fell asleep on the bus, missed my stop, bus arrival alert, stop alarm app",
+      "summary": "Why time alarms, announcements and map apps fall short — and how to use a location alarm.",
+      "intro": [
+        "A warm bus on the way home, you close your eyes for a second — and the view outside is suddenly unfamiliar. You’re two or three stops past yours, waiting for a bus back.",
+        "It happens to everyone on a tired day. Rather than fighting sleep, it’s more reliable to have **something that wakes you up**."
+      ],
+      "sections": [
+        {
+          "heading": "What you can try without an app",
+          "paragraphs": ["Each of these works to a degree, with clear trade-offs."],
+          "items": [
+            "**A time alarm** — set it for your usual travel time. Simple, but traffic or a late bus makes it ring too early or too late, and a ringing phone isn’t great on a quiet bus.",
+            "**Announcements and stop displays** — fine when you’re awake, easy to miss when you’re asleep or listening to music.",
+            "**Map app navigation** — shows where you are, but only if you keep checking the screen. Useless once you doze off."
+          ]
+        },
+        {
+          "heading": "Why location beats time",
+          "paragraphs": [
+            "The same bus route takes a different amount of time every day. So the reliable trigger isn’t ‘in 25 minutes’ but **‘when I get near my stop’**.",
+            "A location alarm draws a circle around your stop and alerts you the moment you enter it. Traffic jams and early arrivals don’t change where your stop is."
+          ],
+          "items": []
+        }
+      ],
+      "app": {
+        "heading": "Setting it up in EarLocAlert",
+        "paragraphs": ["You only set it up once. After that, you never need to open the app."],
+        "items": [
+          "Pin your stop on the map and save it as an **arrival alert**.",
+          "Choose the radius while you see the circle. Buses move fast, so give yourself **a little extra distance** to get ready to get off — smaller in the city where stops are close together, larger on express routes.",
+          "Set the vibration to **Strong** so you feel it even in a pocket.",
+          "With earphones in, you also hear the alert through them. Without earphones it only vibrates — **it never uses the speaker.**",
+          "Only riding on weekday evenings? Set days and hours so it stays quiet on weekends."
+        ]
+      },
+      "faq": [
+        ["What radius should I use?", "There’s no single right answer. Think about how fast the bus travels between stops and how long you need to get ready, start generous and shrink it after a ride or two. You can choose anything from 50 m to 2 km."],
+        ["Do I need to keep the app open?", "No. Once a place is saved, it watches in the background and alerts you even with the app closed and the screen off."]
+      ]
+    },
+    "shuttle-bus-stop-alert": {
+      "tag": "Shuttle",
+      "title": "How to get a stop alert on a shuttle bus with no announcements",
+      "description": "Work shuttles and campus shuttles rarely have named stops or announcements, and transit apps don’t know their routes. Here’s how to never miss your shuttle drop-off.",
+      "keywords": "shuttle bus stop alert, work shuttle alarm, company shuttle, campus shuttle stop, shuttle drop-off reminder, employee shuttle",
+      "summary": "Get an alert at your drop-off even when the shuttle has no stop names or announcements.",
+      "intro": [
+        "Falling asleep on the work shuttle is the most natural thing in the world — early morning, a quiet bus, the same road every day. The catch: **shuttles don’t announce stops.**",
+        "Many stops have no name at all, and transit apps don’t carry the route. You’re left recognising your stop from the view out the window."
+      ],
+      "sections": [
+        {
+          "heading": "What you can try without an app",
+          "paragraphs": [],
+          "items": [
+            "**Ask a colleague** — reliable, but awkward to ask every day.",
+            "**Remember a landmark** — a building or junction just before your stop. Doesn’t help once you’re asleep.",
+            "**A time alarm** — shuttles leave on schedule, so it works better than on a city bus, until traffic gets in the way."
+          ]
+        },
+        {
+          "heading": "Shuttles need something that doesn’t rely on stop data",
+          "paragraphs": [
+            "Most bus and subway arrival alerts need the route and stop data to work. Shuttles don’t have that data, so those features can’t help.",
+            "A location alarm works from **a point you pin yourself** on the map. The office gate, your dorm, the airport drop-off — unnamed places work just as well."
+          ],
+          "items": []
+        }
+      ],
+      "app": {
+        "heading": "Setting it up in EarLocAlert",
+        "paragraphs": [],
+        "items": [
+          "Pin **the exact spot where you get off** — the office gate or the front of your dorm.",
+          "Pick a radius so it wakes you a little before the shuttle stops. You choose while seeing the circle.",
+          "Set days and hours so it rings **only on weekday mornings** and stays quiet at weekends.",
+          "Several drop-offs? Save each one separately and switch them on or off individually."
+        ]
+      },
+      "faq": [
+        ["Does it work for shuttles that aren’t in any transit app?", "Yes. It doesn’t use route data at all — only the point you pinned on the map. Unnamed stops are fine."],
+        ["Do I have to turn it on and off every day?", "No. Set days and hours once and it only alerts during that time."]
+      ]
+    },
+    "subway-station-alarm": {
+      "tag": "Subway",
+      "title": "Subway stop alarm: does it work underground?",
+      "description": "Dozed off on the subway and missed your station? An honest look at why location alerts can be slower deep underground, and how to choose a radius so you still get off at the right stop.",
+      "keywords": "subway stop alarm, metro station alarm, wake me up at my station, missed my subway stop, underground GPS, train stop alert",
+      "summary": "Why location can lag underground, and how to set a radius so you don’t miss your station.",
+      "intro": [
+        "The subway is even easier to fall asleep on than a bus — steady motion, nothing to see outside. There are announcements, but music in your earphones drowns them out.",
+        "So does a location alarm work underground? Honestly: **it depends on the section of track.**"
+      ],
+      "sections": [
+        {
+          "heading": "Why location can lag underground",
+          "paragraphs": [
+            "Phones estimate location from GPS, Wi-Fi and cell signals. Deep underground those signals are weaker, so **location can update later or be less precise.** On above-ground sections and near stations it’s usually fine.",
+            "That’s why on the subway the key is a **generous radius**, not one drawn tightly around the station."
+          ],
+          "items": []
+        },
+        {
+          "heading": "What you can try without an app",
+          "paragraphs": [],
+          "items": [
+            "**Listen for announcements** — keep your music low enough to hear them.",
+            "**A time alarm** — trains are fairly punctual, so this works better than on buses, but delays throw it off and a ringing phone draws looks."
+          ]
+        }
+      ],
+      "app": {
+        "heading": "Setting it up in EarLocAlert",
+        "paragraphs": [],
+        "items": [
+          "Pin your station and choose **a radius that allows for the distance between stations**. Waking a stop early just gives you time to get ready.",
+          "Worried about a deep section? **Also save the station before yours.** Two alerts are better than none.",
+          "With earphones in, the alert sound plays through them, so you hear it even if you miss the announcement. Without earphones, it only vibrates."
+        ]
+      },
+      "faq": [
+        ["Does it not work underground at all?", "It does work, but deep underground the phone may find your location later, so the alert can come later. A generous radius or also saving the previous station makes a miss much less likely."],
+        ["Is my location sent anywhere?", "No. Arrival is detected on your phone, and your places and history stay on the device."]
+      ]
+    },
+    "silent-alarm-library": {
+      "tag": "Quiet places",
+      "title": "Silent alerts for libraries and offices: vibration and earphones only",
+      "description": "Ever had an alarm blast from the speaker in a library or meeting? How to get alerts with vibration and earphones only, and how to stop alarms leaking from the speaker even when earphones are in.",
+      "keywords": "silent alarm, vibration alarm, earphone only alarm, library alarm, alarm without speaker, quiet alert app",
+      "summary": "Alerts by vibration and earphones only — never leaking from the speaker.",
+      "intro": [
+        "The moment an alarm goes off through the speaker in a quiet library, every head turns. Surprisingly often it happens even when you had earphones in.",
+        "That’s because, depending on the phone and the app, **alarm sounds can play through the speaker even with earphones connected.**"
+      ],
+      "sections": [
+        {
+          "heading": "What you can try without an app",
+          "paragraphs": [],
+          "items": [
+            "**Silent mode + a vibration alarm** — blocks sound, but it’s based on time, so it can’t tell you when you arrive somewhere or leave.",
+            "**Smartwatch vibration** — a quiet tap on the wrist. Set phone notifications to mirror to your watch."
+          ]
+        },
+        {
+          "heading": "The point is to never use the speaker",
+          "paragraphs": [
+            "In a quiet place you don’t need a quieter sound — you need **a guarantee that nothing comes out of the speaker**. One leak is one too many.",
+            "EarLocAlert checks connected devices against an **allow list**. It only plays sound through wired, USB-C or Bluetooth earphones; if it can’t confirm them, it only vibrates. Devices that play out loud, like car audio, aren’t on the list."
+          ],
+          "items": []
+        }
+      ],
+      "app": {
+        "heading": "Using it in quiet places",
+        "paragraphs": [],
+        "items": [
+          "You can also get an alert **when you leave** the library or office — save it as a departure alert if there’s something to remember on the way out.",
+          "Choose Light, Medium or Strong vibration to suit where you are.",
+          "Mirror phone notifications to a Galaxy Watch or Apple Watch to feel alerts on your wrist."
+        ]
+      },
+      "faq": [
+        ["What if my earphones disconnect?", "If earphones can’t be confirmed at the moment of the alert, it only vibrates. It never switches to the speaker."],
+        ["Is it free?", "Yes. It includes ads, but never on the screen that is alerting you."]
+      ]
+    }
+  }
+}

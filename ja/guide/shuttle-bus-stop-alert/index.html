@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>アナウンスのない送迎バスで、降りる場所を通知してもらう方法 · イヤホン位置通知</title>
+<meta name="description" content="社員送迎バスやスクールバスには、停留所の名前もアナウンスもないことがほとんど。乗り換えアプリにも路線がない送迎バスで、降りる場所を乗り過ごさない方法をまとめました。">
+<meta name="keywords" content="送迎バス 降車 通知, 社員送迎バス 寝過ごし, 通勤バス 乗り過ごし, スクールバス 降りる場所, シャトルバス 通知">
+<link rel="canonical" href="https://cassiiopeia.github.io/EarLocAlert/ja/guide/shuttle-bus-stop-alert/">
+<link rel="alternate" hreflang="ko" href="https://cassiiopeia.github.io/EarLocAlert/guide/shuttle-bus-stop-alert/">
+<link rel="alternate" hreflang="en" href="https://cassiiopeia.github.io/EarLocAlert/en/guide/shuttle-bus-stop-alert/">
+<link rel="alternate" hreflang="ja" href="https://cassiiopeia.github.io/EarLocAlert/ja/guide/shuttle-bus-stop-alert/">
+<link rel="alternate" hreflang="zh-Hans" href="https://cassiiopeia.github.io/EarLocAlert/zh/guide/shuttle-bus-stop-alert/">
+<link rel="alternate" hreflang="x-default" href="https://cassiiopeia.github.io/EarLocAlert/guide/shuttle-bus-stop-alert/">
+<meta property="og:site_name" content="イヤホン位置通知">
+<meta property="og:locale" content="ja_JP">
+<meta property="og:type" content="article">
+<meta property="og:title" content="アナウンスのない送迎バスで、降りる場所を通知してもらう方法 · イヤホン位置通知">
+<meta property="og:description" content="社員送迎バスやスクールバスには、停留所の名前もアナウンスもないことがほとんど。乗り換えアプリにも路線がない送迎バスで、降りる場所を乗り過ごさない方法をまとめました。">
+<meta property="og:url" content="https://cassiiopeia.github.io/EarLocAlert/ja/guide/shuttle-bus-stop-alert/">
+<meta property="og:image" content="https://cassiiopeia.github.io/EarLocAlert/icon/og-ja.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="apple-itunes-app" content="app-id=6755805664">
+<meta name="theme-color" content="#fbfbfd">
+<link rel="icon" type="image/png" sizes="32x32" href="../../../icon/favicon-32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="../../../icon/favicon-180.png">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/packages/pretendard-jp/dist/web/variable/pretendardvariable-jp-dynamic-subset.min.css" crossorigin>
+<link rel="stylesheet" href="../../../style.css?v=20261113">
+<script src="../../../site.js?v=20261113" defer></script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "アナウンスのない送迎バスで、降りる場所を通知してもらう方法", "description": "社員送迎バスやスクールバスには、停留所の名前もアナウンスもないことがほとんど。乗り換えアプリにも路線がない送迎バスで、降りる場所を乗り過ごさない方法をまとめました。", "inLanguage": "ja", "mainEntityOfPage": "https://cassiiopeia.github.io/EarLocAlert/ja/guide/shuttle-bus-stop-alert/", "image": "https://cassiiopeia.github.io/EarLocAlert/shots/ja/alert.jpg", "datePublished": "2026-11-13", "dateModified": "2026-11-13", "author": {"@type": "Person", "name": "서새찬", "email": "mailto:chan4760@gmail.com"}, "publisher": {"@type": "Person", "name": "서새찬", "email": "mailto:chan4760@gmail.com"}}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "路線データのない送迎バスでも使えますか？", "acceptedAnswer": {"@type": "Answer", "text": "はい。路線情報は使わず、地図で選んだ地点だけで判定します。停留所に名前がなくても大丈夫です。"}}, {"@type": "Question", "name": "毎日オン・オフする必要がありますか？", "acceptedAnswer": {"@type": "Answer", "text": "いいえ。曜日と時間帯を一度設定すれば、その時間だけ鳴り、それ以外は自動で静かになります。"}}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "イヤホン位置通知", "item": "https://cassiiopeia.github.io/EarLocAlert/ja.html"}, {"@type": "ListItem", "position": 2, "name": "ガイド", "item": "https://cassiiopeia.github.io/EarLocAlert/ja/guide/"}, {"@type": "ListItem", "position": 3, "name": "アナウンスのない送迎バスで、降りる場所を通知してもらう方法", "item": "https://cassiiopeia.github.io/EarLocAlert/ja/guide/shuttle-bus-stop-alert/"}]}</script>
+</head>
+<body class="lang-ja">
+<a class="skip-link" href="#main">本文へ移動</a>
+<header class="nav" id="nav">
+  <div class="wrap nav-in">
+    <a class="brand" href="../../../ja.html"><img src="../../../icon/pin.png" width="14" height="20" alt="">イヤホン位置通知</a>
+    <nav class="nav-links" aria-label="イヤホン位置通知"><a href="../../../ja.html#arrive">到着通知</a><a href="../../../ja.html#shuttle">送迎バス</a><a href="../../../ja.html#features">機能</a><a href="../../../ja.html#faq">よくある質問</a><a href="../../../ja/guide/">ガイド</a></nav>
+    <div class="nav-actions">
+      <details class="lang-menu">
+        <summary aria-label="言語"><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg><span>日本語</span><svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+        <div class="lang-options"><a href="../../../guide/shuttle-bus-stop-alert/" hreflang="ko" lang="ko">한국어</a><a href="../../../en/guide/shuttle-bus-stop-alert/" hreflang="en" lang="en">English</a><a href="../../../ja/guide/shuttle-bus-stop-alert/" hreflang="ja" lang="ja" aria-current="true">日本語</a><a href="../../../zh/guide/shuttle-bus-stop-alert/" hreflang="zh-Hans" lang="zh-Hans">中文</a></div>
+      </details>
+      <a class="nav-cta" href="#download">無料で入手</a>
+    </div>
+  </div>
+</header>
+<main id="main">
+<header class="article-hero">
+  <div class="wrap narrow">
+    <nav class="breadcrumb" aria-label="breadcrumb"><ol><li><a href="../../../ja.html">イヤホン位置通知</a></li><li><a href="../../../ja/guide/">ガイド</a></li><li aria-current="page">アナウンスのない送迎バスで、降りる場所を通知してもらう方法</li></ol></nav>
+    <span class="guide-tag">送迎バス</span>
+    <h1>アナウンスのない送迎バスで、降りる場所を通知してもらう方法</h1>
+    <p class="article-lead">社員送迎バスやスクールバスには、停留所の名前もアナウンスもないことがほとんど。乗り換えアプリにも路線がない送迎バスで、降りる場所を乗り過ごさない方法をまとめました。</p>
+    <p class="article-meta"><svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg> 更新 <time datetime="2026-11-13">2026-11-13</time></p>
+  </div>
+</header>
+<article class="article wrap narrow">
+  <div class="article-intro"><p>社員送迎バスで眠ってしまうのはごく自然なこと。早朝、静かな車内、毎日同じ道。問題は、送迎バスには<b>アナウンスがない</b>ことです。</p><p>停留所に名前がない場所も多く、乗り換えアプリには路線そのものがありません。結局、窓の外の景色だけで降りる場所を判断することになります。</p></div>
+  <h2>アプリなしで試せる方法</h2><ul><li><b>同僚に頼む</b> — 確実ですが、毎日お願いするのは気が引けます。</li><li><b>目印を覚える</b> — 降りる直前の建物や交差点を覚えておく方法。寝てしまうと役に立ちません。</li><li><b>時間でアラーム</b> — 送迎バスは出発時刻が一定なので路線バスよりは合いますが、渋滞の日はずれます。</li></ul>
+  <h2>送迎バスには「停留所データがいらない方法」が合う</h2><p>バスや電車の到着通知の多くは、路線や停留所の情報がないと動きません。送迎バスにはその情報がないので使えないのです。</p><p>位置情報アラームなら、<b>地図で自分で選んだ地点</b>が基準。会社の正門、寮の前、空港の降車場所のように名前のない場所もそのまま登録できます。</p>
+  <aside class="download-band">
+  <img class="band-icon" src="../../../icon/icon-512.png" width="64" height="64" alt="" loading="lazy">
+  <div class="band-copy"><strong>降りる場所は、アプリが覚えておきます</strong><p>地図で一度登録すれば、到着したときに振動で起こします。無料・会員登録なし。</p></div>
+  <div class="store-buttons store-light">
+  <a class="store-button store-primary" href="https://apps.apple.com/jp/app/id6755805664" rel="noopener"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.4 12.6c0-2.5 2.1-3.7 2.2-3.8-1.2-1.7-3-2-3.7-2-1.6-.2-3.1.9-3.9.9-.8 0-2-.9-3.4-.9-1.7 0-3.3 1-4.2 2.6-1.8 3.1-.5 7.7 1.3 10.2.9 1.2 1.9 2.6 3.2 2.6 1.3-.1 1.8-.8 3.3-.8s2 .8 3.4.8 2.2-1.3 3.1-2.5c1-1.4 1.4-2.8 1.4-2.9 0 0-2.7-1-2.7-4.2zM13.9 5.2c.7-.9 1.2-2 1-3.2-1 0-2.3.7-3 1.6-.7.8-1.2 2-1.1 3.1 1.2.1 2.3-.6 3.1-1.5z"/></svg><span><small>無料ダウンロード</small>App Store</span></a>
+  <a class="store-button store-secondary" href="https://play.google.com/store/apps/details?id=kr.suhsaechan.ear_loc_alert&hl=ja" rel="noopener"><svg width="18" height="20" viewBox="0 0 24 26" fill="currentColor" aria-hidden="true"><path d="M1 1.5v23l12-11.5zM14.5 14.4l3 2.9-13 7.4zM14.5 11.6l-10-10.3 13 7.4zM19 10l3.4 2c.8.5.8 1.5 0 2L19 16l-3.3-3z"/></svg><span><small>無料ダウンロード</small>Google Play</span></a>
+</div>
+</aside>
+  <section class="app-box">
+    <div class="app-box-copy"><h2>イヤホン位置通知での設定方法</h2><ul><li>会社の正門や寮の前など、<b>実際に降りる地点</b>を地図で選びます。</li><li>送迎バスが止まる少し手前で起きられるよう半径を決めます。円を見ながら選べます。</li><li>曜日と時間帯を設定して<b>平日の出勤時間だけ</b>鳴るようにすれば、週末や帰り道は静かなまま。</li><li>降りる場所が複数あるなら、場所ごとに登録して個別にオン・オフできます。</li></ul></div>
+    <div class="phone app-box-phone"><img src="../../../shots/ja/alert.jpg" width="486" height="1054" alt="パンギョ駅の到着通知画面。到着時刻、周辺の地図、大きなアラーム停止ボタン" loading="lazy"></div>
+  </section>
+  <section class="article-faq"><h2>よくある質問</h2><div class="faq-list"><details class="faq-item"><summary>路線データのない送迎バスでも使えますか？<svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></summary><p>はい。路線情報は使わず、地図で選んだ地点だけで判定します。停留所に名前がなくても大丈夫です。</p></details><details class="faq-item"><summary>毎日オン・オフする必要がありますか？<svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></summary><p>いいえ。曜日と時間帯を一度設定すれば、その時間だけ鳴り、それ以外は自動で静かになります。</p></details></div></section>
+  <aside class="download-band">
+  <img class="band-icon" src="../../../icon/icon-512.png" width="64" height="64" alt="" loading="lazy">
+  <div class="band-copy"><strong>降りる場所は、アプリが覚えておきます</strong><p>地図で一度登録すれば、到着したときに振動で起こします。無料・会員登録なし。</p></div>
+  <div class="store-buttons store-light" id="download">
+  <a class="store-button store-primary" href="https://apps.apple.com/jp/app/id6755805664" rel="noopener"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.4 12.6c0-2.5 2.1-3.7 2.2-3.8-1.2-1.7-3-2-3.7-2-1.6-.2-3.1.9-3.9.9-.8 0-2-.9-3.4-.9-1.7 0-3.3 1-4.2 2.6-1.8 3.1-.5 7.7 1.3 10.2.9 1.2 1.9 2.6 3.2 2.6 1.3-.1 1.8-.8 3.3-.8s2 .8 3.4.8 2.2-1.3 3.1-2.5c1-1.4 1.4-2.8 1.4-2.9 0 0-2.7-1-2.7-4.2zM13.9 5.2c.7-.9 1.2-2 1-3.2-1 0-2.3.7-3 1.6-.7.8-1.2 2-1.1 3.1 1.2.1 2.3-.6 3.1-1.5z"/></svg><span><small>無料ダウンロード</small>App Store</span></a>
+  <a class="store-button store-secondary" href="https://play.google.com/store/apps/details?id=kr.suhsaechan.ear_loc_alert&hl=ja" rel="noopener"><svg width="18" height="20" viewBox="0 0 24 26" fill="currentColor" aria-hidden="true"><path d="M1 1.5v23l12-11.5zM14.5 14.4l3 2.9-13 7.4zM14.5 11.6l-10-10.3 13 7.4zM19 10l3.4 2c.8.5.8 1.5 0 2L19 16l-3.3-3z"/></svg><span><small>無料ダウンロード</small>Google Play</span></a>
+</div>
+</aside>
+</article>
+<section class="related">
+  <div class="wrap"><h2>あわせて読みたい</h2><div class="guide-grid guide-grid-three"><a class="guide-card reveal" href="../../../ja/guide/bus-stop-alarm/">
+          <span class="guide-tag">バス</span>
+          <h3>バスで寝過ごして乗り過ごした…次から防ぐ方法</h3>
+          <p>時間アラーム・アナウンス・地図アプリの限界と、位置情報アラームの設定方法。</p>
+          <span class="guide-more">読む <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        </a><a class="guide-card reveal" href="../../../ja/guide/subway-station-alarm/">
+          <span class="guide-tag">電車</span>
+          <h3>電車の寝過ごし防止アラーム、地下でも使える？</h3>
+          <p>地下で位置情報が遅れる理由と、乗り過ごさない半径の決め方。</p>
+          <span class="guide-more">読む <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        </a><a class="guide-card reveal" href="../../../ja/guide/silent-alarm-library/">
+          <span class="guide-tag">静かな場所</span>
+          <h3>図書館・オフィスで、音を出さずに通知を受け取る方法</h3>
+          <p>振動とイヤホンだけで、スピーカーから漏らさずに通知を受け取る。</p>
+          <span class="guide-more">読む <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        </a></div></div>
+</section>
+</main>
+<footer class="footer">
+  <div class="wrap footer-in">
+    <div class="footer-brand">
+      <a class="brand" href="../../../ja.html"><img src="../../../icon/pin.png" width="14" height="20" alt="">イヤホン位置通知</a>
+      <p>iPhone · Android 無料 · 会員登録なし</p>
+    </div>
+    <nav class="footer-links" aria-label="ガイド"><strong>ガイド</strong><a href="../../../ja/guide/bus-stop-alarm/">バス</a><a href="../../../ja/guide/shuttle-bus-stop-alert/">送迎バス</a><a href="../../../ja/guide/subway-station-alarm/">電車</a><a href="../../../ja/guide/silent-alarm-library/">静かな場所</a></nav>
+    <nav class="footer-links" aria-label="ホーム"><strong>イヤホン位置通知</strong>
+      <a href="../../../privacy-en.html">プライバシーポリシー（英語）</a>
+      <a href="../../../terms-en.html">利用規約（英語）</a>
+      <a href="mailto:chan4760@gmail.com">お問い合わせ</a>
+    </nav>
+  </div>
+  <div class="wrap footer-bottom"><span>© 2026 서새찬</span><details class="lang-menu">
+        <summary aria-label="言語"><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg><span>日本語</span><svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+        <div class="lang-options"><a href="../../../" hreflang="ko" lang="ko">한국어</a><a href="../../../en.html" hreflang="en" lang="en">English</a><a href="../../../ja.html" hreflang="ja" lang="ja" aria-current="true">日本語</a><a href="../../../zh.html" hreflang="zh-Hans" lang="zh-Hans">中文</a></div>
+      </details></div>
+</footer>
+</body>
+</html>
