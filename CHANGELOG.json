@@ -1,14 +1,34 @@
 {
   "metadata": {
-    "lastUpdated": "2026-11-13T13:07:36Z",
-    "currentVersion": "1.51.0",
+    "lastUpdated": "2026-11-13T13:19:45Z",
+    "currentVersion": "1.52.0",
     "projectType": "flutter",
-    "totalReleases": 127,
+    "totalReleases": 128,
     "projectTypes": [
       "flutter"
     ]
   },
   "releases": [
+    {
+      "version": "1.52.0",
+      "project_type": "flutter",
+      "project_types": [
+        "flutter"
+      ],
+      "date": "2026-11-13",
+      "pr_number": 372,
+      "raw_summary": "## Summary by CodeRabbit\n\n## 릴리스 노트\n\n* **개선**\n  * 스토어에서 이어폰·하차·셔틀 같은 말로 앱을 찾기 쉬워졌어요\n  * 영어·일본어·중국어 스토어 소개를 새로 썼어요",
+      "parsed_changes": {
+        "개선": {
+          "title": "개선",
+          "items": [
+            "스토어에서 이어폰·하차·셔틀 같은 말로 앱을 찾기 쉬워졌어요",
+            "영어·일본어·중국어 스토어 소개를 새로 썼어요"
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "1.51.0",
       "project_type": "flutter",
