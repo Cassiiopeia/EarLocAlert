@@ -56,6 +56,14 @@ jobs:
             skip_upload_screenshots:true \
             skip_upload_metadata:false
 
+      # 출시 국가 확인 (읽기 전용, 실패해도 통과) — 해외 검색에 걸리려면 해당 국가가 열려 있어야 함
+      - name: Report Play country availability
+        continue-on-error: true
+        run: |
+          pip install --quiet google-auth requests
+          python3 tool/store_listing/report_play_countries.py \
+            "$RUNNER_TEMP/gcloud/service-account.json" "kr.suhsaechan.ear_loc_alert"
+
       - name: Remove service account key
         if: always()
         run: rm -f "$RUNNER_TEMP/gcloud/service-account.json"
