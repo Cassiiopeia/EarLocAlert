@@ -12,7 +12,7 @@ class _ArrivalHistoryRoute extends ConsumerWidget {
     records: ref.watch(arrivalHistoryProvider).valueOrNull,
     isLocked: !ref.watch(featureAccessControllerProvider).canViewFullHistory,
     onUnlockPro: () =>
-        unawaited(showProOfferSheet(context, entryPoint: 'history')),
+        unawaited(showProOfferSheet(context, entry: ProOfferEntry.history)),
     onRefresh: () => ref.refresh(arrivalHistoryProvider.future),
   );
 }
@@ -25,7 +25,7 @@ class _PlaceRoutineListRoute extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) => PlaceRoutineListScreen(
     isLocked: !ref.watch(featureAccessControllerProvider).canUseRoutines,
     onUnlockPro: () =>
-        unawaited(showProOfferSheet(context, entryPoint: 'routines')),
+        unawaited(showProOfferSheet(context, entry: ProOfferEntry.routines)),
     onAddRoutine: () => context.push(AppRoutes.routineEdit),
     onEditRoutine: (routine) =>
         context.push(AppRoutes.routineEdit, extra: routine),
@@ -188,7 +188,7 @@ class _SettingsRouteState extends ConsumerState<_SettingsRoute>
         context,
         ref,
         onUnlockPro: () => unawaited(
-          showProOfferSheet(context, entryPoint: 'vibration_pattern'),
+          showProOfferSheet(context, entry: ProOfferEntry.vibrationPattern),
         ),
       ),
       onOpenDiagnostics: () => context.push(AppRoutes.diagnostics),
@@ -248,7 +248,7 @@ class _SettingsRouteState extends ConsumerState<_SettingsRoute>
           .watch(featureAccessControllerProvider)
           .canUsePlaceBackup,
       onUnlockPro: () =>
-          unawaited(showProOfferSheet(context, entryPoint: 'backup')),
+          unawaited(showProOfferSheet(context, entry: ProOfferEntry.backup)),
       // 문제 신고 (이슈 #255) — 메일 앱을 열고 기록을 첨부한다
       onReportProblem: () => showBugReportSheet(
         context,

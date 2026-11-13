@@ -5,14 +5,15 @@ import '../../../core/entitlement/feature_access_controller.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/ui/foundation/app_color_palette.dart';
 import '../../../core/ui/foundation/app_spacing.dart';
+import '../domain/pro_offer_entry.dart';
 import 'pro_offer_sheet.dart';
 
 /// 등급 표시 칩 (#294): 무료 FREE(누르면 프로 안내), 프로 PRO. 결제가 없는 플랫폼은 숨김
 class PlanBadgeChip extends ConsumerWidget {
-  const PlanBadgeChip({super.key, this.entryPoint = 'home_chip'});
+  const PlanBadgeChip({super.key, this.entry = ProOfferEntry.homeChip});
 
-  /// 프로 안내 로그용 진입점 이름
-  final String entryPoint;
+  /// 프로 안내를 연 자리
+  final ProOfferEntry entry;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -24,7 +25,7 @@ class PlanBadgeChip extends ConsumerWidget {
       button: true,
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
-        onTap: () => showProOfferSheet(context, entryPoint: entryPoint),
+        onTap: () => showProOfferSheet(context, entry: entry),
         // 칩은 작아서 주변까지 탭을 받는다
         child: Padding(
           padding: const EdgeInsets.all(AppSpacing.xs / 2),

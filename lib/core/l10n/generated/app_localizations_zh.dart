@@ -1250,9 +1250,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get proSheetTitle => '终身版';
 
   @override
-  String get proSheetSubtitle => '非订阅 · 更换设备后同一账号仍可使用';
-
-  @override
   String proSheetBuy(String price) {
     return '终身版 $price';
   }
@@ -1270,28 +1267,16 @@ class AppLocalizationsZh extends AppLocalizations {
   String get proRowPlaces => '地点';
 
   @override
-  String get proRowDirections => '到达·离开提醒';
-
-  @override
-  String get proRowSchedules => '提醒时段';
-
-  @override
-  String get proRowVibration => '振动强度';
-
-  @override
   String get proRowSound => '耳机提示音';
 
   @override
   String get proRowBackup => '地点备份';
 
   @override
-  String get proRowAds => '广告';
+  String get proRowAds => '关闭提醒后的广告';
 
   @override
   String get proValueOnePlace => '1个';
-
-  @override
-  String get proValueUnlimited => '不限';
 
   @override
   String get proValueDefaultSound => '仅默认';
@@ -1306,13 +1291,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get proValueAdsOff => '无';
 
   @override
-  String get proUnlockAction => '用终身版解锁';
+  String get proUnlockAction => '用专业版解锁';
 
   @override
   String get proLockedSounds => '全部提示音 · 自定义音频';
-
-  @override
-  String get proLockedPlaces => '添加更多地点';
 
   @override
   String get proLockedBackup => '备份 · 导入地点';
@@ -1324,10 +1306,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get proLockedExamplePlaceStation => '车站';
 
   @override
-  String get proCardTitle => '不限数量添加地点';
+  String get proCardTitle => '更多地点，没有广告';
 
   @override
-  String get proCardSubtitle => '全部提示音 · 地点备份 · 无广告';
+  String get proCardSubtitle => '提示音、振动模式、例程、记录、备份全部解锁';
 
   @override
   String proCardUsage(int count, int limit) {
@@ -1341,7 +1323,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get proOwnedSubtitle => '所有功能已解锁';
 
   @override
-  String get proDeviceLimitReached => '已达到设备上限';
+  String proDeviceLimitReached(int max) {
+    return '最多可添加 $max 个地点';
+  }
 
   @override
   String get proPriceLoading => '正在获取价格…';
@@ -1353,7 +1337,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get proPurchasePending => '付款确认后即可解锁';
 
   @override
-  String get proPurchaseDone => '终身版已解锁';
+  String get proPurchaseDone => '专业版已解锁';
 
   @override
   String get proPurchaseFailed => '付款未完成';
@@ -1410,6 +1394,49 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get proSheetRedeem => '使用兑换码';
+
+  @override
+  String get proSheetSubtitleGoogle => '非订阅。付款一次，同一 Google 账号可一直使用';
+
+  @override
+  String get proSheetSubtitleApple => '非订阅。付款一次，同一 Apple 账户可一直使用';
+
+  @override
+  String proValueMaxPlaces(int count) {
+    return '最多 $count 个';
+  }
+
+  @override
+  String get proRowBasics => '基础提醒';
+
+  @override
+  String proLockedPlacesAfterAlerts(int count) {
+    return '已经响了 $count 次。再添加几个地点吧';
+  }
+
+  @override
+  String get proSheetRedeemAppStore => '使用优惠码';
+
+  @override
+  String get proHeadlineGeneral => '一次付款，全部解锁';
+
+  @override
+  String get proHeadlinePlaces => '家和公司都能收到提醒';
+
+  @override
+  String get proHeadlineSounds => '用喜欢的声音提醒';
+
+  @override
+  String get proHeadlineVibrationPatterns => '每个地点用不同振动区分';
+
+  @override
+  String get proHeadlineHistory => '一眼看清过往提醒';
+
+  @override
+  String get proHeadlineRoutines => '通勤地点一键开关';
+
+  @override
+  String get proHeadlineBackup => '换手机地点也不丢';
 
   @override
   String get homeStatusSheetTitle => '当前状态';

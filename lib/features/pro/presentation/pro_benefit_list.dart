@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/domain/vibration_pattern.dart';
+import '../../../core/entitlement/place_limits.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/ui/foundation/app_color_palette.dart';
 import '../../../core/ui/foundation/app_spacing.dart';
@@ -13,7 +14,7 @@ List<ProBenefit> proBenefitsOf(AppLocalizations l10n) => [
   (
     icon: Icons.place_outlined,
     label: l10n.proRowPlaces,
-    value: l10n.proValueUnlimited,
+    value: l10n.proValueMaxPlaces(PlaceLimits.platformMaximum()),
   ),
   (
     icon: Icons.vibration_outlined,

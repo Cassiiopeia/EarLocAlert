@@ -440,40 +440,34 @@
   "backupImportNewer": "This file was made by a newer version of the app. Update the app and try again",
   "backupImportReadFailed": "Could not read the file",
   "proSheetTitle": "Lifetime pass",
-  "proSheetSubtitle": "Not a subscription · Stays with your account on a new phone",
   "proSheetBuy": "Lifetime pass {price}",
   "proSheetRestore": "Already purchased? Restore",
   "proSheetColumnFree": "Free",
   "proSheetColumnPro": "Pro",
   "proRowPlaces": "Places",
-  "proRowDirections": "Arrival & departure alerts",
-  "proRowSchedules": "Alert hours",
-  "proRowVibration": "Vibration strength",
   "proRowSound": "Earphone sounds",
   "proRowBackup": "Place backup",
-  "proRowAds": "Ads",
+  "proRowAds": "Ads after an alert",
   "proValueOnePlace": "1",
-  "proValueUnlimited": "Unlimited",
   "proValueDefaultSound": "Default only",
   "proValueAllSounds": "All + your own",
   "proValueAdsOn": "Yes",
   "proValueAdsOff": "None",
-  "proUnlockAction": "Unlock with lifetime pass",
+  "proUnlockAction": "Unlock with Pro",
   "proLockedSounds": "All sounds · Your own sounds",
-  "proLockedPlaces": "To add more places",
   "proLockedBackup": "Back up · Import places",
   "proLockedExamplePlaceHome": "Home",
   "proLockedExamplePlaceStation": "Station",
-  "proCardTitle": "Add as many places as you need",
-  "proCardSubtitle": "All sounds · Place backup · No ads",
+  "proCardTitle": "More places, no ads",
+  "proCardSubtitle": "Sounds, vibration patterns, routines, history, backup and more",
   "proCardUsage": "{count}/{limit} places used",
   "proRowLifetime": "Lifetime pass",
   "proOwnedSubtitle": "Every feature is unlocked",
-  "proDeviceLimitReached": "You have reached the device limit",
+  "proDeviceLimitReached": "You can add up to {max} places",
   "proPriceLoading": "Checking price…",
   "proProductUnavailable": "Purchase is unavailable right now. Please try again later",
   "proPurchasePending": "It will unlock once the payment is confirmed",
-  "proPurchaseDone": "Lifetime pass unlocked",
+  "proPurchaseDone": "Pro unlocked",
   "proPurchaseFailed": "The payment could not be completed",
   "proRestoreNone": "No purchase to restore",
   "proRestoreDone": "Purchase restored",
@@ -492,6 +486,19 @@
   "proInfoBenefitsTitle": "Pro benefits",
   "proInfoRestore": "Restore purchase",
   "proSheetRedeem": "Redeem promo code",
+  "proSheetSubtitleGoogle": "Not a subscription. Pay once and keep it on the same Google account",
+  "proSheetSubtitleApple": "Not a subscription. Pay once and keep it on the same Apple Account",
+  "proValueMaxPlaces": "Up to {count}",
+  "proRowBasics": "Basic alerts",
+  "proLockedPlacesAfterAlerts": "Rang {count} times already. Add more places",
+  "proSheetRedeemAppStore": "Redeem offer code",
+  "proHeadlineGeneral": "Unlock everything with one payment",
+  "proHeadlinePlaces": "Get alerts for both home and work",
+  "proHeadlineSounds": "Get alerts with sounds you like",
+  "proHeadlineVibrationPatterns": "Tell places apart by vibration",
+  "proHeadlineHistory": "See past alerts at a glance",
+  "proHeadlineRoutines": "Turn your commute places on and off at once",
+  "proHeadlineBackup": "Keep your places on a new phone",
   "homeStatusSheetTitle": "Current status",
   "homeStatusWatchingDescription": "You'll be alerted when you arrive at or leave a place that's turned on",
   "homeStatusOffDescription": "Places are on but monitoring has stopped. Check location permission",
@@ -681,10 +688,22 @@
   "devToolsGeofenceResync": "Re-register geofences",
   "devToolsCloudSyncNow": "Sync Drive now",
   "devToolsCloudSyncResult": "Sync result: {outcome}",
-  "@devToolsCloudSyncResult": {"placeholders": {"outcome": {"type": "String"}}},
+  "@devToolsCloudSyncResult": {
+    "placeholders": {
+      "outcome": {
+        "type": "String"
+      }
+    }
+  },
   "devToolsCopyState": "Copy full state",
   "devToolsCopied": "Copied",
   "devToolsOpenDiagnostics": "Open diagnostics log",
   "devToolsFailed": "Failed: {error}",
-  "@devToolsFailed": {"placeholders": {"error": {"type": "String"}}}
+  "@devToolsFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  }
 }

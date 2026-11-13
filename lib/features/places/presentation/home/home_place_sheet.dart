@@ -13,6 +13,7 @@ class _PlaceSheet extends ConsumerWidget {
     required this.onAddPlace,
     this.onEditPlace,
     this.onUnlockPro,
+    this.unlockNudgeAlertCount,
     this.onManageRoutines,
     super.key,
   });
@@ -27,6 +28,9 @@ class _PlaceSheet extends ConsumerWidget {
 
   /// 무료 상한으로 추가가 잠겼을 때만 non-null (#294) — 목록 끝에 흐린 예시
   final VoidCallback? onUnlockPro;
+
+  /// 잠금 안내 문구용 알림 횟수 (#366). null = 기본 문구
+  final int? unlockNudgeAlertCount;
 
   /// 루틴 관리 (#315). null 이면 루틴 칩 줄 숨김
   final VoidCallback? onManageRoutines;
@@ -128,7 +132,10 @@ class _PlaceSheet extends ConsumerWidget {
       itemBuilder: (context, index) {
         final unlock = onUnlockPro;
         if (unlock != null && index == places.length) {
-          return _LockedPlacePreview(onUnlock: unlock);
+          return _LockedPlacePreview(
+            onUnlock: unlock,
+            alertCount: unlockNudgeAlertCount,
+          );
         }
         final place = places[index];
         return PlaceCard(
@@ -149,16 +156,21 @@ class _PlaceSheet extends ConsumerWidget {
 }
 
 /// 무료 상한 안내: 흐린 예시 장소 2개 + 가운데 열기 버튼 (#294). 예시는 실제 데이터 아님
+/// 문구: 알림을 몇 번 써 본 뒤 > "벌써 N번 울렸어요", 그 전 > "집과 회사, 둘 다" (#366)
 class _LockedPlacePreview extends StatelessWidget {
-  const _LockedPlacePreview({required this.onUnlock});
+  const _LockedPlacePreview({required this.onUnlock, this.alertCount});
 
   final VoidCallback onUnlock;
+  final int? alertCount;
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     return LockedContentBlur(
-      caption: l10n.proLockedPlaces,
+      caption: switch (alertCount) {
+        final count? => l10n.proLockedPlacesAfterAlerts(count),
+        null => l10n.proHeadlinePlaces,
+      },
       actionLabel: l10n.proUnlockAction,
       onUnlock: onUnlock,
       child: Column(
