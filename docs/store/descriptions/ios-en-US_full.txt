@@ -2,6 +2,8 @@ Ever missed your stop?
 
 You doze off on the bus and miss it, get lost in thought on the subway and ride past your station, or drive right by the exit you needed.
 
+Use it as a bus stop alarm, a subway or train arrival alert, or a location reminder on shuttles and commuter buses.
+
 EarLocAlert tells you when you arrive at or leave a place you registered. You don't have to keep the app open or look at the screen.
 
 
@@ -52,6 +54,7 @@ No sign-up, no login.
 ■ Made for people who
 
 · often miss their stop on the bus or subway
+· ride a shuttle, commuter bus, intercity bus or train and tend to doze off
 · can't find the stop in an unfamiliar neighborhood
 · need an alert for their child's pickup time
 · have something to do when they arrive somewhere
