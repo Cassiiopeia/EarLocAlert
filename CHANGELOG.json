@@ -1,14 +1,33 @@
 {
   "metadata": {
-    "lastUpdated": "2026-11-14T05:18:46Z",
-    "currentVersion": "1.56.0",
+    "lastUpdated": "2026-11-14T09:04:29Z",
+    "currentVersion": "1.57.0",
     "projectType": "flutter",
-    "totalReleases": 132,
+    "totalReleases": 133,
     "projectTypes": [
       "flutter"
     ]
   },
   "releases": [
+    {
+      "version": "1.57.0",
+      "project_type": "flutter",
+      "project_types": [
+        "flutter"
+      ],
+      "date": "2026-11-14",
+      "pr_number": 387,
+      "raw_summary": "## Summary by CodeRabbit\n\n## 릴리스 노트\n\n* **개선**\n  * 앱을 잘 쓰고 있을 때 후기를 남길 수 있도록 안내 시점을 앞당겼어요",
+      "parsed_changes": {
+        "개선": {
+          "title": "개선",
+          "items": [
+            "앱을 잘 쓰고 있을 때 후기를 남길 수 있도록 안내 시점을 앞당겼어요"
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "1.56.0",
       "project_type": "flutter",
