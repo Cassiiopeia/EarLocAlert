@@ -714,8 +714,8 @@
   "onboardingRowBackgroundWhy": "关闭应用时也要察觉到站，需要此权限。",
   "onboardingRowNotification": "通知",
   "onboardingRowNotificationWhy": "到达或离开时显示提醒。",
-  "onboardingRowBattery": "省电时也准时",
-  "onboardingRowBatteryWhy": "排除电池优化，提醒就不会延迟。",
+  "onboardingRowBattery": "省电时也准时提醒",
+  "onboardingRowBatteryWhy": "手机省电时也不会让提醒延迟。",
   "onboardingRowOverlay": "使用其他应用时也能",
   "onboardingRowOverlayWhy": "看视频时也会显示提醒画面。",
   "onboardingRowFullScreen": "屏幕关闭时也能",
@@ -729,7 +729,7 @@
   "onboardingGuideLocation": "请先允许位置权限，在地图上选择下车地点时会用到。",
   "onboardingGuideBackgroundAndroid": "接下来是始终允许。在设置中选择“始终允许”后返回，会自动确认。",
   "onboardingGuideBackgroundIos": "接下来是始终允许。弹出提示时请点按“更改为始终允许”。",
-  "onboardingGuideNotification": "最后允许通知就完成了。",
+  "onboardingGuideNotification": "接下来是通知，到站时用来提醒你。",
   "onboardingGuideBlocked": "有权限已关闭，请点按“打开设置”手动开启。",
   "onboardingGuideDone": "必需权限已全部开启，请点按“下一步”。",
   "onboardingSceneLocation": "在地图上标记下车地点",
@@ -738,5 +738,7 @@
   "onboardingReadyTitle": "准备好了",
   "onboardingReadyBody": "现在只要选一个下车地点，到达时就会振动叫醒你。",
   "onboardingReadyAddPlace": "选择第一个地点",
-  "onboardingReadyLater": "稍后再说"
+  "onboardingReadyLater": "稍后再说",
+  "onboardingGuideBattery": "最后是电池项目，弹出提示时请点按“允许”。",
+  "onboardingSceneBattery": "手机休眠时也会准时叫醒你"
 }

@@ -3915,13 +3915,13 @@ abstract class AppLocalizations {
   /// No description provided for @onboardingRowBattery.
   ///
   /// In ko, this message translates to:
-  /// **'절전 중에도 제때'**
+  /// **'절전 중에도 제때 알림'**
   String get onboardingRowBattery;
 
   /// No description provided for @onboardingRowBatteryWhy.
   ///
   /// In ko, this message translates to:
-  /// **'배터리 최적화에서 빼면 알림이 늦지 않아요.'**
+  /// **'휴대폰이 배터리를 아낄 때도 알림이 늦지 않게 해요.'**
   String get onboardingRowBatteryWhy;
 
   /// No description provided for @onboardingRowOverlay.
@@ -4005,7 +4005,7 @@ abstract class AppLocalizations {
   /// No description provided for @onboardingGuideNotification.
   ///
   /// In ko, this message translates to:
-  /// **'마지막으로 알림만 허용하면 끝나요.'**
+  /// **'다음은 알림이에요. 도착하면 알림을 띄울 때 써요.'**
   String get onboardingGuideNotification;
 
   /// No description provided for @onboardingGuideBlocked.
@@ -4061,6 +4061,18 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'나중에 할게요'**
   String get onboardingReadyLater;
+
+  /// No description provided for @onboardingGuideBattery.
+  ///
+  /// In ko, this message translates to:
+  /// **'마지막으로 배터리 항목이에요. 창이 뜨면 ‘허용’을 눌러 주세요.'**
+  String get onboardingGuideBattery;
+
+  /// No description provided for @onboardingSceneBattery.
+  ///
+  /// In ko, this message translates to:
+  /// **'휴대폰이 쉬고 있어도 제때 깨워요'**
+  String get onboardingSceneBattery;
 }
 
 class _AppLocalizationsDelegate

@@ -14,15 +14,14 @@ import 'onboarding_permission_row.dart';
 
 part 'onboarding_checklist_parts.dart';
 
-/// 권한 한 화면 체크리스트 (#376): 제목 · 단계별 안내 · 그림 · 필수 3줄 · 선택 묶음(Android) · 다음
-/// 다음 할 줄을 강조하고, 허용되면 줄이 체크로 바뀌며 진행 링이 참
+/// 권한 한 화면 체크리스트 (#376, #379): 제목 · 단계별 안내 · 그림 · 필수 줄 · 선택 묶음(Android) · 다음
+/// 다음 할 줄을 강조하고, 허용되면 줄이 체크로 바뀌며 진행 링이 참. 필수를 다 켜야 다음이 눌림
 class OnboardingChecklistView extends StatelessWidget {
   const OnboardingChecklistView({
     required this.snapshot,
     required this.isAndroid,
     required this.onRowPressed,
     required this.onNext,
-    this.onSkip,
     super.key,
   });
 
@@ -34,23 +33,35 @@ class OnboardingChecklistView extends StatelessWidget {
   /// 줄의 버튼: 요청하거나 설정을 연다 (어느 쪽인지는 화면 상태가 정함)
   final void Function(PermissionKind kind) onRowPressed;
 
-  /// 필수 3개가 다 켜졌을 때만 눌림
+  /// 필수가 다 켜졌을 때만 눌림
   final VoidCallback onNext;
 
-  /// 나가기 — 시스템 창을 한 번 거친 뒤에만 non-null (#211)
-  final VoidCallback? onSkip;
+  /// 필수 권한 (플랫폼별, 순서대로) — 다 켜야 앱을 씀 (#379)
+  static List<PermissionKind> requiredKindsFor({required bool isAndroid}) => [
+    ...PermissionGate.requestOrder,
+    // 절전 중 알림 지연이 가장 흔한 실패 원인이라 Android 는 필수 (#379)
+    if (isAndroid) PermissionKind.batteryOptimization,
+  ];
+
+  /// 선택 권한 (Android 만): 다른 앱 위 · 전체 화면
+  static const List<PermissionKind> optionalKinds = [
+    PermissionKind.overlay,
+    PermissionKind.fullScreenIntent,
+  ];
+
+  List<PermissionKind> get _requiredKinds =>
+      requiredKindsFor(isAndroid: isAndroid);
 
   // 그림 한 변 (dp)
   static const double _illustrationSize = 168;
 
   /// 다음에 할 필수 권한. 다 켰으면 null
-  PermissionKind? get _nextRequiredKind => PermissionGate.requestOrder
+  PermissionKind? get _nextRequiredKind => _requiredKinds
       .where((kind) => !snapshot.statusOf(kind).isGranted)
       .firstOrNull;
 
-  int get _grantedRequiredCount => PermissionGate.requestOrder
-      .where((kind) => snapshot.statusOf(kind).isGranted)
-      .length;
+  int get _grantedRequiredCount =>
+      _requiredKinds.where((kind) => snapshot.statusOf(kind).isGranted).length;
 
   @override
   Widget build(BuildContext context) {
@@ -74,7 +85,7 @@ class OnboardingChecklistView extends StatelessWidget {
               children: [
                 _Header(
                   grantedCount: _grantedRequiredCount,
-                  totalCount: PermissionGate.requestOrder.length,
+                  totalCount: _requiredKinds.length,
                 ),
                 const SizedBox(height: AppSpacing.sm),
                 _GuideLine(text: _guideText(l10n, nextKind)),
@@ -88,7 +99,7 @@ class OnboardingChecklistView extends StatelessWidget {
                 const SizedBox(height: AppSpacing.xs),
                 _SceneCaption(text: _sceneCaption(l10n, nextKind)),
                 const SizedBox(height: AppSpacing.sm),
-                for (final kind in PermissionGate.requestOrder)
+                for (final kind in _requiredKinds)
                   _rowFor(context, kind, nextKind),
                 if (isAndroid) _OptionalSection(rows: _optionalRows(context)),
                 const SizedBox(height: AppSpacing.sm),
@@ -112,8 +123,6 @@ class OnboardingChecklistView extends StatelessWidget {
                 onPressed: isRequiredDone ? onNext : null,
                 child: Text(l10n.onboardingNext),
               ),
-              if (onSkip != null)
-                TextButton(onPressed: onSkip, child: Text(l10n.onboardingSkip)),
             ],
           ),
         ),
@@ -138,6 +147,11 @@ class OnboardingChecklistView extends StatelessWidget {
         l10n.onboardingRowBackground,
         l10n.onboardingRowBackgroundWhy,
       ),
+      PermissionKind.batteryOptimization => (
+        Icons.battery_charging_full_rounded,
+        l10n.onboardingRowBattery,
+        l10n.onboardingRowBatteryWhy,
+      ),
       _ => (
         Icons.notifications_none_rounded,
         l10n.onboardingRowNotification,
@@ -159,23 +173,17 @@ class OnboardingChecklistView extends StatelessWidget {
   List<Widget> _optionalRows(BuildContext context) {
     final l10n = context.l10n;
     return [
-      for (final kind in PermissionGate.reliabilityOrder)
+      for (final kind in optionalKinds)
         OnboardingPermissionRow(
-          icon: switch (kind) {
-            PermissionKind.batteryOptimization => Icons.battery_saver_outlined,
-            PermissionKind.overlay => Icons.layers_outlined,
-            _ => Icons.fullscreen_rounded,
-          },
-          title: switch (kind) {
-            PermissionKind.batteryOptimization => l10n.onboardingRowBattery,
-            PermissionKind.overlay => l10n.onboardingRowOverlay,
-            _ => l10n.onboardingRowFullScreen,
-          },
-          reason: switch (kind) {
-            PermissionKind.batteryOptimization => l10n.onboardingRowBatteryWhy,
-            PermissionKind.overlay => l10n.onboardingRowOverlayWhy,
-            _ => l10n.onboardingRowFullScreenWhy,
-          },
+          icon: kind == PermissionKind.overlay
+              ? Icons.layers_outlined
+              : Icons.fullscreen_rounded,
+          title: kind == PermissionKind.overlay
+              ? l10n.onboardingRowOverlay
+              : l10n.onboardingRowFullScreen,
+          reason: kind == PermissionKind.overlay
+              ? l10n.onboardingRowOverlayWhy
+              : l10n.onboardingRowFullScreenWhy,
           rowState: snapshot.statusOf(kind).isGranted
               ? OnboardingRowState.granted
               : OnboardingRowState.pending,
@@ -204,6 +212,7 @@ class OnboardingChecklistView extends StatelessWidget {
         isAndroid
             ? l10n.onboardingGuideBackgroundAndroid
             : l10n.onboardingGuideBackgroundIos,
+      PermissionKind.batteryOptimization => l10n.onboardingGuideBattery,
       _ => l10n.onboardingGuideNotification,
     };
   }
@@ -212,7 +221,8 @@ class OnboardingChecklistView extends StatelessWidget {
   OnboardingIllustration _illustrationFor(PermissionKind? nextKind) =>
       switch (nextKind) {
         PermissionKind.location => OnboardingIllustration.location,
-        PermissionKind.backgroundLocation => OnboardingIllustration.background,
+        PermissionKind.backgroundLocation ||
+        PermissionKind.batteryOptimization => OnboardingIllustration.background,
         _ => OnboardingIllustration.notification,
       };
 
@@ -220,6 +230,7 @@ class OnboardingChecklistView extends StatelessWidget {
       switch (nextKind) {
         PermissionKind.location => l10n.onboardingSceneLocation,
         PermissionKind.backgroundLocation => l10n.onboardingSceneBackground,
+        PermissionKind.batteryOptimization => l10n.onboardingSceneBattery,
         _ => l10n.onboardingSceneNotification,
       };
 }

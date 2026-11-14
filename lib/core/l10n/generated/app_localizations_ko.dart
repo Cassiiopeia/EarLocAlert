@@ -2070,10 +2070,10 @@ class AppLocalizationsKo extends AppLocalizations {
   String get onboardingRowNotificationWhy => '도착하거나 떠날 때 알림을 띄워요.';
 
   @override
-  String get onboardingRowBattery => '절전 중에도 제때';
+  String get onboardingRowBattery => '절전 중에도 제때 알림';
 
   @override
-  String get onboardingRowBatteryWhy => '배터리 최적화에서 빼면 알림이 늦지 않아요.';
+  String get onboardingRowBatteryWhy => '휴대폰이 배터리를 아낄 때도 알림이 늦지 않게 해요.';
 
   @override
   String get onboardingRowOverlay => '다른 앱을 쓰는 중에도';
@@ -2117,7 +2117,7 @@ class AppLocalizationsKo extends AppLocalizations {
       '다음은 항상 허용이에요. 창이 뜨면 ‘항상 허용으로 변경’을 눌러 주세요.';
 
   @override
-  String get onboardingGuideNotification => '마지막으로 알림만 허용하면 끝나요.';
+  String get onboardingGuideNotification => '다음은 알림이에요. 도착하면 알림을 띄울 때 써요.';
 
   @override
   String get onboardingGuideBlocked => '꺼진 권한이 있어요. ‘설정 열기’를 눌러 직접 켜 주세요.';
@@ -2145,4 +2145,10 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get onboardingReadyLater => '나중에 할게요';
+
+  @override
+  String get onboardingGuideBattery => '마지막으로 배터리 항목이에요. 창이 뜨면 ‘허용’을 눌러 주세요.';
+
+  @override
+  String get onboardingSceneBattery => '휴대폰이 쉬고 있어도 제때 깨워요';
 }
