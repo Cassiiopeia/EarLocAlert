@@ -12,13 +12,13 @@ enum ReviewPromptDecision {
 }
 
 /// 스토어 인앱 후기 창을 띄울지 판단 (#296)
-/// 조건 3개: 알림 정상 해제 3회 이상, 첫 사용 후 3일 이상, 마지막 요청 후 120일 이상
+/// 조건 3개: 알림 정상 해제 2회 이상, 첫 사용 후 1일 이상, 마지막 요청 후 120일 이상 (#385 완화)
 abstract final class ReviewPromptPolicy {
   /// 알림을 실제로 써 본 기준 (해제 횟수)
-  static const int minimumAlertDismissals = 3;
+  static const int minimumAlertDismissals = 2;
 
   /// 첫 사용 후 기다릴 기간
-  static const Duration minimumSinceFirstUse = Duration(days: 3);
+  static const Duration minimumSinceFirstUse = Duration(days: 1);
 
   /// 다시 요청하기까지의 간격 — 스토어 자체 상한보다 보수적으로
   static const Duration minimumBetweenRequests = Duration(days: 120);
