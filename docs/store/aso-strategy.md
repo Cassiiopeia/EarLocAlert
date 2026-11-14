@@ -36,6 +36,29 @@ Play Console 최근 28일: 방문자 62명, 설치 클릭 16회, 기본 등록�
 5. **이동수단을 전부 부른다 (#369).** 버스만이 아니라 셔틀·통근버스·통학버스·지하철·기차·KTX·고속버스를 이름·키워드·설명에 나눠 넣는다. 사람들은 자기가 타는 것의 이름으로 찾는다.
 6. **차별 낱말 "이어폰"을 모든 언어에서 앞에 둔다.** 하차 알림 앱은 많지만 이어폰으로만 알리는 앱은 찾지 못했다. "이어폰 장소 알람"처럼 이름(이어폰·알람) + 부제(장소) + 키워드의 낱말이 합쳐져 걸리게 한다.
 
+## 미국 App Store (2026-11-14 측정, #382)
+
+새 영어 이름 "EarLocAlert: Bus Stop Alarm" 이 출시된 직후 결과다.
+
+| 검색어 | 순위 |
+|---|---|
+| EarLocAlert | 1위 |
+| EarLocAlert bus stop alarm | 1위 |
+| bus stop alarm · location alarm · arrival alert · gps alarm · earphone location alert | 100위 밖 |
+
+상위 앱의 공통점은 셋이다.
+
+- 평가 수는 0~20건으로 적다.
+- 카테고리는 Navigation 이나 Travel 이다.
+- 이름에 GPS Alarm · Location Alarm 이 들어간다.
+
+평가 수보다 낱말 일치와 카테고리가 순위를 가른다는 뜻이다. 그래서 아래처럼 바꿨다.
+
+- 카테고리: Utilities > Navigation(보조 Travel). 원본은 `descriptions/ios-primary_category.txt` · `ios-secondary_category.txt` 이고, deliver 메타 폴더 루트로 올라간다.
+- 영어 부제목: "GPS Location Alarm, Earphones"
+- 영어 키워드: 이름·부제목과 겹치지 않는 낱말로 바꿨다 (earphone 계열은 headphone 으로).
+- Play 카테고리는 API 로 바꿀 수 없다. 콘솔에서 '지도/내비게이션'으로 고르는 것은 사용자 작업이다.
+
 ## 문구에 쓰지 않는 것
 
 - 동작 보장: "절대 안 놓친다", "100%". 지하 구간과 iOS 앱 종료 뒤에는 늦거나 오지 않을 수 있다.

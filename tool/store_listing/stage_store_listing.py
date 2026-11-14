@@ -24,6 +24,18 @@ PLAY_FIELDS = [
     ("{locale}_short.txt", "short_description.txt", 80),
     ("{locale}_full.txt", "full_description.txt", 4000),
 ]
+# App Store 카테고리 (앱 전체, 언어 무관): 원본 파일 > deliver 메타 폴더 루트. 값은 deliver 카테고리 코드
+APP_STORE_CATEGORY_FILES = [
+    ("ios-primary_category.txt", "primary_category.txt"),
+    ("ios-secondary_category.txt", "secondary_category.txt"),
+]
+APP_STORE_CATEGORIES = {
+    "BOOKS", "BUSINESS", "DEVELOPER_TOOLS", "EDUCATION", "ENTERTAINMENT", "FINANCE", "FOOD_AND_DRINK",
+    "GAMES", "GRAPHICS_AND_DESIGN", "HEALTH_AND_FITNESS", "LIFESTYLE", "MAGAZINES_AND_NEWSPAPERS",
+    "MEDICAL", "MUSIC", "NAVIGATION", "NEWS", "PHOTO_AND_VIDEO", "PRODUCTIVITY", "REFERENCE",
+    "SHOPPING", "SOCIAL_NETWORKING", "SPORTS", "STICKERS", "TRAVEL", "UTILITIES", "WEATHER",
+}
+
 APP_STORE_FIELDS = [
     ("ios-{locale}_name.txt", "name.txt", 30),
     ("ios-{locale}_subtitle.txt", "subtitle.txt", 30),
@@ -54,6 +66,21 @@ def collect_listing(repo_root: Path, locales: dict, fields: list) -> tuple[list,
                 errors.append(f"too long {source.name} {len(text)}/{limit}")
             else:
                 staged.append((store_locale, upload_name, text))
+    return staged, errors
+
+
+def collect_categories(repo_root: Path) -> tuple[list, list]:
+    """App Store 카테고리 원본 검사: (업로드 목록 [(업로드 파일, 값)], 오류 목록). 파일이 없으면 건너뜀(ASC 기존값 유지)"""
+    staged, errors = [], []
+    for source_name, upload_name in APP_STORE_CATEGORY_FILES:
+        source = repo_root / DESCRIPTIONS_DIR / source_name
+        if not source.exists():
+            continue
+        value = read_field_text(source).strip()
+        if value not in APP_STORE_CATEGORIES:
+            errors.append(f"unknown category {source_name}={value}")
+        else:
+            staged.append((upload_name, value))
     return staged, errors
 
 
@@ -91,6 +118,10 @@ def main() -> int:
         target_staged, target_errors = collect_listing(repo_root, locales, fields)
         staged += target_staged
         errors += target_errors
+    categories, category_errors = (
+        collect_categories(repo_root) if mode in ("ios", "check") else ([], [])
+    )
+    errors += category_errors
     if errors:
         for error in errors:
             print(f"[store listing] rejected {error}")
@@ -102,7 +133,12 @@ def main() -> int:
     if len(sys.argv) < 4:
         print(__doc__)
         return 2
-    write_listing(Path(sys.argv[3]), staged, requires_release_notes=(mode == "ios"))
+    output_dir = Path(sys.argv[3])
+    write_listing(output_dir, staged, requires_release_notes=(mode == "ios"))
+    # 카테고리는 언어 폴더가 아니라 메타 폴더 루트 (deliver 규칙)
+    for upload_name, value in categories:
+        (output_dir / upload_name).write_text(value, encoding="utf-8")
+        print(f"[store listing] staged {upload_name}={value}")
     return 0
 
 
