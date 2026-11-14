@@ -2044,4 +2044,105 @@ class AppLocalizationsKo extends AppLocalizations {
   String devToolsFailed(String error) {
     return '실패했습니다: $error';
   }
+
+  @override
+  String get onboardingChecklistTitle => '도착하면 깨워 드리려면\n이것만 켜 주세요';
+
+  @override
+  String get onboardingChecklistSubtitle => '앱을 닫아 둬도 내릴 곳에서 진동으로 알려 드려요.';
+
+  @override
+  String get onboardingRowLocation => '위치';
+
+  @override
+  String get onboardingRowLocationWhy => '지도에서 내릴 곳을 고르고 지금 위치를 보여 줘요.';
+
+  @override
+  String get onboardingRowBackground => '위치 · 항상 허용';
+
+  @override
+  String get onboardingRowBackgroundWhy => '앱을 닫아 둬도 도착을 알아채려면 필요해요.';
+
+  @override
+  String get onboardingRowNotification => '알림';
+
+  @override
+  String get onboardingRowNotificationWhy => '도착하거나 떠날 때 알림을 띄워요.';
+
+  @override
+  String get onboardingRowBattery => '절전 중에도 제때';
+
+  @override
+  String get onboardingRowBatteryWhy => '배터리 최적화에서 빼면 알림이 늦지 않아요.';
+
+  @override
+  String get onboardingRowOverlay => '다른 앱을 쓰는 중에도';
+
+  @override
+  String get onboardingRowOverlayWhy => '영상을 보는 중에도 알림 화면을 띄워요.';
+
+  @override
+  String get onboardingRowFullScreen => '화면이 꺼져 있어도';
+
+  @override
+  String get onboardingRowFullScreenWhy => '잠금 화면을 덮는 알림으로 깨워요.';
+
+  @override
+  String get onboardingOptionalHeader => '더 확실하게 받기 · 선택';
+
+  @override
+  String get onboardingAllow => '허용';
+
+  @override
+  String get onboardingAllowed => '허용됨';
+
+  @override
+  String get onboardingOpenSettings => '설정 열기';
+
+  @override
+  String get onboardingTagSettings => '설정에서';
+
+  @override
+  String get onboardingNext => '다음';
+
+  @override
+  String get onboardingGuideLocation => '먼저 위치를 허용해 주세요. 내릴 곳을 지도에서 고를 때 써요.';
+
+  @override
+  String get onboardingGuideBackgroundAndroid =>
+      '다음은 항상 허용이에요. 설정에서 ‘항상 허용’을 고르고 돌아오면 자동으로 확인해요.';
+
+  @override
+  String get onboardingGuideBackgroundIos =>
+      '다음은 항상 허용이에요. 창이 뜨면 ‘항상 허용으로 변경’을 눌러 주세요.';
+
+  @override
+  String get onboardingGuideNotification => '마지막으로 알림만 허용하면 끝나요.';
+
+  @override
+  String get onboardingGuideBlocked => '꺼진 권한이 있어요. ‘설정 열기’를 눌러 직접 켜 주세요.';
+
+  @override
+  String get onboardingGuideDone => '필수 권한을 모두 켰어요. ‘다음’을 눌러 주세요.';
+
+  @override
+  String get onboardingSceneLocation => '지도에서 내릴 곳을 찍어 두면';
+
+  @override
+  String get onboardingSceneBackground => '휴대폰을 주머니에 넣어 둬도 도착하면 진동해요';
+
+  @override
+  String get onboardingSceneNotification => '도착하면 이렇게 알려 드려요';
+
+  @override
+  String get onboardingReadyTitle => '준비됐어요';
+
+  @override
+  String get onboardingReadyBody => '이제 내릴 곳 하나만 정하면 도착할 때 진동으로 깨워 드려요.';
+
+  @override
+  String get onboardingReadyAddPlace => '첫 장소 정하기';
+
+  @override
+  String get onboardingReadyLater => '나중에 할게요';
 }

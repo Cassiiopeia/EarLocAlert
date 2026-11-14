@@ -3863,6 +3863,204 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'실패했습니다: {error}'**
   String devToolsFailed(String error);
+
+  /// No description provided for @onboardingChecklistTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'도착하면 깨워 드리려면\n이것만 켜 주세요'**
+  String get onboardingChecklistTitle;
+
+  /// No description provided for @onboardingChecklistSubtitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'앱을 닫아 둬도 내릴 곳에서 진동으로 알려 드려요.'**
+  String get onboardingChecklistSubtitle;
+
+  /// No description provided for @onboardingRowLocation.
+  ///
+  /// In ko, this message translates to:
+  /// **'위치'**
+  String get onboardingRowLocation;
+
+  /// No description provided for @onboardingRowLocationWhy.
+  ///
+  /// In ko, this message translates to:
+  /// **'지도에서 내릴 곳을 고르고 지금 위치를 보여 줘요.'**
+  String get onboardingRowLocationWhy;
+
+  /// No description provided for @onboardingRowBackground.
+  ///
+  /// In ko, this message translates to:
+  /// **'위치 · 항상 허용'**
+  String get onboardingRowBackground;
+
+  /// No description provided for @onboardingRowBackgroundWhy.
+  ///
+  /// In ko, this message translates to:
+  /// **'앱을 닫아 둬도 도착을 알아채려면 필요해요.'**
+  String get onboardingRowBackgroundWhy;
+
+  /// No description provided for @onboardingRowNotification.
+  ///
+  /// In ko, this message translates to:
+  /// **'알림'**
+  String get onboardingRowNotification;
+
+  /// No description provided for @onboardingRowNotificationWhy.
+  ///
+  /// In ko, this message translates to:
+  /// **'도착하거나 떠날 때 알림을 띄워요.'**
+  String get onboardingRowNotificationWhy;
+
+  /// No description provided for @onboardingRowBattery.
+  ///
+  /// In ko, this message translates to:
+  /// **'절전 중에도 제때'**
+  String get onboardingRowBattery;
+
+  /// No description provided for @onboardingRowBatteryWhy.
+  ///
+  /// In ko, this message translates to:
+  /// **'배터리 최적화에서 빼면 알림이 늦지 않아요.'**
+  String get onboardingRowBatteryWhy;
+
+  /// No description provided for @onboardingRowOverlay.
+  ///
+  /// In ko, this message translates to:
+  /// **'다른 앱을 쓰는 중에도'**
+  String get onboardingRowOverlay;
+
+  /// No description provided for @onboardingRowOverlayWhy.
+  ///
+  /// In ko, this message translates to:
+  /// **'영상을 보는 중에도 알림 화면을 띄워요.'**
+  String get onboardingRowOverlayWhy;
+
+  /// No description provided for @onboardingRowFullScreen.
+  ///
+  /// In ko, this message translates to:
+  /// **'화면이 꺼져 있어도'**
+  String get onboardingRowFullScreen;
+
+  /// No description provided for @onboardingRowFullScreenWhy.
+  ///
+  /// In ko, this message translates to:
+  /// **'잠금 화면을 덮는 알림으로 깨워요.'**
+  String get onboardingRowFullScreenWhy;
+
+  /// No description provided for @onboardingOptionalHeader.
+  ///
+  /// In ko, this message translates to:
+  /// **'더 확실하게 받기 · 선택'**
+  String get onboardingOptionalHeader;
+
+  /// No description provided for @onboardingAllow.
+  ///
+  /// In ko, this message translates to:
+  /// **'허용'**
+  String get onboardingAllow;
+
+  /// No description provided for @onboardingAllowed.
+  ///
+  /// In ko, this message translates to:
+  /// **'허용됨'**
+  String get onboardingAllowed;
+
+  /// No description provided for @onboardingOpenSettings.
+  ///
+  /// In ko, this message translates to:
+  /// **'설정 열기'**
+  String get onboardingOpenSettings;
+
+  /// No description provided for @onboardingTagSettings.
+  ///
+  /// In ko, this message translates to:
+  /// **'설정에서'**
+  String get onboardingTagSettings;
+
+  /// No description provided for @onboardingNext.
+  ///
+  /// In ko, this message translates to:
+  /// **'다음'**
+  String get onboardingNext;
+
+  /// No description provided for @onboardingGuideLocation.
+  ///
+  /// In ko, this message translates to:
+  /// **'먼저 위치를 허용해 주세요. 내릴 곳을 지도에서 고를 때 써요.'**
+  String get onboardingGuideLocation;
+
+  /// No description provided for @onboardingGuideBackgroundAndroid.
+  ///
+  /// In ko, this message translates to:
+  /// **'다음은 항상 허용이에요. 설정에서 ‘항상 허용’을 고르고 돌아오면 자동으로 확인해요.'**
+  String get onboardingGuideBackgroundAndroid;
+
+  /// No description provided for @onboardingGuideBackgroundIos.
+  ///
+  /// In ko, this message translates to:
+  /// **'다음은 항상 허용이에요. 창이 뜨면 ‘항상 허용으로 변경’을 눌러 주세요.'**
+  String get onboardingGuideBackgroundIos;
+
+  /// No description provided for @onboardingGuideNotification.
+  ///
+  /// In ko, this message translates to:
+  /// **'마지막으로 알림만 허용하면 끝나요.'**
+  String get onboardingGuideNotification;
+
+  /// No description provided for @onboardingGuideBlocked.
+  ///
+  /// In ko, this message translates to:
+  /// **'꺼진 권한이 있어요. ‘설정 열기’를 눌러 직접 켜 주세요.'**
+  String get onboardingGuideBlocked;
+
+  /// No description provided for @onboardingGuideDone.
+  ///
+  /// In ko, this message translates to:
+  /// **'필수 권한을 모두 켰어요. ‘다음’을 눌러 주세요.'**
+  String get onboardingGuideDone;
+
+  /// No description provided for @onboardingSceneLocation.
+  ///
+  /// In ko, this message translates to:
+  /// **'지도에서 내릴 곳을 찍어 두면'**
+  String get onboardingSceneLocation;
+
+  /// No description provided for @onboardingSceneBackground.
+  ///
+  /// In ko, this message translates to:
+  /// **'휴대폰을 주머니에 넣어 둬도 도착하면 진동해요'**
+  String get onboardingSceneBackground;
+
+  /// No description provided for @onboardingSceneNotification.
+  ///
+  /// In ko, this message translates to:
+  /// **'도착하면 이렇게 알려 드려요'**
+  String get onboardingSceneNotification;
+
+  /// No description provided for @onboardingReadyTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'준비됐어요'**
+  String get onboardingReadyTitle;
+
+  /// No description provided for @onboardingReadyBody.
+  ///
+  /// In ko, this message translates to:
+  /// **'이제 내릴 곳 하나만 정하면 도착할 때 진동으로 깨워 드려요.'**
+  String get onboardingReadyBody;
+
+  /// No description provided for @onboardingReadyAddPlace.
+  ///
+  /// In ko, this message translates to:
+  /// **'첫 장소 정하기'**
+  String get onboardingReadyAddPlace;
+
+  /// No description provided for @onboardingReadyLater.
+  ///
+  /// In ko, this message translates to:
+  /// **'나중에 할게요'**
+  String get onboardingReadyLater;
 }
 
 class _AppLocalizationsDelegate
