@@ -1,1 +1,1 @@
-location,reminder,subway,train,shuttle,commute,station,geofence,vibration,silent,headphone,sleep,GPS
+arrival,alert,wake,reminder,transit,metro,subway,train,shuttle,commute,station,silent,nap,headphone
