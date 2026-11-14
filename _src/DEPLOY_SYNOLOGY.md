@@ -47,7 +47,7 @@ bash _src/synology/deploy_synology.sh
 ```
 
 1. `--out <임시폴더> --custom-domain` 으로 보유 도메인 기준 사이트 생성 (`app-ads.txt` 포함)
-2. `_src/site_verification/*.html` 복사 (있으면)
+2. `_src/site_verification/*.html`·`*.txt` 복사 (있으면, IndexNow 키 포함)
 3. tar 묶음을 ssh 로 보내 NAS 에서 풀고 `html/` 을 NAS 로컬 `rsync --delete` 로 맞춤
 4. 공개 주소 상태 코드 출력
 

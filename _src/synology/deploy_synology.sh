@@ -36,7 +36,8 @@ python3 -I _src/build_site.py --out "$BUILD_DIR" --custom-domain
 
 # 2. 검색엔진 소유 확인 파일 (Google·네이버) — 지우면 소유 확인이 풀림 (폴더가 없으면 건너뜀)
 if [ -d _src/site_verification ]; then
-  find _src/site_verification -maxdepth 1 -type f -name "*.html" -exec cp {} "$BUILD_DIR"/ \;
+  # 검색엔진 확인 파일: 네이버 등 *.html, IndexNow 키 *.txt (사이트 루트)
+  find _src/site_verification -maxdepth 1 -type f \( -name "*.html" -o -name "*.txt" \) -exec cp {} "$BUILD_DIR"/ \;
 fi
 
 # 3. 업로드: tar 묶음을 ssh 로 보내 NAS 에서 풀고, html 은 NAS 로컬 rsync --delete 로 원본과 똑같이 맞춤
