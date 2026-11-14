@@ -2019,4 +2019,104 @@ class AppLocalizationsZh extends AppLocalizations {
   String devToolsFailed(String error) {
     return '失败: $error';
   }
+
+  @override
+  String get onboardingChecklistTitle => '为了到站时叫醒你\n请开启以下权限';
+
+  @override
+  String get onboardingChecklistSubtitle => '即使关闭应用，到达下车地点时也会振动提醒。';
+
+  @override
+  String get onboardingRowLocation => '位置';
+
+  @override
+  String get onboardingRowLocationWhy => '在地图上选择下车地点并显示当前位置。';
+
+  @override
+  String get onboardingRowBackground => '位置 · 始终允许';
+
+  @override
+  String get onboardingRowBackgroundWhy => '关闭应用时也要察觉到站，需要此权限。';
+
+  @override
+  String get onboardingRowNotification => '通知';
+
+  @override
+  String get onboardingRowNotificationWhy => '到达或离开时显示提醒。';
+
+  @override
+  String get onboardingRowBattery => '省电时也准时';
+
+  @override
+  String get onboardingRowBatteryWhy => '排除电池优化，提醒就不会延迟。';
+
+  @override
+  String get onboardingRowOverlay => '使用其他应用时也能';
+
+  @override
+  String get onboardingRowOverlayWhy => '看视频时也会显示提醒画面。';
+
+  @override
+  String get onboardingRowFullScreen => '屏幕关闭时也能';
+
+  @override
+  String get onboardingRowFullScreenWhy => '用覆盖锁屏的提醒叫醒你。';
+
+  @override
+  String get onboardingOptionalHeader => '更可靠地接收 · 可选';
+
+  @override
+  String get onboardingAllow => '允许';
+
+  @override
+  String get onboardingAllowed => '已允许';
+
+  @override
+  String get onboardingOpenSettings => '打开设置';
+
+  @override
+  String get onboardingTagSettings => '在设置中';
+
+  @override
+  String get onboardingNext => '下一步';
+
+  @override
+  String get onboardingGuideLocation => '请先允许位置权限，在地图上选择下车地点时会用到。';
+
+  @override
+  String get onboardingGuideBackgroundAndroid =>
+      '接下来是始终允许。在设置中选择“始终允许”后返回，会自动确认。';
+
+  @override
+  String get onboardingGuideBackgroundIos => '接下来是始终允许。弹出提示时请点按“更改为始终允许”。';
+
+  @override
+  String get onboardingGuideNotification => '最后允许通知就完成了。';
+
+  @override
+  String get onboardingGuideBlocked => '有权限已关闭，请点按“打开设置”手动开启。';
+
+  @override
+  String get onboardingGuideDone => '必需权限已全部开启，请点按“下一步”。';
+
+  @override
+  String get onboardingSceneLocation => '在地图上标记下车地点';
+
+  @override
+  String get onboardingSceneBackground => '手机放在口袋里，到站也会振动';
+
+  @override
+  String get onboardingSceneNotification => '到站时会这样提醒你';
+
+  @override
+  String get onboardingReadyTitle => '准备好了';
+
+  @override
+  String get onboardingReadyBody => '现在只要选一个下车地点，到达时就会振动叫醒你。';
+
+  @override
+  String get onboardingReadyAddPlace => '选择第一个地点';
+
+  @override
+  String get onboardingReadyLater => '稍后再说';
 }

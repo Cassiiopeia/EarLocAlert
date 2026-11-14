@@ -2038,4 +2038,105 @@ class AppLocalizationsJa extends AppLocalizations {
   String devToolsFailed(String error) {
     return '失敗しました: $error';
   }
+
+  @override
+  String get onboardingChecklistTitle => '降りる場所で起こすために\nこれだけオンにしてください';
+
+  @override
+  String get onboardingChecklistSubtitle => 'アプリを閉じていても、降りる場所で振動でお知らせします。';
+
+  @override
+  String get onboardingRowLocation => '位置情報';
+
+  @override
+  String get onboardingRowLocationWhy => '地図で降りる場所を選び、現在地を表示します。';
+
+  @override
+  String get onboardingRowBackground => '位置情報 · 常に許可';
+
+  @override
+  String get onboardingRowBackgroundWhy => 'アプリを閉じていても到着に気づくために必要です。';
+
+  @override
+  String get onboardingRowNotification => '通知';
+
+  @override
+  String get onboardingRowNotificationWhy => '到着・出発のときに通知を表示します。';
+
+  @override
+  String get onboardingRowBattery => '省電力中も時間どおりに';
+
+  @override
+  String get onboardingRowBatteryWhy => '電池の最適化から外すと通知が遅れません。';
+
+  @override
+  String get onboardingRowOverlay => '他のアプリを使っていても';
+
+  @override
+  String get onboardingRowOverlayWhy => '動画を見ていてもアラート画面を表示します。';
+
+  @override
+  String get onboardingRowFullScreen => '画面がオフでも';
+
+  @override
+  String get onboardingRowFullScreenWhy => 'ロック画面に重なる通知で起こします。';
+
+  @override
+  String get onboardingOptionalHeader => 'より確実に受け取る · 任意';
+
+  @override
+  String get onboardingAllow => '許可';
+
+  @override
+  String get onboardingAllowed => '許可済み';
+
+  @override
+  String get onboardingOpenSettings => '設定を開く';
+
+  @override
+  String get onboardingTagSettings => '設定で';
+
+  @override
+  String get onboardingNext => '次へ';
+
+  @override
+  String get onboardingGuideLocation => 'まず位置情報を許可してください。地図で降りる場所を選ぶときに使います。';
+
+  @override
+  String get onboardingGuideBackgroundAndroid =>
+      '次は常に許可です。設定で「常に許可」を選んで戻ると自動で確認します。';
+
+  @override
+  String get onboardingGuideBackgroundIos =>
+      '次は常に許可です。表示されたら「“常に許可”に変更」をタップしてください。';
+
+  @override
+  String get onboardingGuideNotification => '最後に通知を許可すれば完了です。';
+
+  @override
+  String get onboardingGuideBlocked => 'オフの権限があります。「設定を開く」からオンにしてください。';
+
+  @override
+  String get onboardingGuideDone => '必要な権限がすべてオンになりました。「次へ」をタップしてください。';
+
+  @override
+  String get onboardingSceneLocation => '地図で降りる場所を決めておけば';
+
+  @override
+  String get onboardingSceneBackground => 'スマホをポケットに入れたままでも到着すると振動します';
+
+  @override
+  String get onboardingSceneNotification => '到着するとこうしてお知らせします';
+
+  @override
+  String get onboardingReadyTitle => '準備できました';
+
+  @override
+  String get onboardingReadyBody => 'あとは降りる場所をひとつ決めれば、到着時に振動で起こします。';
+
+  @override
+  String get onboardingReadyAddPlace => '最初の場所を決める';
+
+  @override
+  String get onboardingReadyLater => 'あとで';
 }

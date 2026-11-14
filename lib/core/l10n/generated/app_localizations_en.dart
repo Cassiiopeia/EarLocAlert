@@ -2122,4 +2122,120 @@ class AppLocalizationsEn extends AppLocalizations {
   String devToolsFailed(String error) {
     return 'Failed: $error';
   }
+
+  @override
+  String get onboardingChecklistTitle =>
+      'To wake you at your stop,\nturn these on';
+
+  @override
+  String get onboardingChecklistSubtitle =>
+      'Even with the app closed, we vibrate when you reach your stop.';
+
+  @override
+  String get onboardingRowLocation => 'Location';
+
+  @override
+  String get onboardingRowLocationWhy =>
+      'Pick your stop on the map and see where you are.';
+
+  @override
+  String get onboardingRowBackground => 'Location · Always';
+
+  @override
+  String get onboardingRowBackgroundWhy =>
+      'Needed to notice your arrival while the app is closed.';
+
+  @override
+  String get onboardingRowNotification => 'Notifications';
+
+  @override
+  String get onboardingRowNotificationWhy =>
+      'Shows an alert when you arrive or leave.';
+
+  @override
+  String get onboardingRowBattery => 'On time in battery saver';
+
+  @override
+  String get onboardingRowBatteryWhy =>
+      'Excluding battery optimization keeps alerts from running late.';
+
+  @override
+  String get onboardingRowOverlay => 'While using other apps';
+
+  @override
+  String get onboardingRowOverlayWhy =>
+      'Shows the alert screen even while you watch videos.';
+
+  @override
+  String get onboardingRowFullScreen => 'Even with the screen off';
+
+  @override
+  String get onboardingRowFullScreenWhy =>
+      'Wakes you with an alert over the lock screen.';
+
+  @override
+  String get onboardingOptionalHeader => 'More reliable alerts · Optional';
+
+  @override
+  String get onboardingAllow => 'Allow';
+
+  @override
+  String get onboardingAllowed => 'Allowed';
+
+  @override
+  String get onboardingOpenSettings => 'Open settings';
+
+  @override
+  String get onboardingTagSettings => 'In settings';
+
+  @override
+  String get onboardingNext => 'Next';
+
+  @override
+  String get onboardingGuideLocation =>
+      'First, allow location. It\'s used to pick your stop on the map.';
+
+  @override
+  String get onboardingGuideBackgroundAndroid =>
+      'Next is Always. Choose \'Allow all the time\' in settings and come back; we\'ll check automatically.';
+
+  @override
+  String get onboardingGuideBackgroundIos =>
+      'Next is Always. When asked, tap \'Change to Always Allow\'.';
+
+  @override
+  String get onboardingGuideNotification =>
+      'Last, allow notifications and you\'re done.';
+
+  @override
+  String get onboardingGuideBlocked =>
+      'Some permissions are off. Tap \'Open settings\' to turn them on.';
+
+  @override
+  String get onboardingGuideDone =>
+      'All required permissions are on. Tap \'Next\'.';
+
+  @override
+  String get onboardingSceneLocation => 'Mark your stop on the map';
+
+  @override
+  String get onboardingSceneBackground =>
+      'It vibrates on arrival, even in your pocket';
+
+  @override
+  String get onboardingSceneNotification =>
+      'This is how we tell you that you\'ve arrived';
+
+  @override
+  String get onboardingReadyTitle => 'You\'re all set';
+
+  @override
+  String get onboardingReadyBody =>
+      'Now pick one stop and we\'ll wake you with a vibration when you get there.';
+
+  @override
+  String get onboardingReadyAddPlace => 'Pick your first stop';
+
+  @override
+  String get onboardingReadyLater => 'Maybe later';
 }

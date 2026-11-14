@@ -110,6 +110,19 @@ abstract final class AppRoutes {
   static const settings = '/settings';
 }
 
+/// 온보딩 끝 > 홈. 잠금 화면 알람 권한은 여기서 한 번만 묻는다 (이슈 #235)
+/// 다시 온 사용자도 여기를 지나므로 앱 시작 시 묻는 자리이기도 함 — 이미 정해졌으면 아무것도 하지 않음
+void _finishOnboarding(BuildContext context) {
+  if (Platform.isIOS) {
+    unawaited(
+      ProviderScope.containerOf(context, listen: false)
+          .read(arrivalAlarmCoordinatorProvider)
+          .requestIfUndetermined('onboarding_finished'),
+    );
+  }
+  context.go(AppRoutes.home);
+}
+
 GoRouter createRouter() {
   return GoRouter(
     initialLocation: AppRoutes.onboarding,
@@ -117,18 +130,14 @@ GoRouter createRouter() {
       GoRoute(
         path: AppRoutes.onboarding,
         builder: (context, state) => OnboardingScreen(
-          onFinished: () {
-            // 잠금 화면 알람 권한은 온보딩이 끝난 뒤 한 번만 묻는다 (이슈 #235).
-            // 다시 온 사용자도 여기를 지나므로 앱 시작 시 묻는 자리이기도 하다 —
-            // 이미 정해졌으면 아무것도 하지 않는다. 위치 권한 대화상자와 겹치지 않게 뒤에 둔다
-            if (Platform.isIOS) {
-              unawaited(
-                ProviderScope.containerOf(context, listen: false)
-                    .read(arrivalAlarmCoordinatorProvider)
-                    .requestIfUndetermined('onboarding_finished'),
-              );
-            }
-            context.go(AppRoutes.home);
+          onFinished: () => _finishOnboarding(context),
+          // 준비 완료 > 홈을 깔고 그 위에 첫 장소 등록 (뒤로 가면 홈, #376)
+          onAddFirstPlace: () {
+            final router = GoRouter.of(context);
+            _finishOnboarding(context);
+            WidgetsBinding.instance.addPostFrameCallback(
+              (_) => unawaited(router.push(AppRoutes.placeNew)),
+            );
           },
           // 진동 시험 (이슈 #237) — iOS 는 진동 설정을 앱이 읽을 수 없어 처음에 한 번 권한다
           onTestVibration: Platform.isIOS
