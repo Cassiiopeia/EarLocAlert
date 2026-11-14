@@ -2153,11 +2153,11 @@ class AppLocalizationsEn extends AppLocalizations {
       'Shows an alert when you arrive or leave.';
 
   @override
-  String get onboardingRowBattery => 'On time in battery saver';
+  String get onboardingRowBattery => 'On-time alerts in power saving';
 
   @override
   String get onboardingRowBatteryWhy =>
-      'Excluding battery optimization keeps alerts from running late.';
+      'Keeps alerts on time even when your phone saves battery.';
 
   @override
   String get onboardingRowOverlay => 'While using other apps';
@@ -2205,7 +2205,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get onboardingGuideNotification =>
-      'Last, allow notifications and you\'re done.';
+      'Next is notifications. They\'re used to alert you on arrival.';
 
   @override
   String get onboardingGuideBlocked =>
@@ -2238,4 +2238,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get onboardingReadyLater => 'Maybe later';
+
+  @override
+  String get onboardingGuideBattery =>
+      'Last, the battery item. When asked, tap \'Allow\'.';
+
+  @override
+  String get onboardingSceneBattery =>
+      'Wakes you on time even while your phone rests';
 }

@@ -2045,10 +2045,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get onboardingRowNotificationWhy => '到达或离开时显示提醒。';
 
   @override
-  String get onboardingRowBattery => '省电时也准时';
+  String get onboardingRowBattery => '省电时也准时提醒';
 
   @override
-  String get onboardingRowBatteryWhy => '排除电池优化，提醒就不会延迟。';
+  String get onboardingRowBatteryWhy => '手机省电时也不会让提醒延迟。';
 
   @override
   String get onboardingRowOverlay => '使用其他应用时也能';
@@ -2091,7 +2091,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get onboardingGuideBackgroundIos => '接下来是始终允许。弹出提示时请点按“更改为始终允许”。';
 
   @override
-  String get onboardingGuideNotification => '最后允许通知就完成了。';
+  String get onboardingGuideNotification => '接下来是通知，到站时用来提醒你。';
 
   @override
   String get onboardingGuideBlocked => '有权限已关闭，请点按“打开设置”手动开启。';
@@ -2119,4 +2119,10 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get onboardingReadyLater => '稍后再说';
+
+  @override
+  String get onboardingGuideBattery => '最后是电池项目，弹出提示时请点按“允许”。';
+
+  @override
+  String get onboardingSceneBattery => '手机休眠时也会准时叫醒你';
 }

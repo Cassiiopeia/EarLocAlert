@@ -2064,10 +2064,10 @@ class AppLocalizationsJa extends AppLocalizations {
   String get onboardingRowNotificationWhy => '到着・出発のときに通知を表示します。';
 
   @override
-  String get onboardingRowBattery => '省電力中も時間どおりに';
+  String get onboardingRowBattery => '省電力中も時間どおりに通知';
 
   @override
-  String get onboardingRowBatteryWhy => '電池の最適化から外すと通知が遅れません。';
+  String get onboardingRowBatteryWhy => 'スマホが電池を節約していても通知が遅れないようにします。';
 
   @override
   String get onboardingRowOverlay => '他のアプリを使っていても';
@@ -2111,7 +2111,7 @@ class AppLocalizationsJa extends AppLocalizations {
       '次は常に許可です。表示されたら「“常に許可”に変更」をタップしてください。';
 
   @override
-  String get onboardingGuideNotification => '最後に通知を許可すれば完了です。';
+  String get onboardingGuideNotification => '次は通知です。到着したときのお知らせに使います。';
 
   @override
   String get onboardingGuideBlocked => 'オフの権限があります。「設定を開く」からオンにしてください。';
@@ -2139,4 +2139,10 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get onboardingReadyLater => 'あとで';
+
+  @override
+  String get onboardingGuideBattery => '最後に電池の項目です。表示されたら「許可」をタップしてください。';
+
+  @override
+  String get onboardingSceneBattery => 'スマホが休んでいても時間どおりに起こします';
 }

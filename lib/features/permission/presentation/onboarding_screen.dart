@@ -10,14 +10,11 @@ import '../../../core/ui/components/loading_indicator.dart';
 import '../../../core/ui/components/status_bar_icons_following_theme.dart';
 import '../../../core/ui/foundation/app_color_palette.dart';
 import '../../../core/ui/foundation/app_spacing.dart';
-import '../data/permission_providers.dart';
-import '../domain/permission_gate.dart';
 import '../domain/permission_kind.dart';
 import '../domain/permission_snapshot.dart';
 import 'onboarding/onboarding_checklist_view.dart';
 import 'onboarding/onboarding_ready_view.dart';
 import 'permission_controller.dart';
-import 'reliability_prompt_provider.dart';
 
 /// 권한 온보딩 화면 (docs/06-UX.md, #376): 한 화면 체크리스트 > 준비 완료 > 첫 장소
 ///
@@ -57,12 +54,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
   /// 준비 완료 화면을 보이는가 (화면 안 전환 상태라 저장하지 않음)
   bool _isReadyShown = false;
 
-  /// 이번 화면에서 요청까지 간 권한 (이슈 #211).
-  ///
-  /// 안내 화면에서 시스템 요청을 미룰 수 있으면 App Store 가 반려한다
-  /// (5.1.1(iv)). 그래서 **한 번 요청한 뒤에만** 나가기를 보인다. 아예 없애지
-  /// 않는 이유는 iOS 가 거부 뒤 창을 다시 띄우지 않을 때 사용자가 갇히기 때문이다 (#90).
-  final Set<PermissionKind> _requestedKinds = {};
+  /// 필수 권한 (플랫폼별) — 다 켜야 앱을 씀 (#379). 나가기는 없고, 거부한 줄은 설정 열기로 바뀜
+  static final List<PermissionKind> _requiredKinds =
+      OnboardingChecklistView.requiredKindsFor(isAndroid: Platform.isAndroid);
 
   @override
   void initState() {
@@ -96,7 +90,6 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
       'onboarding row tapped kind=${kind.name} status=${status.name}',
     );
     if (status.isGranted) return;
-    _requestedKinds.add(kind);
     if (status.needsSettings) {
       await controller.openSettings();
       return;
@@ -134,9 +127,6 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
   @override
   Widget build(BuildContext context) {
     final asyncSnapshot = ref.watch(permissionControllerProvider);
-    final gate = ref.watch(permissionGateProvider);
-    // 신뢰성 권한을 이미 권했는지 (이슈 #74)
-    final asyncPromptSeen = ref.watch(reliabilityPromptProvider);
 
     // 앱바가 없는 화면 — 상태바 아이콘색을 직접 맞춘다 (이슈 #272)
     return StatusBarIconsFollowingTheme(
@@ -152,17 +142,11 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
                   ref.read(permissionControllerProvider.notifier).refresh(),
             ),
             data: (snapshot) {
-              // **읽지 못한 값을 추측하지 않는다** (이슈 #90) — 저장값 로딩 중이면 기다림
-              if (!asyncPromptSeen.hasValue && asyncPromptSeen.isLoading) {
-                return const CenteredLoadingIndicator();
-              }
-              final isPromptSeen = asyncPromptSeen.valueOrNull ?? false;
-              final step = gate.nextStep(
-                snapshot,
-                reliabilityPromptSeen: isPromptSeen,
+              final isRequiredDone = _requiredKinds.every(
+                (kind) => snapshot.statusOf(kind).isGranted,
               );
 
-              if (step != OnboardingStep.done) {
+              if (!isRequiredDone) {
                 _sawIncompleteStep = true;
               } else if (!_sawIncompleteStep && !_autoFinished) {
                 // 재방문 사용자 — 곧장 홈으로
@@ -197,10 +181,6 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
                         isAndroid: Platform.isAndroid,
                         onRowPressed: (kind) => _onRowPressed(snapshot, kind),
                         onNext: _onNext,
-                        // **나갈 길은 남긴다** (A-12, #90) — 요청을 한 번 거친 뒤에만 (#211)
-                        onSkip: _requestedKinds.isEmpty
-                            ? null
-                            : () => _finish('skipped'),
                       ),
               );
             },

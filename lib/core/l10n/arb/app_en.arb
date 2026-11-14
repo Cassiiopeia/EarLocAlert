@@ -714,8 +714,8 @@
   "onboardingRowBackgroundWhy": "Needed to notice your arrival while the app is closed.",
   "onboardingRowNotification": "Notifications",
   "onboardingRowNotificationWhy": "Shows an alert when you arrive or leave.",
-  "onboardingRowBattery": "On time in battery saver",
-  "onboardingRowBatteryWhy": "Excluding battery optimization keeps alerts from running late.",
+  "onboardingRowBattery": "On-time alerts in power saving",
+  "onboardingRowBatteryWhy": "Keeps alerts on time even when your phone saves battery.",
   "onboardingRowOverlay": "While using other apps",
   "onboardingRowOverlayWhy": "Shows the alert screen even while you watch videos.",
   "onboardingRowFullScreen": "Even with the screen off",
@@ -729,7 +729,7 @@
   "onboardingGuideLocation": "First, allow location. It's used to pick your stop on the map.",
   "onboardingGuideBackgroundAndroid": "Next is Always. Choose 'Allow all the time' in settings and come back; we'll check automatically.",
   "onboardingGuideBackgroundIos": "Next is Always. When asked, tap 'Change to Always Allow'.",
-  "onboardingGuideNotification": "Last, allow notifications and you're done.",
+  "onboardingGuideNotification": "Next is notifications. They're used to alert you on arrival.",
   "onboardingGuideBlocked": "Some permissions are off. Tap 'Open settings' to turn them on.",
   "onboardingGuideDone": "All required permissions are on. Tap 'Next'.",
   "onboardingSceneLocation": "Mark your stop on the map",
@@ -738,5 +738,7 @@
   "onboardingReadyTitle": "You're all set",
   "onboardingReadyBody": "Now pick one stop and we'll wake you with a vibration when you get there.",
   "onboardingReadyAddPlace": "Pick your first stop",
-  "onboardingReadyLater": "Maybe later"
+  "onboardingReadyLater": "Maybe later",
+  "onboardingGuideBattery": "Last, the battery item. When asked, tap 'Allow'.",
+  "onboardingSceneBattery": "Wakes you on time even while your phone rests"
 }
