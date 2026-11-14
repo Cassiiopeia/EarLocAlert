@@ -1,14 +1,35 @@
 {
   "metadata": {
-    "lastUpdated": "2026-11-13T14:38:23Z",
-    "currentVersion": "1.53.0",
+    "lastUpdated": "2026-11-14T03:10:34Z",
+    "currentVersion": "1.54.0",
     "projectType": "flutter",
-    "totalReleases": 129,
+    "totalReleases": 130,
     "projectTypes": [
       "flutter"
     ]
   },
   "releases": [
+    {
+      "version": "1.54.0",
+      "project_type": "flutter",
+      "project_types": [
+        "flutter"
+      ],
+      "date": "2026-11-14",
+      "pr_number": 378,
+      "raw_summary": "## Summary by CodeRabbit\n\n## 릴리스 노트\n\n* **새 기능**\n  * 첫 실행 권한을 한 화면에서 차례로 켤 수 있어요\n  * 권한이 왜 필요한지 그림으로 보여 줘요\n  * 준비가 끝나면 첫 장소 등록으로 바로 이어져요",
+      "parsed_changes": {
+        "새_기능": {
+          "title": "새 기능",
+          "items": [
+            "첫 실행 권한을 한 화면에서 차례로 켤 수 있어요",
+            "권한이 왜 필요한지 그림으로 보여 줘요",
+            "준비가 끝나면 첫 장소 등록으로 바로 이어져요"
+          ]
+        }
+      },
+      "parse_method": "markdown"
+    },
     {
       "version": "1.53.0",
       "project_type": "flutter",
