@@ -99,7 +99,7 @@ aapt2 dump badging <apk> | grep -c REQUEST_INSTALL_PACKAGES   # 0
 
 ### 호스팅
 
-URL 이 필요하다. GitHub Pages 로 충분하다. 앱 안에서도 열 수 있어야 한다 (설정 화면).
+소개 사이트 `https://earlocalert.suhsaechan.kr` 에 둔다 (`/privacy.html`·`/privacy-en.html`·`/terms.html`·`/terms-en.html`, #365). 앱 안에서는 `LegalLinks` 로 연다 (설정 화면). 문서 원본은 gh-pages 브랜치 `_src/hand_managed/` 다.
 
 한국어, 영어, 중국어, 일본어 네 언어를 준비한다(앱이 네 언어를 지원한다, #163). 스토어를 글로벌로 열면 영어 버전을 요구받는다.
 
@@ -223,6 +223,19 @@ O  "앱을 열지 않아도 등록한 장소에 도착·출발할 때 알려드�
 | 게시 직후 | AdMob 앱 연결 → 실제 광고 송출 확인 |
 | 1주 | 크래시율·ANR 확인. 리뷰에서 "안 울린다" 패턴 확인 |
 | 1개월 | 배터리 소모 실측치 반영 → [01-REQUIREMENTS](01-REQUIREMENTS.md) 4.1 수치 확정 |
+
+### 옛 github.io 주소 정리 (#365)
+
+옛 주소 `cassiiopeia.github.io/EarLocAlert`(이동 페이지)와 저장소 `Cassiiopeia/Cassiiopeia.github.io`(옛 app-ads.txt)는 **아래를 모두 확인한 뒤** 지운다. 먼저 지우면 이미 설치된 앱의 약관·개인정보 링크와 iOS 광고 인증이 끊긴다.
+
+- [ ] `LegalLinks` 가 새 주소인 버전(develop `1cb56cc` 이후, v1.57.0 부터 포함)이 Android·iOS 모두 스토어에 게시됨
+- [ ] App Store Connect 앱이 수집하는 개인정보 > 개인정보 처리방침 URL 이 새 주소로 게시됨 (4개 언어 저장 완료, 다음 버전과 함께 반영)
+- [ ] App Store 마케팅·지원 URL 이 새 주소 (iOS 배포 때 `docs/store/descriptions/ios-*_url.txt` 로 자동)
+- [ ] AdMob iOS app-ads.txt 가 새 도메인에서 확인됨 (Android 는 2026-11-16 새 도메인 확인·앱 인증 요청 완료)
+- [x] Google Play 개인정보처리방침(2026-11-14 게시)·연락처 웹사이트 `https://earlocalert.suhsaechan.kr/`(2026-11-16, 저장 후 "게시하시겠어요" 확인창까지 눌러야 반영됨)
+- [x] 구글 드라이브 OAuth 동의 화면 브랜딩 새 주소 → [08-OPERATIONS](08-OPERATIONS.md)
+
+지울 때: EarLocAlert 레포 GitHub Pages 만 끈다(**gh-pages 브랜치는 소개 사이트 생성기 원본이라 남긴다**), `Cassiiopeia.github.io` 저장소는 삭제한다.
 
 **리뷰에서 "안 울린다"가 나오면 제조사 절전 문제일 가능성이 높다** → [05-PLATFORM](05-PLATFORM.md). 기기 모델을 물어보고 해당 기기의 절전 설정 안내를 앱에 추가한다.
 

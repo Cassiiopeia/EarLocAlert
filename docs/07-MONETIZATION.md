@@ -199,4 +199,4 @@ iOS 는 여기에 **ATT(앱 추적 투명성)** 가 추가된다 → [09-RELEASE
 
 요청(호출)은 쌓이는데 수익이 없으면 **AdMob 콘솔 > 앱** 에서 승인 상태를 먼저 본다. "검토 필요 · 광고 게재가 제한됨"이면 스토어(App Store·Google Play)가 연결되지 않은 것이다 — 스토어 추가로 해제한다. iOS 는 앱이 App Store 에 공개돼야 연결된다. iOS 는 `Info.plist` 의 SKAdNetworkItems 도 필요하다 → [10-DECISIONS](10-DECISIONS.md) 064
 
-**앱 인증은 스토어 등록정보의 웹사이트로 app-ads.txt 를 찾는다** (#349). 웹사이트가 비면 AdMob 이 파일을 못 찾아 "확인 안됨"으로 남고 광고가 제한된다. 두 스토어 모두 `https://cassiiopeia.github.io/EarLocAlert/` 를 넣는다 — 파일은 그 도메인 루트(`cassiiopeia.github.io/app-ads.txt`)에 있다. 2026-11-05 점검 때 iOS 는 판매자 URL 로 확인됐고, Play 등록정보에는 웹사이트가 없어 Android 앱이 제한 상태였다.
+**앱 인증은 스토어 등록정보의 웹사이트로 app-ads.txt 를 찾는다** (#349). 웹사이트가 비면 AdMob 이 파일을 못 찾아 "확인 안됨"으로 남고 광고가 제한된다. 두 스토어 모두 소개 사이트 `https://earlocalert.suhsaechan.kr/` 를 넣는다 — 파일은 그 도메인 루트(`earlocalert.suhsaechan.kr/app-ads.txt`, 원본 gh-pages `_src/site_content.py`)에 있다 (#365, 결정 090). Play 는 스토어 설정 > 연락처 웹사이트, iOS 는 마케팅 URL(배포 때 `docs/store/descriptions/ios-*_marketing_url.txt` 로 자동)이다. 옛 `cassiiopeia.github.io/app-ads.txt`(저장소 `Cassiiopeia.github.io`)는 [09-RELEASE](09-RELEASE.md) 의 옛 주소 정리 조건을 채운 뒤 지운다. 2026-11-05 점검 때 iOS 는 판매자 URL 로 확인됐고, Play 등록정보에는 웹사이트가 없어 Android 앱이 제한 상태였다.
