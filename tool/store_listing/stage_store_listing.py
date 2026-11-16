@@ -42,6 +42,12 @@ APP_STORE_FIELDS = [
     ("ios-{locale}_keywords.txt", "keywords.txt", 100),
     ("ios-{locale}_promo.txt", "promotional_text.txt", 170),
     ("ios-{locale}_full.txt", "description.txt", 4000),
+    # 소개 사이트 주소 (#365): 비우면 ASC 가 이전 버전 값을 물려받아 옛 github.io 가 남음
+    # 마케팅 URL 도메인 루트의 app-ads.txt 로 AdMob iOS 앱 인증 > 소개 사이트 도메인과 같아야 함
+    ("ios-{locale}_marketing_url.txt", "marketing_url.txt", 255),
+    ("ios-{locale}_support_url.txt", "support_url.txt", 255),
+    # 앱 LegalLinks(lib/core/legal/legal_links.dart)와 같은 문서: 한국어 privacy, 그 외 privacy-en
+    ("ios-{locale}_privacy_url.txt", "privacy_url.txt", 255),
 ]
 
 

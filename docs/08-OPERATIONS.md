@@ -365,7 +365,7 @@ keytool -list -v -keystore ~/.android/debug.keystore -alias androiddebugkey \
 
 **Android 는 앱에 클라이언트 ID 를 넣지 않는다** — 패키지 + 서명 SHA-1 쌍으로 Google 이 찾는다. 그래서 **서명 키가 바뀌면(키 업그레이드·새 업로드 키) 그 SHA-1 로 클라이언트를 하나 더 만들어야 한다.** 빠지면 로그인이 `ApiException: 10` 으로 실패하고 앱은 "연결하지 못했어요"만 보인다.
 
-브랜딩: 홈페이지·처리방침·약관은 `cassiiopeia.github.io/EarLocAlert/` (승인된 도메인 `cassiiopeia.github.io`). 로고를 올리면 브랜드 인증 심사가 생기므로 올리지 않았다.
+브랜딩: 홈페이지·처리방침·약관은 소개 사이트 `earlocalert.suhsaechan.kr` (`/`, `/privacy.html`, `/terms.html`), 승인된 도메인 `suhsaechan.kr` (#365). 로고를 올리면 브랜드 인증 심사가 생기므로 올리지 않았다.
 
 ---
 

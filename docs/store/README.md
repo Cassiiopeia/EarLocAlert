@@ -44,6 +44,7 @@ Android 와 iOS 는 알림이 다르게 동작하므로 설명문을 나눈다.
 | 백그라운드 알림 | 알림 화면이 자동으로 뜬다 | 알림과 진동. 알림 화면은 앱을 열어야 보인다 |
 
 - 간단한 설명(Play) 80자: `ko-KR_short.txt`, 프로모션 텍스트(App Store) 170자: `ios-ko-KR_promo.txt`
+- App Store 주소(언어별): `ios-ko-KR_marketing_url.txt`·`ios-ko-KR_support_url.txt`·`ios-ko-KR_privacy_url.txt` — 배포 때 함께 올라간다. 마케팅 URL 도메인이 AdMob iOS app-ads.txt 인증 기준이다 (#365)
 - 스크린샷은 `screenshots/ko-KR/` (Android 에뮬레이터). iOS 스크린샷은 iOS 시뮬레이터에서 따로 찍는다
 
 ## 검색 노출과 전환 (이슈 #358)
