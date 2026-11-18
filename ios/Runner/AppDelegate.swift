@@ -8,9 +8,11 @@ import google_mobile_ads
 import native_geofence
 
 @main
-@objc class AppDelegate: FlutterAppDelegate, FlutterImplicitEngineDelegate {
+@objc class AppDelegate: FlutterAppDelegate {
   // CLLocationManager 는 조회가 끝날 때까지 살아 있어야 해서 앱 수명만큼 들고 있다
   private let currentLocation = CurrentLocationProvider()
+  // 네이티브 메서드 채널 묶음의 등록소 이름 (실행 시점 엔진에서 메신저를 얻는 데만 씀)
+  private static let nativeChannelsRegistrarKey = "EarLocAlertNativeChannels"
 
   override func application(
     _ application: UIApplication,
@@ -47,6 +49,74 @@ import native_geofence
     // 설정하지 않아 버튼을 달아도 눌림이 앱에 닿지 않았다
     UNUserNotificationCenter.current().delegate = self
 
+    // 플러그인을 앱 대리자(실행 시점 엔진)에 등록한다 (#390). UIScene 에서도 이 경로는 장면 연결을 기다리지 않고
+    // 엔진을 바로 띄워, 위치 사유 백그라운드 재실행에서도 Dart 가 돈다. 장면이 연결되면 스토리보드의
+    // FlutterViewController 가 이 엔진을 넘겨받는다 (FlutterImplicitEngineDelegate 를 쓰면 장면 연결 때만 엔진이 생김)
+    GeneratedPluginRegistrant.register(with: self)
+
+    // 하단 한 줄 광고 띠 팩토리 (이슈 #283). Dart NativeAd 의 factoryId 가 이 이름을 찾는다
+    // (GoogleNativeStripAdLoader.factoryId 와 같은 값)
+    FLTGoogleMobileAdsPlugin.registerNativeAdFactory(
+      self,
+      factoryId: StripNativeAdFactory.factoryId,
+      nativeAdFactory: StripNativeAdFactory()
+    )
+
+    // Google Maps API 키를 Dart(장소 검색 REST)에 넘긴다.
+    // 키의 단일 소스는 .env → Info.plist 주입이고, 여기서는 그 값을
+    // 도로 읽기만 한다 (docs/08-OPERATIONS.md).
+    // 채널은 실행 시점 엔진의 메신저로 등록 (UIScene 에서는 이 시점에 window 가 없음, #390)
+    if let messenger = registrar(forPlugin: Self.nativeChannelsRegistrarKey)?.messenger() {
+      FlutterMethodChannel(
+        name: "kr.suhsaechan.ear_loc_alert/maps_api_key",
+        binaryMessenger: messenger
+      ).setMethodCallHandler { call, result in
+        guard call.method == "getMapsApiKey" else {
+          result(FlutterMethodNotImplemented)
+          return
+        }
+        result(Bundle.main.object(forInfoDictionaryKey: "MapsApiKey") as? String ?? "")
+      }
+
+      // 지도 "내 위치" 버튼용 현재 위치 1회 조회 (이슈 #213).
+      // Android 에만 있던 채널이라 iOS 에서는 권한이 있어도 항상 실패했다.
+      FlutterMethodChannel(
+        name: "kr.suhsaechan.ear_loc_alert/current_location",
+        binaryMessenger: messenger
+      ).setMethodCallHandler { [weak self] call, result in
+        guard call.method == "getCurrentLocation" else {
+          result(FlutterMethodNotImplemented)
+          return
+        }
+        self?.currentLocation.fetch(result)
+      }
+
+      // 적응형 백그라운드 감시 (이슈 #231)
+      AdaptiveLocationWatcher.shared.register(messenger: messenger)
+
+      // 백그라운드 세션의 진동 (이슈 #235) — Core Haptics 는 백그라운드에서 멈춘다
+      SystemVibration.register(messenger: messenger)
+
+      // 잠금 화면 전체를 덮는 무음 알람 (이슈 #235, iOS 26+). 그 미만은 "지원 안 함"만 답한다
+      ArrivalAlarm.shared.register(messenger: messenger)
+
+      // 읽을 수 있는 알림 설정(잠금 화면 표시 등)을 홈 경고에 올린다 (이슈 #237)
+      NotificationSettingsReader.register(messenger: messenger)
+
+      // 진동 점검 시험 알림 · 이 앱 알림 설정 열기 (이슈 #301)
+      VibrationTestNotification.register(messenger: messenger)
+      // 프로모션(오퍼) 코드 입력 시트 (이슈 #305)
+      OfferCodeRedeemSheet.register(messenger: messenger)
+      // 자동 백업 폴더 (이슈 #314)
+      BackupFolderChannel.shared.register(messenger: messenger)
+
+      // 버전·기기 정보·진단 보고서용 네이티브 상태 (이슈 #290)
+      DebugSnapshot.register(messenger: messenger)
+    } else {
+      // 채널 전부 미등록 > Dart 쪽 호출이 모두 MissingPlugin 으로 떨어짐
+      NativeDiagnosticLog.write("app", "channels not registered reason=no_launch_engine_registrar")
+    }
+
     // 위치 사유로 다시 떴든(중요 위치 변화·영역 이벤트) 사용자가 열었든, 감시를 원하던
     // 상태면 Dart 를 기다리지 않고 재개한다 — 백그라운드 재실행은 첫 프레임이 없어
     // Dart 부트스트랩이 늦다 (이슈 #231)
@@ -54,76 +124,6 @@ import native_geofence
     AdaptiveLocationWatcher.shared.restoreOnLaunch(reason: relaunchedForLocation ? "location" : "normal")
 
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
-  }
-
-  /// 장면(UIScene) 엔진 준비 완료: 플러그인 등록 > 광고 띠 팩토리 > 메서드 채널 (#390)
-  /// UIScene 에서는 didFinishLaunching 시점에 window 가 없어 채널을 엔진 메신저로 등록
-  func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
-    let pluginRegistry = engineBridge.pluginRegistry
-    GeneratedPluginRegistrant.register(with: pluginRegistry)
-
-    // 하단 한 줄 광고 띠 팩토리 (이슈 #283). Dart NativeAd 의 factoryId 가 이 이름을 찾는다
-    // (GoogleNativeStripAdLoader.factoryId 와 같은 값)
-    FLTGoogleMobileAdsPlugin.registerNativeAdFactory(
-      pluginRegistry,
-      factoryId: StripNativeAdFactory.factoryId,
-      nativeAdFactory: StripNativeAdFactory()
-    )
-
-    let messenger = engineBridge.applicationRegistrar.messenger()
-
-    // Google Maps API 키를 Dart(장소 검색 REST)에 넘긴다.
-    // 키의 단일 소스는 .env → Info.plist 주입이고, 여기서는 그 값을
-    // 도로 읽기만 한다 (docs/08-OPERATIONS.md).
-    FlutterMethodChannel(
-      name: "kr.suhsaechan.ear_loc_alert/maps_api_key",
-      binaryMessenger: messenger
-    ).setMethodCallHandler { call, result in
-      guard call.method == "getMapsApiKey" else {
-        result(FlutterMethodNotImplemented)
-        return
-      }
-      result(Bundle.main.object(forInfoDictionaryKey: "MapsApiKey") as? String ?? "")
-    }
-
-    // 지도 "내 위치" 버튼용 현재 위치 1회 조회 (이슈 #213).
-    // Android 에만 있던 채널이라 iOS 에서는 권한이 있어도 항상 실패했다.
-    FlutterMethodChannel(
-      name: "kr.suhsaechan.ear_loc_alert/current_location",
-      binaryMessenger: messenger
-    ).setMethodCallHandler { [weak self] call, result in
-      guard call.method == "getCurrentLocation" else {
-        result(FlutterMethodNotImplemented)
-        return
-      }
-      self?.currentLocation.fetch(result)
-    }
-
-    // 적응형 백그라운드 감시 (이슈 #231)
-    AdaptiveLocationWatcher.shared.register(messenger: messenger)
-
-    // 백그라운드 세션의 진동 (이슈 #235) — Core Haptics 는 백그라운드에서 멈춘다
-    SystemVibration.register(messenger: messenger)
-
-    // 잠금 화면 전체를 덮는 무음 알람 (이슈 #235, iOS 26+). 그 미만은 "지원 안 함"만 답한다
-    ArrivalAlarm.shared.register(messenger: messenger)
-
-    // 읽을 수 있는 알림 설정(잠금 화면 표시 등)을 홈 경고에 올린다 (이슈 #237)
-    NotificationSettingsReader.register(messenger: messenger)
-
-    // 진동 점검 시험 알림 · 이 앱 알림 설정 열기 (이슈 #301)
-    VibrationTestNotification.register(messenger: messenger)
-    // 프로모션(오퍼) 코드 입력 시트 (이슈 #305)
-    OfferCodeRedeemSheet.register(messenger: messenger)
-    // 자동 백업 폴더 (이슈 #314)
-    BackupFolderChannel.shared.register(messenger: messenger)
-
-    // 버전·기기 정보·진단 보고서용 네이티브 상태 (이슈 #290)
-    DebugSnapshot.register(messenger: messenger)
-
-    // 실기기 확인용: 백그라운드 재실행(위치)에서도 엔진·채널이 준비되는지 진단 기록으로 확인 (#390)
-    let appState = UIApplication.shared.applicationState == .background ? "background" : "foreground"
-    NativeDiagnosticLog.write("app", "implicit engine ready channels registered state=\(appState)")
   }
 }
 
