@@ -1,6 +1,8 @@
 # Uncomment this line to define a global platform for your project
 # 2027년 4월 Apple 제출 요건에 맞춰 앱과 Pods의 최소 버전을 통일한다 (이슈 #198).
-platform :ios, '15.0'
+# 앱 최소 iOS 버전 (Pods 최소 버전도 이 값 이상으로 맞춤, #390)
+IOS_DEPLOYMENT_TARGET = '15.0'
+platform :ios, IOS_DEPLOYMENT_TARGET
 
 # CocoaPods analytics sends network stats synchronously affecting flutter build latency.
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'
@@ -49,6 +51,12 @@ post_install do |installer|
       config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= ['$(inherited)']
       config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] << 'PERMISSION_LOCATION=1'
       config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] << 'PERMISSION_NOTIFICATIONS=1'
+
+      # Pod 최소 iOS 를 앱과 같게 올림 (Xcode 27 은 15.0 미만을 오류로 멈춤). 더 높게 정한 Pod 는 그대로 (#390)
+      pod_target = config.build_settings['IPHONEOS_DEPLOYMENT_TARGET']
+      if pod_target.nil? || Gem::Version.new(pod_target) < Gem::Version.new(IOS_DEPLOYMENT_TARGET)
+        config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = IOS_DEPLOYMENT_TARGET
+      end
     end
   end
 end

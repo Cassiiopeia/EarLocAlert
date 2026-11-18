@@ -12,7 +12,7 @@
 ## 순서
 
 ```bash
-export PATH="$HOME/development/flutter-3.35.5/bin:$HOME/Library/Android/sdk/platform-tools:$PATH"
+export PATH="$HOME/Library/Android/sdk/platform-tools:$PATH"
 flutter build apk --debug                                    # DB 잠금 주입 수신기는 디버그 빌드에만 있다
 tool/e2e/arrival_alert.sh prepare build/app/outputs/flutter-apk/app-debug.apk
 maestro --device emulator-5554 test tool/e2e/flows/add_place.yaml   # 또는 agent 가 화면으로 등록

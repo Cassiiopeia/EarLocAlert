@@ -2,7 +2,7 @@
 
 [English](README.md) · **한국어** · [日本語](README.ja.md) · [简体中文](README.zh-CN.md)
 
-[![Flutter](https://img.shields.io/badge/Flutter-3.35.5-02569B?logo=flutter)](https://flutter.dev)
+[![Flutter](https://img.shields.io/badge/Flutter-3.38.9-02569B?logo=flutter)](https://flutter.dev)
 [![Platform](https://img.shields.io/badge/platform-Android%20%7C%20iOS-lightgrey)](https://flutter.dev/multi-platform)
 [![License](https://img.shields.io/badge/license-PolyForm%20Noncommercial%201.0.0-blue.svg)](LICENSE)
 
@@ -80,7 +80,7 @@
 
 | 영역 | 사용 |
 |---|---|
-| 프레임워크 | Flutter 3.35.5 / Dart 3.9+ |
+| 프레임워크 | Flutter 3.38.9 / Dart 3.9+ |
 | 상태 관리 | Riverpod (code generation) |
 | 라우팅 | go_router |
 | 모델 | Freezed + json_serializable |
