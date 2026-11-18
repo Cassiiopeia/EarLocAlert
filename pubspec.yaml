@@ -79,10 +79,9 @@ dependencies:
 #   "No visible @interface for 'NSProcessInfo' declares the selector
 #    'isiOSAppOnVision'"  (FPPDeviceInfoPlusPlugin.m:34)
 #
-# **올리는 것은 답이 아니다.** 13.x 는 Flutter 3.38.1+ / Dart 3.11+ 을 요구하는데
-# 이 프로젝트는 3.35.5 에 묶여 있다 (3.38+ 는 analyzer 상한 때문에 codegen 이
-# 죽는다 — CLAUDE.md). 그래서 그 코드가 들어오기 **직전** 버전으로 내린다.
-# 12.3.0 의 플러그인 소스에는 해당 셀렉터가 없다.
+# 13.x 는 Flutter 3.38.1+ / Dart 3.11+ 을 요구한다. 그래서 그 코드가 들어오기 **직전**
+# 버전으로 내린다. 12.3.0 의 플러그인 소스에는 해당 셀렉터가 없다.
+# Flutter 는 3.38.9 로 올라갔다 (UIScene · iOS 27 SDK, #390). codegen 은 3.38.9 에서도 동작 확인.
 #
 # 우리는 device_info_plus 를 직접 쓰지 않는다 — 전이 의존성이고, 12 메이저
 # 안에서의 하향이라 이걸 쓰는 패키지의 API 도 그대로다.

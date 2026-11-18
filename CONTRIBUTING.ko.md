@@ -23,7 +23,7 @@
 
 ## 개발 환경
 
-- Flutter 3.35.5 (Dart 3.9+) — 더 높은 버전은 code generation 이 동작하지 않을 수 있습니다
+- Flutter 3.38.9 (Dart 3.10+) — iOS UIScene 지원 첫 버전대, iOS 27 SDK 빌드에 필요 (#390)
 - 지도를 보려면 `.env.example` 을 `.env` 로 복사해 `MAPS_API_KEY` 를 채웁니다. 없어도 빌드는 되고 지도만 회색으로 보입니다
 - 실기기 테스트에 **실제 광고 ID 를 쓰지 마세요.** 디버그 빌드는 테스트 광고 ID 로 자동 분기됩니다
 

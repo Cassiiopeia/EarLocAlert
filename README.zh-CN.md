@@ -2,7 +2,7 @@
 
 [English](README.md) · [한국어](README.ko.md) · [日本語](README.ja.md) · **简体中文**
 
-[![Flutter](https://img.shields.io/badge/Flutter-3.35.5-02569B?logo=flutter)](https://flutter.dev)
+[![Flutter](https://img.shields.io/badge/Flutter-3.38.9-02569B?logo=flutter)](https://flutter.dev)
 [![Platform](https://img.shields.io/badge/platform-Android%20%7C%20iOS-lightgrey)](https://flutter.dev/multi-platform)
 [![License](https://img.shields.io/badge/license-PolyForm%20Noncommercial%201.0.0-blue.svg)](LICENSE)
 
@@ -59,7 +59,7 @@
 
 | 领域 | 使用 |
 |---|---|
-| 框架 | Flutter 3.35.5 / Dart 3.9+ |
+| 框架 | Flutter 3.38.9 / Dart 3.9+ |
 | 状态管理 | Riverpod (code generation) |
 | 路由 | go_router |
 | 模型 | Freezed + json_serializable |

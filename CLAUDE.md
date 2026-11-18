@@ -64,7 +64,7 @@
 | iOS TestFlight 배포 | 서명 자산 만료 (#51, 사용자 작업) |
 | iOS 실제 광고 송출 | 서명(#51)이 막혀 iOS 미배포 — AdMob 앱·광고 단위 ID 는 등록 완료 (`docs/07-MONETIZATION.md`) |
 
-**개발 환경 주의** — Windows PC 는 내부망이라 `flutter pub get` 불가, 검증을 CI 에 위임했다. **Mac(외부망)에서는 로컬 검증이 가능하므로 CI 를 기다릴 필요 없이 `flutter analyze` 와 빌드를 직접 돌린다 (자동 테스트 없음, 결정 070).** Mac 의 시스템 Flutter(3.38+/Dart 3.10)로는 codegen 이 죽는다(analyzer 7 상한) — **CI 와 동일한 `~/development/flutter-3.35.5/bin/flutter` 를 쓴다** (`export PATH="$HOME/development/flutter-3.35.5/bin:$PATH"`).
+**개발 환경 주의** — Windows PC 는 내부망이라 `flutter pub get` 불가, 검증을 CI 에 위임했다. **Mac(외부망)에서는 로컬 검증이 가능하므로 CI 를 기다릴 필요 없이 `flutter analyze` 와 빌드를 직접 돌린다 (자동 테스트 없음, 결정 070).** Flutter 는 **3.38.9** 로 CI 와 맞춘다 (UIScene · iOS 27 SDK, #390). 3.38.9 에서 codegen · analyze · 테스트 통과 확인.
 
 ---
 

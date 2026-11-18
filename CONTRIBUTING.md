@@ -23,7 +23,7 @@ These are tied directly to why the app exists and have **no exceptions**. The re
 
 ## Development environment
 
-- Flutter 3.35.5 (Dart 3.9+). Newer versions may break code generation
+- Flutter 3.38.9 (Dart 3.10+): the first release line with iOS UIScene support, needed for iOS 27 SDK builds (#390)
 - To see the map, copy `.env.example` to `.env` and fill in `MAPS_API_KEY`. The build works without it and the map is simply gray
 - **Do not use real ad IDs for device testing.** Debug builds switch to test ad IDs automatically
 

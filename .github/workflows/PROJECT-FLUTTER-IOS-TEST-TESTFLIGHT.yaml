@@ -66,8 +66,8 @@ permissions:
 # 🔧 프로젝트별 설정 (아래 값들을 수정하세요)
 # ===================================================================
 env:
-  FLUTTER_VERSION: "3.35.5"
-  XCODE_VERSION: "26.0"
+  FLUTTER_VERSION: "3.38.9"
+  XCODE_VERSION: "27.2"  # xcode-27 러너의 Xcode (iOS 27 SDK, ITMS-90725). macos-26 러너에는 없음
   PROJECT_TYPE: "flutter"
   ENV_FILE_PATH: ".env"
 
@@ -191,7 +191,7 @@ jobs:
   # ===================================================================
   prepare-test-build:
     name: 테스트 빌드 준비
-    runs-on: macos-26
+    runs-on: ${{ vars.IOS_RUNNER || 'macos-26' }}  # 레포 변수 IOS_RUNNER=xcode-27 → iOS 27 SDK 빌드 (ITMS-90725)
     needs: notify-start
     if: |
       always() &&
@@ -449,7 +449,7 @@ jobs:
   # ===================================================================
   build-ios-test:
     name: iOS 테스트 빌드
-    runs-on: macos-26
+    runs-on: ${{ vars.IOS_RUNNER || 'macos-26' }}  # 레포 변수 IOS_RUNNER=xcode-27 → iOS 27 SDK 빌드 (ITMS-90725)
     needs: [notify-start, prepare-test-build]
     if: |
       !cancelled() &&
@@ -803,7 +803,7 @@ jobs:
   # ===================================================================
   deploy-testflight-test:
     name: TestFlight 테스트 배포
-    runs-on: macos-26
+    runs-on: ${{ vars.IOS_RUNNER || 'macos-26' }}  # 레포 변수 IOS_RUNNER=xcode-27 → iOS 27 SDK 빌드 (ITMS-90725)
     needs: [notify-start, prepare-test-build, build-ios-test]
     if: |
       !cancelled() &&
