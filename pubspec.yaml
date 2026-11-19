@@ -165,6 +165,10 @@ flutter_launcher_icons:
   adaptive_icon_background: "#021224"
   adaptive_icon_foreground: "assets/icon/app_icon_foreground.png"
   remove_alpha_ios: true
+  # macOS 도 같은 원본에서 생성 (#287) — 없으면 아이콘 교체 때 macOS 만 Flutter 기본 아이콘으로 남음
+  macos:
+    generate: true
+    image_path: "assets/icon/app_icon.png"
 # 스플래시 생성: dart run flutter_native_splash:create (이슈 #65)
 flutter_native_splash:
   color: "#0D0D0D"
